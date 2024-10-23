@@ -1,0 +1,11 @@
+{
+    "/js/app.js": "/js/app.js",
+    "/js/admin.js": "/js/admin.js",
+    "/js/user.js": "/js/user.js",
+    "/css/app.css": "/css/app.css",
+    "/css/admin.css": "/css/admin.css",
+    "/css/user.css": "/css/user.css",
+    "/js/jquery.min.js": "/js/jquery.min.js",
+    "/js/jquery.easing.min.js": "/js/jquery.easing.min.js",
+    "/js/bootstrap.bundle.min.js": "/js/bootstrap.bundle.min.js"
+}

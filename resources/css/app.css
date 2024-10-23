@@ -1,0 +1,32 @@
+@import './_trix.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.children {
+    background: #fff;
+}
+
+.children a,
+.children .separator {
+    display: block;
+    margin: 5px 0px;
+    padding: 5px 10px;
+}
+
+.children .separator {
+    border-top-width: 2px;
+}
+
+.children a:hover {
+    color: #FB923C;
+}
+
+@media (min-width: 768px) {
+    .children {
+        position: absolute;
+        width: 155px;
+        top: 70px;
+    }
+}
+
