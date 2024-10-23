@@ -23,5 +23,29 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ]);
+        DB::table('users')->insert([
+            [
+                'name' => 'Dosen',
+                'email' => 'dos-lppm@ith.ac.id',
+                'email_verified_at' => now(),
+                'password' => Hash::make('Parepare02'),
+                'remember_token' => Str::random(10),
+                'role' => 'dosen',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+        DB::table('users')->insert([
+            [
+                'name' => 'Reviewer',
+                'email' => 'rev-lppm@ith.ac.id',
+                'email_verified_at' => now(),
+                'password' => Hash::make('Parepare02'),
+                'remember_token' => Str::random(10),
+                'role' => 'reviewer',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }
