@@ -15,18 +15,24 @@
                 </a>
             </div>
         </div>
+        <br>
 
-        <div class="row mb-3 text-center">
-            <div class="col-md-6">
-                <a href="{{ url('/reviewer/ppm/penelitian-rev') }}" class="dashboard-btn teal d-flex align-items-center justify-content-center w-100">
-                    <span class="dashboard-icon"><i class="fas fa-microscope"></i></span>
-                    <span class="dashboard-text">Usulan Penelitian</span>
+        <div class="row">
+            <!-- Penelitian -->
+            <div class="col-md-6 mb-3">
+                <a href="{{ url('/reviewer/ppm/penelitian-rev') }}" class="text-decoration-none w-100">
+                    <x-reviewer.dash-content-card title="Proposal Penelitian" value="{{ $jumlahPenelitian }}" color="info" class="w-100">
+                        <i class="fas fa-microscope fa-2x text-gray-300"></i>
+                    </x-reviewer.dash-content-card>
                 </a>
             </div>
-            <div class="col-md-6">
-                <a href="{{ url('/reviewer/ppm/pengabdian-rev') }}" class="dashboard-btn yellow d-flex align-items-center justify-content-center w-100">
-                    <span class="dashboard-icon"><i class="fas fa-lightbulb"></i></span>
-                    <span class="dashboard-text">Usulan Pengabdian</span>
+        
+            <!-- Pengabdian -->
+            <div class="col-md-6 mb-3">
+                <a href="{{ url('/reviewer/ppm/pengabdian-rev') }}" class="text-decoration-none w-100">
+                    <x-reviewer.dash-content-card title="Proposal Pengabdian" value="{{ $jumlahPengabdian }}" color="warning" class="w-100">
+                        <i class="fas fa-lightbulb fa-2x text-gray-300"></i>
+                    </x-reviewer.dash-content-card>
                 </a>
             </div>
         </div>

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Penelitian;
+use App\Models\Pengabdian;
 
 class DosenController extends Controller
 {
@@ -13,6 +16,10 @@ class DosenController extends Controller
      */
     public function dashboard()
     {
-        return view('dosen.dashboard');
+        $userId = Auth::id(); // ID user yang sedang login
+        $jumlahPenelitian = Penelitian::where('user_id', $userId)->count();
+        $jumlahPengabdian = Pengabdian::where('user_id', $userId)->count();
+    
+        return view('dosen.dashboard', compact('jumlahPenelitian', 'jumlahPengabdian'));
     }
 }

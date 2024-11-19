@@ -19951,8 +19951,8 @@ button#submitProposal {
 /* Gaya untuk elemen select */
 .dropdown-wrapper select {
   width: 100%;
-  padding-right: 30px; /* Beri ruang untuk ikon */
-  appearance: none; /* Hapus tampilan default select browser */
+  padding-right: 30px; 
+  appearance: none; 
 }
 
 /* Gaya untuk ikon dropdown */
@@ -19961,7 +19961,52 @@ button#submitProposal {
   top: 64%;
   right: 10px;
   transform: translateY(-50%);
-  pointer-events: none; /* Agar tidak bisa diklik */
-  color: #555; /* Warna ikon */
+  pointer-events: none; 
+  color: #555;
   font-size: 18px;
 }
+
+.table-responsive {
+    margin-top: 20px;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+    text-align: center; 
+}
+
+.table td button {
+    margin: 0; 
+    padding: 0.5rem 1rem; 
+}
+
+.table td input, .table td select {
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+.table-hover tbody tr:hover {
+    background-color: transparent; 
+}
+
+#anggotaTable .removeAnggota {
+  text-align: center; 
+  display: inline-block; 
+  vertical-align: middle; 
+  color: white; 
+  background-color: red; 
+  border: none; 
+  padding: 6px 12px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+}
+
+/* Tambahkan hover effect untuk tombol */
+#anggotaTable .removeAnggota:hover {
+  background-color: darkred; 
+}
+
+#anggotaTable thead th {
+    border-bottom-width: 1px; 
+}
+

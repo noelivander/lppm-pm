@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Reviewer\PPM;
 
+use Barryvdh\DomPDF\Facade as PDF;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pengabdian;

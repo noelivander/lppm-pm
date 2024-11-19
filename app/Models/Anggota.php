@@ -9,7 +9,7 @@ class Anggota extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['penelitian_id', 'nama', 'peran', 'email', 'telepon'];
+    protected $fillable = ['penelitian_id', 'nama','jabatan','nidn', 'peran', 'email', 'telepon'];
 
     public function penelitian()
     {

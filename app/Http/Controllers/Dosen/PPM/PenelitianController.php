@@ -30,6 +30,10 @@ class PenelitianController extends Controller
         'anggota_nama.*' => 'required|string',
         'anggota_peran' => 'required|array',
         'anggota_peran.*' => 'required|string',
+        'anggota_nidn' => 'required|array',
+        'anggota_nidn.*' => 'required|string',
+        'anggota_jabatan' => 'required|array',
+        'anggota_jabatan.*' => 'required|string',
         'anggota_email' => 'required|array',
         'anggota_email.*' => 'required|email',
         'anggota_telepon' => 'required|array',
@@ -55,7 +59,9 @@ class PenelitianController extends Controller
         Anggota::create([
             'penelitian_id' => $penelitian->id,
             'nama' => $nama,
+            'jabatan' => $request->anggota_jabatan[$key],
             'peran' => $request->anggota_peran[$key],
+            'nidn' => $request->anggota_nidn[$key],
             'email' => $request->anggota_email[$key],
             'telepon' => $request->anggota_telepon[$key],
         ]);

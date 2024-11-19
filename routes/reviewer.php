@@ -20,11 +20,16 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
     Route::resource('ppm/pengabdian-rev', PengabdianController::class);
     Route::get('ppm/penelitian-rev/{id}/review', [PenelitianController::class, 'review'])->name('penelitian-rev.review');
     Route::post('ppm/penelitian-rev/{id}/submitReview', [PenelitianController::class, 'submitReview'])->name('penelitian-rev.submitReview');
-    Route::get('ppm/pengabdian-rev/{id}/review', [pengabdianController::class, 'review'])->name('pengabdian-rev.review');
-    Route::post('ppm/pengabdian-rev/{id}/submitReview', [pengabdianController::class, 'submitReview'])->name('pengabdian-rev.submitReview');
+    Route::get('ppm/pengabdian-rev/{id}/review', [PengabdianController::class, 'review'])->name('pengabdian-rev.review');
+    Route::post('ppm/pengabdian-rev/{id}/submitReview', [PengabdianController::class, 'submitReview'])->name('pengabdian-rev.submitReview');
     Route::put('/penelitian/review/{id}', [PenelitianController::class, 'updateReview'])->name('penelitian-rev.updateReview');
     Route::put('/pengabdian/review/{id}', [PengabdianController::class, 'updateReview'])->name('pengabdian-rev.updateReview');
     Route::get('ppm/pengabdian-rev/{id}/editReview', [PengabdianController::class, 'editReview'])->name('pengabdian-rev.editReview');
     Route::get('ppm/penelitian-rev/{id}/editReview', [PenelitianController::class, 'editReview'])->name('penelitian-rev.editReview');
+    Route::get('ppm/penelitian-rev/{id}/view/pdf', [PenelitianController::class, 'view_pdf'])->name('penelitian-rev.view_pdf');
+    Route::get('/penelitian-rev/{id}/view-pdf', [PenelitianController::class, 'view_pdf'])->name('penelitian-rev.view_pdf');
+
+    Route::post('/review/store', [PenelitianController::class, 'store'])->name('penelitian.store');
+
 
 });

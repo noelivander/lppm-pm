@@ -15,29 +15,36 @@
                 </a>
             </div>
         </div>
-
-        <div class="row mb-3 text-center">
-            <div class="col-md-6">
-                <a href="{{ url('/dosen/ppm/penelitian-dos') }}" class="dashboard-btn teal d-flex align-items-center justify-content-center w-100">
-                    <span class="dashboard-icon"><i class="fas fa-microscope"></i></span>
-                    <span class="dashboard-text">Usulan Penelitian</span>
+        <br>
+    
+        <div class="row">
+            <!-- Penelitian -->
+            <div class="col-md-6 mb-3">
+                <a href="{{ url('/dosen/ppm/penelitian-dos') }}" class="text-decoration-none w-100">
+                    <x-dosen.dash-content-card title="Usulan Penelitian" value="{{ $jumlahPenelitian }}" color="info" class="w-100">
+                        <i class="fas fa-microscope fa-2x text-gray-300"></i>
+                    </x-dosen.dash-content-card>
                 </a>
             </div>
-            <div class="col-md-6">
-                <a href="{{ url('/dosen/ppm/pengabdian-dos') }}" class="dashboard-btn yellow d-flex align-items-center justify-content-center w-100">
-                    <span class="dashboard-icon"><i class="fas fa-lightbulb"></i></span>
-                    <span class="dashboard-text">Usulan Pengabdian</span>
+        
+            <!-- Pengabdian -->
+            <div class="col-md-6 mb-3">
+                <a href="{{ url('/dosen/ppm/pengabdian-dos') }}" class="text-decoration-none w-100">
+                    <x-dosen.dash-content-card title="Usulan Pengabdian" value="{{ $jumlahPengabdian }}" color="warning" class="w-100">
+                        <i class="fas fa-lightbulb fa-2x text-gray-300"></i>
+                    </x-dosen.dash-content-card>
                 </a>
             </div>
         </div>
         
-
+        
         <div class="card shadow mb-4">
             <div class="card-body">
                 <div id="calendar"></div>
             </div>
         </div>
     </div>
+    
     
     <!-- FullCalendar JS and CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />

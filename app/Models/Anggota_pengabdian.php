@@ -9,7 +9,7 @@ class Anggota_pengabdian extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['pengabdian_id', 'nama', 'peran', 'email', 'telepon'];
+    protected $fillable = ['pengabdian_id', 'nama','jabatan','nidn', 'peran', 'email', 'telepon'];
 
     public function pengabdian()
     {

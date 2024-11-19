@@ -2944,7 +2944,7 @@ textarea.form-control-lg {
   --bs-btn-color: #000;
   --bs-btn-bg: #36b9cc;
   --bs-btn-border-color: #36b9cc;
-  --bs-btn-hover-color: #000;
+  --bs-btn-hover-color: #ffffff;
   --bs-btn-hover-bg: #54c4d4;
   --bs-btn-hover-border-color: #4ac0d1;
   --bs-btn-focus-shadow-rgb: 46, 157, 173;
@@ -19965,3 +19965,49 @@ button#submitProposal {
   color: #555; /* Warna ikon */
   font-size: 18px;
 }
+
+
+.table-responsive {
+  margin-top: 20px;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+  text-align: center; 
+}
+
+.table td button {
+  margin: 0; 
+  padding: 0.5rem 1rem; 
+}
+
+.table td input, .table td select {
+  width: 100%; 
+  box-sizing: border-box; 
+}
+
+.table-hover tbody tr:hover {
+  background-color: transparent; 
+}
+
+#anggotaTable .removeAnggota {
+text-align: center; 
+display: inline-block; 
+vertical-align: middle; 
+color: white; 
+background-color: red; 
+border: none; 
+padding: 6px 12px; 
+border-radius: 4px; 
+cursor: pointer; 
+}
+
+/* Tambahkan hover effect untuk tombol */
+#anggotaTable .removeAnggota:hover {
+background-color: darkred; 
+}
+
+#anggotaTable thead th {
+  border-bottom-width: 1px; 
+}
+
