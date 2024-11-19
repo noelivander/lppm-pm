@@ -13,7 +13,7 @@
         rel="stylesheet">
 
         <!-- Styles -->
-        <link rel="stylesheet" href="{{ asset('css/dosen.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     </head>
     <body id="page-top">
 
