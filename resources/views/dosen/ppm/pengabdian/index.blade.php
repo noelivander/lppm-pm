@@ -113,18 +113,66 @@
                                             <i class="fas fa-caret-down dropdown-icon"></i>
                                         </div>
                                     </div>
-                                    <div class="form-group mt-3 position-relative">
-                                        <label for="luaran_wajib">Luaran Wajib</label>
-                                        <div class="dropdown-wrapper">
-                                            <select name="luaran_wajib" id="luaran_wajib" class="form-control" required>
-                                                <option value="" disabled selected>...</option>
-                                                <option value="jurnal nasional terindeks sinta">Jurnal Nasional Terindeks Sinta</option>
-                                                <option value="jurnal internasional">Jurnal Internasional</option>
-                                                <option value="jurnal internasional terindeks">Jurnal Internasional Terindeks</option>
-                                            </select>
-                                            <i class="fas fa-caret-down dropdown-icon"></i>
+                                    <div class="form-group mt-3 d-flex align-items-start gap-3">
+                                        <!-- Dropdown Luaran Wajib -->
+                                        <div style="flex: 1;" class="dropdown-wrapper">
+                                            <label for="luaran_wajib">Luaran Wajib</label>
+                                            <div class="dropdown-container">
+                                                <select name="luaran_wajib" id="luaran_wajib" class="form-control custom-dropdown" required>
+                                                    <option value="" disabled selected>...</option>
+                                                    <option value="jurnal nasional terindeks sinta">Jurnal Nasional Terindeks Sinta</option>
+                                                    <option value="jurnal internasional terindeks">Jurnal Internasional Terindeks</option>
+                                                    <option value="jurnal internasional">Jurnal Internasional</option>
+                                                    <option value="prosiding konferensi nasional">Prosiding Konferensi Nasional</option>
+                                                    <option value="produk model prototype">Produk/Model/Prototype</option>
+                                                </select>
+                                                <i class="fas fa-caret-down dropdown-icon"></i>
+                                            </div>
+                                        </div>
+                                    
+                                        <!-- Dropdown Sinta Level -->
+                                        <div id="sintaOptions" style="flex: 1; display: none;" class="dropdown-wrapper">
+                                            <label for="sinta_index">Sinta Level</label>
+                                            <div class="dropdown-container">
+                                                <select name="sinta_index" id="sinta_index" class="form-control custom-dropdown" required>
+                                                    <option value="" disabled selected>...</option>
+                                                    <option value="Sinta 1">Sinta 1</option>
+                                                    <option value="Sinta 2">Sinta 2</option>
+                                                    <option value="Sinta 3">Sinta 3</option>
+                                                    <option value="Sinta 4">Sinta 4</option>
+                                                    <option value="Sinta 5">Sinta 5</option>
+                                                    <option value="Sinta 6">Sinta 6</option>
+                                                </select>
+                                                <i class="fas fa-caret-down dropdown-icon"></i>
+                                            </div>
                                         </div>
                                     </div>
+                                    
+                                    <style>
+                                        .dropdown-wrapper {
+                                            position: relative;
+                                        }
+                                    
+                                        .dropdown-container {
+                                            position: relative;
+                                        }
+                                    
+                                        .custom-dropdown {
+                                            appearance: none;
+                                            -webkit-appearance: none; /* Untuk Safari */
+                                            padding-right: 2.5rem; /* Beri ruang untuk ikon */
+                                        }
+                                    
+                                        .custom-dropdown + .dropdown-icon {
+                                            position: absolute;
+                                            top: 50%;
+                                            right: 1rem; /* Jarak dari kanan */
+                                            transform: translateY(-50%);
+                                            pointer-events: none; /* Ikon tidak mengganggu interaksi */
+                                            font-size: 1rem;
+                                            color: #6c757d; /* Warna ikon */
+                                        }
+                                    </style>
                                     <div class="form-group mt-3 position-relative">
                                         <label for="luaran_tambahan">Luaran Tambahan</label>
                                         <div class="dropdown-wrapper">
@@ -209,6 +257,16 @@
                 }
             } else {
                 proposalForm.style.display = 'none';
+            }
+        });
+
+        document.getElementById('luaran_wajib').addEventListener('change', function () {
+            const sintaOptions = document.getElementById('sintaOptions');
+            if (this.value === 'jurnal nasional terindeks sinta') {
+                sintaOptions.style.display = 'block'; // Tampilkan opsi tambahan
+            } else {
+                sintaOptions.style.display = 'none'; // Sembunyikan opsi tambahan
+                document.getElementById('sinta_index').value = ''; // Reset pilihan Sinta jika disembunyikan
             }
         });
     

@@ -20,6 +20,7 @@ class PengabdianController extends Controller
     $request->validate([
         'judul' => 'required',
         'luaran_wajib' => 'required',
+        'sinta_index' => 'required',
         'lama_penelitian' => 'required',
         'biaya_diusulkan' => 'required',
         'skema' => 'required',
@@ -45,6 +46,7 @@ class PengabdianController extends Controller
     $pengabdian = Pengabdian::create([
         'judul' => $request->judul,
         'luaran_wajib' => $request->luaran_wajib,
+        'sinta_index' => $request->sinta_index,
         'lama_penelitian' => $request->lama_penelitian,
         'biaya_diusulkan' => $request->biaya_diusulkan,
         'skema' => $request->skema,

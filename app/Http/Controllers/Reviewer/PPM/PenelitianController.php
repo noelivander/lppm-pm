@@ -27,23 +27,28 @@ class PenelitianController extends Controller
     {
         $proposal = Penelitian::findOrFail($id);
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
-    
-        // Ambil data ketua tim berdasarkan penelitian_id dan peran 'ketua'
-        $ketuaTim = Anggota::where('penelitian_id', $id)
-                            ->where('peran', 'ketua') // Pastikan peran adalah 'ketua'
-                            ->first(); // Ambil data pertama jika ada
         
-        // Cek apakah ketua tim ditemukan
+        $ketuaTim = Anggota::where('penelitian_id', $id)
+                            ->where('peran', 'ketua')
+                            ->first();
+        
+        $anggotaTim = Anggota::where('penelitian_id', $id)
+                             ->where('peran', 'anggota')
+                             ->get();
+        
         $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
-        $nidn = $ketuaTim ? $ketuaTim->nidn : ''; // Ambil NIDN dari ketua tim
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
+        $anggotaNames = $anggotaTim->pluck('nama')->join(', ');
+        $biayaUsulan = $proposal->biaya_diusulkan;
+        $sintaIndex = $proposal->sinta_index;
     
         if ($review) {
-            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn'));
+            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
         } else {
-            return view('reviewer.ppm.penelitian.review', compact('proposal', 'ketuaTimName', 'nidn'));
+            return view('reviewer.ppm.penelitian.review', compact('proposal', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
         }
     }
-    
     
 
     public function view_pdf($penelitian_id)
@@ -62,7 +67,13 @@ class PenelitianController extends Controller
         $html = view('pdf.review_template', compact('review'))->render();
     
         // Buat PDF dengan mPDF
-        $mpdf = new \Mpdf\Mpdf();
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => [215.9, 330.2],  
+            'margin_left' => 25.4, 
+            'margin_right' => 25.4, 
+            'margin_top' => 25.4, 
+            'margin_bottom' => 25.4,
+        ]);
         $mpdf->WriteHTML($html);
         $mpdf->Output();
     }
@@ -74,6 +85,7 @@ class PenelitianController extends Controller
         // Menambahkan data yang diterima dari formulir
         $review->penelitian_id = $request->penelitian_id;
         $review->reviewer_id = auth()->id();
+        $review->reviewer_name = auth()->user()->name;
         $review->judul_kegiatan = $request->judul_kegiatan;
         $review->ketua_tim = $request->ketua_tim;
         $review->nidn = $request->nidn;
@@ -145,8 +157,23 @@ class PenelitianController extends Controller
         $proposal = Penelitian::findOrFail($id);
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
 
+        $ketuaTim = Anggota::where('penelitian_id', $id)
+        ->where('peran', 'ketua')
+        ->first();
+
+        $anggotaTim = Anggota::where('penelitian_id', $id)
+                ->where('peran', 'anggota')
+                ->get();
+
+        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
+        $anggotaNames = $anggotaTim->pluck('nama')->join(', ');
+        $biayaUsulan = $proposal->biaya_diusulkan;
+        $sintaIndex = $proposal->sinta_index;
+
         if ($review) {
-            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review'));
+            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
         } else {
             return redirect()->back()->with('error', 'Review not found.');
         }

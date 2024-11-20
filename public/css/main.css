@@ -20010,3 +20010,11 @@ button#submitProposal {
     border-bottom-width: 1px; 
 }
 
+.is-invalid {
+  border: 1px solid red;
+}
+
+.is-invalid::placeholder {
+  color: red;
+  font-style: italic;
+}
