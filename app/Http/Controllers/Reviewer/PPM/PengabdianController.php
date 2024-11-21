@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pengabdian;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Anggota;
+use App\Models\Anggota_pengabdian;
 use App\Models\Review;
+use Illuminate\Support\Facades\Log;
 
 class PengabdianController extends Controller
 {
@@ -20,106 +21,92 @@ class PengabdianController extends Controller
     
         return view('reviewer.ppm.pengabdian.index', compact('proposals', 'reviews', 'existingReviews'));
     }
+    
 
     public function review($id)
     {
         $proposal = Pengabdian::findOrFail($id);
-        $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();  // Cek apakah review sudah ada
-
+        $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();
+        
+        $ketuaTim = Anggota_pengabdian::where('pengabdian_id', $id)
+                            ->where('peran', 'ketua')
+                            ->first();
+        
+        $anggotaTim = Anggota_pengabdian::where('pengabdian_id', $id)
+                             ->where('peran', 'anggota')
+                             ->get();
+        
+        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
+        $anggotaNames = $anggotaTim->pluck('nama')->join(', ');
+        $biayaUsulan = $proposal->biaya_diusulkan;
+        $sintaIndex = $proposal->sinta_index;
+    
         if ($review) {
-            // Jika review sudah ada, arahkan ke form edit review
-            return view('reviewer.ppm.pengabdian.edit_review', compact('proposal', 'review'));
+            return view('reviewer.ppm.pengabdian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
         } else {
-            // Jika review belum ada, tampilkan form submit review
-            return view('reviewer.ppm.pengabdian.review', compact('proposal'));
-    }
-    }
-    public function submitReview(Request $request, $id)
-    {
-        $proposal = Pengabdian::findOrFail($id);
-    
-        $request->validate([
-            'reviewer_name' => 'required',
-            'background' => 'required',
-            'research_objective' => 'required',
-            'methodology' => 'required',
-            'results' => 'required',
-            'strengths' => 'required',
-            'weaknesses' => 'required',
-            'discussion' => 'required',
-        ]);
-    
-        Review::create([
-            'pengabdian_id' => $proposal->id,
-            'reviewer_id' => Auth::id(),
-            'reviewer_name' => $request->reviewer_name,
-            'background' => $request->background,
-            'research_objective' => $request->research_objective,
-            'methodology' => $request->methodology,
-            'results' => $request->results,
-            'strengths' => $request->strengths,
-            'weaknesses' => $request->weaknesses,
-            'discussion' => $request->discussion,
-        ]);
-    
-        return redirect()->route('pengabdian-rev.index')->with('success', 'Review berhasil disimpan.');
+            return view('reviewer.ppm.pengabdian.review', compact('proposal', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
+        }
     }
     
 
-
-    // Fungsi store untuk menyimpan proposal baru
-    public function store(Request $request)
+    public function view_pdf($pengabdian_id)
     {
-        // Validasi input
-        $request->validate([
-            'judul' => 'required',
-            'luaran_wajib' => 'required',
-            'lama_penelitian' => 'required',
-            'biaya_diusulkan' => 'required',
-            'skema' => 'required',
-            'luaran_tambahan' => 'nullable',
-            'ringkasan_proposal' => 'required',
-            'dokumen_proposal' => 'required|mimes:pdf|max:10000',
-            'anggota_nama' => 'required|array',
-            'anggota_nama.*' => 'required|string',
-            'anggota_peran' => 'required|array',
-            'anggota_peran.*' => 'required|string',
-            'anggota_email' => 'required|array',
-            'anggota_email.*' => 'required|email',
-            'anggota_telepon' => 'required|array',
-            'anggota_telepon.*' => 'required|string',
-        ]);
+        // Cari review berdasarkan pengabdian_id dan reviewer_id
+        $review = Review::where('pengabdian_id', $pengabdian_id)
+                        ->where('reviewer_id', auth()->id()) // Pastikan reviewer yang login yang sesuai
+                        ->first();
     
-        // Menyimpan dokumen proposal
-        $dokumenProposal = $request->file('dokumen_proposal')->store('public/proposals');
-    
-        // Membuat instance penelitian baru dan menyimpan data proposal
-        $pengabdian = Pengabdian::create([
-            'judul' => $request->judul,
-            'luaran_wajib' => $request->luaran_wajib,
-            'lama_penelitian' => $request->lama_penelitian,
-            'biaya_diusulkan' => $request->biaya_diusulkan,
-            'skema' => $request->skema,
-            'luaran_tambahan' => $request->luaran_tambahan,
-            'ringkasan_proposal' => $request->ringkasan_proposal,
-            'dokumen_proposal' => $dokumenProposal,
-            'status' => 'Pending',
-            'user_id' => Auth::id(),
-        ]);
-    
-        // Menyimpan data anggota penelitian
-        foreach ($request->anggota_nama as $key => $nama) {
-            Anggota::create([
-                'pengabdian_id' => $pengabdian->id,
-                'nama' => $nama,
-                'peran' => $request->anggota_peran[$key],
-                'email' => $request->anggota_email[$key],
-                'telepon' => $request->anggota_telepon[$key],
-            ]);
+        if (!$review) {
+            // Jika tidak ada review yang sesuai, tampilkan error atau redirect
+            return redirect()->route('pengabdian-rev.index')->with('error', 'Review tidak ditemukan atau Anda tidak memiliki akses.');
         }
     
-        // Redirect ke halaman proposal reviewer dengan pesan sukses
-        return redirect()->route('pengabdian-rev.index')->with('success', 'Proposal submitted successfully.');
+        // Load template view dan kirimkan data ke view
+        $html = view('pdf.review_template', compact('review'))->render();
+    
+        // Buat PDF dengan mPDF
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => [215.9, 330.2],  
+            'margin_left' => 25.4, 
+            'margin_right' => 25.4, 
+            'margin_top' => 25.4, 
+            'margin_bottom' => 25.4,
+        ]);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+    }
+
+    public function store(Request $request)
+    {
+        $review = new Review();
+    
+        // Menambahkan data yang diterima dari formulir
+        $review->pengabdian_id = $request->pengabdian_id;
+        $review->reviewer_id = auth()->id();
+        $review->reviewer_name = auth()->user()->name;
+        $review->judul_kegiatan = $request->judul_kegiatan;
+        $review->ketua_tim = $request->ketua_tim;
+        $review->nidn = $request->nidn;
+        $review->jabatan = $request->jabatan;
+        $review->scopus = $request->scopus;
+        $review->anggota = $request->anggota;
+        $review->biaya_usulan = $request->biaya_usulan;
+        $review->disarankan = $request->disarankan;
+    
+        // Simpan skor kriteria penilaian
+        $review->skor_1 = $request->skor_1;
+        $review->skor_2 = $request->skor_2;
+        $review->skor_3 = $request->skor_3;
+        $review->skor_4 = $request->skor_4;
+        $review->skor_5 = $request->skor_5;
+    
+        $review->komentar = $request->komentar;
+        $review->save();
+    
+        // Redirect ke halaman index dengan parameter review_id
+        return redirect()->route('pengabdian-rev.index')->with('status', 'Review berhasil disubmit!');
     }
 
     // Fungsi updateStatus untuk memperbarui status proposal
@@ -137,31 +124,56 @@ class PengabdianController extends Controller
     }
     public function updateReview(Request $request, $id)
     {
-        $review = Review::findOrFail($id);
-
-        // Lakukan validasi input di sini jika perlu
-
-        // Update review dengan data dari request
-        $review->update([
-            'background' => $request->background,
-            'research_objective' => $request->research_objective,
-            'methodology' => $request->methodology,
-            'results' => $request->results,
-            'strengths' => $request->strengths,
-            'weaknesses' => $request->weaknesses,
-            'discussion' => $request->discussion,
+        // Validasi inputan form
+        $validatedData = $request->validate([
+            'judul_kegiatan' => 'required|string|max:255',
+            'ketua_tim' => 'required|string|max:255',
+            'nidn' => 'required|string|max:255',
+            'jabatan' => 'required|string|max:255',
+            'scopus' => 'nullable|string|max:255',
+            'anggota' => 'required|string|max:255',
+            'biaya_usulan' => 'required|numeric',
+            'disarankan' => 'nullable|string|max:255',
+            'skor_1' => 'required|integer|min:1|max:7',
+            'skor_2' => 'required|integer|min:1|max:7',
+            'skor_3' => 'required|integer|min:1|max:7',
+            'skor_4' => 'required|integer|min:1|max:7',
+            'skor_5' => 'required|integer|min:1|max:7',
+            'komentar' => 'nullable|string',
         ]);
 
-        // Redirect ke halaman sebelumnya dengan pesan sukses
+        // Ambil review yang akan diupdate
+        $review = Review::findOrFail($id);
+
+        // Update data review dengan data yang divalidasi
+        $review->update($validatedData);
+
+        // Redirect ke halaman yang sesuai setelah berhasil update
         return redirect()->route('pengabdian-rev.index')->with('success', 'Review berhasil diperbarui.');
     }
+
     public function editReview($id)
     {
         $proposal = Pengabdian::findOrFail($id);
         $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();
 
+        $ketuaTim = Anggota_pengabdian::where('pengabdian_id', $id)
+        ->where('peran', 'ketua')
+        ->first();
+
+        $anggotaTim = Anggota_pengabdian::where('pengabdian_id', $id)
+                ->where('peran', 'anggota')
+                ->get();
+
+        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
+        $anggotaNames = $anggotaTim->pluck('nama')->join(', ');
+        $biayaUsulan = $proposal->biaya_diusulkan;
+        $sintaIndex = $proposal->sinta_index;
+
         if ($review) {
-            return view('reviewer.ppm.pengabdian.edit_review', compact('proposal', 'review'));
+            return view('reviewer.ppm.pengabdian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
         } else {
             return redirect()->back()->with('error', 'Review not found.');
         }

@@ -29,7 +29,11 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
     Route::get('ppm/penelitian-rev/{id}/view/pdf', [PenelitianController::class, 'view_pdf'])->name('penelitian-rev.view_pdf');
     Route::get('/penelitian-rev/{id}/view-pdf', [PenelitianController::class, 'view_pdf'])->name('penelitian-rev.view_pdf');
 
+    Route::get('ppm/pengabdian-rev/{id}/view/pdf', [PengabdianController::class, 'view_pdf'])->name('pengabdian-rev.view_pdf');
+    Route::get('/pengabdian-rev/{id}/view-pdf', [PengabdianController::class, 'view_pdf'])->name('pengabdian-rev.view_pdf');
+
     Route::post('/review/store', [PenelitianController::class, 'store'])->name('penelitian.store');
+    Route::post('/review/store', [PengabdianController::class, 'store'])->name('pengabdian.store');
 
 
 });
