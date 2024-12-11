@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Pengabdian;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Anggota_pengabdian;
+use App\Models\Review;
+use Mpdf\Mpdf;
 
 class PengabdianController extends Controller
 {
@@ -13,6 +15,32 @@ class PengabdianController extends Controller
     {
         $pengabdian = Pengabdian::where('user_id', Auth::id())->get();
         return view('dosen.ppm.pengabdian.index', compact('pengabdian'));
+    }
+
+    public function viewReviews($pengabdian_id, $review_number)
+    {
+        // Cari pengabdian berdasarkan ID
+        $pengabdian = Pengabdian::findOrFail($pengabdian_id);
+
+        // Ambil review berdasarkan pengabdian_id
+        $reviews = Review::where('pengabdian_id', $pengabdian_id)->get();
+
+        // Tentukan review yang akan ditampilkan berdasarkan nomor yang dipilih
+        if ($review_number == 1) {
+            $review = $reviews->first(); // Review pertama
+        } elseif ($review_number == 2) {
+            $review = $reviews->skip(1)->first(); // Review kedua
+        } else {
+            return redirect()->route('pengabdian-dos.index')
+                            ->with('error', 'Nomor review tidak valid.');
+        }
+
+        // Generate PDF berdasarkan review yang dipilih
+        $html = view('pdf.review_template', compact('pengabdian', 'review'))->render();
+        
+        $mpdf = new \Mpdf\Mpdf(['format' => [215.9, 330.2]]);  // Format F4
+        $mpdf->WriteHTML($html);
+        $mpdf->Output("Hasil_Review_{$pengabdian->judul}_Review{$review_number}.pdf", 'I');  // Output PDF
     }
 
     public function store(Request $request)

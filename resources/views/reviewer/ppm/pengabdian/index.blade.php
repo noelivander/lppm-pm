@@ -54,11 +54,12 @@
                                         <td>{{ $proposal->status }}</td>
                                         <td>
                                             @if (in_array($proposal->id, $reviews))
-                                                <a href="{{ route('pengabdian-rev.editReview', $proposal->id) }}" class="btn btn-sm btn-outline-warning" target="_blank"><i class="fas fa-edit"></i> Edit Review</a>
+                                                <a href="{{ route('pengabdian-rev.editReview', $proposal->id) }}" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i> Edit Review</a>
+                                                <a href="{{ route('pengabdian-rev.view_pdf', $proposal->id) }}" class="btn btn-sm btn-outline-danger"><i class="fas fa-file-download"></i> Lihat PDF</a>
                                             {{-- @elseif ($isReviewedByAnother)
                                                 <button class="btn btn-secondary" disabled>Telah Ditinjau</button> --}}
                                             @else
-                                                <a href="{{ route('pengabdian-rev.review', $proposal->id) }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-file"></i> Review</a>
+                                                <a href="{{ route('pengabdian-rev.review', $proposal->id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-file"></i> Review</a>
                                             @endif
                                         </td>
                                     </tr>

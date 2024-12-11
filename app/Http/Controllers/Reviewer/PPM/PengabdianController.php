@@ -64,7 +64,7 @@ class PengabdianController extends Controller
         }
     
         // Load template view dan kirimkan data ke view
-        $html = view('pdf.review_template', compact('review'))->render();
+        $html = view('pdf.review_pengabdian', compact('review'))->render();
     
         // Buat PDF dengan mPDF
         $mpdf = new \Mpdf\Mpdf([

@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Reviewer\PPM;
 
-use Barryvdh\DomPDF\Facade as PDF;
+use Mpdf\Mpdf;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Penelitian;
@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Anggota;
 use App\Models\Review;
 use Illuminate\Support\Facades\Log;
+
 
 class PenelitianController extends Controller
 {
@@ -122,6 +123,7 @@ class PenelitianController extends Controller
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->back()->with('success', 'Status berhasil diperbarui.');
     }
+
     public function updateReview(Request $request, $id)
     {
         // Validasi inputan form

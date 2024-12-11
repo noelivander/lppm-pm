@@ -37,6 +37,7 @@
                                         <th>Tahun</th>
                                         <th>Status</th>
                                         <th>Dokumen Proposal</th>
+                                        <th>Dokumen Review</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -62,6 +63,39 @@
                                                     <span class="text-muted">Tidak ada file</span>
                                                 @endif
                                             </td>
+                                            <td>
+                                                <!-- Tombol untuk membuka modal -->
+                                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $item->id }}">
+                                                    Lihat Hasil Review
+                                                </button>
+                                            </td>
+    
+                                            <!-- Modal untuk Review -->
+                                            <div class="modal fade" id="reviewModal{{ $item->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $item->id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="reviewModalLabel{{ $item->id }}">Pilih Review</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            @php
+                                                                $reviews = \App\Models\Review::where('pengabdian_id', $item->id)->get();
+                                                            @endphp
+    
+                                                            @if ($reviews->count() > 0)
+                                                                @foreach ($reviews as $index => $review)
+                                                                    <a href="{{ route('pengabdian-dos.view-reviews', ['pengabdian_id' => $item->id, 'review_number' => $index + 1]) }}" class="btn btn-link">
+                                                                        Lihat Review {{ $index + 1 }}
+                                                                    </a><br>
+                                                                @endforeach
+                                                            @else
+                                                                <p>Review belum tersedia.</p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </tr>
                                     @endforeach
                                 </tbody>
