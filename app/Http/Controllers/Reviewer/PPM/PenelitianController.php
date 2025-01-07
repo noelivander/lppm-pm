@@ -9,20 +9,34 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Anggota;
 use App\Models\Review;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\EncryptionHelper; 
+use Illuminate\Support\Facades\Storage;
 
 
 class PenelitianController extends Controller
 {
-    // Fungsi index untuk menampilkan semua proposal
     public function index()
     {
-        $proposals = Penelitian::all(); // Mengambil semua proposal
+        $proposals = Penelitian::all();
         $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
-        $existingReviews = Review::all(); // Mengambil semua review
-    
+        $existingReviews = Review::all(); 
+
+        foreach ($proposals as $proposal) {
+            try {
+                $proposal->judul = EncryptionHelper::decrypt($proposal->judul);
+            } catch (\Exception $e) {
+                $proposal->judul = null;
+            }
+
+            try {
+                $proposal->skema = EncryptionHelper::decrypt($proposal->skema);
+            } catch (\Exception $e) {
+                $proposal->skema = null;
+            }
+        }
+        
         return view('reviewer.ppm.penelitian.index', compact('proposals', 'reviews', 'existingReviews'));
     }
-    
 
     public function review($id)
     {
@@ -34,41 +48,54 @@ class PenelitianController extends Controller
                             ->first();
         
         $anggotaTim = Anggota::where('penelitian_id', $id)
-                             ->where('peran', 'anggota')
-                             ->get();
+                            ->where('peran', 'anggota')
+                            ->get();
         
-        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
-        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
-        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
-        $anggotaNames = $anggotaTim->pluck('nama')->join(', ');
-        $biayaUsulan = $proposal->biaya_diusulkan;
-        $sintaIndex = $proposal->sinta_index;
-    
+        $ketuaTimName = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nama) : '';
+        $nidn = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nidn) : '';
+        $jabatan = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->jabatan) : '';
+        
+        $anggotaNames = $anggotaTim->map(function($anggota) {
+            return EncryptionHelper::decrypt($anggota->nama);
+        })->join(', ');
+        
+        $judul = EncryptionHelper::decrypt($proposal->judul);
+        $biayaUsulan = EncryptionHelper::decrypt($proposal->biaya_diusulkan); 
+        $sintaIndex = EncryptionHelper::decrypt($proposal->sinta_index);
+
+        $encryptedFilePath = $proposal->dokumen_proposal;
+
+        $decryptedContent = EncryptionHelper::decryptFile($encryptedFilePath);
+
+        // Simpan file sementara di public/temp
+        $fileName = 'temp/decrypted_' . uniqid() . '.pdf';
+        Storage::disk('public')->put($fileName, $decryptedContent);
+
+        // Buat URL publik
+        $decryptedFileUrl = asset('storage/' . $fileName);
+
         if ($review) {
-            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'decryptedFileUrl', 'nidn', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
         } else {
-            return view('reviewer.ppm.penelitian.review', compact('proposal', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.review', compact('proposal', 'ketuaTimName', 'nidn', 'decryptedFileUrl', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
         }
     }
     
 
     public function view_pdf($penelitian_id)
     {
-        // Cari review berdasarkan penelitian_id dan reviewer_id
         $review = Review::where('penelitian_id', $penelitian_id)
                         ->where('reviewer_id', auth()->id()) // Pastikan reviewer yang login yang sesuai
                         ->first();
     
         if (!$review) {
-            // Jika tidak ada review yang sesuai, tampilkan error atau redirect
+  
             return redirect()->route('penelitian-rev.index')->with('error', 'Review tidak ditemukan atau Anda tidak memiliki akses.');
         }
     
-        // Load template view dan kirimkan data ke view
         $html = view('pdf.review_template', compact('review'))->render();
     
-        // Buat PDF dengan mPDF
-        $mpdf = new \Mpdf\Mpdf([
+        $mpdf = new \Mpdf\Mpdf([ 
             'format' => [215.9, 330.2],  
             'margin_left' => 25.4, 
             'margin_right' => 25.4, 
@@ -82,8 +109,7 @@ class PenelitianController extends Controller
     public function store(Request $request)
     {
         $review = new Review();
-    
-        // Menambahkan data yang diterima dari formulir
+
         $review->penelitian_id = $request->penelitian_id;
         $review->reviewer_id = auth()->id();
         $review->reviewer_name = auth()->user()->name;
@@ -95,38 +121,31 @@ class PenelitianController extends Controller
         $review->anggota = $request->anggota;
         $review->biaya_usulan = $request->biaya_usulan;
         $review->disarankan = $request->disarankan;
-    
-        // Simpan skor kriteria penilaian
+
         $review->skor_1 = $request->skor_1;
         $review->skor_2 = $request->skor_2;
         $review->skor_3 = $request->skor_3;
         $review->skor_4 = $request->skor_4;
         $review->skor_5 = $request->skor_5;
-    
+
         $review->komentar = $request->komentar;
         $review->save();
-    
-        // Redirect ke halaman index dengan parameter review_id
+
+        $penelitian = Penelitian::findOrFail($request->penelitian_id);
+        $totalReviews = Review::where('penelitian_id', $penelitian->id)->count();
+
+        if ($totalReviews == 1) {
+            $penelitian->status = 'Diproses';
+        } elseif ($totalReviews >= 2) {
+            $penelitian->status = 'Selesai';
+        }
+        $penelitian->save();
+
         return redirect()->route('penelitian-rev.index')->with('status', 'Review berhasil disubmit!');
-    }
-
-    // Fungsi updateStatus untuk memperbarui status proposal
-    public function updateStatus(Request $request, $id)
-    {
-        // Mencari proposal berdasarkan id
-        $proposal = Penelitian::find($id);
-
-        // Mengupdate status proposal
-        $proposal->status = $request->status;
-        $proposal->save();
-
-        // Redirect kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->back()->with('success', 'Status berhasil diperbarui.');
     }
 
     public function updateReview(Request $request, $id)
     {
-        // Validasi inputan form
         $validatedData = $request->validate([
             'judul_kegiatan' => 'required|string|max:255',
             'ketua_tim' => 'required|string|max:255',
@@ -144,13 +163,20 @@ class PenelitianController extends Controller
             'komentar' => 'nullable|string',
         ]);
 
-        // Ambil review yang akan diupdate
         $review = Review::findOrFail($id);
 
-        // Update data review dengan data yang divalidasi
         $review->update($validatedData);
 
-        // Redirect ke halaman yang sesuai setelah berhasil update
+        $penelitian = Penelitian::findOrFail($review->penelitian_id);
+        $totalReviews = Review::where('penelitian_id', $penelitian->id)->count();
+
+        if ($totalReviews == 1) {
+            $penelitian->status = 'Diproses';
+        } elseif ($totalReviews >= 2) {
+            $penelitian->status = 'Selesai';
+        }
+        $penelitian->save();
+
         return redirect()->route('penelitian-rev.index')->with('success', 'Review berhasil diperbarui.');
     }
 
@@ -160,25 +186,40 @@ class PenelitianController extends Controller
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
 
         $ketuaTim = Anggota::where('penelitian_id', $id)
-        ->where('peran', 'ketua')
-        ->first();
+            ->where('peran', 'ketua')
+            ->first();
 
         $anggotaTim = Anggota::where('penelitian_id', $id)
                 ->where('peran', 'anggota')
                 ->get();
 
-        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
-        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
-        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
-        $anggotaNames = $anggotaTim->pluck('nama')->join(', ');
-        $biayaUsulan = $proposal->biaya_diusulkan;
-        $sintaIndex = $proposal->sinta_index;
+        $ketuaTimName = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nama) : '';
+        $nidn = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nidn) : '';
+        $jabatan = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->jabatan) : '';
+        
+        $anggotaNames = $anggotaTim->map(function($anggota) {
+            return EncryptionHelper::decrypt($anggota->nama);
+        })->join(', ');
+
+        $judul = EncryptionHelper::decrypt($proposal->judul);
+        $biayaUsulan = EncryptionHelper::decrypt($proposal->biaya_diusulkan); 
+        $sintaIndex = EncryptionHelper::decrypt($proposal->sinta_index);
+
+        $encryptedFilePath = $proposal->dokumen_proposal;
+
+        $decryptedContent = EncryptionHelper::decryptFile($encryptedFilePath);
+
+        // Simpan file sementara di public/temp
+        $fileName = 'temp/decrypted_' . uniqid() . '.pdf';
+        Storage::disk('public')->put($fileName, $decryptedContent);
+
+        // Buat URL publik
+        $decryptedFileUrl = asset('storage/' . $fileName);
 
         if ($review) {
-            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'decryptedFileUrl', 'judul', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
         } else {
             return redirect()->back()->with('error', 'Review not found.');
         }
     }
-
 }

@@ -48,30 +48,31 @@
                                         <td class="skema">{{ $item->skema }}</td>
                                         <td>{{ $item->created_at->year }}</td>
                                         <td>
-                                            <span class="badge 
-                                                @if ($item->status === 'Diterima') bg-success
-                                                @elseif ($item->status === 'Ditolak') bg-danger
-                                                @else bg-warning @endif">
+                                            <span class="badge
+                                                @if ($item->status === 'Pending') bg-warning
+                                                @elseif ($item->status === 'Diproses') bg-info
+                                                @elseif ($item->status === 'Selesai') bg-success
+                                                @endif">
                                                 {{ $item->status }}
                                             </span>
                                         </td>
+                                        
                                         <td>
                                             @if ($item->dokumen_proposal)
-                                                <a href="{{ Storage::url($item->dokumen_proposal) }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <a href="{{ route('penelitian.downloadProposal', $item->id) }}" class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-file-download"></i> Download PDF
                                                 </a>
                                             @else
                                                 <span class="text-muted">Tidak ada file</span>
                                             @endif
                                         </td>
+                                        
                                         <td>
-                                            <!-- Tombol untuk membuka modal -->
-                                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $item->id }}">
-                                                Lihat Hasil Review
-                                            </button>
+                                            <a class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $item->id }}">
+                                                <i class="fas fa-search"></i> Hasil Review
+                                            </a>
                                         </td>
 
-                                        <!-- Modal untuk Review -->
                                         <div class="modal fade" id="reviewModal{{ $item->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $item->id }}" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
@@ -171,7 +172,7 @@
                                         <div id="sintaOptions" style="flex: 1; display: none;" class="dropdown-wrapper">
                                             <label for="sinta_index">Sinta Level</label>
                                             <div class="dropdown-container">
-                                                <select name="sinta_index" id="sinta_index" class="form-control custom-dropdown" required>
+                                                <select name="sinta_index" id="sinta_index" class="form-control custom-dropdown">
                                                     <option value="" disabled selected>...</option>
                                                     <option value="Sinta 1">Sinta 1</option>
                                                     <option value="Sinta 2">Sinta 2</option>
@@ -302,15 +303,20 @@
 
         document.getElementById('luaran_wajib').addEventListener('change', function () {
             const sintaOptions = document.getElementById('sintaOptions');
+            const sintaSelect = document.getElementById('sinta_index'); // Ambil elemen select untuk level Sinta
+
             if (this.value === 'jurnal nasional terindeks sinta') {
                 sintaOptions.style.display = 'block'; // Tampilkan opsi tambahan
+                sintaSelect.setAttribute('required', 'true');  // Menambahkan atribut required
             } else {
                 sintaOptions.style.display = 'none'; // Sembunyikan opsi tambahan
-                document.getElementById('sinta_index').value = ''; // Reset pilihan Sinta jika disembunyikan
+                sintaSelect.removeAttribute('required'); // Hapus atribut required
+                sintaSelect.value = ''; // Reset pilihan Sinta jika disembunyikan
             }
+
+            validateForm();
         });
-
-
+            
     
         // Validate the entire form
         function validateForm() {

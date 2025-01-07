@@ -8,33 +8,44 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Anggota;
 use App\Models\Review;
 use Mpdf\Mpdf;
+use App\Helpers\EncryptionHelper;
 
 class PenelitianController extends Controller
 {
+
     public function index()
     {
         $penelitian = Penelitian::where('user_id', Auth::id())->get();
+
+        foreach ($penelitian as $item) {
+            $item->judul = EncryptionHelper::decrypt($item->judul);
+            $item->luaran_wajib = EncryptionHelper::decrypt($item->luaran_wajib);
+            $item->sinta_index = EncryptionHelper::decrypt($item->sinta_index);
+            $item->lama_penelitian = EncryptionHelper::decrypt($item->lama_penelitian);
+            $item->biaya_diusulkan = EncryptionHelper::decrypt($item->biaya_diusulkan);
+            $item->skema = EncryptionHelper::decrypt($item->skema);
+            $item->luaran_tambahan = EncryptionHelper::decrypt($item->luaran_tambahan);
+            $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
+        }
+
         return view('dosen.ppm.penelitian.index', compact('penelitian'));
     }
+
     public function viewReviews($penelitian_id, $review_number)
     {
-        // Cari penelitian berdasarkan ID
         $penelitian = Penelitian::findOrFail($penelitian_id);
 
-        // Ambil review berdasarkan penelitian_id
         $reviews = Review::where('penelitian_id', $penelitian_id)->get();
 
-        // Tentukan review yang akan ditampilkan berdasarkan nomor yang dipilih
         if ($review_number == 1) {
-            $review = $reviews->first(); // Review pertama
+            $review = $reviews->first();
         } elseif ($review_number == 2) {
-            $review = $reviews->skip(1)->first(); // Review kedua
+            $review = $reviews->skip(1)->first(); 
         } else {
             return redirect()->route('penelitian-dos.index')
                             ->with('error', 'Nomor review tidak valid.');
         }
 
-        // Generate PDF berdasarkan review yang dipilih
         $html = view('pdf.review_template', compact('penelitian', 'review'))->render();
         
         $mpdf = new \Mpdf\Mpdf(['format' => [215.9, 330.2]]);  // Format F4
@@ -53,52 +64,65 @@ class PenelitianController extends Controller
             'luaran_tambahan' => 'nullable',
             'ringkasan_proposal' => 'required',
             'dokumen_proposal' => 'required|mimes:pdf|max:10000',
-            'sinta_index' => 'required',
+            'sinta_index' => 'nullable',
             'anggota_nama' => 'required|array',
-            'anggota_nama.*' => 'required|string',
+            'anggota_nama.*' => 'required',
             'anggota_peran' => 'required|array',
-            'anggota_peran.*' => 'required|string',
+            'anggota_peran.*' => 'required',
             'anggota_nidn' => 'required|array',
-            'anggota_nidn.*' => 'required|string',
+            'anggota_nidn.*' => 'required',
             'anggota_jabatan' => 'required|array',
-            'anggota_jabatan.*' => 'required|string',
+            'anggota_jabatan.*' => 'required',
             'anggota_email' => 'required|array',
             'anggota_email.*' => 'required|email',
             'anggota_telepon' => 'required|array',
-            'anggota_telepon.*' => 'required|string',
+            'anggota_telepon.*' => 'required',
         ]);
-        
 
-    $dokumenProposal = $request->file('dokumen_proposal')->store('public/proposals');
+        $dokumenProposal = $request->file('dokumen_proposal')->store('public/proposals');
 
-    $penelitian = penelitian::create([
-        'judul' => $request->judul,
-        'luaran_wajib' => $request->luaran_wajib,
-        'sinta_index' => $request->sinta_index,
-        'lama_penelitian' => $request->lama_penelitian,
-        'biaya_diusulkan' => $request->biaya_diusulkan,
-        'skema' => $request->skema,
-        'luaran_tambahan' => $request->luaran_tambahan,
-        'ringkasan_proposal' => $request->ringkasan_proposal,
-        'dokumen_proposal' => $dokumenProposal,
-        'status' => 'Pending',
-        'user_id' => Auth::id(),
-    ]);
-    
+        $encryptedDokumenProposal = EncryptionHelper::encryptFile($dokumenProposal);
 
-    foreach ($request->anggota_nama as $key => $nama) {
-        Anggota::create([
-            'penelitian_id' => $penelitian->id,
-            'nama' => $nama,
-            'jabatan' => $request->anggota_jabatan[$key],
-            'peran' => $request->anggota_peran[$key],
-            'nidn' => $request->anggota_nidn[$key],
-            'email' => $request->anggota_email[$key],
-            'telepon' => $request->anggota_telepon[$key],
+        $penelitian = Penelitian::create([
+            'judul' => EncryptionHelper::encrypt($request->judul),
+            'luaran_wajib' => EncryptionHelper::encrypt($request->luaran_wajib),
+            'sinta_index' => EncryptionHelper::encrypt($request->sinta_index),
+            'lama_penelitian' => EncryptionHelper::encrypt($request->lama_penelitian),
+            'biaya_diusulkan' => EncryptionHelper::encrypt($request->biaya_diusulkan),
+            'skema' => EncryptionHelper::encrypt($request->skema),
+            'luaran_tambahan' => EncryptionHelper::encrypt($request->luaran_tambahan),
+            'ringkasan_proposal' => EncryptionHelper::encrypt($request->ringkasan_proposal),
+            'dokumen_proposal' => $encryptedDokumenProposal,
+            'status' => 'Pending',
+            'user_id' => Auth::id(),
         ]);
+
+        foreach ($request->anggota_nama as $key => $nama) {
+            Anggota::create([
+                'penelitian_id' => $penelitian->id,
+                'nama' => EncryptionHelper::encrypt($nama),
+                'jabatan' => EncryptionHelper::encrypt($request->anggota_jabatan[$key]),
+                'peran' => $request->anggota_peran[$key],
+                'nidn' => EncryptionHelper::encrypt($request->anggota_nidn[$key]),
+                'email' => EncryptionHelper::encrypt($request->anggota_email[$key]),
+                'telepon' => EncryptionHelper::encrypt($request->anggota_telepon[$key]),
+            ]);
+        }
+
+        return redirect()->route('penelitian-dos.index')->with('success', 'Proposal submitted successfully.');
     }
 
-    return redirect()->route('penelitian-dos.index')->with('success', 'Proposal submitted successfully.');
-}
+    public function downloadDokumenProposal($id)
+    {
+        $penelitian = Penelitian::findOrFail($id);
+        $encryptedFilePath = $penelitian->dokumen_proposal;
+
+        $decryptedContent = EncryptionHelper::decryptFile($encryptedFilePath);
+
+        return response($decryptedContent)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="proposal.pdf"');
+    }
+
 
 }

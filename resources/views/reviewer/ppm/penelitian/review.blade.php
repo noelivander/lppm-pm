@@ -9,8 +9,8 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <h3>Proposal Penelitian</h3>
-                        <h5 class="mb-3">"{{ $proposal->judul }}"</h5>
-                        <iframe src="{{ Storage::url($proposal->dokumen_proposal) }}" style="width:100%; height:700px;"></iframe>
+                        <h5 class="mb-3">"{{ $judul }}"</h5>
+                        <iframe src="{{ $decryptedFileUrl }}" style="width:100%; height:700px;"></iframe>
                     </div>
                 </div>
 
@@ -21,7 +21,7 @@
                             <input type="hidden" name="penelitian_id" value="{{ $proposal->id }}">
                             <input type="hidden" name="reviewer_id" value="{{ auth()->user()->id }}">
                             <input type="hidden" name="reviewer_name" value="{{ auth()->user()->name }}">
-                            <input type="hidden" id="judul_kegiatan" name="judul_kegiatan" value="{{ $proposal->judul }}">
+                            <input type="hidden" id="judul_kegiatan" name="judul_kegiatan" value="{{ $judul }}">
 
                             <h3>Formulir Penilaian Proposal Penelitian</h3><br>
                             

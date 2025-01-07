@@ -54,7 +54,7 @@
     </head>
     <body>
         <div class="header" style="margin-bottom:-1rem;">
-            <h2>FORMULIR PENILAIAN PEMBAHASAN PROPOSAL PENELITIAN DOSEN PEMULA TAHUN 2024 <hr></h2>
+            <h2>FORMULIR PENILAIAN PEMBAHASAN PROPOSAL PENGABDIAN DOSEN PEMULA TAHUN 2024 <hr></h2>
         </div>
 
         <!-- Tabel informasi (tanpa garis) -->

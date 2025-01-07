@@ -47,5 +47,17 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ]);
+        DB::table('users')->insert([
+            [
+                'name' => 'Auditor',
+                'email' => 'aud-lppm@ith.ac.id',
+                'email_verified_at' => now(),
+                'password' => Hash::make('Parepare01'),
+                'remember_token' => Str::random(10),
+                'role' => 'auditor',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }

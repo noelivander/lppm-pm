@@ -35,7 +35,7 @@ class CreatePenelitiansTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('penelitians');
+        Schema::dropIfExists('penelitian');
     }
 }
 

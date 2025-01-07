@@ -61,6 +61,7 @@
                     <option value="admin">{{ __('Admin') }}</option>
                     <option value="dosen">{{ __('Dosen') }}</option>
                     <option value="reviewer">{{ __('Reviewer') }}</option>
+                    <option value="auditor">{{ __('Auditor') }}</option>
                 </select>
 
                 <x-validation-message name="role" />

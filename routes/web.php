@@ -14,6 +14,7 @@ use App\Http\Controllers\User\KelembagaanController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\ReviewerController;
+use App\Http\Controllers\AuditorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +74,10 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
     Route::get('/reviewer/dashboard', [ReviewerController::class, 'dashboard'])->name('reviewer.dashboard');
     Route::resource('reviewer/ppm/penelitian-rev', PenelitianController::class);
     Route::resource('reviewer/ppm/pengabdian-rev', PengabdianController::class);
+});
+
+Route::middleware(['auth', 'role:auditor'])->group(function () {
+    Route::get('/auditor/dashboard', [AuditorController::class, 'dashboard'])->name('auditor.dashboard');
 });
 
 require __DIR__.'/auth.php';
