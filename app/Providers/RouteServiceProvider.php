@@ -55,6 +55,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->middleware(['web', 'auth'])
                 ->namespace($this->namespace)
                 ->group(base_path('routes/auditor.php'));
+
+            Route::prefix('kaprodi')
+                ->middleware(['web', 'auth'])
+                ->namespace($this->namespace)
+                ->group(base_path('routes/kaprodi.php'));
         });
     }
 

@@ -11,12 +11,15 @@ use App\Models\Review;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\EncryptionHelper; 
 use Illuminate\Support\Facades\Storage;
+use App\Models\Timeline;
 
 
 class PenelitianController extends Controller
 {
     public function index()
     {
+        $currentDate = now();
+        $timeline = Timeline::first();
         $proposals = Penelitian::all();
         $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
         $existingReviews = Review::all(); 
@@ -35,11 +38,18 @@ class PenelitianController extends Controller
             }
         }
         
-        return view('reviewer.ppm.penelitian.index', compact('proposals', 'reviews', 'existingReviews'));
+        return view('reviewer.ppm.penelitian.index', compact('proposals', 'reviews', 'existingReviews','timeline','currentDate'));
     }
 
     public function review($id)
     {
+        $currentDate = now();
+        $timeline = Timeline::first(); // Assuming there's only one timeline record
+
+        if ($currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+            return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
+        }
+
         $proposal = Penelitian::findOrFail($id);
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
         

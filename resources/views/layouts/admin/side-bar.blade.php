@@ -83,6 +83,13 @@
     </div>
 
     <li class="nav-item">
+        <a class="nav-link" href="{{ route('admin.timeline.index') }}">
+            <i class="fas fa-fw fa-file-alt"></i>
+            <span>Timeline</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
         <a class="nav-link" href="{{ route('fokus-bidang.index') }}">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Bidang Fokus</span>

@@ -37,7 +37,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'in:admin,dosen,reviewer,auditor'],
+            'role' => ['required', 'string', 'in:admin,dosen,reviewer,auditor,kaprodi'],
         ]);
 
         $user = User::create([
@@ -69,7 +69,9 @@ class RegisteredUserController extends Controller
         }elseif ($user->role === 'reviewer') {
             return redirect()->route('reviewer.dashboard');
         } elseif ($user->role === 'auditor') {
-            return redirect()->route('auditor.dashboard');}
+            return redirect()->route('auditor.dashboard');
+        } elseif ($user->role === 'kaprodi') {
+            return redirect()->route('kaprodi.dashboard');}
 
         return redirect(RouteServiceProvider::HOME);
     }

@@ -67,7 +67,10 @@ class AuthenticatedSessionController extends Controller
         } elseif ($user->role == 'reviewer') {
             return redirect()->route('reviewer.dashboard');
         } elseif ($user->role == 'auditor') {
-            return redirect()->route('auditor.dashboard');}
+            return redirect()->route('auditor.dashboard');
+        } elseif ($user->role == 'kaprodi') {
+            return redirect()->route('kaprodi.dashboard');}
+        
             
 
         return redirect(RouteServiceProvider::HOME);

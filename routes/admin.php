@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PPM\Pengaturan\SkemaController;
 use App\Http\Controllers\Admin\PPM\FokusBidangController;
 use App\Http\Controllers\Admin\PPM\PenelitianController;
 use App\Http\Controllers\Admin\PPM\PengabdianController;
+use App\Http\Controllers\Admin\TimelineController;
 
 /*
 |-------------------------------------------------------------------------- 
@@ -60,5 +61,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('pengatur/related_link', RelatedLinkController::class);
 
     Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])->name('ckeditor.upload');
+
+    Route::get('/admin/timeline', [TimelineController::class, 'index'])->name('admin.timeline.index');
+    Route::get('/admin/timeline/create', [TimelineController::class, 'create'])->name('admin.timeline.create');
+    Route::post('/admin/timeline', [TimelineController::class, 'store'])->name('admin.timeline.store');
 
 });

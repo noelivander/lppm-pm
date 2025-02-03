@@ -15,6 +15,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\AuditorController;
+use App\Http\Controllers\KaprodiController;
+use App\Http\Controllers\Admin\TimelineController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +65,14 @@ Route::view('/pengumuman', 'pengumuman')->name('pengumuman');
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 });
+Route::prefix('admin')->group(function () {
+    Route::resource('timeline', TimelineController::class);
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('timeline', TimelineController::class)->except(['show']);
+});
+
 
 Route::middleware(['auth', 'role:dosen'])->group(function () {
     Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
@@ -78,6 +88,10 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
 
 Route::middleware(['auth', 'role:auditor'])->group(function () {
     Route::get('/auditor/dashboard', [AuditorController::class, 'dashboard'])->name('auditor.dashboard');
+});
+
+Route::middleware(['auth', 'role:kaprodi'])->group(function () {
+    Route::get('/kaprodi/dashboard', [KaprodiController::class, 'dashboard'])->name('kaprodi.dashboard');
 });
 
 require __DIR__.'/auth.php';

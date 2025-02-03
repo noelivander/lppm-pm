@@ -9,6 +9,31 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <h3>Proposal Penelitian</h3>
+                        @if (!$timeline)
+                            <div class="alert alert-danger">
+                                No upload schedule available. You cannot upload a proposal.
+                            </div>
+                        @else
+                            @if ($currentDate < $timeline->upload_start_date)
+                                <div class="alert alert-warning">
+                                    Upload period will start in <span id="countdown"></span>.
+                                </div>
+                                <script>
+                                    var countdownDate = new Date("{{ $timeline->upload_start_date }}").getTime();
+                                </script>
+                            @elseif ($currentDate >= $timeline->upload_start_date && $currentDate <= $timeline->upload_end_date)
+                                <div class="alert alert-info">
+                                    Upload period is open. It will close in <span id="countdown"></span>.
+                                </div>
+                                <script>
+                                    var countdownDate = new Date("{{ $timeline->upload_end_date }}").getTime();
+                                </script>
+                            @else
+                                <div class="alert alert-danger">
+                                    The upload period has ended.
+                                </div>
+                            @endif
+                        @endif
                         @if ($penelitian->isEmpty())
                             <p>Belum ada proposal penelitian.</p>
                         @else
@@ -106,7 +131,13 @@
                         
                         @endif
 
-                        <button class="btn btn-primary mt-3" id="addNewProposal">+ Tambah Usulan Baru</button>
+                        <button class="btn btn-primary mt-3" id="addNewProposal" 
+                            @if (!$timeline || $currentDate < $timeline->upload_start_date || $currentDate > $timeline->upload_end_date) 
+                                disabled 
+                            @endif>
+                            + Tambah Usulan Baru
+                        </button>
+
 
                         <form id="proposalForm" method="POST" action="{{ route('penelitian-dos.store') }}" enctype="multipart/form-data" style="display: none;">
                             @csrf
@@ -411,6 +442,23 @@
         window.onload = function() {
             validateForm();
         };
+        // Countdown Timer for Upload Period
+        var x = setInterval(function() {
+            var now = new Date().getTime();
+            var distance = countdownDate - now;
+
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "EXPIRED";
+            }
+        }, 1000);
     </script>
     
 </x-dosen-layout>

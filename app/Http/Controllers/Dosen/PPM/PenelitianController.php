@@ -9,12 +9,15 @@ use App\Models\Anggota;
 use App\Models\Review;
 use Mpdf\Mpdf;
 use App\Helpers\EncryptionHelper;
+use App\Models\Timeline;
 
 class PenelitianController extends Controller
 {
 
     public function index()
     {
+        $currentDate = now();
+        $timeline = Timeline::first();
         $penelitian = Penelitian::where('user_id', Auth::id())->get();
 
         foreach ($penelitian as $item) {
@@ -28,7 +31,7 @@ class PenelitianController extends Controller
             $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
         }
 
-        return view('dosen.ppm.penelitian.index', compact('penelitian'));
+        return view('dosen.ppm.penelitian.index', compact('penelitian','timeline','currentDate'));
     }
 
     public function viewReviews($penelitian_id, $review_number)
@@ -55,6 +58,13 @@ class PenelitianController extends Controller
 
     public function store(Request $request)
     {
+        $currentDate = now();
+        $timeline = Timeline::first(); // Assuming there's only one timeline record
+    
+        if ($currentDate < $timeline->upload_start_date || $currentDate > $timeline->upload_end_date) {
+            return redirect()->back()->with('error', 'Anda tidak dapat mengunggah proposal di luar periode yang ditentukan.');
+        }
+
         $request->validate([
             'judul' => 'required',
             'luaran_wajib' => 'required',
