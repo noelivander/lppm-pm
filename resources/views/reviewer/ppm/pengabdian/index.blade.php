@@ -9,6 +9,21 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <h3>Proposal Pengabdian</h3>
+                        @if (!$timeline)
+                            <div class="alert alert-danger">Tidak ada jadwal review.</div>
+                        @elseif ($currentDate < $timeline->review_start_date)
+                            <div class="alert alert-warning">Review period will start in <span id="countdown"></span>.</div>
+                            <script>
+                                var countdownDate = new Date("{{ $timeline->review_start_date }}").getTime();
+                            </script>
+                        @elseif ($currentDate > $timeline->review_end_date)
+                            <div class="alert alert-danger">The review period has ended.</div>
+                        @else
+                            <div class="alert alert-info">Review period is open. It will close in <span id="countdown"></span>.</div>
+                            <script>
+                                var countdownDate = new Date("{{ $timeline->review_end_date }}").getTime();
+                            </script>
+                        @endif
                         
                         @if ($proposals->isEmpty())
                             <p>Tidak ada proposal pengabdian saat ini.</p>
@@ -51,15 +66,24 @@
                                         <td class="judul">{{ $proposal->judul }}</td>
                                         <td class="skema">{{ $proposal->skema }}</td>
                                         <td>{{ $proposal->created_at->year }}</td>
-                                        <td>{{ $proposal->status }}</td>
                                         <td>
+                                            <span class="badge
+                                                @if ($proposal->status === 'Pending') bg-warning
+                                                @elseif ($proposal->status === 'Diproses') bg-info
+                                                @elseif ($proposal->status === 'Selesai') bg-success
+                                                @endif">
+                                                {{ $proposal->status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @php($inWindow = $timeline && $currentDate >= $timeline->review_start_date && $currentDate <= $timeline->review_end_date)
                                             @if (in_array($proposal->id, $reviews))
-                                                <a href="{{ route('pengabdian-rev.editReview', $proposal->id) }}" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i> Edit Review</a>
+                                                <a href="{{ route('pengabdian-rev.editReview', $proposal->id) }}" class="btn btn-sm btn-outline-warning @if(!$inWindow) disabled @endif"><i class="fas fa-edit"></i> Edit Review</a>
                                                 <a href="{{ route('pengabdian-rev.view_pdf', $proposal->id) }}" class="btn btn-sm btn-outline-danger"><i class="fas fa-file-download"></i> Lihat PDF</a>
                                             {{-- @elseif ($isReviewedByAnother)
                                                 <button class="btn btn-secondary" disabled>Telah Ditinjau</button> --}}
                                             @else
-                                                <a href="{{ route('pengabdian-rev.review', $proposal->id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-file"></i> Review</a>
+                                                <a href="{{ route('pengabdian-rev.review', $proposal->id) }}" class="btn btn-sm btn-outline-primary @if(!$inWindow) disabled @endif"><i class="fas fa-file"></i> Review</a>
                                             @endif
                                         </td>
                                     </tr>

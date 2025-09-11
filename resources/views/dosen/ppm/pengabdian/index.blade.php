@@ -9,6 +9,23 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <h3>Proposal Pengabdian</h3>
+                        @if (!$timeline)
+                            <div class="alert alert-danger">No upload schedule available. You cannot upload a proposal.</div>
+                        @else
+                            @if ($currentDate < $timeline->upload_start_date)
+                                <div class="alert alert-warning">Upload period will start in <span id="countdown"></span>.</div>
+                                <script>
+                                    var countdownDate = new Date("{{ $timeline->upload_start_date }}").getTime();
+                                </script>
+                            @elseif ($currentDate >= $timeline->upload_start_date && $currentDate <= $timeline->upload_end_date)
+                                <div class="alert alert-info">Upload period is open. It will close in <span id="countdown"></span>.</div>
+                                <script>
+                                    var countdownDate = new Date("{{ $timeline->upload_end_date }}").getTime();
+                                </script>
+                            @else
+                                <div class="alert alert-danger">The upload period has ended.</div>
+                            @endif
+                        @endif
                         @if ($pengabdian->isEmpty())
                             <p>Belum ada proposal pengabdian.</p>
                         @else
@@ -102,7 +119,8 @@
                             </table>
                         @endif      
 
-                        <button class="btn btn-primary mt-3" id="addNewProposal">+ Tambah Usulan Baru</button>
+                        @php($uploadOpen = $timeline && $currentDate >= $timeline->upload_start_date && $currentDate <= $timeline->upload_end_date)
+                        <button class="btn btn-primary mt-3 text-white" id="addNewProposal" @if(!$uploadOpen) disabled @endif>+ Tambah Usulan Baru</button>
 
                         <form id="proposalForm" method="POST" action="{{ route('pengabdian-dos.store') }}" enctype="multipart/form-data" style="display: none;">
                             @csrf

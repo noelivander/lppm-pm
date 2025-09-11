@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Pengabdian;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Anggota_pengabdian;
+use App\Models\Timeline;
 use App\Models\Review;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\EncryptionHelper; 
@@ -15,6 +16,8 @@ class PengabdianController extends Controller
 {
     public function index()
     {
+        $currentDate = now();
+        $timeline = Timeline::first();
         $proposals = Pengabdian::all();
         $reviews = Review::where('reviewer_id', auth()->id())->pluck('pengabdian_id')->toArray();
         $existingReviews = Review::all();
@@ -33,12 +36,17 @@ class PengabdianController extends Controller
             }
         }
     
-        return view('reviewer.ppm.pengabdian.index', compact('proposals', 'reviews', 'existingReviews'));
+        return view('reviewer.ppm.pengabdian.index', compact('proposals', 'reviews', 'existingReviews','timeline','currentDate'));
     }
     
 
     public function review($id)
     {
+        $currentDate = now();
+        $timeline = Timeline::first();
+        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+            return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
+        }
         $proposal = Pengabdian::findOrFail($id);
         $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();
         
@@ -95,6 +103,11 @@ class PengabdianController extends Controller
 
     public function store(Request $request)
     {
+        $timeline = Timeline::first();
+        $currentDate = now();
+        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+            return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
+        }
         $review = new Review();
     
         $review->pengabdian_id = $request->pengabdian_id;
@@ -133,6 +146,11 @@ class PengabdianController extends Controller
 
     public function updateReview(Request $request, $id)
     {
+        $timeline = Timeline::first();
+        $currentDate = now();
+        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+            return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
+        }
         $validatedData = $request->validate([
             'judul_kegiatan' => 'required|string|max:255',
             'ketua_tim' => 'required|string|max:255',
@@ -169,6 +187,11 @@ class PengabdianController extends Controller
 
     public function editReview($id)
     {
+        $timeline = Timeline::first();
+        $currentDate = now();
+        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+            return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
+        }
         $proposal = Pengabdian::findOrFail($id);
         $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();
 

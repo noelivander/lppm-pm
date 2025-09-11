@@ -9,11 +9,14 @@ use App\Models\Anggota_pengabdian;
 use App\Models\Review;
 use Mpdf\Mpdf;
 use App\Helpers\EncryptionHelper;
+use App\Models\Timeline;
 
 class PengabdianController extends Controller
 {
     public function index()
     {
+        $currentDate = now();
+        $timeline = Timeline::first();
         $pengabdian = Pengabdian::where('user_id', Auth::id())->get();
 
         foreach ($pengabdian as $item) {
@@ -27,7 +30,7 @@ class PengabdianController extends Controller
             $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
         }
 
-        return view('dosen.ppm.pengabdian.index', compact('pengabdian'));
+        return view('dosen.ppm.pengabdian.index', compact('pengabdian','timeline','currentDate'));
     }
 
     public function viewReviews($pengabdian_id, $review_number)

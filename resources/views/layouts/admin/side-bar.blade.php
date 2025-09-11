@@ -13,7 +13,7 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item active">
+    <li class="nav-item @isroute('admin.dashboard')">
         <a class="nav-link" href="{{ route('admin.dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span></a>
@@ -29,9 +29,9 @@
         <div id="collapseKelembagaan" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Custom Kelembagaan:</h6>
-                <a class="collapse-item" href="{{ route('tentang-satker.index') }}">Tentang</a>
-                <a class="collapse-item" href="{{ route('visi-misi.index') }}">Visi Misi</a>
-                <a class="collapse-item" href="{{ route('struktur-organisasi.index') }}">Struktur Organisasi</a>
+                <a class="collapse-item @isroute('tentang-satker.index')" href="{{ route('tentang-satker.index') }}">Tentang</a>
+                <a class="collapse-item @isroute('visi-misi.index')" href="{{ route('visi-misi.index') }}">Visi Misi</a>
+                <a class="collapse-item @isroute('struktur-organisasi.index')" href="{{ route('struktur-organisasi.index') }}">Struktur Organisasi</a>
             </div>
         </div>
     </li>
@@ -47,10 +47,10 @@
             data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Layanan:</h6>
-                <a class="collapse-item" href="{{ route('agenda.index') }}">Agenda</a>
-                <a class="collapse-item" href="{{ route('berita.index') }}">Berita</a>
-                <a class="collapse-item" href="{{ route('dokumen_penting.index') }}">Dokumen</a>
-                <a class="collapse-item" href="{{ route('pengumuman.index') }}">Pengumuman</a>
+                <a class="collapse-item @isroute('agenda.index')" href="{{ route('agenda.index') }}">Agenda</a>
+                <a class="collapse-item @isroute('berita.index')" href="{{ route('berita.index') }}">Berita</a>
+                <a class="collapse-item @isroute('dokumen_penting.index')" href="{{ route('dokumen_penting.index') }}">Dokumen</a>
+                <a class="collapse-item @isroute('pengumuman.index')" href="{{ route('pengumuman.index') }}">Pengumuman</a>
             </div>
         </div>
     </li>
@@ -66,10 +66,10 @@
             data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Custom Pengaturan:</h6>
-                <a class="collapse-item" href="{{ route('jurusan.index') }}">Jurusan</a>
-                <a class="collapse-item" href="{{ route('program_studi.index') }}">Program Studi</a>
-                <a class="collapse-item" href="{{ route('pegawai.index') }}">Pegawai</a>
-                <a class="collapse-item" href="{{ route('related_link.index') }}">Tautan</a>
+                <a class="collapse-item @isroute('jurusan.index')" href="{{ route('jurusan.index') }}">Jurusan</a>
+                <a class="collapse-item @isroute('program_studi.index')" href="{{ route('program_studi.index') }}">Program Studi</a>
+                <a class="collapse-item @isroute('pegawai.index')" href="{{ route('pegawai.index') }}">Pegawai</a>
+                <a class="collapse-item @isroute('related_link.index')" href="{{ route('related_link.index') }}">Tautan</a>
             </div>
         </div>
     </li>
@@ -82,28 +82,28 @@
         Penelitian dan Pengabdian
     </div>
 
-    <li class="nav-item">
+    <li class="nav-item @isroute('admin.timeline.index')">
         <a class="nav-link" href="{{ route('admin.timeline.index') }}">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Timeline</span>
         </a>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item @isroute('fokus-bidang.index')">
         <a class="nav-link" href="{{ route('fokus-bidang.index') }}">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Bidang Fokus</span>
         </a>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item @isroute('penelitian-adm.index')">
         <a class="nav-link" href="{{ route('penelitian-adm.index') }}">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Penelitian</span>
         </a>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item @isroute('pengabdian-adm.index')">
         <a class="nav-link" href="{{ route('pengabdian-adm.index') }}">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Pengabdian</span>
@@ -122,8 +122,8 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Pengaturan:</h6>
                 <!-- <a class="collapse-item" href="{{ route('luaran.index') }}">Hibah</a> -->
-                <a class="collapse-item" href="{{ route('skema.index') }}">Skema</a>
-                <a class="collapse-item" href="{{ route('luaran.index') }}">Luaran</a>
+                <a class="collapse-item @isroute('skema.index')" href="{{ route('skema.index') }}">Skema</a>
+                <a class="collapse-item @isroute('luaran.index')" href="{{ route('luaran.index') }}">Luaran</a>
             </div>
         </div>
     </li>

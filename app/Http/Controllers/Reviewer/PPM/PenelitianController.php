@@ -44,9 +44,8 @@ class PenelitianController extends Controller
     public function review($id)
     {
         $currentDate = now();
-        $timeline = Timeline::first(); // Assuming there's only one timeline record
-
-        if ($currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+        $timeline = Timeline::first();
+        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
         }
 
@@ -118,6 +117,11 @@ class PenelitianController extends Controller
 
     public function store(Request $request)
     {
+        $timeline = Timeline::first();
+        $currentDate = now();
+        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+            return redirect()->route('penelitian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
+        }
         $review = new Review();
 
         $review->penelitian_id = $request->penelitian_id;
@@ -156,6 +160,11 @@ class PenelitianController extends Controller
 
     public function updateReview(Request $request, $id)
     {
+        $timeline = Timeline::first();
+        $currentDate = now();
+        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+            return redirect()->route('penelitian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
+        }
         $validatedData = $request->validate([
             'judul_kegiatan' => 'required|string|max:255',
             'ketua_tim' => 'required|string|max:255',
@@ -192,6 +201,11 @@ class PenelitianController extends Controller
 
     public function editReview($id)
     {
+        $timeline = Timeline::first();
+        $currentDate = now();
+        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
+            return redirect()->route('penelitian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
+        }
         $proposal = Penelitian::findOrFail($id);
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
 
