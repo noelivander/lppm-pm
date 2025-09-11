@@ -47,7 +47,7 @@ class AccountController extends Controller
 
         $user->update($validated);
 
-        return back()->with('status', 'Profil berhasil diperbarui.');
+        return back()->with('profile_status', 'Profil berhasil diperbarui.');
     }
 
     public function updatePassword(Request $request)
@@ -66,7 +66,7 @@ class AccountController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return back()->with('status', 'Password berhasil diperbarui.');
+        return back()->with('password_status', 'Password berhasil diperbarui.');
     }
 }
 

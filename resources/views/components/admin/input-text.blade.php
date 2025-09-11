@@ -3,7 +3,7 @@
 <div class="form-group{{ $errors->has($lable_input) ? ' has-error' : '' }}">
     <label for="{{ $lable_input }}" class="col-form-label">{{ ucwords(str_replace('_',' ',$lable_input)) }}</label>
 
-        @if($input_type=='text' || $input_type=='url' || $input_type=='number')
+        @if($input_type=='text' || $input_type=='url' || $input_type=='number' || $input_type=='password')
             <input id="{{ $lable_input }}" type="{{$input_type}}" class="form-control" name="{{ $lable_input }}" value="{{ $value }}" placeholder="masukkan {{ str_replace('_',' ', $lable_input) }} ..." 
                 @if($required)
                     required
@@ -57,8 +57,6 @@
         @endif
 
         @if ($errors->has($lable_input))
-            <span class="help-block">
-                <strong>{{ $errors->first($lable_input) }}</strong>
-            </span>
+            <div class="text-danger small">{{ $errors->first($lable_input) }}</div>
         @endif
 </div>
