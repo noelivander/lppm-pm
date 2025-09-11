@@ -8,6 +8,8 @@ class Pengabdian extends Model
 {
     use HasFactory;
 
+    protected $table = 'pengabdian';
+
     protected $fillable = [
         'judul', 'luaran_wajib', 'lama_penelitian', 'biaya_diusulkan',  'sinta_index', 
         'skema', 'luaran_tambahan', 'ringkasan_proposal', 'dokumen_proposal', 
