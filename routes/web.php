@@ -17,6 +17,7 @@ use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\AuditorController;
 use App\Http\Controllers\KaprodiController;
 use App\Http\Controllers\Admin\TimelineController;
+use App\Http\Controllers\AccountController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +96,15 @@ Route::middleware(['auth', 'role:kaprodi'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Account routes (shared by all authenticated roles)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/account/profile', [AccountController::class, 'profile'])->name('account.profile');
+    Route::get('/account/settings', [AccountController::class, 'settings'])->name('account.settings');
+    Route::get('/account/activity', [AccountController::class, 'activity'])->name('account.activity');
+    Route::post('/account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
+    Route::post('/account/password', [AccountController::class, 'updatePassword'])->name('account.password.update');
+});
 
 
 

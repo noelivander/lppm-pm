@@ -16,7 +16,8 @@ class StrukturorgController extends Controller
      */
     public function index()
     {
-        $text_stucture = File::get(storage_path('content/text/struktur_organisasi.txt'));
+        $filePath = storage_path('content/text/struktur_organisasi.txt');
+        $text_stucture = File::exists($filePath) ? File::get($filePath) : '';
 
         return view('admin.kelembagaan.struktur_organisasi.index', compact('text_stucture'));
     }

@@ -9,39 +9,43 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Jurusan</th>
-                        <th>Singkatan</th>
-                        <th>Nama</th>
-                        <th>Tahun Berdiri</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($program_studi as $key => $value)
-                    <tr>
-                        <td>{{ $key+1 }}</td>
-                        <td>{{ $value->jurusan->nama }}</td>
-                        <td>{{ strtoupper($value->kode) }}</td>
-                        <td>{{ $value->nama }}</td>
-                        <td>{{ $value->tahun }}</td>
-                        <td>
-                            <div class="d-flex">
-                                <a href="{{ route('program_studi.edit', ['program_studi'=>$value->id]) }}" role="button" class="btn btn-warning btn-sm text-white">Ubah</a>
-                                <form method="POST" action="{{ route('program_studi.destroy', $value->id) }}">
-                                    @method('DELETE')
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm ms-1 text-white show_confirm" data-toggle="tooltip" title='Delete'>Hapus</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Jurusan</th>
+                                <th>Singkatan</th>
+                                <th>Nama</th>
+                                <th>Tahun Berdiri</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($program_studi as $key => $value)
+                            <tr>
+                                <td>{{ $key+1 }}</td>
+                                <td>{{ $value->jurusan->nama }}</td>
+                                <td>{{ strtoupper($value->kode) }}</td>
+                                <td>{{ $value->nama }}</td>
+                                <td>{{ $value->tahun }}</td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <a href="{{ route('program_studi.edit', ['program_studi'=>$value->id]) }}" role="button" class="btn btn-warning btn-sm d-flex align-items-center text-white">Ubah</a>
+                                        <form method="POST" action="{{ route('program_studi.destroy', $value->id) }}">
+                                            @method('DELETE')
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger btn-sm ms-1 text-white show_confirm" data-toggle="tooltip" title='Delete'>Hapus</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         <div class="col-lg-4">
             <div class="card shadow mb-4">

@@ -5,7 +5,7 @@
 
     <x-admin.heading name="Dokumen/Buat Baru">
         <a href="{{ route('dokumen_penting.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-            class="fas fa-download fa-sm text-white-50"></i> <span class="text-white">Daftar Dokumen</span></a>
+        class="fas fa-list fa-sm text-white-50"></i> <span class="text-white">Daftar Dokumen</span></a>
     </x-admin.heading>
 
     <div class="row">

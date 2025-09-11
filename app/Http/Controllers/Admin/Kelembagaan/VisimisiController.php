@@ -16,7 +16,8 @@ class VisimisiController extends Controller
      */
     public function index()
     {
-        $text_visi_misi = File::get(storage_path('content/text/visi_misi.txt'));
+        $filePath = storage_path('content/text/visi_misi.txt');
+        $text_visi_misi = File::exists($filePath) ? File::get($filePath) : '';
 
         return view('admin.kelembagaan.visi_misi.index', compact('text_visi_misi'));
     }

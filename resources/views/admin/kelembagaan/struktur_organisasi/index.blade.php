@@ -14,10 +14,7 @@
             <div class="card shadow mb-4">
                 <div class="card-body">
                     <div class="mb-3">
-                            <textarea id="struktur_org" class="form-control" name="struktur_org" rows="20">
-                                {!! htmlspecialchars($text_stucture) !!}
-                            </textarea>
-                        </form>
+                            <textarea id="struktur_org" class="form-control" name="struktur_org" rows="20">{!! htmlspecialchars($text_stucture) !!}</textarea>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -26,10 +23,11 @@
                     </div>
                 </div>
             </div>
+            </form>
         </div>
     </div>
     <x-slot name="scripts">
-        <script type="text/javascript" src="{{ url('storage/ckeditor/ckeditor.js') }}"></script>
+        <script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script>
         <!-- https://codepolitan.com/blog/mengintegrasikan-ckeditor-di-laravel-5a1d04ac1f749 -->
 
         <script>

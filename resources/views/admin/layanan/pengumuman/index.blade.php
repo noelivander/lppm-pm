@@ -10,60 +10,63 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Pengumuman</th>
-                        <th>Dokumen</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($pengumuman as $key => $value)
-                    <tr>
-                        <td>{{ $key+1 }}</td>
-                        <td>{{ $value->judul }}<br>
-                            <small><i class="fa fa-user text-warning"></i> {{ $value->user->name }}&ensp;&ensp;
-                                @if($value->tag)
-                                    <i class="fa fa-tag text-warning"></i> <span>{{$value->tag}}</span>&ensp;&ensp;
-                                @endif
-                                @if($value->created_at)
-                                    <i class="fa fa-calendar text-warning"></i> <span>{{$value->created_at->format('d M Y')}}</span>&ensp;&ensp;
-                                @endif
-                            </small>
-                        </td>
-                        <td>
-                            @if($value->dokumen)
-                                <a href="{{ asset('storage/'. $value->dokumen) }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" target="_blank"><i class="fas fa-download fa-sm text-white-50"></i> <span class="text-white"></span></a>
-                            @endif
-                        </td>
-                        <td>
-                            @if($value->is_shown)
-                                <span class=""><i class="fa fa-eye"></i></span>
-                            @else
-                                <span class="text-danger"><i class="fa fa-eye-slash"></i></span>
-                            @endif
-                        </td>
-                        <td>
-                            <div class="d-flex">
-                                @if($value->is_shown)
-                                <a href="{{ route('layanan-pengumuman.show', ['slug'=>$value->slug]) }}" role="button" class="btn btn-success btn-sm ms-1 text-white" target="_blank">Lihat</a>
-                                @endif
-                                <a href="{{ route('pengumuman.edit', ['pengumuman'=>$value->id]) }}" role="button" class="btn btn-warning btn-sm ms-1 text-white">Ubah</a>
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Pengumuman</th>
+                                <th>Dokumen</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($pengumuman as $key => $value)
+                            <tr>
+                                <td>{{ $key+1 }}</td>
+                                <td>{{ $value->judul }}<br>
+                                    <small><i class="fa fa-user text-warning"></i> {{ $value->user->name }}&ensp;&ensp;
+                                        @if($value->tag)
+                                            <i class="fa fa-tag text-warning"></i> <span>{{$value->tag}}</span>&ensp;&ensp;
+                                        @endif
+                                        @if($value->created_at)
+                                            <i class="fa fa-calendar text-warning"></i> <span>{{$value->created_at->format('d M Y')}}</span>&ensp;&ensp;
+                                        @endif
+                                    </small>
+                                </td>
+                                <td>
+                                    @if($value->dokumen)
+                                        <a href="{{ asset('storage/'. $value->dokumen) }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" target="_blank"><i class="fas fa-download fa-sm text-white-50"></i> <span class="text-white"></span></a>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($value->is_shown)
+                                        <span class=""><i class="fa fa-eye"></i></span>
+                                    @else
+                                        <span class="text-danger"><i class="fa fa-eye-slash"></i></span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        @if($value->is_shown)
+                                        <a href="{{ route('layanan-pengumuman.show', ['slug'=>$value->slug]) }}" role="button" class="btn btn-success align-items-center d-flex btn-sm ms-1 text-white" target="_blank">Lihat</a>
+                                        @endif
+                                        <a href="{{ route('pengumuman.edit', ['pengumuman'=>$value->id]) }}" role="button" class="btn btn-warning align-items-center d-flex btn-sm ms-1 text-white">Ubah</a>
 
-                                <!-- Button trigger modal -->
-                                <button type="button" class="btn btn-danger btn-sm ms-1 text-white show_confirm" data-bs-toggle="modal" data-bs-target="#deletePengumuman" data-id-pengumuman="{{ $value->id }}" data-judul-pengumuman="{{ $value->judul }}">
-                                    Hapus
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
+                                        <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-danger btn-sm ms-1 text-white show_confirm" data-bs-toggle="modal" data-bs-target="#deletePengumuman" data-id-pengumuman="{{ $value->id }}" data-judul-pengumuman="{{ $value->judul }}">
+                                            Hapus
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 

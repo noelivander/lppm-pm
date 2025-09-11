@@ -6,14 +6,15 @@ use Illuminate\View\Component;
 
 class ReviewerLayout extends Component
 {
+    public bool $hideFooter;
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(bool $hideFooter = false)
     {
-        //
+        $this->hideFooter = $hideFooter;
     }
 
     /**

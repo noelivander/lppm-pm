@@ -40,7 +40,9 @@
                 </div>
                 <!-- End of Main Content -->
 
+                @if(empty($hideFooter) || !$hideFooter)
                 @include('layouts.reviewer.footer')
+                @endif
 
             </div>
             <!-- End of Content Wrapper -->
