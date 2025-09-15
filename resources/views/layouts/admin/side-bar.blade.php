@@ -1,6 +1,6 @@
 <!-- Sidebar -->
 <style>
-    :root { --sb-bg:#1a1029; --sb-bg2:#2a1748; --sb-accent:#7c3aed; --sb-accent-2:#8b5cf6; --sb-text:#e5e7eb; --sb-text-dim:#9ca3af; --sb-active:#7c3aed; }
+    :root { --sb-bg:#21163d; --sb-bg2:#352467; --sb-accent:#7c3aed; --sb-accent-2:#8b5cf6; --sb-text:#e5e7eb; --sb-text-dim:#9ca3af; --sb-active:#7c3aed; }
     .sidebar.sidebar-modern { background: linear-gradient(180deg, var(--sb-bg) 0%, var(--sb-bg2) 100%); color: var(--sb-text); padding: 0.7rem 0.85rem 0.5rem; width: 280px; box-shadow: inset 0 0 0 1px rgba(124,58,237,0.15), 0 8px 30px rgba(2,6,23,.35); border-right: 1px solid rgba(124,58,237,0.18); position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; }
     .sidebar.sidebar-modern::-webkit-scrollbar { width: 0; height: 0; }
     .sidebar.sidebar-modern .sidebar-brand { padding: .85rem .75rem; margin: .25rem .25rem 0.75rem; border-radius: 14px; background: radial-gradient(120% 120% at 0% 0%, rgba(124,58,237,.22) 0%, rgba(139,92,246,.18) 42%, rgba(255,255,255,0.04) 100%); color: var(--sb-text); box-shadow: 0 4px 16px rgba(2,6,23,.25) inset, 0 6px 22px rgba(2,6,23,.35); }
