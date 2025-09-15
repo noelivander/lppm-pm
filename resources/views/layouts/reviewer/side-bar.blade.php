@@ -51,5 +51,22 @@
         <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro">Upgrade to Pro!</a>
     </div> -->
 
+    <!-- User -->
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('account.profile') }}">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </form>
+    </li>
+
 </ul>
 <!-- End of Sidebar

@@ -27,10 +27,8 @@
                 <!-- Main Content -->
                 <div id="content">
 
-                    @include('layouts.kaprodi.nav-bar')
-
                     <!-- Begin Page Content -->
-                    <div class="container-fluid">
+                    <div class="container-fluid mt-3">
 
                         {{ $slot }}
 

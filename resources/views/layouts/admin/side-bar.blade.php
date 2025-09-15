@@ -251,6 +251,23 @@
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
     </div>
 
+    <!-- User -->
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('account.profile') }}">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </form>
+    </li>
+
     <!-- Sidebar Message -->
 <!--     <div class="sidebar-card d-none d-lg-flex">
         <img class="sidebar-card-illustration mb-2" src="img/undraw_rocket.svg" alt="...">
