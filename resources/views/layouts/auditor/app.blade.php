@@ -14,12 +14,37 @@
 
         <!-- Styles -->
         <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+        <style>
+        #sidebarToggleTop {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 250px;
+            z-index: 1030;
+            width: 32px;
+            height: 64px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 8px 8px 0;
+        }
+        body.sidebar-toggled #sidebarToggleTop { left: 90px; }
+        .sidebar-avatar { width: 40px; height: 40px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 50% !important; flex-shrink: 0; }
+        .sidebar-user-link img { border-radius: 50% !important; }
+        body.sidebar-toggled .sidebar-user-text { display: none !important; }
+        body.sidebar-toggled .sidebar-user-link { justify-content: center; }
+        </style>
     </head>
     <body id="page-top">
 
         <!-- Page Wrapper -->
         <div id="wrapper">
             @include('layouts.auditor.side-bar')
+            
+            <button id="sidebarToggleTop" class="btn btn-primary" style="position: fixed; top: 50%; transform: translateY(-50%); left: 250px; z-index: 1030; width: 32px; height: 64px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 0 8px 8px 0;">
+                <i class="fas fa-chevron-left"></i>
+            </button>
             
             <!-- Content Wrapper -->
             <div id="content-wrapper" class="d-flex flex-column">
@@ -62,6 +87,25 @@
         <script src="{{ asset('js/auditor.js') }}" defer></script>
 
         {{ $scripts ?? '' }}
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.getElementById('sidebarToggleTop');
+            var positionToggle = function() {
+                var sidebar = document.getElementById('accordionSidebar');
+                if (!btn || !sidebar) return;
+                var rect = sidebar.getBoundingClientRect();
+                btn.style.left = rect.right + 'px';
+            };
+            positionToggle();
+            window.addEventListener('resize', positionToggle);
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    setTimeout(positionToggle, 350);
+                });
+            }
+        });
+        </script>
 
     </body>
 </html>

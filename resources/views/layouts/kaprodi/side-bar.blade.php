@@ -1,5 +1,5 @@
 <!-- Sidebar -->
-<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion d-flex flex-column" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('kaprodi.dashboard') }}">
@@ -52,18 +52,21 @@
         <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro">Upgrade to Pro!</a>
     </div> -->
 
-    <!-- User -->
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('account.profile') }}">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
+    <!-- Current User Info as Profile Link -->
+    <li class="nav-item mt-auto px-3 mb-2">
+        <a class="d-flex align-items-center mb-2 text-decoration-none sidebar-user-link" href="{{ route('account.profile') }}">
+            <img src="{{ Auth::user()->avatar_path ? Storage::url(Auth::user()->avatar_path) : url('img/undraw_profile.svg') }}" class="rounded-circle me-2 sidebar-avatar">
+            <div class="text-white sidebar-user-text">
+                <div class="fw-bold">{{ Auth::user()->name }}</div>
+                <div class="small text-white-50 text-capitalize">{{ Auth::user()->role }}</div>
+            </div>
         </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item px-3 mt-2 mb-3">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
-                <i class="fas fa-sign-out-alt"></i>
+            <a class="btn btn-light w-100" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
+                <i class="fas fa-sign-out-alt me-1"></i>
                 <span>Logout</span>
             </a>
         </form>
