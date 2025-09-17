@@ -101,6 +101,14 @@
         </div>
     </li>
 
+    <!-- Kelola User moved outside of Pengaturan -->
+    <li class="nav-item @isroute('users.index')">
+        <a class="nav-link" href="{{ route('users.index') }}">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Kelola User</span>
+        </a>
+    </li>
+
     <!-- Divider -->
     <hr class="sidebar-divider">
 

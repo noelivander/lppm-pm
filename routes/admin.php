@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\PPM\FokusBidangController;
 use App\Http\Controllers\Admin\PPM\PenelitianController;
 use App\Http\Controllers\Admin\PPM\PengabdianController;
 use App\Http\Controllers\Admin\TimelineController;
+use App\Http\Controllers\Admin\UserController;
 
 /*
 |-------------------------------------------------------------------------- 
@@ -37,6 +38,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('pegawai', PegawaiController::class);
     Route::resource('pengumuman', PengumumanController::class);
     Route::resource('dokumen_penting', DokumenPentingController::class);
+    Route::resource('users', UserController::class);
 
     Route::resource('ppm/fokus-bidang', FokusBidangController::class);
     Route::resource('ppm/penelitian-adm', PenelitianController::class);

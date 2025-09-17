@@ -234,6 +234,25 @@
   border: 1px solid #10b981;
 }
 
+/* Role badges for Kelola User table */
+.status-badge.admin {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.status-badge.dosen {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 1px solid #3b82f6;
+}
+
+.status-badge.reviewer {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
 /* ===== MODERN FORMS ===== */
 .modern-form-group {
   margin-bottom: 1.5rem;
@@ -484,14 +503,6 @@ button[aria-disabled="true"],
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
-}
-
-/* Ensure modal stays perfectly centered vertically */
-.modern-modal .modal-dialog.modal-dialog-centered {
-  display: flex;
-  align-items: center;
-  min-height: calc(100% - var(--bs-modal-margin) * 2);
-  margin: 0 auto;
 }
 
 .modern-modal .modal-header {
