@@ -6,7 +6,7 @@
     <div class="container-fluid pb-5">
         <div class="row">
             <div class="col-md-12">
-                <div class="mb-3">
+                <div class="mb-3 fade-in-up">
                     <h3 class="mb-3">
                         <i class="fa fa-flask me-2"></i>Proposal Penelitian
                     </h3>
