@@ -4,25 +4,26 @@
     </x-slot>
 
     <x-admin.heading name="Pengumuman/Edit">
-        <a href="{{ route('pengumuman.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-            class="fas fa-list fa-sm text-white-50"></i> <span class="text-white">Daftar Pengumuman</span></a>
+        <a href="{{ route('pengumuman.index') }}" class="modern-btn modern-btn-primary">
+            <i class="fa fa-list me-1"></i> Daftar Pengumuman
+        </a>
     </x-admin.heading>
 
     <div class="row">
         <div class="col-lg-6">
-            <div class="card shadow mb-4">
+            <div class="modern-card mb-4 fade-in-up">
                 <form class="form-horizontal" method="POST" action="{{ route('pengumuman.update', ['pengumuman' => $pengumuman->id]) }}"  enctype="multipart/form-data">
                     @method('PUT')
                     {{ csrf_field() }}
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="judul" value="{{$pengumuman->judul}}">
-                            </x-admin.input-text>
+                    <div class="modern-card-body">
+                        <div class="modern-form-group">
+                            <label for="judul" class="modern-form-label"><i class="fa fa-heading me-2"></i>Judul Pengumuman</label>
+                            <input type="text" id="judul" name="judul" class="modern-form-input" value="{{$pengumuman->judul}}" required>
                         </div>
 
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="tag" value="{{$pengumuman->tag}}" required="0">
-                            </x-admin.input-text>
+                        <div class="modern-form-group">
+                            <label for="tag" class="modern-form-label"><i class="fa fa-tag me-2"></i>Tag</label>
+                            <input type="text" id="tag" name="tag" class="modern-form-input" value="{{$pengumuman->tag}}" placeholder="Opsional">
                         </div>
 
                         @if ($pengumuman->cover)
@@ -31,27 +32,26 @@
                         </div>
                         @endif
 
-                        <div class="mb-3">
-                            <label for="cover" class="form-label">Ganti Cover Pengumuman</label>
-                            <input class="col-form-control" type="file" id="cover" name="cover" accept="image/*">
+                        <div class="modern-form-group">
+                            <label for="cover" class="modern-form-label"><i class="fa fa-image me-2"></i>Ganti Cover Pengumuman</label>
+                            <input class="modern-form-input" type="file" id="cover" name="cover" accept="image/*">
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="file" class="form-label">Dokumen Pengumuman</label>
+                        <div class="modern-form-group">
+                            <label for="file" class="modern-form-label"><i class="fa fa-file me-2"></i>Dokumen Pengumuman</label>
                             <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="File Dokumen" value="{{ $file_dokumen }}" aria-describedby="button-addon2" disabled>
-                                <!-- <button class="btn btn-outline-secondary" type="button" id="button-addon2">Lihat Dokumen</button> -->
+                                <input type="text" class="modern-form-input" placeholder="File Dokumen" value="{{ $file_dokumen }}" aria-describedby="button-addon2" disabled>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="dokumen" class="form-label">Ganti Dokumen Pengumuman</label>
-                            <input class="form-control" type="file" id="dokumen" name="dokumen" accept="application/pdf">
+                        <div class="modern-form-group">
+                            <label for="dokumen" class="modern-form-label"><i class="fa fa-upload me-2"></i>Ganti Dokumen Pengumuman</label>
+                            <input class="modern-form-input" type="file" id="dokumen" name="dokumen" accept="application/pdf">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="isi" class="form-label">Deskripsi Pengumuman</label>
-                            <textarea id="isi" class="form-control" name="isi" rows="20">{!! htmlspecialchars($pengumuman->isi) !!}</textarea>
+                        <div class="modern-form-group">
+                            <label for="isi" class="modern-form-label"><i class="fa fa-edit me-2"></i>Deskripsi Pengumuman</label>
+                            <textarea id="isi" class="modern-form-textarea" name="isi" rows="20">{!! htmlspecialchars($pengumuman->isi) !!}</textarea>
                         </div>
                         
                         <div class="form-check form-switch">
@@ -60,12 +60,13 @@
                                     checked
                                 @endif
                             >
-                            <label class="form-check-label" for="is_shown">tampilkan pengumuman</label>
+                            <label class="form-check-label" for="is_shown"><i class="fa fa-eye me-1"></i>tampilkan pengumuman</label>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="">
-                            <button type="submit" class="btn btn-outline-primary btn-block">Simpan</button>
+                    <div class="modern-card-footer">
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('pengumuman.index') }}" class="modern-btn modern-btn-secondary"><i class="fa fa-arrow-left me-1"></i> Kembali</a>
+                            <button type="submit" class="modern-btn modern-btn-primary"><i class="fa fa-save me-1"></i> Simpan</button>
                         </div>
                     </div>
                 </form>

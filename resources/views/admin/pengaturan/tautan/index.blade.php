@@ -9,9 +9,8 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-body">
-                    <table class="table">
+            <div class="modern-table-container mb-4 fade-in-up">
+                <table class="modern-table">
                         <thead>
                             <tr>
                                 <th>No.</th>
@@ -24,15 +23,27 @@
                             @foreach($related_link as $key => $value)
                             <tr>
                                 <td>{{ $key+1 }}</td>
-                                <td>{{ $value->nama }}</td>
-                                <td>{{ $value->url }}</td>
                                 <td>
-                                    <div class="d-flex justify-content-center">
-                                        <a href="{{ route('related_link.edit', ['related_link'=>$value->id]) }}" role="button" class="btn btn-warning btn-sm d-flex align-items-center text-white">Ubah</a>
-                                        <form method="POST" action="{{ route('related_link.destroy', $value->id) }}">
+                                    <div class="fw-bold">{{ $value->nama }}</div>
+                                </td>
+                                <td>
+                                    <a href="{{ $value->url }}" target="_blank" class="text-primary">
+                                        <i class="fa fa-external-link me-1"></i>{{ $value->url }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ route('related_link.edit', ['related_link'=>$value->id]) }}" 
+                                           class="modern-btn modern-btn-warning modern-btn-sm">
+                                            <i class="fa fa-edit me-1"></i> Ubah
+                                        </a>
+                                        <form method="POST" action="{{ route('related_link.destroy', $value->id) }}" class="d-inline">
                                             @method('DELETE')
                                             @csrf
-                                            <button type="submit" class="btn btn-danger btn-sm ms-1 text-white show_confirm" data-toggle="tooltip" title='Delete'>Hapus</button>
+                                            <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm show_confirm" 
+                                                    data-toggle="tooltip" title='Delete'>
+                                                <i class="fa fa-trash me-1"></i> Hapus
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
@@ -40,26 +51,37 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="card shadow mb-4">
+            <div class="modern-card mb-4 fade-in-up">
+                <div class="modern-card-header">
+                    <h5 class="mb-0">
+                        <i class="fa fa-plus-circle me-2"></i>Tambahkan Tautan
+                    </h5>
+                </div>
                 <form class="form-horizontal" method="POST" action="{{ route('related_link.store') }}">
                     {{ csrf_field() }}
-                    <h5 class="card-header py-3">Tambahkan Tautan</h5>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="nama">
-                            </x-admin.input-text>
-                            <x-admin.input-text lable_input="url">
-                            </x-admin.input-text>
+                    <div class="modern-card-body">
+                        <div class="modern-form-group">
+                            <label for="nama" class="modern-form-label"><i class="fa fa-font me-2"></i>Nama</label>
+                            <input id="nama" type="text" class="modern-form-input" name="nama" placeholder="masukkan nama ..." required>
+                            @if ($errors->has('nama'))
+                                <div class="text-danger small">{{ $errors->first('nama') }}</div>
+                            @endif
+                        </div>
+                        <div class="modern-form-group">
+                            <label for="url" class="modern-form-label"><i class="fa fa-link me-2"></i>URL</label>
+                            <input id="url" type="url" class="modern-form-input" name="url" placeholder="https://example.com" required>
+                            @if ($errors->has('url'))
+                                <div class="text-danger small">{{ $errors->first('url') }}</div>
+                            @endif
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="">
-                            <button type="submit" class="btn btn-outline-primary btn-block">Simpan</button>
-                        </div>
+                    <div class="modern-card-footer">
+                        <button type="submit" class="modern-btn modern-btn-primary w-100">
+                            <i class="fa fa-save me-1"></i> Simpan Tautan
+                        </button>
                     </div>
                 </form>
             </div>

@@ -39,15 +39,15 @@
     <!-- Nav Item - Penelitian -->
     <li class="nav-item @isroute('penelitian-rev.index')">
         <a class="nav-link" href="{{ route('penelitian-rev.index') }}">
-            <i class="fas fa-fw fa-file-alt"></i>
+            <i class="fas fa-fw fa-flask"></i>
             <span>Penelitian</span>
         </a>
     </li>
 
     <!-- Nav Item - Pengabdian -->
-    <li class="nav-item @isroute('pengabdian-rev.index')">
+    <li class="nav-item @isroute('pengabdian-rev.index') }}">
         <a class="nav-link" href="{{ route('pengabdian-rev.index') }}">
-            <i class="fas fa-fw fa-file-alt"></i>
+            <i class="fas fa-fw fa-hands-helping"></i>
             <span>Pengabdian</span>
         </a>
     </li>
@@ -68,7 +68,7 @@
     </div> -->
 
     <!-- Current User Info as Profile Link -->
-    <li class="nav-item mt-auto px-3 mb-2.5">
+    <li class="nav-item mt-auto mb-2.5">
         <a class="d-flex align-items-center mb-2 text-decoration-none sidebar-user-link" href="{{ route('account.profile') }}">
             <img src="{{ Auth::user()->avatar_path ? Storage::url(Auth::user()->avatar_path) : url('img/undraw_profile.svg') }}" class="rounded-circle me-2 sidebar-avatar">
             <div class="text-white sidebar-user-text">
@@ -77,7 +77,7 @@
             </div>
         </a>
     </li>
-    <li class="nav-item px-3 mt-2 mb-3">
+    <li class="nav-item mt-2 mb-3">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <a class="btn btn-light w-100" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">

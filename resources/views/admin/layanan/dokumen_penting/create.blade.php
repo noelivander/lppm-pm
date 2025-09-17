@@ -4,43 +4,73 @@
     </x-slot>
 
     <x-admin.heading name="Dokumen/Buat Baru">
-        <a href="{{ route('dokumen_penting.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-        class="fas fa-list fa-sm text-white-50"></i> <span class="text-white">Daftar Dokumen</span></a>
+        <a href="{{ route('dokumen_penting.index') }}" class="modern-btn modern-btn-primary">
+            <i class="fa fa-list me-1"></i> Daftar Dokumen
+        </a>
     </x-admin.heading>
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card shadow mb-4">
+            <div class="modern-card mb-4 fade-in-up">
+                <div class="modern-card-header">
+                    <h5 class="mb-0">
+                        <i class="fa fa-plus-circle me-2"></i>Form Buat Dokumen Baru
+                    </h5>
+                </div>
                 <form class="form-horizontal" method="POST" action="{{ route('dokumen_penting.store') }}"  enctype="multipart/form-data">
                     {{ csrf_field() }}
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="judul">
-                            </x-admin.input-text>
+                    <div class="modern-card-body">
+                        <div class="modern-form-group">
+                            <label for="judul" class="modern-form-label"><i class="fa fa-heading me-2"></i>Judul Dokumen</label>
+                            <input id="judul" type="text" class="modern-form-input" name="judul" placeholder="masukkan judul ..." required>
+                            @if ($errors->has('judul'))
+                                <div class="text-danger small">{{ $errors->first('judul') }}</div>
+                            @endif
                         </div>
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="label" input_type="selection-val" :categories="$label_dokumen">
-                            </x-admin.input-text>
+                        <div class="modern-form-group">
+                            <label for="label" class="modern-form-label"><i class="fa fa-tags me-2"></i>Label</label>
+                            <select class="modern-form-select" id="label" name="label" required>
+                                <option value="">pilih label</option>
+                                @foreach ($label_dokumen as $key => $val)
+                                    <option value="{{ $key }}">{{ $val }}</option>
+                                @endforeach
+                            </select>
+                            @if ($errors->has('label'))
+                                <div class="text-danger small">{{ $errors->first('label') }}</div>
+                            @endif
                         </div>
 
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="urutan" input_type="number" help="semakin kecil angkanya maka semakin prioritas di urutan awal">
-                            </x-admin.input-text>
+                        <div class="modern-form-group">
+                            <label for="urutan" class="modern-form-label"><i class="fa fa-list-ol me-2"></i>Urutan</label>
+                            <input id="urutan" type="number" class="modern-form-input" name="urutan" placeholder="masukkan urutan ..." required>
+                            <span id="urutanHelpInline" class="form-text">semakin kecil angkanya maka semakin prioritas di urutan awal</span>
+                            @if ($errors->has('urutan'))
+                                <div class="text-danger small">{{ $errors->first('urutan') }}</div>
+                            @endif
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="cover" class="col-form-label">Pilih cover file</label>
-                            <input class="form-control" type="file" id="cover" name="cover" accept="image/*">
+                        <div class="modern-form-group">
+                            <label for="cover" class="modern-form-label">
+                                <i class="fa fa-image me-2"></i>Pilih cover file
+                            </label>
+                            <input class="modern-form-input" type="file" id="cover" name="cover" accept="image/*">
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="file" class="form-label">Pilih file</label>
-                            <input class="form-control" type="file" id="file" name="file" accept="application/pdf, .doc, .docx">
+                        <div class="modern-form-group">
+                            <label for="file" class="modern-form-label">
+                                <i class="fa fa-file me-2"></i>Pilih file
+                            </label>
+                            <input class="modern-form-input" type="file" id="file" name="file" accept="application/pdf, .doc, .docx">
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="">
-                            <button type="submit" class="btn btn-outline-primary btn-block">Simpan</button>
+                    <div class="modern-card-footer">
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('dokumen_penting.index') }}" class="modern-btn modern-btn-secondary">
+                                <i class="fa fa-arrow-left me-1"></i> Kembali
+                            </a>
+                            <button type="submit" class="modern-btn modern-btn-primary">
+                                <i class="fa fa-save me-1"></i> Simpan Dokumen
+                            </button>
                         </div>
                     </div>
                 </form>

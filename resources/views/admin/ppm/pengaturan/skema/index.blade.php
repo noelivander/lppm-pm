@@ -9,7 +9,8 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <table class="table">
+            <div class="modern-table-container mb-4 fade-in-up">
+                <table class="modern-table">
                 <thead>
                     <tr>
                         <th>No.</th>
@@ -22,31 +23,42 @@
                     @foreach($skema as $key => $value)
                     <tr>
                         <td>{{ $key+1 }}</td>
-                        <td>{{ $value->nama }}
-                            @if($value->perihal)
-                                {{ __(" - ".$value->perihal) }}
-                            @endif
+                        <td>
+                            <div class="fw-bold mb-1">{{ $value->nama }}
+                                @if($value->perihal)
+                                    {{ __(" - ".$value->perihal) }}
+                                @endif
+                            </div>
                             @if($value->is_research)
-                                <small><span class="badge text-bg-primary text-white">Riset</span></small>
+                                <span class="status-badge primary">Riset</span>
                             @else
-                                <small><span class="badge text-bg-success text-white">Abdimas</span></small>
+                                <span class="status-badge success">Abdimas</span>
                             @endif
                         </td>
-                        <td>{{ strtoupper($value->jenis_skema->kode) }}</td>
                         <td>
-                            <div class="d-flex">
-                                <a href="{{ route('skema.edit', ['skema'=>$value->id]) }}" role="button" class="btn btn-warning btn-sm text-white">Ubah</a>
-                                <form method="POST" action="{{ route('skema.destroy', $value->id) }}">
+                            <span class="badge bg-secondary">{{ strtoupper($value->jenis_skema->kode) }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('skema.edit', ['skema'=>$value->id]) }}" 
+                                   class="modern-btn modern-btn-warning modern-btn-sm">
+                                    <i class="fa fa-edit me-1"></i> Ubah
+                                </a>
+                                <form method="POST" action="{{ route('skema.destroy', $value->id) }}" class="d-inline">
                                     @method('DELETE')
                                     @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm ms-1 text-white show_confirm" data-toggle="tooltip" title='Delete'>Hapus</button>
+                                    <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm show_confirm" 
+                                            data-toggle="tooltip" title='Delete'>
+                                        <i class="fa fa-trash me-1"></i> Hapus
+                                    </button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
         <div class="col-lg-4">
             <div class="card shadow mb-4">

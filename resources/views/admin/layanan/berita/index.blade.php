@@ -4,84 +4,110 @@
     </x-slot>
 
     <x-admin.heading name="Berita">
-        <a href="{{ route('berita.create') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-            class="fas fa-plus fa-sm text-white-50"></i> <span class="text-white">Buat Baru</span></a>
+        <a href="{{ route('berita.create') }}" class="modern-btn modern-btn-primary">
+            <i class="fa fa-plus me-1"></i> Buat Baru
+        </a>
     </x-admin.heading>
 
     <div class="row">
         <div class="col-lg-12">
-            <div class="card shadow mb-4">
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Berita</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($berita as $key => $value)
-                            <tr>
-                                <td>{{ $key+1 }}</td>
-                                <td>
-                                    {{ $value->judul }}<br>
-                                    <small><i class="fa fa-user text-warning"></i> {{ $value->user->name }}&ensp;&ensp;
-                                        @if($value->tag)
-                                            <i class="fa fa-tag text-warning"></i> <span>{{$value->tag}}</span>&ensp;&ensp;
-                                        @endif
-                                        @if($value->created_at)
-                                            <i class="fa fa-calendar text-warning"></i> <span>{{$value->created_at->format('d M Y')}}</span>&ensp;&ensp;
-                                        @endif
-                                    </small>
-                                </td>
-                                <td>
-                                    @if($value->is_shown)
-                                        <span class=""><i class="fa fa-eye"></i></span>
-                                    @else
-                                        <span class="text-danger"><i class="fa fa-eye-slash"></i></span>
+            <div class="modern-table-container mb-4 fade-in-up">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Berita</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($berita as $key => $value)
+                        <tr>
+                            <td>{{ $key+1 }}</td>
+                            <td>
+                                <div class="fw-bold mb-1">{{ $value->judul }}</div>
+                                <div class="text-muted small">
+                                    <i class="fa fa-user me-1"></i> {{ $value->user->name }}
+                                    @if($value->tag)
+                                        <i class="fa fa-tag ms-2 me-1"></i> <span>{{$value->tag}}</span>
                                     @endif
-                                </td>
-                                <td>
-                                    <div class="d-flex justify-content-center">
-                                        @if($value->is_shown)
-                                        <a href="{{ route('layanan-berita.show', ['slug'=>$value->slug]) }}" role="button" class="btn btn-success align-items-center d-flex btn-sm ms-1 text-white" target="_blank">Lihat</a>
-                                        @endif
-                                        <a href="{{ route('berita.edit', ['beritum'=>$value->id]) }}" role="button" class="btn btn-warning align-items-center d-flex btn-sm ms-1 text-white">Ubah</a>
-                                        
-                                        <!-- Button trigger modal -->
-                                        <button type="button" class="btn btn-danger btn-sm ms-1 text-white show_confirm" data-bs-toggle="modal" data-bs-target="#deleteBerita" data-id-berita="{{ $value->id }}" data-judul-berita="{{ $value->judul }}">
-                                            Hapus
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                                    @if($value->created_at)
+                                        <i class="fa fa-calendar ms-2 me-1"></i> <span>{{$value->created_at->format('d M Y')}}</span>
+                                    @endif
+                                </div>
+                            </td>
+                            <td>
+                                @if($value->is_shown)
+                                    <span class="status-badge selesai">
+                                        <i class="fa fa-eye me-1"></i> Published
+                                    </span>
+                                @else
+                                    <span class="status-badge pending">
+                                        <i class="fa fa-eye-slash me-1"></i> Draft
+                                    </span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    @if($value->is_shown)
+                                    <a href="{{ route('layanan-berita.show', ['slug'=>$value->slug]) }}" 
+                                       class="modern-btn modern-btn-success modern-btn-sm" 
+                                       target="_blank">
+                                        <i class="fa fa-eye me-1"></i> Lihat
+                                    </a>
+                                    @endif
+                                    <a href="{{ route('berita.edit', ['beritum'=>$value->id]) }}" 
+                                       class="modern-btn modern-btn-warning modern-btn-sm">
+                                        <i class="fa fa-edit me-1"></i> Ubah
+                                    </a>
+                                    
+                                    <!-- Button trigger modal -->
+                                    <button type="button" 
+                                            class="modern-btn modern-btn-danger modern-btn-sm show_confirm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteBerita" 
+                                            data-id-berita="{{ $value->id }}" 
+                                            data-judul-berita="{{ $value->judul }}">
+                                        <i class="fa fa-trash me-1"></i> Hapus
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <x-slot name="modals">
-        <div class="modal fade" id="deleteBerita" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal fade modern-modal" id="deleteBerita" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">Hapus Berita</h5>
+                        <h5 class="modal-title" id="staticBackdropLabel">
+                            <i class="fa fa-exclamation-triangle text-warning me-2"></i>
+                            Hapus Berita
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form method="POST" action="#">
                         @method('DELETE')
                         @csrf
                         <div class="modal-body">
-                            Apakah Anda yakin ingin menghapus berita yang berjudul<span class="text-primary"></span>?
+                            <div class="modern-alert modern-alert-warning">
+                                <i class="fa fa-warning me-2"></i>
+                                Apakah Anda yakin ingin menghapus berita yang berjudul <strong class="text-primary"></strong>?
+                            </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary btn-sm ms-1 text-white" data-bs-dismiss="modal">Batalkan</button>
-                            <button type="submi" class="btn btn-danger btn-sm ms-1 text-white">Hapus</button>
+                            <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-dismiss="modal">
+                                <i class="fa fa-times me-1"></i> Batalkan
+                            </button>
+                            <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm">
+                                <i class="fa fa-trash me-1"></i> Hapus
+                            </button>
                         </div>
                     </form>
                 </div>

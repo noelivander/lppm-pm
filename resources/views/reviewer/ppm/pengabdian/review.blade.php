@@ -6,16 +6,16 @@
     <div class="container-fluid pb-5">
         <div class="row mt-3">
             <div class="col-md-12">
-                <div class="card shadow mb-4">
-                    <div class="card-body">
+                <div class="modern-card mb-4 fade-in-up">
+                    <div class="modern-card-body">
                         <h3>Proposal Pengabdian</h3>
                         <h5 class="mb-3">"{{ $judul }}"</h5>
                         <iframe src="{{ Storage::url($proposal->dokumen_proposal) }}" style="width:100%; height:700px;"></iframe>
                     </div>
                 </div>
 
-                <div class="card shadow mb-4">
-                    <div class="card-body">
+                <div class="modern-card mb-4 fade-in-up">
+                    <div class="modern-card-body">
                         <form action="{{ route('pengabdian.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="pengabdian_id" value="{{ $proposal->id }}">
@@ -23,7 +23,7 @@
                             <input type="hidden" name="reviewer_name" value="{{ auth()->user()->name }}">
                             <input type="hidden" id="judul_kegiatan" name="judul_kegiatan" value="{{ $judul }}">
 
-                            <h3>Formulir Penilaian Proposal Pengabdian</h3><br>
+                            <h3 class="mb-3"><i class="fa fa-clipboard-check me-2"></i>Formulir Penilaian Proposal Pengabdian</h3>
                             
 
                             <div class="form-group">
@@ -77,14 +77,14 @@
                             
                                     <!-- Right column (form Scopus and Disarankan) -->
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="scopus" class="form-label" style="font-weight: bold;">H-Index (Scopus):</label>
-                                            <input type="text" id="scopus" name="scopus" class="form-control" style="margin-bottom: 20px;">
+                                        <div class="modern-form-group">
+                                            <label for="scopus" class="modern-form-label"><i class="fa fa-chart-line me-2"></i>H-Index (Scopus)</label>
+                                            <input type="text" id="scopus" name="scopus" class="modern-form-input">
                                         </div>
-                            
-                                        <div class="form-group">
-                                            <label for="disarankan" class="form-label" style="font-weight: bold;">Disarankan:</label>
-                                            <input type="text" id="disarankan" name="disarankan" class="form-control" style="margin-bottom: 10px;">
+
+                                        <div class="modern-form-group">
+                                            <label for="disarankan" class="modern-form-label"><i class="fa fa-lightbulb me-2"></i>Disarankan</label>
+                                            <input type="text" id="disarankan" name="disarankan" class="modern-form-input">
                                         </div>
                                     </div>
                                 </div>
@@ -92,9 +92,10 @@
                             
                             <br>
 
-                            <h4>Kriteria Penilaian</h4>
-                            <table class="table table-hover table-responsive mb-4">
-                                <thead class="thead-light bg-primary text-white">
+                            <h4 class="mb-2"><i class="fa fa-list-check me-2"></i>Kriteria Penilaian</h4>
+                            <div class="modern-table-container mb-3">
+                            <table class="modern-table">
+                                <thead>
                                     <tr>
                                         <th>No.</th>
                                         <th>Kriteria Penilaian</th>
@@ -109,10 +110,10 @@
                                         <td style="text-align: left;">Penguasaan materi dan keterkaitan antara usulan penelitian dengan Topik Penelitian ITH</td>
                                         <td class="bobot">20</td>
                                         <td>
-                                            <input type="number" name="skor_1" class="form-control skor" data-bobot="20" required>
+                                            <input type="number" name="skor_1" class="modern-form-input skor" data-bobot="20" required>
                                         </td>
                                         <td>
-                                            <input type="number" name="nilai_1" class="form-control nilai" readonly>
+                                            <input type="number" name="nilai_1" class="modern-form-input nilai" readonly>
                                         </td>
                                     </tr>
                                     <tr>
@@ -120,10 +121,10 @@
                                         <td style="text-align: left;">Kesesuaian latar belakang, permasalahan, dan tujuan serta kemutakhiran pustaka</td>
                                         <td class="bobot">20</td>
                                         <td>
-                                            <input type="number" name="skor_2" class="form-control skor" data-bobot="20" required>
+                                            <input type="number" name="skor_2" class="modern-form-input skor" data-bobot="20" required>
                                         </td>
                                         <td>
-                                            <input type="number" name="nilai_2" class="form-control nilai" readonly>
+                                            <input type="number" name="nilai_2" class="modern-form-input nilai" readonly>
                                         </td>
                                     </tr>
                                     <tr>
@@ -138,10 +139,10 @@
                                         </td>
                                         <td class="bobot">20</td>
                                         <td>
-                                            <input type="number" name="skor_3" class="form-control skor" data-bobot="20" required>
+                                            <input type="number" name="skor_3" class="modern-form-input skor" data-bobot="20" required>
                                         </td>
                                         <td>
-                                            <input type="number" name="nilai_3" class="form-control nilai" readonly>
+                                            <input type="number" name="nilai_3" class="modern-form-input nilai" readonly>
                                         </td>
                                     </tr>
                                     <tr>
@@ -149,10 +150,10 @@
                                         <td style="text-align: left;">Memiliki peta jalan (roadmap) penelitian</td>
                                         <td class="bobot">10</td>
                                         <td>
-                                            <input type="number" name="skor_4" class="form-control skor" data-bobot="10" required>
+                                            <input type="number" name="skor_4" class="modern-form-input skor" data-bobot="10" required>
                                         </td>
                                         <td>
-                                            <input type="number" name="nilai_4" class="form-control nilai" readonly>
+                                            <input type="number" name="nilai_4" class="modern-form-input nilai" readonly>
                                         </td>
                                     </tr>
                                     <tr>
@@ -168,10 +169,10 @@
                                         </td>
                                         <td class="bobot">30</td>
                                         <td>
-                                            <input type="number" name="skor_5" class="form-control skor" data-bobot="30" required>
+                                            <input type="number" name="skor_5" class="modern-form-input skor" data-bobot="30" required>
                                         </td>
                                         <td>
-                                            <input type="number" name="nilai_5" class="form-control nilai" readonly>
+                                            <input type="number" name="nilai_5" class="modern-form-input nilai" readonly>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -180,24 +181,25 @@
                                         <td colspan="2" style="text-align: left; font-weight: bold;">Jumlah:</td>
                                         <td id="jumlah_bobot" class="text-center">100</td>
                                         <td>
-                                            <input type="number" id="total_skor" class="form-control" readonly>
+                                            <input type="number" id="total_skor" class="modern-form-input" readonly>
                                         </td>
                                         <td>
-                                            <input type="number" id="total_nilai" class="form-control" readonly>
+                                            <input type="number" id="total_nilai" class="modern-form-input" readonly>
                                         </td>
                                     </tr>
                                 </tfoot>
                             </table>
+                            </div>
                             <span>Keterangan : <br>
                                 <small>Skor : 1, 2, 3, 4, 5, 6, 7 (1 = Buruk; 2 = Sangat Kurang; 3 = Kurang; 5 = Cukup; 6 = Baik; 7 = Sangat Baik); <br>
                                 Nilai = Bobot x Skor <br>
                                 </small>
                             </span>
 
-                            <div class="form-group">
+                            <div class="modern-form-group">
                                 <br>
-                                <label for="komentar" style="font-weight: bold;">Komentar Penilai:</label>
-                                <textarea id="komentar" name="komentar" class="form-control" oninput="updateWordCount()"></textarea>
+                                <label for="komentar" class="modern-form-label"><i class="fa fa-comment-dots me-2"></i>Komentar Penilai</label>
+                                <textarea id="komentar" name="komentar" class="modern-form-textarea" oninput="updateWordCount()"></textarea>
                                 <div id="wordCount" class="text-muted small">0/120 words</div> <!-- Word count will be displayed here -->
                             </div>
                             
@@ -226,7 +228,7 @@
                             </script>
                             
 
-                            <br><button type="submit" class="btn btn-success mt-3" id="submitProposal">Submit Penilaian</button>
+                            <br><button type="submit" class="modern-btn modern-btn-primary mt-2" id="submitProposal"><i class="fa fa-paper-plane me-1"></i> Submit Penilaian</button>
                         </form>
                     </div>
                 </div>

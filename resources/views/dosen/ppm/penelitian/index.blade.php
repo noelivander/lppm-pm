@@ -6,103 +6,85 @@
     <div class="container-fluid pb-5">
         <div class="row">
             <div class="col-md-12">
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <h3>Proposal Penelitian</h3>
+                <div class="mb-3">
+                    <h3 class="mb-3">
+                        <i class="fa fa-flask me-2"></i>Proposal Penelitian
+                    </h3>
                         @if (!$timeline)
-                            <div class="alert alert-danger">
-                                No upload schedule available. You cannot upload a proposal.
-                            </div>
+                            <div class="modern-alert modern-alert-danger"><i class="fa fa-exclamation-circle me-2"></i>No upload schedule available. You cannot upload a proposal.</div>
                         @else
                             @if ($currentDate < $timeline->upload_start_date)
-                                <div class="alert alert-warning">
-                                    Upload period will start in <span id="countdown"></span>.
-                                </div>
+                                <div class="modern-alert modern-alert-warning"><i class="fa fa-clock me-2"></i>Upload period will start in <span id="countdown"></span>.</div>
                                 <script>
                                     var countdownDate = new Date("{{ $timeline->upload_start_date }}").getTime();
                                 </script>
                             @elseif ($currentDate >= $timeline->upload_start_date && $currentDate <= $timeline->upload_end_date)
-                                <div class="alert alert-info">
-                                    Upload period is open. It will close in <span id="countdown"></span>.
-                                </div>
+                                <div class="modern-alert modern-alert-info"><i class="fa fa-info-circle me-2"></i>Upload period is open. It will close in <span id="countdown"></span>.</div>
                                 <script>
                                     var countdownDate = new Date("{{ $timeline->upload_end_date }}").getTime();
                                 </script>
                             @else
-                                <div class="alert alert-danger">
-                                    The upload period has ended.
-                                </div>
+                                <div class="modern-alert modern-alert-danger"><i class="fa fa-times-circle me-2"></i>The upload period has ended.</div>
                             @endif
                         @endif
                         @if ($penelitian->isEmpty())
-                            <p>Belum ada proposal penelitian.</p>
+                            <div class="modern-alert modern-alert-info">
+                                <i class="fa fa-info-circle me-2"></i>Belum ada proposal penelitian.
+                            </div>
                         @else
-                        <table class="table table-hover table-responsive mb-4">
-                            <style>
-                                .table {
-                                    width: 100%; /* Gunakan lebar penuh */
-                                    table-layout: fixed; /* Tabel fleksibel, bukan tetap */
-                                }
-                                .table th.judul, .table td.judul {
-                                    width: 30%;
-                                    text-align: left;
-                                }
-                                .table colgroup col.judul {
-                                    width: 35%;
-                                }
-                            </style>
-                            
-                            <colgroup>
-                                <col class="judul"> 
-                            </colgroup>
-                            
-                            <thead class="thead-light bg-primary text-white">
-                                <tr>
-                                    <th>Judul</th>
-                                    <th>Skema</th>
-                                    <th>Tahun</th>
-                                    <th>Status</th>
-                                    <th>Dokumen Proposal</th>
-                                    <th>Dokumen Review</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($penelitian as $item)
+                        <div class="modern-table-container mb-3">
+                            <table class="modern-table">
+                                <thead>
                                     <tr>
-                                        <td class="judul">{{ $item->judul }}</td>
-                                        <td class="skema">{{ $item->skema }}</td>
-                                        <td>{{ $item->created_at->year }}</td>
-                                        <td>
-                                            <span class="badge
-                                                @if ($item->status === 'Pending') bg-warning
-                                                @elseif ($item->status === 'Diproses') bg-info
-                                                @elseif ($item->status === 'Selesai') bg-success
-                                                @endif">
-                                                {{ $item->status }}
-                                            </span>
-                                        </td>
-                                        
-                                        <td>
-                                            @if ($item->dokumen_proposal)
-                                                <a href="{{ route('penelitian.downloadProposal', $item->id) }}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-file-download"></i> Download PDF
+                                        <th>Judul</th>
+                                        <th>Skema</th>
+                                        <th>Tahun</th>
+                                        <th>Status</th>
+                                        <th>Dokumen Proposal</th>
+                                        <th>Dokumen Review</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($penelitian as $item)
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">{{ $item->judul }}</div>
+                                            </td>
+                                            <td>{{ $item->skema }}</td>
+                                            <td>{{ $item->created_at->year }}</td>
+                                            <td>
+                                                <span class="status-badge
+                                                    @if ($item->status === 'Pending') pending
+                                                    @elseif ($item->status === 'Diproses') diproses
+                                                    @elseif ($item->status === 'Selesai') selesai
+                                                    @endif">
+                                                    {{ $item->status }}
+                                                </span>
+                                            </td>
+                                            
+                                            <td>
+                                                @if ($item->dokumen_proposal)
+                                                    <a href="{{ route('penelitian.downloadProposal', $item->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
+                                                        <i class="fas fa-file-download me-1"></i> Download PDF
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">Tidak ada file</span>
+                                                @endif
+                                            </td>
+                                            
+                                            <td>
+                                                <a class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $item->id }}">
+                                                    <i class="fas fa-search me-1"></i> Hasil Review
                                                 </a>
-                                            @else
-                                                <span class="text-muted">Tidak ada file</span>
-                                            @endif
-                                        </td>
-                                        
-                                        <td>
-                                            <a class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $item->id }}">
-                                                <i class="fas fa-search"></i> Hasil Review
-                                            </a>
-                                        </td>
+                                            </td>
 
-                                        <div class="modal fade" id="reviewModal{{ $item->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $item->id }}" aria-hidden="true">
-                                            <div class="modal-dialog">
+                                        <div class="modal fade modern-modal" id="reviewModal{{ $item->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $item->id }}" aria-hidden="true" data-bs-backdrop="false" data-bs-keyboard="true">
+                                            <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="reviewModalLabel{{ $item->id }}">Pilih Review</h5>
+                                                        <h5 class="modal-title" id="reviewModalLabel{{ $item->id }}">
+                                                            <i class="fa fa-search me-2"></i>Pilih Review
+                                                        </h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
@@ -111,13 +93,18 @@
                                                         @endphp
 
                                                         @if ($reviews->count() > 0)
-                                                            @foreach ($reviews as $index => $review)
-                                                                <a href="{{ route('penelitian-dos.view-reviews', ['penelitian_id' => $item->id, 'review_number' => $index + 1]) }}" class="btn btn-link">
-                                                                    Lihat Review {{ $index + 1 }}
-                                                                </a><br>
-                                                            @endforeach
+                                                            <div class="d-grid gap-2">
+                                                                @foreach ($reviews as $index => $review)
+                                                                    <a href="{{ route('penelitian-dos.view-reviews', ['penelitian_id' => $item->id, 'review_number' => $index + 1]) }}" 
+                                                                       class="modern-btn modern-btn-primary">
+                                                                        <i class="fa fa-file-alt me-2"></i>Lihat Review {{ $index + 1 }}
+                                                                    </a>
+                                                                @endforeach
+                                                            </div>
                                                         @else
-                                                            <p>Review belum tersedia.</p>
+                                                            <div class="modern-alert modern-alert-info">
+                                                                <i class="fa fa-info-circle me-2"></i>Review belum tersedia.
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -126,96 +113,101 @@
                                         
                                     </tr>
                                 @endforeach
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                         
                         @endif
 
-                        <button class="btn btn-primary mt-3" id="addNewProposal" 
+                        <button class="modern-btn modern-btn-primary mt-2" id="addNewProposal" 
                             @if (!$timeline || $currentDate < $timeline->upload_start_date || $currentDate > $timeline->upload_end_date) 
                                 disabled 
                             @endif>
-                            + Tambah Usulan Baru
+                            <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
                         </button>
 
 
-                        <form id="proposalForm" method="POST" action="{{ route('penelitian-dos.store') }}" enctype="multipart/form-data" style="display: none;">
-                            @csrf
-                            <br><br><h3>Form Usulan Penelitian</h3>
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="judul">Judul</label>
-                                        <input type="text" name="judul" id="judul" class="form-control" required>
-                                    </div>
-                                    
-                                    <div class="form-group mt-3">
-                                        <label for="lama_penelitian">Lama Penelitian</label>
-                                        <input type="text" name="lama_penelitian" id="lama_penelitian" class="form-control" required>
-                                    </div>
-                                    <div class="form-group mt-3">
-                                        <label for="biaya_diusulkan">Biaya yang Diusulkan (Rp.)</label>
-                                        <div class="input-group">
-                                            <input type="text" name="biaya_diusulkan" id="biaya_diusulkan" class="form-control" inputmode="numeric" pattern="[0-9]*" required>
-                                        </div>
-                                    </div>
-                                    <script>
-                                        document.getElementById('biaya_diusulkan').addEventListener('input', function (e) {
-                                            this.value = this.value.replace(/[^0-9]/g, '');
-                                            });
-                                    </script>
-                                    <div class="form-group mt-3">
-                                        <label for="ringkasan_proposal">Ringkasan Proposal</label>
-                                        <textarea name="ringkasan_proposal" id="ringkasan_proposal" class="form-control" required></textarea>
-                                        <div id="wordCount" class="text-muted small">0/500 words</div> <!-- Elemen ini akan diisi otomatis -->
-                                    </div>                            
+                        <div id="proposalForm" style="display: none;" class="fade-in-up">
+                            <div class="modern-card mt-4">
+                                <div class="modern-card-header">
+                                    <h4 class="mb-0">
+                                        <i class="fa fa-file-alt me-2"></i>
+                                        Form Usulan Penelitian
+                                    </h4>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group position-relative">
-                                        <label for="skema">Skema</label>
-                                        <div class="dropdown-wrapper">
-                                            <select name="skema" id="skema" class="form-control" required>
-                                                <option value="" disabled selected>...</option>
-                                                <option value="penelitian dasar">Penelitian Dasar</option>
-                                                <option value="penelitian lanjutan">Penelitian Lanjutan</option>
-                                            </select>
-                                            <i class="fas fa-caret-down dropdown-icon"></i>
-                                        </div>
-                                    </div>
-                                    <div class="form-group mt-3 d-flex align-items-start gap-3">
-                                        <!-- Dropdown Luaran Wajib -->
-                                        <div style="flex: 1;" class="dropdown-wrapper">
-                                            <label for="luaran_wajib">Luaran Wajib</label>
-                                            <div class="dropdown-container">
-                                                <select name="luaran_wajib" id="luaran_wajib" class="form-control custom-dropdown" required>
-                                                    <option value="" disabled selected>...</option>
-                                                    <option value="jurnal nasional terindeks sinta">Jurnal Nasional Terindeks Sinta</option>
-                                                    <option value="jurnal internasional terindeks">Jurnal Internasional Terindeks</option>
-                                                    <option value="jurnal internasional">Jurnal Internasional</option>
-                                                    <option value="prosiding konferensi nasional">Prosiding Konferensi Nasional</option>
-                                                    <option value="produk model prototype">Produk/Model/Prototype</option>
-                                                </select>
-                                                <i class="fas fa-caret-down dropdown-icon"></i>
+                                <form method="POST" action="{{ route('penelitian-dos.store') }}" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="modern-card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="modern-form-group">
+                                                    <label for="judul" class="modern-form-label">
+                                                        <i class="fa fa-heading me-2"></i>Judul Penelitian
+                                                    </label>
+                                                    <input type="text" name="judul" id="judul" class="modern-form-input" placeholder="Masukkan judul penelitian..." required>
+                                                </div>
+                                                
+                                                <div class="modern-form-group">
+                                                    <label for="lama_penelitian" class="modern-form-label">
+                                                        <i class="fa fa-clock me-2"></i>Lama Penelitian
+                                                    </label>
+                                                    <input type="text" name="lama_penelitian" id="lama_penelitian" class="modern-form-input" placeholder="Contoh: 12 bulan" required>
+                                                </div>
+                                                
+                                                <div class="modern-form-group">
+                                                    <label for="biaya_diusulkan" class="modern-form-label">
+                                                        <i class="fa fa-money-bill me-2"></i>Biaya yang Diusulkan (Rp.)
+                                                    </label>
+                                                    <input type="text" name="biaya_diusulkan" id="biaya_diusulkan" class="modern-form-input" inputmode="numeric" pattern="[0-9]*" placeholder="Masukkan jumlah biaya..." required>
+                                                </div>
+                                                
+                                                <div class="modern-form-group">
+                                                    <label for="ringkasan_proposal" class="modern-form-label">
+                                                        <i class="fa fa-file-text me-2"></i>Ringkasan Proposal
+                                                    </label>
+                                                    <textarea name="ringkasan_proposal" id="ringkasan_proposal" class="modern-form-textarea" placeholder="Tuliskan ringkasan proposal penelitian..." required></textarea>
+                                                    <div id="wordCount" class="text-muted small mt-1">0/500 words</div>
+                                                </div>                            
                                             </div>
-                                        </div>
-                                    
-                                        <!-- Dropdown Sinta Level -->
-                                        <div id="sintaOptions" style="flex: 1; display: none;" class="dropdown-wrapper">
-                                            <label for="sinta_index">Sinta Level</label>
-                                            <div class="dropdown-container">
-                                                <select name="sinta_index" id="sinta_index" class="form-control custom-dropdown">
-                                                    <option value="" disabled selected>...</option>
-                                                    <option value="Sinta 1">Sinta 1</option>
-                                                    <option value="Sinta 2">Sinta 2</option>
-                                                    <option value="Sinta 3">Sinta 3</option>
-                                                    <option value="Sinta 4">Sinta 4</option>
-                                                    <option value="Sinta 5">Sinta 5</option>
-                                                    <option value="Sinta 6">Sinta 6</option>
-                                                </select>
-                                                <i class="fas fa-caret-down dropdown-icon"></i>
-                                            </div>
-                                        </div>
-                                    </div>
+                                            <div class="col-md-6">
+                                                <div class="modern-form-group">
+                                                    <label for="skema" class="modern-form-label">
+                                                        <i class="fa fa-list me-2"></i>Skema Penelitian
+                                                    </label>
+                                                    <select name="skema" id="skema" class="modern-form-select" required>
+                                                        <option value="" disabled selected>Pilih skema penelitian...</option>
+                                                        <option value="penelitian dasar">Penelitian Dasar</option>
+                                                        <option value="penelitian lanjutan">Penelitian Lanjutan</option>
+                                                    </select>
+                                                </div>
+                                                <div class="modern-form-group">
+                                                    <label for="luaran_wajib" class="modern-form-label">
+                                                        <i class="fa fa-trophy me-2"></i>Luaran Wajib
+                                                    </label>
+                                                    <select name="luaran_wajib" id="luaran_wajib" class="modern-form-select" required>
+                                                        <option value="" disabled selected>Pilih luaran wajib...</option>
+                                                        <option value="jurnal nasional terindeks sinta">Jurnal Nasional Terindeks Sinta</option>
+                                                        <option value="jurnal internasional terindeks">Jurnal Internasional Terindeks</option>
+                                                        <option value="jurnal internasional">Jurnal Internasional</option>
+                                                        <option value="prosiding konferensi nasional">Prosiding Konferensi Nasional</option>
+                                                        <option value="produk model prototype">Produk/Model/Prototype</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="modern-form-group" id="sintaOptions" style="display: none;">
+                                                    <label for="sinta_index" class="modern-form-label">
+                                                        <i class="fa fa-star me-2"></i>Sinta Level
+                                                    </label>
+                                                    <select name="sinta_index" id="sinta_index" class="modern-form-select">
+                                                        <option value="" disabled selected>Pilih level Sinta...</option>
+                                                        <option value="Sinta 1">Sinta 1</option>
+                                                        <option value="Sinta 2">Sinta 2</option>
+                                                        <option value="Sinta 3">Sinta 3</option>
+                                                        <option value="Sinta 4">Sinta 4</option>
+                                                        <option value="Sinta 5">Sinta 5</option>
+                                                        <option value="Sinta 6">Sinta 6</option>
+                                                    </select>
+                                                </div>
                                     
                                     <style>
                                         .dropdown-wrapper {
@@ -243,26 +235,26 @@
                                         }
                                     </style>
                                     
-                                    
-                                    <div class="form-group mt-3 position-relative">
-                                        <label for="luaran_tambahan">Luaran Tambahan</label>
-                                        <div class="dropdown-wrapper">
-                                            <select name="luaran_tambahan" id="luaran_tambahan" class="form-control">
-                                                <option value="" disabled selected>...</option>
-                                                <option value="bahan ajar">Bahan Ajar</option>
-                                                <option value="buku monografi">Buku Monografi</option>
-                                                <option value="haki">HAKI</option>
-                                                <option value="teknologi tepat guna">Teknologi Tepat Guna</option>
-                                            </select>
-                                            <i class="fas fa-caret-down dropdown-icon"></i>
-                                        </div>
-                                    </div>
-                                    <div class="form-group mt-3">
-                                        <label for="dokumen_proposal">Dokumen Proposal (PDF)</label>
-                                        <div class="custom-file">
-                                            <input type="file" name="dokumen_proposal" id="dokumen_proposal" class="custom-file-input" accept="application/pdf" required>
-                                        </div>
-                                    </div>
+                                                
+                                                <div class="modern-form-group">
+                                                    <label for="luaran_tambahan" class="modern-form-label">
+                                                        <i class="fa fa-plus-circle me-2"></i>Luaran Tambahan
+                                                    </label>
+                                                    <select name="luaran_tambahan" id="luaran_tambahan" class="modern-form-select">
+                                                        <option value="" disabled selected>Pilih luaran tambahan (opsional)...</option>
+                                                        <option value="bahan ajar">Bahan Ajar</option>
+                                                        <option value="buku monografi">Buku Monografi</option>
+                                                        <option value="haki">HAKI</option>
+                                                        <option value="teknologi tepat guna">Teknologi Tepat Guna</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="modern-form-group">
+                                                    <label for="dokumen_proposal" class="modern-form-label">
+                                                        <i class="fa fa-file-pdf me-2"></i>Dokumen Proposal (PDF)
+                                                    </label>
+                                                    <input type="file" name="dokumen_proposal" id="dokumen_proposal" class="modern-form-input" accept="application/pdf" required>
+                                                </div>
 
                                     <script>
                                         document.getElementById('ringkasan_proposal').addEventListener('input', function() {
@@ -282,32 +274,50 @@
                                         });
                                     </script>                 
                                 </div>
-                                <div class="position-relative">
-                                <h4 class="mt-4">Tim Peneliti</h4>
-                                <button type="button" class="btn mt-3" id="addAnggota">+ Tambah Anggota</button>
-                                <table class="table table-responsive table-borderless mb-4" id="anggotaTable">
-                                    <thead class="thead-light bg-primary text-white">
-                                        <tr>
-                                            <th>Nama</th>
-                                            <th>Peran</th>
-                                            <th>Jabatan</th>
-                                            <th>NIDN/NIM</th>
-                                            <th>Email</th>
-                                            <th>Telepon</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Rows for members will be dynamically added here -->
-                                    </tbody>
-                                </table>
-                                
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-2 mb-4 px-4">
+                                            <h4 class="mb-3">
+                                                <i class="fa fa-users me-2"></i>Tim Peneliti
+                                            </h4>
+                                            <button type="button" class="modern-btn modern-btn-primary mb-3" id="addAnggota">
+                                                <i class="fa fa-plus me-2"></i>Tambah Anggota
+                                            </button>
+                                            
+                                            <div class="modern-table-container">
+                                                <table class="modern-table" id="anggotaTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nama</th>
+                                                            <th>Peran</th>
+                                                            <th>Jabatan</th>
+                                                            <th>NIDN/NIM</th>
+                                                            <th>Email</th>
+                                                            <th>Telepon</th>
+                                                            <th>Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- Rows for members will be dynamically added here -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="modern-card-footer">
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="modern-btn modern-btn-secondary" onclick="document.getElementById('proposalForm').style.display='none'">
+                                                    <i class="fa fa-times me-1"></i> Batal
+                                                </button>
+                                                <button type="submit" class="modern-btn modern-btn-success" id="submitProposal">
+                                                    <i class="fa fa-paper-plane me-1"></i> Submit Proposal
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                                
-                            </div>
-                            <br><button type="submit" class="btn btn-success mt-3" id="submitProposal">Submit Proposal</button>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>
@@ -377,10 +387,9 @@
         });
     
         // Update the file input label when a file is selected
-        document.querySelector('.custom-file-input').addEventListener('change', function(e) {
-            const fileName = e.target.files[0].name;
-            const nextSibling = e.target.nextElementSibling;
-            nextSibling.innerText = fileName;
+        document.getElementById('dokumen_proposal').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Pilih file PDF...';
+            // You can add visual feedback here if needed
         });
     
         // Function to add a new member row
@@ -388,35 +397,37 @@
             const table = document.getElementById('anggotaTable').getElementsByTagName('tbody')[0];
             const row = table.insertRow();
             row.innerHTML = `
-                <td><input type="text" name="anggota_nama[]" class="form-control" required></td>
+                <td><input type="text" name="anggota_nama[]" class="modern-form-input" placeholder="Nama lengkap" required></td>
                 <td>
-                    <select name="anggota_peran[]" class="form-control" required>
-                        <option value="" disabled selected>...</option>
+                    <select name="anggota_peran[]" class="modern-form-select" required>
+                        <option value="" disabled selected>Pilih peran...</option>
                         <option value="Ketua">Ketua</option>
                         <option value="Anggota">Anggota</option>
                     </select>
                 </td>
                 <td>
-                    <select name="anggota_jabatan[]" class="form-control" required>
-                        <option value="" disabled selected>...</option>
+                    <select name="anggota_jabatan[]" class="modern-form-select" required>
+                        <option value="" disabled selected>Pilih jabatan...</option>
                         <option value="Dosen">Dosen</option>
                         <option value="Mahasiswa">Mahasiswa</option>
                     </select>
                 </td>
-                <td><input type="text" name="anggota_nidn[]" class="form-control" required></td>
-                <td><input type="email" name="anggota_email[]" class="form-control" required></td>
+                <td><input type="text" name="anggota_nidn[]" class="modern-form-input" placeholder="NIDN/NIM" required></td>
+                <td><input type="email" name="anggota_email[]" class="modern-form-input" placeholder="Email" required></td>
                 <td>
                     <input 
                         type="text" 
                         name="anggota_telepon[]" 
-                        class="form-control" 
+                        class="modern-form-input" 
+                        placeholder="No. Telepon"
                         inputmode="numeric" 
                         pattern="[0-9]*" 
                         oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
                         required>
                 </td>
-
-                <td><button type="button" class="btn btn-danger mt-3 removeAnggota">Hapus</button></td>`;
+                <td><button type="button" class="modern-btn modern-btn-danger modern-btn-sm removeAnggota">
+                    <i class="fa fa-trash me-1"></i> Hapus
+                </button></td>`;
     
             // Attach input event listeners for validation
             const anggotaInputs = row.querySelectorAll('input, select');

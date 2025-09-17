@@ -9,9 +9,8 @@
                 <x-kaprodi.heading name="Dashboard"></x-kaprodi.heading>
             </div>
             <div class="col-4 text-end">
-                <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                    <i class="fas fa-download fa-sm text-white-50"></i>
-                    <span class="text-white">Generate Report</span>
+                <a href="#" class="modern-btn modern-btn-primary">
+                    <i class="fa fa-download me-1"></i> Generate Report
                 </a>
             </div>
         </div>
@@ -38,8 +37,13 @@
         </div> --}}
         
         
-        <div class="card shadow mb-4">
-            <div class="card-body">
+        <div class="modern-card mb-4 fade-in-up">
+            <div class="modern-card-header">
+                <h5 class="mb-0">
+                    <i class="fa fa-calendar me-2"></i>Kalender
+                </h5>
+            </div>
+            <div class="modern-card-body">
                 <div id="calendar"></div>
             </div>
         </div>

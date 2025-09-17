@@ -12,16 +12,24 @@
             <!-- Edit Form -->
             <form class="form-horizontal" method="POST" action="{{ route('visi-misi.store') }}">
                 {{ csrf_field() }}
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <div class="mb-3">
-                                <textarea id="visi_misi_org" class="form-control" name="visi_misi_org" rows="20">{!! htmlspecialchars($text_visi_misi) !!}</textarea>
+                <div class="modern-card mb-4 fade-in-up">
+                    <div class="modern-card-header">
+                        <h5 class="mb-0">
+                            <i class="fa fa-eye me-2"></i>Visi Misi Organisasi
+                        </h5>
+                    </div>
+                    <div class="modern-card-body">
+                        <div class="modern-form-group">
+                            <label for="visi_misi_org" class="modern-form-label">
+                                <i class="fa fa-edit me-2"></i>Konten Visi Misi
+                            </label>
+                            <textarea id="visi_misi_org" class="modern-form-textarea" name="visi_misi_org" rows="20">{!! htmlspecialchars($text_visi_misi) !!}</textarea>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="">
-                            <button type="submit" class="btn btn-outline-primary btn-block">Simpan</button>
-                        </div>
+                    <div class="modern-card-footer">
+                        <button type="submit" class="modern-btn modern-btn-primary w-100">
+                            <i class="fa fa-save me-1"></i> Simpan Visi Misi
+                        </button>
                     </div>
                 </div>
             </form>

@@ -4,25 +4,35 @@
     </x-slot>
 
     <x-admin.heading name="Berita/Edit">
-        <a href="{{ route('berita.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-            class="fas fa-list fa-sm text-white-50"></i> <span class="text-white">Daftar Berita</span></a>
+        <a href="{{ route('berita.index') }}" class="modern-btn modern-btn-primary">
+            <i class="fa fa-list me-1"></i> Daftar Berita
+        </a>
     </x-admin.heading>
 
     <div class="row">
         <div class="col-xl-8">
-            <div class="card shadow mb-4">
+            <div class="modern-card mb-4 fade-in-up">
+                <div class="modern-card-header">
+                    <h5 class="mb-0">
+                        <i class="fa fa-edit me-2"></i>Edit Berita
+                    </h5>
+                </div>
                 <form class="form-horizontal" method="POST" action="{{ route('berita.update', ['beritum' => $berita->id]) }}"  enctype="multipart/form-data">
                     @method('PUT')
                     {{ csrf_field() }}
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="judul" value="{{$berita->judul}}">
-                            </x-admin.input-text>
+                    <div class="modern-card-body">
+                        <div class="modern-form-group">
+                            <label for="judul" class="modern-form-label">
+                                <i class="fa fa-heading me-2"></i>Judul Berita
+                            </label>
+                            <input type="text" id="judul" name="judul" class="modern-form-input" value="{{$berita->judul}}" required>
                         </div>
 
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="tag" value="{{$berita->tag}}" required="0">
-                            </x-admin.input-text>
+                        <div class="modern-form-group">
+                            <label for="tag" class="modern-form-label">
+                                <i class="fa fa-tag me-2"></i>Tag
+                            </label>
+                            <input type="text" id="tag" name="tag" class="modern-form-input" value="{{$berita->tag}}" placeholder="Opsional">
                         </div>
 
                         @if ($berita->cover)
@@ -31,35 +41,48 @@
                         </div>
                         @endif
 
-                        <div class="mb-3">
-                            <label for="cover" class="form-label">Ganti Cover Berita</label>
-                            <input class="col-form-control" type="file" id="cover" name="cover" accept="image/*">
+                        <div class="modern-form-group">
+                            <label for="cover" class="modern-form-label">
+                                <i class="fa fa-image me-2"></i>Ganti Cover Berita
+                            </label>
+                            <input class="modern-form-input" type="file" id="cover" name="cover" accept="image/*">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="isi" class="form-label">Deskripsi Berita</label>
-                            <textarea id="isi" class="form-control" name="isi" rows="20">{!! htmlspecialchars($berita->isi) !!}</textarea>
+                        <div class="modern-form-group">
+                            <label for="isi" class="modern-form-label">
+                                <i class="fa fa-edit me-2"></i>Deskripsi Berita
+                            </label>
+                            <textarea id="isi" class="modern-form-textarea" name="isi" rows="20">{!! htmlspecialchars($berita->isi) !!}</textarea>
                         </div>
 
-                        <div class="mb-3">
-                            <div class="form-group">
-                                <label for="created_at" class="col-form-label">Jadwal Publish</label>
-                                <input type="datetime-local" class="form-control" id="created_at" name="created_at" max="{{ date('Y-m-d',time()) }}T09:00" value="{{$berita->created_at}}" required>
+                        <div class="modern-form-group">
+                            <label for="created_at" class="modern-form-label">
+                                <i class="fa fa-calendar me-2"></i>Jadwal Publish
+                            </label>
+                            <input type="datetime-local" class="modern-form-input" id="created_at" name="created_at" max="{{ date('Y-m-d',time()) }}T09:00" value="{{$berita->created_at}}" required>
+                        </div>
+
+                        <div class="modern-form-group">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"  id="is_shown" name="is_shown"
+                                    @if($berita->is_shown==1)
+                                        checked
+                                    @endif
+                                >
+                                <label class="form-check-label" for="is_shown">
+                                    <i class="fa fa-eye me-1"></i>Tampilkan berita
+                                </label>
                             </div>
                         </div>
-
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"  id="is_shown" name="is_shown"
-                                @if($berita->is_shown==1)
-                                    checked
-                                @endif
-                            >
-                            <label class="form-check-label" for="is_shown">tampilkan berita</label>
-                        </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="">
-                            <button type="submit" class="btn btn-outline-primary btn-block">Simpan</button>
+                    <div class="modern-card-footer">
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('berita.index') }}" class="modern-btn modern-btn-secondary">
+                                <i class="fa fa-arrow-left me-1"></i> Kembali
+                            </a>
+                            <button type="submit" class="modern-btn modern-btn-primary">
+                                <i class="fa fa-save me-1"></i> Simpan Perubahan
+                            </button>
                         </div>
                     </div>
                 </form>

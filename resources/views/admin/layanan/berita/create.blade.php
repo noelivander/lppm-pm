@@ -4,35 +4,53 @@
     </x-slot>
 
     <x-admin.heading name="Berita/Buat Baru">
-        <a href="{{ route('berita.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-            class="fas fa-list fa-sm text-white-50"></i> <span class="text-white">Daftar Berita</span></a>
+        <a href="{{ route('berita.index') }}" class="modern-btn modern-btn-primary">
+            <i class="fa fa-list me-1"></i> Daftar Berita
+        </a>
     </x-admin.heading>
 
     <div class="row">
         <div class="col-xl-8">
-            <div class="card shadow mb-4">
-                <form class="form-horizontal" method="POST" action="{{ route('berita.store') }}"  enctype="multipart/form-data">
+            <div class="modern-card mb-4 fade-in-up">
+                <div class="modern-card-header">
+                    <h5 class="mb-0">
+                        <i class="fa fa-plus-circle me-2"></i>
+                        Form Buat Berita Baru
+                    </h5>
+                </div>
+                <form class="form-horizontal" method="POST" action="{{ route('berita.store') }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <x-admin.input-text lable_input="judul">
-                            </x-admin.input-text>
+                    <div class="modern-card-body">
+                        <div class="modern-form-group">
+                            <label for="judul" class="modern-form-label">
+                                <i class="fa fa-heading me-2"></i>Judul Berita
+                            </label>
+                            <input type="text" id="judul" name="judul" class="modern-form-input" required>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="cover" class="col-form-label">Pilih cover berita</label>
-                            <input class="form-control" type="file" id="cover" name="cover" accept="image/*">
+                        <div class="modern-form-group">
+                            <label for="cover" class="modern-form-label">
+                                <i class="fa fa-image me-2"></i>Pilih Cover Berita
+                            </label>
+                            <input class="modern-form-input" type="file" id="cover" name="cover" accept="image/*">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="isi" class="col-form-label">Deskripsi Berita</label>
-                            <textarea id="isi" class="form-control" name="isi" rows="20"></textarea>
+                        <div class="modern-form-group">
+                            <label for="isi" class="modern-form-label">
+                                <i class="fa fa-edit me-2"></i>Deskripsi Berita
+                            </label>
+                            <textarea id="isi" class="modern-form-textarea" name="isi" rows="20" placeholder="Tuliskan isi berita di sini..."></textarea>
                         </div>
                         
                     </div>
-                    <div class="card-footer">
-                        <div class="">
-                            <button type="submit" class="btn btn-outline-primary btn-block">Simpan</button>
+                    <div class="modern-card-footer">
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('berita.index') }}" class="modern-btn modern-btn-secondary">
+                                <i class="fa fa-arrow-left me-1"></i> Kembali
+                            </a>
+                            <button type="submit" class="modern-btn modern-btn-primary">
+                                <i class="fa fa-save me-1"></i> Simpan Berita
+                            </button>
                         </div>
                     </div>
                 </form>

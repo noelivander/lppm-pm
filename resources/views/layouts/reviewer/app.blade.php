@@ -16,6 +16,7 @@
 
         <!-- Styles -->
         <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/modern-components.css') }}">
         <style>
         body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif !important; }
         #sidebarToggleTop {

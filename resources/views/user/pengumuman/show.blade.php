@@ -6,8 +6,8 @@
 	<div class="container py-5">
 		<div class="row g-5">
 			<div class="col-lg-9">
-				<div class="card shadow wow animated zoomIn h-100" data-wow-delay="0.2s">
-					<div class="card-body">
+				<div class="modern-card wow animated zoomIn h-100 fade-in-up" data-wow-delay="0.2s">
+					<div class="modern-card-body">
 						@if($pengumuman->cover)
                         <div class="mb-3">
                             <img src="{{ asset('storage/'.$pengumuman->cover) }}" class="img-fluid" alt="Cover Berita">

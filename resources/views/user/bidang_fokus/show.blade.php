@@ -10,8 +10,8 @@
     <div class="container py-5">
         <div class="row justify-content-md-center g-5">
             <div class="col-lg-9 ">
-                <div class="card shadow wow animated zoomIn" data-wow-delay="0.2s">
-                    <div class="card-body">
+                <div class="modern-card wow animated zoomIn fade-in-up" data-wow-delay="0.2s">
+                    <div class="modern-card-body">
                         <div class="p-4">
                             {!! $deskripsi !!}
                         </div>

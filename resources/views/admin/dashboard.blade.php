@@ -4,8 +4,9 @@
     </x-slot>
 
     <x-admin.heading name="Dashboard">
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-            class="fas fa-download fa-sm text-white-50"></i> <span class="text-white">Generate Report</span></a>
+        <a href="#" class="modern-btn modern-btn-primary">
+            <i class="fa fa-download me-1"></i> Generate Report
+        </a>
     </x-admin.heading>
 
     <div class="row">
@@ -27,10 +28,12 @@
 
         <!-- Area Chart -->
         <div class="col-xl-8 col-lg-7">
-            <div class="card shadow mb-4">
+            <div class="modern-card mb-4 fade-in-up">
                 <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Grafik Tahunan Penelitian</h6>
+                <div class="modern-card-header d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fa fa-chart-line me-2"></i>Grafik Tahunan Penelitian
+                    </h6>
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -47,7 +50,7 @@
                     </div>
                 </div>
                 <!-- Card Body -->
-                <div class="card-body">
+                <div class="modern-card-body">
                     <div class="chart-area">
                         <canvas id="myAreaChart"></canvas>
                     </div>
@@ -57,11 +60,12 @@
 
         <!-- Pie Chart -->
         <div class="col-xl-4 col-lg-5">
-            <div class="card shadow mb-4">
+            <div class="modern-card mb-4 fade-in-up">
                 <!-- Card Header - Dropdown -->
-                <div
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Hibah</h6>
+                <div class="modern-card-header d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fa fa-chart-pie me-2"></i>Hibah
+                    </h6>
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -78,7 +82,7 @@
                     </div>
                 </div>
                 <!-- Card Body -->
-                <div class="card-body">
+                <div class="modern-card-body">
                     <div class="chart-pie pt-4 pb-2">
                         <canvas id="myPieChart"></canvas>
                     </div>

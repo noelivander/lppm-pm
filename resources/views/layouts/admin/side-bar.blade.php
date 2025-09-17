@@ -111,28 +111,28 @@
 
     <li class="nav-item @isroute('admin.timeline.index')">
         <a class="nav-link" href="{{ route('admin.timeline.index') }}">
-            <i class="fas fa-fw fa-file-alt"></i>
+            <i class="fas fa-fw fa-clock"></i>
             <span>Timeline</span>
         </a>
     </li>
 
     <li class="nav-item @isroute('fokus-bidang.index')">
         <a class="nav-link" href="{{ route('fokus-bidang.index') }}">
-            <i class="fas fa-fw fa-file-alt"></i>
+            <i class="fas fa-fw fa-bullseye"></i>
             <span>Bidang Fokus</span>
         </a>
     </li>
 
     <li class="nav-item @isroute('penelitian-adm.index')">
         <a class="nav-link" href="{{ route('penelitian-adm.index') }}">
-            <i class="fas fa-fw fa-file-alt"></i>
+            <i class="fas fa-fw fa-flask"></i>
             <span>Penelitian</span>
         </a>
     </li>
 
     <li class="nav-item @isroute('pengabdian-adm.index')">
         <a class="nav-link" href="{{ route('pengabdian-adm.index') }}">
-            <i class="fas fa-fw fa-file-alt"></i>
+            <i class="fas fa-fw fa-hands-helping"></i>
             <span>Pengabdian</span>
         </a>
     </li>

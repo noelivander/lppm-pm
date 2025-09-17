@@ -6,26 +6,32 @@
     <div class="container-fluid pb-5">
         <div class="row">
             <div class="col-md-12">
-                <div class="card shadow mb-4">
-                    <div class="card-body">
-                        <h3>Proposal Penelitian</h3>
+                <div class="mb-3">
+                    <h3 class="mb-3">
+                        <i class="fa fa-flask me-2"></i>Proposal Penelitian
+                    </h3>
 
                         @if (!$timeline)
-                            <div class="alert alert-danger">Tidak ada jadwal review.</div>
+                            <div class="modern-alert modern-alert-danger">
+                                <i class="fa fa-exclamation-circle me-2"></i>Tidak ada jadwal review.
+                            </div>
                         @elseif ($currentDate < $timeline->review_start_date)
-                            <div class="alert alert-warning">
-                                Review period will start in <span id="countdown"></span>.
+                            <div class="modern-alert modern-alert-warning">
+                                <i class="fa fa-clock me-2"></i>Review period will start in <span id="countdown"></span>.
                             </div>
                         @elseif ($currentDate > $timeline->review_end_date)
-                            <div class="alert alert-danger">
-                                The review period has ended.
+                            <div class="modern-alert modern-alert-danger">
+                                <i class="fa fa-times-circle me-2"></i>The review period has ended.
                             </div>
                         @endif
 
                         @if ($proposals->isEmpty())
-                            <p>Tidak ada proposal penelitian saat ini.</p>
+                            <div class="modern-alert modern-alert-info">
+                                <i class="fa fa-info-circle me-2"></i>Tidak ada proposal penelitian saat ini.
+                            </div>
                         @else
-                        <table class="table table-hover table-responsive mb-4">
+                        <div class="modern-table-container mb-4">
+                            <table class="modern-table">
                             <style>
                                 .table {
                                     width: 100%; /* Gunakan lebar penuh */
@@ -44,7 +50,7 @@
                                 <col class="judul"> 
                             </colgroup>
 
-                            <thead class="thead-light bg-primary text-white">
+                            <thead>
                                 <tr>
                                     <th>Judul</th>
                                     <th>Skema</th>
@@ -60,33 +66,50 @@
                                         $isReviewedByAnother = $existingReviews->where('penelitian_id', $proposal->id)->where('reviewer_id', '!=', auth()->id())->count() > 0;
                                     @endphp
                                     <tr>
-                                        <td class="judul">{{ $proposal->judul }}</td>
-                                        <td class="skema">{{ $proposal->skema }}</td>
+                                        <td class="judul">
+                                            <div class="fw-bold">{{ $proposal->judul }}</div>
+                                        </td>
+                                        <td class="skema">
+                                            <span class="badge bg-info">{{ $proposal->skema }}</span>
+                                        </td>
                                         <td>{{ $proposal->created_at->year }}</td>
                                         <td>
-                                            <span class="badge
-                                                @if ($proposal->status === 'Pending') bg-warning
-                                                @elseif ($proposal->status === 'Diproses') bg-info
-                                                @elseif ($proposal->status === 'Selesai') bg-success
+                                            <span class="status-badge
+                                                @if ($proposal->status === 'Pending') pending
+                                                @elseif ($proposal->status === 'Diproses') diproses
+                                                @elseif ($proposal->status === 'Selesai') selesai
                                                 @endif">
                                                 {{ $proposal->status }}
                                             </span>
                                         </td>
                                         <td>
                                             @php($inWindow = $timeline && $currentDate >= $timeline->review_start_date && $currentDate <= $timeline->review_end_date)
-                                            @if (in_array($proposal->id, $reviews))
-                                                <a href="{{ route('penelitian-rev.editReview', $proposal->id) }}" class="btn btn-sm btn-outline-warning @if(!$inWindow) disabled @endif"><i class="fas fa-edit"></i> Edit Review</a>
-                                                <a href="{{ route('penelitian-rev.view_pdf', $proposal->id) }}" class="btn btn-sm btn-outline-danger"><i class="fas fa-file-download"></i> Lihat PDF</a>
-                                            @else
-                                                <a href="{{ route('penelitian-rev.review', $proposal->id) }}" class="btn btn-sm btn-outline-primary @if(!$inWindow) disabled @endif"><i class="fas fa-file"></i> Review</a>
-                                            @endif
+                                            <div class="d-flex gap-2">
+                                                @if (in_array($proposal->id, $reviews))
+                                                    <a href="{{ route('penelitian-rev.editReview', $proposal->id) }}" 
+                                                       class="modern-btn modern-btn-warning modern-btn-sm @if(!$inWindow) disabled @endif"
+                                                       @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif>
+                                                        <i class="fa fa-edit me-1"></i> Edit Review
+                                                    </a>
+                                                    <a href="{{ route('penelitian-rev.view_pdf', $proposal->id) }}" 
+                                                       class="modern-btn modern-btn-danger modern-btn-sm">
+                                                        <i class="fa fa-file-download me-1"></i> Lihat PDF
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('penelitian-rev.review', $proposal->id) }}" 
+                                                       class="modern-btn modern-btn-primary modern-btn-sm @if(!$inWindow) disabled @endif"
+                                                       @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif>
+                                                        <i class="fa fa-file me-1"></i> Review
+                                                    </a>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                            </table>
+                        </div>
                         @endif
-                    </div>
                 </div>
             </div>
         </div>

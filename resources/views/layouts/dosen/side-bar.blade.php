@@ -39,7 +39,7 @@
     <!-- Nav Item - Penelitian -->
     <li class="nav-item @isroute('penelitian-dos.index')">
         <a class="nav-link" href="{{ route('penelitian-dos.index') }}">
-            <i class="fas fa-fw fa-file-alt"></i>
+            <i class="fas fa-fw fa-flask"></i>
             <span>Penelitian</span>
         </a>
     </li>
@@ -47,7 +47,7 @@
     <!-- Nav Item - Pengabdian -->
     <li class="nav-item @isroute('pengabdian-dos.index')">
         <a class="nav-link" href="{{ route('pengabdian-dos.index') }}">
-            <i class="fas fa-fw fa-file-alt"></i>
+            <i class="fas fa-fw fa-hands-helping"></i>
             <span>Pengabdian</span>
         </a>
     </li>
