@@ -40,18 +40,29 @@
         </div>
     </div>
     <x-slot name="scripts">
-        <script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script>
+        <script src="https://cdn.ckeditor.com/4.20.1/full/ckeditor.js"></script>
         <!-- https://codepolitan.com/blog/mengintegrasikan-ckeditor-di-laravel-5a1d04ac1f749 -->
 
         <script>
+            // Wait for DOM to be ready
+            document.addEventListener('DOMContentLoaded', function() {
+                // Wait for CKEditor to load
+                CKEDITOR.on('instanceReady', function(ev) {
+                    console.log('CKEditor is ready');
+                });
 
-            window.konten = document.getElementById("visi_misi_org");
-            
-            CKEDITOR.replace(konten,{
-                language:'id',
-                height: '400',
-                filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token() ]) }}",
-                filebrowserUploadMethod: 'form'
+                window.konten = document.getElementById("visi_misi_org");
+                
+                CKEDITOR.replace(konten, {
+                    height: '500',
+                    language: 'id',
+                    toolbar: 'Full',
+                    filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token() ]) }}",
+                    filebrowserUploadMethod: 'form',
+                    allowedContent: true,
+                    extraPlugins: 'justify,font,colorbutton,iframe',
+                    removeDialogTabs: 'image:advanced;link:advanced'
+                });
             });
         </script>
     </x-slot>

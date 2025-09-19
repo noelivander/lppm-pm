@@ -1,15 +1,19 @@
-<p><strong>Visi</strong></p>
+<h3>Visi ITH</h3>
 
-<p>Menjadi Institut yang unggul, memiliki daya saing, berstandar internasional yang menjunjung tinggi martabat kemanusiaan, berwawasan lingkungan dan berbasis enterpreneurship</p>
+<blockquote>
+<p>Menjadi institut yang unggul dalam ilmu pengetahuan dan teknologi berbasis inovasi benua maritim Indonesia.</p>
+</blockquote>
 
 <p>&nbsp;</p>
 
-<p><strong>Misi</strong></p>
+<h3>Misi ITH</h3>
 
+<blockquote>
 <ol>
-	<li>Menghasilkan lulusan yang profesional, berjiwa wirausaha, berkarakter dan berstandar Internasioanal</li>
-	<li>Menghasilkan karya nyata bidang ilmu pengetahuan yang inovatif dan berguna bagi masyarakat;</li>
-	<li>Menyelengarakan pendidikan teknologi yang berkualitas;</li>
-	<li>Terciptanya manajemen &nbsp;yang &nbsp;handal &nbsp;untuk &nbsp;tatakelola transparan dan terpercaya;</li>
-	<li>Melakukan Pembinaan sumberdaya manusia yang berkesinambungan dalam menunjang pengembangan profesionalisme.</li>
+	<li>Menyelenggarakan pendidikan tinggi yang unggul berbasis kompetensi untuk menghasilkan lulusan yang memiliki nilai-nilai dasar ITH, jiwa kewirausahaan, dan berdaya saing global.</li>
+	<li>Menyelenggarakan penelitian dan pengabdian kepada masyarakat yang unggul, inovatif, berkualitas tinggi, dan bermanfaat bagi masyarakat secara berkelanjutan dalam mendukung pembangunan daerah dan nasional.</li>
+	<li>Mengembangkan infrastruktur sarana dan prasarana yang unggul dalam menunjang pelaksanaan tridharma perguruan tinggi.</li>
+	<li>Mengembangkan jaringan kerja sama institusional yang unggul dalam rangka mengembangkan temuan ilmu pengetahuan dan teknologi yang berkelanjutan.</li>
+	<li>Menyelenggarakan manajemen tata kelola pendidikan tinggi yang unggul.</li>
 </ol>
+</blockquote>

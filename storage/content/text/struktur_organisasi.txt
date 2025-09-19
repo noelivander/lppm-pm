@@ -1,1 +1,34 @@
-<p>strukturnya begini</p>
+<h3>Struktur Organisasi LPPM-PM ITH</h3>
+
+<p>Lembaga Penelitian, Pengabdian kepada Masyarakat, dan Penjaminan Mutu (LPPM-PM) merupakan unit strategis di bawah Institut Teknologi Bacharuddin Jusuf Habibie (ITH) yang berperan penting dalam pelaksanaan tridharma perguruan tinggi, khususnya dalam bidang penelitian, pengabdian kepada masyarakat, serta penjaminan mutu pendidikan.</p>
+
+<p><img class="img-fluid img-thumbnail w-100" alt="" src="https://lppm-pm.ith.ac.id/storage/images/Struktur-LPPM-PM-ITH_1753365959.png" /></p>
+
+<p>Untuk menunjang tugas dan fungsi tersebut, LPPM-PM memiliki struktur organisasi yang mendukung koordinasi, pelaksanaan, dan pengawasan secara efektif. Struktur ini dipimpin oleh seorang Kepala Lembaga yang dibantu oleh Sekretaris, dua Koordinator, dan dua Staf Administratif.</p>
+
+<p>Kepala LPPM-PM</p>
+
+<p>Kepala LPPM-PM ITH saat ini dijabat oleh <strong>Prof. Dr. Eng. Ir. Intan Sari Areni, S.T., M.T., IPU.</strong>, beliau bertanggung jawab atas penetapan arah strategis, kebijakan program, dan supervisi umum terhadap pelaksanaan kegiatan penelitian, pengabdian kepada masyarakat, dan sistem penjaminan mutu.</p>
+
+<p>Sekretaris</p>
+
+<p>Dalam menjalankan operasional lembaga, Kepala LPPM-PM dibantu oleh <strong>Rosmiati, S.Kom., M.Kom.</strong> sebagai Sekretaris yang beran dalam melakukan koordinasi internal lembaga, pengelolaan administrasi, serta penyusunan laporan dan dokumentasi kegiatan lembaga.</p>
+
+<p>Koordinator Penelitian dan Pengabdian kepada Masyarakat</p>
+
+<p>Fungsi pengembangan dan pemantauan kegiatan riset serta pengabdian dosen kepada masyarakat dikoordinasikan oleh <strong>Eka Qadri Nuranti B., S.Kom., M.Kom.</strong> yang bertanggung jawab atas pengelolaan skema penelitian dan pengabdian, baik internal maupun eksternal, serta mendorong pencapaian luaran yang sejalan dengan roadmap institusi.</p>
+
+<p>Koordinator Penjaminan Mutu</p>
+
+<p>Fungsi penguatan mutu akademik dan tata kelola dijalankan oleh <strong>Mar&rsquo;atuttahirah, S.Pd., M.T.</strong> sebagai Koordinator Penjaminan Mutu yang mengoordinasikan pelaksanaan evaluasi diri, audit mutu internal, pengembangan standar mutu pendidikan, serta pelaporan evaluasi berkala terhadap kegiatan tridharma.</p>
+
+<p>Staf Administratif</p>
+
+<p>Untuk mendukung pelaksanaan program dan layanan operasional, LPPM-PM dibantu oleh dua staf administratif, yaitu:</p>
+
+<ol>
+	<li><strong>Hasmi Siswanti Handayani S., A.Md.Ak.</strong> &ndash; Bertugas menangani administrasi keuangan dan dokumentasi kegiatan lembaga.</li>
+	<li><strong>Asya Anggun Lestari, A.Md.A.B.</strong> &ndash; Bertanggung jawab dalam pendataan program, surat-menyurat, serta pengelolaan arsip lembaga.</li>
+</ol>
+
+<p>Struktur organisasi ini dirancang untuk memastikan setiap fungsi di dalam LPPM-PM berjalan secara efektif dan terintegrasi, mendukung misi ITH dalam menciptakan ekosistem akademik yang unggul, inovatif, berkualitas tinggi, dan bermanfaat bagi masyarakat.</p>
