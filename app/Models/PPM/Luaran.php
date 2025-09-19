@@ -11,9 +11,9 @@ class Luaran extends Model
 
     protected $table = 'ppm_luaran';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
-        'kode', 'nama', 'perihal'
+        'kode', 'nama', 'perihal', 'jenis', 'kategori', 'is_shown'
     ];
 }

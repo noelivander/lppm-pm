@@ -152,8 +152,9 @@
                                         <label for="skema" class="modern-form-label"><i class="fa fa-list me-2"></i>Skema</label>
                                         <select name="skema" id="skema" class="modern-form-select" required>
                                             <option value="" disabled selected>Pilih Skema...</option>
-                                            <option value="pengabdian masyarakat">Pengabdian Masyarakat</option>
-                                            <option value="pendampingan">Pendampingan</option>
+                                            @foreach($skemaPengabdian as $skema)
+                                                <option value="{{ $skema->nama }}">{{ $skema->nama }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     <div class="d-flex align-items-start gap-3">
@@ -162,11 +163,9 @@
                                             <label for="luaran_wajib" class="modern-form-label"><i class="fa fa-trophy me-2"></i>Luaran Wajib</label>
                                             <select name="luaran_wajib" id="luaran_wajib" class="modern-form-select" required>
                                                     <option value="" disabled selected>Pilih Luaran...</option>
-                                                    <option value="jurnal nasional terindeks sinta">Jurnal Nasional Terindeks Sinta</option>
-                                                    <option value="jurnal internasional terindeks">Jurnal Internasional Terindeks</option>
-                                                    <option value="jurnal internasional">Jurnal Internasional</option>
-                                                    <option value="prosiding konferensi nasional">Prosiding Konferensi Nasional</option>
-                                                    <option value="produk model prototype">Produk/Model/Prototype</option>
+                                                    @foreach($luaranWajibPengabdian as $luaran)
+                                                        <option value="{{ $luaran->nama }}">{{ $luaran->nama }}</option>
+                                                    @endforeach
                                             </select>
                                         </div>
                                     
@@ -188,9 +187,9 @@
                                         <label for="luaran_tambahan" class="modern-form-label"><i class="fa fa-plus-square me-2"></i>Luaran Tambahan</label>
                                             <select name="luaran_tambahan" id="luaran_tambahan" class="modern-form-select">
                                                 <option value="" disabled selected>Pilih Luaran Tambahan...</option>
-                                                <option value="bahan ajar">Bahan Ajar</option>
-                                                <option value="buku monografi">Buku Monografi</option>
-                                                <option value="haki">HAKI</option>
+                                                @foreach($luaranTambahanPengabdian as $luaran)
+                                                    <option value="{{ $luaran->nama }}">{{ $luaran->nama }}</option>
+                                                @endforeach
                                             </select>
                                     </div>
                                     <div class="modern-form-group">

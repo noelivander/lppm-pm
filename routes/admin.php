@@ -43,8 +43,20 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('ppm/fokus-bidang', FokusBidangController::class);
     Route::resource('ppm/penelitian-adm', PenelitianController::class);
     Route::resource('ppm/pengabdian-adm', PengabdianController::class);
-    Route::resource('ppm/pengaturan/luaran', LuaranController::class);
-    Route::resource('ppm/pengaturan/skema', SkemaController::class);
+    
+    // Skema routes
+    Route::get('skema', [SkemaController::class, 'index'])->name('skema.index');
+    Route::post('skema', [SkemaController::class, 'store'])->name('skema.store');
+    Route::get('skema/{skema}/edit', [SkemaController::class, 'edit'])->name('skema.edit');
+    Route::put('skema/{skema}', [SkemaController::class, 'update'])->name('skema.update');
+    Route::delete('skema/{skema}', [SkemaController::class, 'destroy'])->name('skema.destroy');
+    
+    // Luaran routes
+    Route::get('luaran', [LuaranController::class, 'index'])->name('luaran.index');
+    Route::post('luaran', [LuaranController::class, 'store'])->name('luaran.store');
+    Route::get('luaran/{luaran}/edit', [LuaranController::class, 'edit'])->name('luaran.edit');
+    Route::put('luaran/{luaran}', [LuaranController::class, 'update'])->name('luaran.update');
+    Route::delete('luaran/{luaran}', [LuaranController::class, 'destroy'])->name('luaran.destroy');
 
     Route::resource('kelembagaan/struktur-organisasi', StrukturorgController::class)->only([
         'index', 'store'

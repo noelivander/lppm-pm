@@ -11,10 +11,10 @@ class Skema extends Model
 
     protected $table = 'ppm_skema';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
-        'kode', 'nama', 'perihal', 'is_research','jenis_skema_id'
+        'kode', 'nama', 'perihal', 'is_research', 'jenis_skema_id', 'jenis', 'is_shown'
     ];
 
     public function jenis_skema() {

@@ -10,6 +10,8 @@ use App\Models\Review;
 use Mpdf\Mpdf;
 use App\Helpers\EncryptionHelper;
 use App\Models\Timeline;
+use App\Models\PPM\Skema;
+use App\Models\PPM\Luaran;
 
 class PengabdianController extends Controller
 {
@@ -18,6 +20,11 @@ class PengabdianController extends Controller
         $currentDate = now();
         $timeline = Timeline::first();
         $pengabdian = Pengabdian::where('user_id', Auth::id())->get();
+
+        // Get skema and luaran for pengabdian
+        $skemaPengabdian = Skema::where('jenis', 'pengabdian')->where('is_shown', 1)->get();
+        $luaranWajibPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
+        $luaranTambahanPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
 
         foreach ($pengabdian as $item) {
             $item->judul = EncryptionHelper::decrypt($item->judul);
@@ -30,7 +37,7 @@ class PengabdianController extends Controller
             $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
         }
 
-        return view('dosen.ppm.pengabdian.index', compact('pengabdian','timeline','currentDate'));
+        return view('dosen.ppm.pengabdian.index', compact('pengabdian','timeline','currentDate','skemaPengabdian','luaranWajibPengabdian','luaranTambahanPengabdian'));
     }
 
     public function viewReviews($pengabdian_id, $review_number)

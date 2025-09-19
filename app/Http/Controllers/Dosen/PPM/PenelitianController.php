@@ -10,6 +10,8 @@ use App\Models\Review;
 use Mpdf\Mpdf;
 use App\Helpers\EncryptionHelper;
 use App\Models\Timeline;
+use App\Models\PPM\Skema;
+use App\Models\PPM\Luaran;
 
 class PenelitianController extends Controller
 {
@@ -19,6 +21,11 @@ class PenelitianController extends Controller
         $currentDate = now();
         $timeline = Timeline::first();
         $penelitian = Penelitian::where('user_id', Auth::id())->get();
+
+        // Get skema and luaran for penelitian
+        $skemaPenelitian = Skema::where('jenis', 'penelitian')->where('is_shown', 1)->get();
+        $luaranWajibPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
+        $luaranTambahanPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
 
         foreach ($penelitian as $item) {
             $item->judul = EncryptionHelper::decrypt($item->judul);
@@ -31,7 +38,7 @@ class PenelitianController extends Controller
             $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
         }
 
-        return view('dosen.ppm.penelitian.index', compact('penelitian','timeline','currentDate'));
+        return view('dosen.ppm.penelitian.index', compact('penelitian','timeline','currentDate','skemaPenelitian','luaranWajibPenelitian','luaranTambahanPenelitian'));
     }
 
     public function viewReviews($penelitian_id, $review_number)
