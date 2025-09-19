@@ -128,7 +128,7 @@
                     </h6>
                 </div>
                 <div class="modern-card-body" style="min-height: 340px">
-                    <div class="table-responsive" style="max-height: 280px; overflow: auto;">
+                    <div class="table-responsive mt-0" style="max-height: 280px; overflow: auto;">
                         <table class="table modern-table mb-0 align-middle">
                             <thead>
                                 <tr>
