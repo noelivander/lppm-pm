@@ -78,34 +78,51 @@
                                                 </a>
                                             </td>
 
-                                        <div class="modal fade modern-modal" id="reviewModal{{ $item->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $item->id }}" aria-hidden="true" data-bs-backdrop="false" data-bs-keyboard="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="reviewModalLabel{{ $item->id }}">
-                                                            <i class="fa fa-search me-2"></i>Pilih Review
+                                        <!-- Modal untuk Review -->
+                                        <div class="modal fade" id="reviewModal{{ $item->id }}" tabindex="-1">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content modern-card">
+                                                    <div class="modal-header modern-card-header">
+                                                        <h5 class="modal-title mb-0">
+                                                            <i class="fa fa-search me-2"></i>Hasil Review Penelitian
                                                         </h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                     </div>
-                                                    <div class="modal-body">
+                                                    <div class="modal-body modern-card-body">
                                                         @php
                                                             $reviews = \App\Models\Review::where('penelitian_id', $item->id)->get();
                                                         @endphp
 
                                                         @if ($reviews->count() > 0)
-                                                            <div class="d-grid gap-2">
+                                                            <div class="row">
                                                                 @foreach ($reviews as $index => $review)
-                                                                    <a href="{{ route('penelitian-dos.view-reviews', ['penelitian_id' => $item->id, 'review_number' => $index + 1]) }}" 
-                                                                       class="modern-btn modern-btn-primary">
-                                                                        <i class="fa fa-file-alt me-2"></i>Lihat Review {{ $index + 1 }}
-                                                                    </a>
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="modern-card">
+                                                                            <div class="modern-card-body text-center">
+                                                                                <i class="fa fa-file-alt fa-3x text-primary mb-3"></i>
+                                                                                <h6 class="mb-2">Review {{ $index + 1 }}</h6>
+                                                                                <p class="text-muted small mb-3">Klik untuk melihat detail review</p>
+                                                                                <a href="{{ route('penelitian-dos.view-reviews', ['penelitian_id' => $item->id, 'review_number' => $index + 1]) }}" 
+                                                                                   class="modern-btn modern-btn-primary">
+                                                                                    <i class="fa fa-eye me-1"></i> Lihat Review
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 @endforeach
                                                             </div>
                                                         @else
-                                                            <div class="modern-alert modern-alert-info">
-                                                                <i class="fa fa-info-circle me-2"></i>Review belum tersedia.
+                                                            <div class="text-center py-4">
+                                                                <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+                                                                <h6 class="text-muted">Review belum tersedia</h6>
+                                                                <p class="text-muted">Review akan muncul setelah proposal direview oleh reviewer</p>
                                                             </div>
                                                         @endif
+                                                    </div>
+                                                    <div class="modal-footer modern-card-footer">
+                                                        <button type="button" class="modern-btn modern-btn-secondary" data-bs-dismiss="modal">
+                                                            <i class="fa fa-times me-1"></i> Tutup
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
