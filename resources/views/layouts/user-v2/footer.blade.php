@@ -1,6 +1,6 @@
 <!-- Footer Start -->
-<div class="container-fluid bg-primary text-light footer mt-5 pt-5 wow fadeIn" data-wow-delay="0.1s">
-    <div class="container py-5 px-lg-5">
+    <div class="container-fluid footer mt-5 pt-4 wow fadeIn" data-wow-delay="0.1s" style="background: linear-gradient(135deg, #3730a3 0%, #4f46e5 50%, #7c3aed 100%);">
+    <div class="container py-4 px-lg-5">
         <div class="row g-5">
             <div class="col-md-6 col-lg-5 col-xl-4">
                 <div class="row pb-4 g-2">
@@ -40,21 +40,31 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-3 col-xl-4">
-                <h5 class="text-white mb-4">Tautan Terkait</h5>
-                @foreach($related_links as $key => $link)
-                    <a class="btn btn-link" href="{{ $link->url }}" target="_blank">{{ __($link->nama)}}</a>
-                @endforeach
+                <h5 class="text-white mb-4">Layanan</h5>
+                <div class="d-flex flex-column">
+                    <a class="text-white-75 mb-2" href="{{ route('layanan-agenda.index') }}"><i class="fa fa-angle-right me-2"></i>Agenda Kegiatan</a>
+                    <a class="text-white-75 mb-2" href="{{ route('layanan-pengumuman.index') }}"><i class="fa fa-angle-right me-2"></i>Pengumuman</a>
+                    <a class="text-white-75 mb-2" href="{{ route('dokumen.index') }}"><i class="fa fa-angle-right me-2"></i>Dokumen Publik</a>
+                    <a class="text-white-75 mb-2" href="{{ route('layanan-berita.index') }}"><i class="fa fa-angle-right me-2"></i>Berita</a>
+                    <a class="text-white-75 mb-2" href="{{ route('kelembagaan_tentang') }}"><i class="fa fa-angle-right me-2"></i>Tentang Kami</a>
+                </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <h5 class="text-white mb-4">Pengumuman Terbaru</h5>
-                <div class="row g-2">
-                    @foreach($pengumuman_terbaru as $list)
-                    <div class="col-4">
-                        <a href="{{ route('layanan-pengumuman.show',['slug'=>$list->slug]) }}">
-                            <img class="img-fluid w-100" src="{{ asset('storage/'.$list->cover) }}" alt="">
-                        </a>
-                    </div>
+                <h5 class="text-white mb-3">Tautan Terkait</h5>
+                <div class="d-flex flex-column">
+                    @foreach($related_links as $key => $link)
+                        <a class="text-white-75 mb-2" href="{{ $link->url }}" target="_blank"><i class="fa fa-angle-right me-2"></i>{{ __($link->nama)}}</a>
                     @endforeach
+                </div>
+                
+                <!-- Newsletter -->
+                <div class="mt-4">
+                    <h6 class="text-white mb-3">Newsletter</h6>
+                    <p class="text-white-75 small mb-3">Dapatkan update terbaru dari LPPM-PM ITH</p>
+                    <div class="d-flex">
+                        <input type="email" class="form-control form-control-sm me-2" placeholder="Email Anda" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+                        <button class="btn btn-light btn-sm">Kirim</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -62,19 +72,14 @@
     <div class="container px-lg-5">
         <div class="copyright">
             <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">{{ __('2022 TIM LPPM-PM ITH') }}</a>, All Right Reserved. 
-					
-					<!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-					Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
-                    <br>Distributed By: <a class="border-bottom" href="https://themewagon.com" target="_blank">ThemeWagon</a>
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    &copy; <a class="border-bottom text-white-50" href="#">{{ __('2024 TIM LPPM-PM ITH') }}</a>, All Right Reserved. 
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <div class="footer-menu">
-                        <a href="{{ route('home') }}">Beranda</a>
-                        <a href="{{ route('dokumen.index') }}">Dokumen</a>
-                        <!-- <a href="">Help</a>
-                        <a href="">FQAs</a> -->
+                        <a class="text-white-75 me-3" href="{{ route('home') }}">Beranda</a>
+                        <a class="text-white-75 me-3" href="{{ route('dokumen.index') }}">Dokumen</a>
+                        <a class="text-white-75" href="{{ route('kelembagaan_tentang') }}">Tentang</a>
                     </div>
                 </div>
             </div>

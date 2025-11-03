@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Berita;
+use App\Models\Penelitian;
+use App\Models\Pengabdian;
+use App\Models\Pegawai;
+use App\Models\ProgramStudi;
 
 class HomeController extends Controller
 {
@@ -13,6 +17,13 @@ class HomeController extends Controller
     {
         $berita = Berita::orderBy('created_at','desc')->take(3)->get();
 
-        return view('user.home', compact('berita'));
+        // Real counts pulled from database for the landing page
+        $totalPenelitian = Penelitian::count();
+        $totalPengabdian = Pengabdian::count();
+        $totalDosen = Pegawai::count();
+        $totalProdi = class_exists(ProgramStudi::class) ? ProgramStudi::count() : 0;
+        $totalBerita = Berita::count();
+
+        return view('user.home', compact('berita', 'totalPenelitian', 'totalPengabdian', 'totalDosen', 'totalProdi', 'totalBerita'));
     }
 }

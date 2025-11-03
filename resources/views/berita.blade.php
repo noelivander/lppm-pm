@@ -1,15 +1,14 @@
-<x-app-layout>
+<x-user-layout>
     <x-slot name="title">
         {{ __('Berita') }}
     </x-slot>
+    <x-user.header :breadcrumbs="[['Home','home'],['Layanan','layanan-berita.index']]" judul="Berita" />
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    Berita
-                </div>
+    <div class="container py-5">
+        <div class="modern-card">
+            <div class="modern-card-body">
+                <p class="text-muted m-0">Daftar berita terbaru akan tampil di sini.</p>
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-user-layout>

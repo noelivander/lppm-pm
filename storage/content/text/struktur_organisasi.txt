@@ -2,7 +2,7 @@
 
 <p>Lembaga Penelitian, Pengabdian kepada Masyarakat, dan Penjaminan Mutu (LPPM-PM) merupakan unit strategis di bawah Institut Teknologi Bacharuddin Jusuf Habibie (ITH) yang berperan penting dalam pelaksanaan tridharma perguruan tinggi, khususnya dalam bidang penelitian, pengabdian kepada masyarakat, serta penjaminan mutu pendidikan.</p>
 
-<p><img class="img-fluid img-thumbnail w-100" alt="" src="https://lppm-pm.ith.ac.id/storage/images/Struktur-LPPM-PM-ITH_1753365959.png" /></p>
+<p><img class="img-fluid img-thumbnail w-100" alt="" class="img-fluid img-thumbnail w-100" src="https://lppm-pm.ith.ac.id/storage/images/Struktur-LPPM-PM-ITH_1753365959.png" /></p>
 
 <p>Untuk menunjang tugas dan fungsi tersebut, LPPM-PM memiliki struktur organisasi yang mendukung koordinasi, pelaksanaan, dan pengawasan secara efektif. Struktur ini dipimpin oleh seorang Kepala Lembaga yang dibantu oleh Sekretaris, dua Koordinator, dan dua Staf Administratif.</p>
 

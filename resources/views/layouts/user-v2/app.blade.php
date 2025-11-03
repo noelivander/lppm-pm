@@ -28,6 +28,8 @@
     <!-- Template Stylesheet -->
     <link href="{{ asset('css/user.css') }}" rel="stylesheet">
     <link href="{{ asset('css/user-style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/modern-components.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/landing-page.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -42,7 +44,11 @@
         
         @include('layouts.user-v2.navbar')
 
-        {{ $slot }}
+        @if(isset($slot) && !empty(trim($slot)))
+            {{ $slot }}
+        @else
+            @yield('content')
+        @endif
 
         @include('layouts.user-v2.footer')
 
@@ -61,7 +67,71 @@
     <script src="{{ asset('vendor/user/lib/lightbox/js/lightbox.min.js') }}"></script>
 
     <!-- Template Javascript -->
-    <script src="{{ asset('js/user.js') }}"></script>
+    <script src="{{ asset('js/user-custom.js') }}"></script>
+    
+    <!-- Modern Landing Page Scripts -->
+    <script>
+        // Scroll reveal animation
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(element => {
+                const windowHeight = window.innerHeight;
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    element.classList.add('show');
+                }
+            });
+        }
+        
+        // Counter animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const count = parseInt(counter.innerText);
+                const increment = target / 100;
+                
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(() => animateCounters(), 20);
+                } else {
+                    counter.innerText = target + '+';
+                }
+            });
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Initialize animations
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', () => {
+            revealOnScroll();
+            // Start counter animation after a delay
+            setTimeout(animateCounters, 1000);
+        });
+        
+        // Newsletter form handling
+        document.querySelector('input[type="email"]')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.nextElementSibling.click();
+            }
+        });
+    </script>
 </body>
 
 </html>

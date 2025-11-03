@@ -76,8 +76,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])->name('ckeditor.upload');
 
-    Route::get('/admin/timeline', [TimelineController::class, 'index'])->name('admin.timeline.index');
-    Route::get('/admin/timeline/create', [TimelineController::class, 'create'])->name('admin.timeline.create');
-    Route::post('/admin/timeline', [TimelineController::class, 'store'])->name('admin.timeline.store');
+    // Timeline Management Routes
+    Route::get('timeline', [TimelineController::class, 'index'])->name('timeline.index');
+    Route::get('timeline/create', [TimelineController::class, 'create'])->name('timeline.create');
+    Route::post('timeline', [TimelineController::class, 'store'])->name('timeline.store');
+    Route::get('timeline/{id}/edit', [TimelineController::class, 'edit'])->name('timeline.edit');
+    Route::put('timeline/{id}', [TimelineController::class, 'update'])->name('timeline.update');
+    Route::delete('timeline/{id}', [TimelineController::class, 'destroy'])->name('timeline.destroy');
+    Route::post('timeline/{id}/toggle-active', [TimelineController::class, 'toggleActive'])->name('timeline.toggleActive');
 
 });

@@ -13,11 +13,28 @@ class PengumumanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $pengumuman = Pengumuman::orderBy('created_at','desc')->get();
+        $sort = $request->get('sort', 'latest');
+        
+        $query = Pengumuman::query();
+        
+        switch ($sort) {
+            case 'popular':
+                $query->orderBy('dilihat', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'latest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+        
+        $pengumuman = $query->paginate(12);
 
-        return view('user.pengumuman.index', compact('pengumuman'));
+        return view('user.pengumuman.index', compact('pengumuman', 'sort'));
     }
 
     /**

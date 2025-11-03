@@ -14,11 +14,28 @@ class BeritaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $berita = Berita::orderBy('created_at','desc')->get();
+        $query = Berita::query();
 
-        return view('user.berita.index', compact('berita'));
+        // Sorting
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'popular':
+                $query->orderBy('views', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'latest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $berita = $query->get();
+
+        return view('user.berita.index', compact('berita', 'sort'));
     }
 
     /**

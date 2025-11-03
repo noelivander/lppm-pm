@@ -12,7 +12,7 @@ class Berita extends Model
     protected $table = 'news';
 
     protected $fillable = [
-        'slug', 'user_id', 'judul', 'isi', 'cover', 'is_shown'
+        'slug', 'user_id', 'judul', 'isi', 'cover', 'is_shown', 'views'
     ];
 
     public function user() {

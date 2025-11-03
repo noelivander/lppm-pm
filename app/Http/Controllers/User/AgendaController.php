@@ -4,40 +4,101 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
-use File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
-
 use App\Models\Agenda;
 
 class AgendaController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function index(Request $request)
     {
-        $agenda = Agenda::orderBy('jadwal','asc')->get();
+        try {
+            $query = Agenda::query();
 
-        return view('user.agenda.index', compact('agenda'));
+            // Filtering by month
+            if ($request->filled('month')) {
+                $query->whereMonth('jadwal', $request->month);
+            }
+
+            // Filtering by category/tag
+            if ($request->filled('category')) {
+                $query->where('tag', $request->category);
+            }
+
+            // Paginate the results (10 items per page)
+            $agenda = $query->orderBy('jadwal', 'asc')->paginate(10);
+
+            // Cache the results of these queries since they don't change often
+            $availableMonths = cache()->remember('available_months', now()->addDay(), function () {
+                return Agenda::selectRaw('DISTINCT MONTH(jadwal) as month, YEAR(jadwal) as year')
+                    ->orderBy('year', 'desc')
+                    ->orderBy('month', 'desc')
+                    ->get()
+                    ->map(function($item) {
+                        return [
+                            'value' => $item->month,
+                            'label' => Carbon::create()->month($item->month)->format('F Y')
+                        ];
+                    });
+            });
+
+            $availableCategories = cache()->remember('available_categories', now()->addDay(), function () {
+                return Agenda::whereNotNull('tag')
+                    ->distinct()
+                    ->pluck('tag')
+                    ->filter()
+                    ->values();
+            });
+
+            return view('user.agenda.index', compact('agenda', 'availableMonths', 'availableCategories'));
+            
+        } catch (\Exception $e) {
+            Log::error('Error in AgendaController@index: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memuat halaman agenda. Silakan coba lagi nanti.');
+        }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  string  $slug
+     * @return \Illuminate\View\View
      */
     public function show($slug)
     {
-        $agenda = Agenda::where('slug',$slug)->first();
-        
-        $deskripsi = File::get('storage/'.$agenda->deskripsi);
-        // $deskripsi = File::get('storage/'.$agenda->deskripsi);
+        try {
+            $agenda = Agenda::where('slug', $slug)->firstOrFail();
+            
+            $deskripsi = '';
+            if ($agenda->deskripsi) {
+                $filePath = storage_path('app/public/' . ltrim($agenda->deskripsi, '/'));
+                if (File::exists($filePath)) {
+                    $deskripsi = File::get($filePath);
+                }
+            }
 
-        $jadwal = Carbon::createFromFormat('Y-m-d H:i:s', $agenda->jadwal)->format('d F Y');
+            $jadwal = Carbon::parse($agenda->jadwal)->translatedFormat('d F Y');
 
-        if($agenda->jadwal_akhir){
-            $jadwal = Carbon::createFromFormat('Y-m-d H:i:s', $agenda->jadwal)->format('d M Y').' - '.Carbon::createFromFormat('Y-m-d H:i:s', $agenda->jadwal_akhir)->format('d M Y');
+            if ($agenda->jadwal_akhir) {
+                $jadwal = Carbon::parse($agenda->jadwal)->translatedFormat('d M Y') . ' - ' . 
+                         Carbon::parse($agenda->jadwal_akhir)->translatedFormat('d M Y');
+            }
+
+            return view('user.agenda.show', compact('agenda', 'deskripsi', 'jadwal'));
+            
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Agenda not found: ' . $slug);
+            abort(404, 'Agenda tidak ditemukan');
+        } catch (\Exception $e) {
+            Log::error('Error in AgendaController@show: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memuat detail agenda. Silakan coba lagi nanti.');
         }
-
-        return view('user.agenda.show', compact('agenda','deskripsi','jadwal'));
     }
 }
