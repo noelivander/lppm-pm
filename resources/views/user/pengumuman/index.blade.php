@@ -1,389 +1,119 @@
-@extends('layouts.user-v2.app')
+<x-user-layout>
+	<x-slot name="title">
+		{{ __('Pengumuman') }}
+	</x-slot>
 
-@section('title', 'Pengumuman')
-
-@section('styles')
-<style>
-    :root {
-        --primary-color: #4f46e5;
-        --primary-dark: #3730a3;
-        --primary-light: #818cf8;
-        --dark-color: #1e293b;
-        --light-color: #f8fafc;
-        --gray-color: #94a3b8;
-        --border-radius: 15px;
-        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .announcement-card {
-        border: none;
-        border-radius: var(--border-radius);
-        overflow: hidden;
-        transition: var(--transition);
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        background: white;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    }
-    
-    .announcement-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
-    }
-    
-    .announcement-card:hover .announcement-image {
-        transform: scale(1.05);
-    }
-    
-    .announcement-card:hover .read-more-btn {
-        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
-    }
-    
-    .announcement-image-container {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .announcement-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-    
-    .announcement-badge {
-        position: absolute;
-        top: 0;
-        right: 0;
-        margin: 0.75rem;
-        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-    
-    .announcement-date {
-        font-size: 0.85rem;
-        color: #64748b;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-    
-    .announcement-date i {
-        color: var(--primary-color);
-    }
-    
-    .announcement-views {
-        font-size: 0.85rem;
-        color: #64748b;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-    
-    .announcement-views i {
-        color: var(--primary-color);
-    }
-    
-    .announcement-card-body {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        background: white;
-    }
-    
-    .announcement-meta {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-        font-size: 0.85rem;
-    }
-    
-    .announcement-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0 0 0.75rem 0;
-        line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        min-height: 3rem;
-        color: #1e1b4b;
-    }
-    
-    .announcement-excerpt {
-        color: #64748b;
-        margin-bottom: 1rem;
-        flex-grow: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        min-height: 4.5em;
-        font-size: 0.9rem;
-        line-height: 1.6;
-    }
-    
-    .read-more-btn {
-        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 0.5rem 1.5rem;
-        font-weight: 500;
-        font-size: 0.875rem;
-        transition: var(--transition);
-        text-decoration: none;
-        display: inline-block;
-        text-align: center;
-    }
-    
-    .read-more-btn:hover {
-        color: white;
-        transform: translateX(3px);
-    }
-    
-    .sort-btn {
-        padding: 0.5rem 1rem;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border-radius: 50px;
-        font-weight: 500;
-        transition: var(--transition);
-        cursor: pointer;
-        font-size: 0.9rem;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        backdrop-filter: blur(10px);
-    }
-    
-    .sort-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.5);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-    }
-    
-    .sort-btn.active {
-        background: white;
-        color: #7c3aed;
-        border-color: white;
-        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-    }
-    
-    .no-results {
-        text-align: center;
-        padding: 5rem 2rem;
-        background: #f8fafc;
-        border-radius: var(--border-radius);
-    }
-    
-    .no-results i {
-        font-size: 4rem;
-        color: #cbd5e1;
-        margin-bottom: 1.5rem;
-        opacity: 0.3;
-    }
-    
-    .no-results h5 {
-        color: #64748b;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-    
-    .no-results p {
-        color: var(--gray-color);
-        margin: 0;
-    }
-    
-    .loading-spinner {
-        width: 3rem;
-        height: 3rem;
-        border: 0.3rem solid rgba(79, 70, 229, 0.1);
-        border-top-color: var(--primary-color);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-20px); }
-    }
-    
-    @keyframes float-delayed {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-15px); }
-    }
-    
-    .fade-in-up {
-        animation: fadeInUp 0.6s ease-out forwards;
-    }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
-@endsection
-
-@section('content')
-<!-- Hero Section -->
-<section class="position-relative overflow-hidden py-5" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);">
-    <div class="container py-5">
-        <div class="row align-items-center">
-            <div class="col-lg-8 mx-auto text-center text-white">
-                <h1 class="display-4 fw-bold mb-3" style="animation: float 3s ease-in-out infinite;">Pengumuman Terkini</h1>
-                <p class="lead mb-4">Dapatkan informasi terbaru dan pengumuman penting dari LPPM-PM ITH</p>
-                
-                <!-- Sort Options -->
-                <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
-                    <a href="{{ route('layanan-pengumuman.index', ['sort' => 'latest']) }}" class="sort-btn {{ request('sort', 'latest') == 'latest' ? 'active' : '' }}">
-                        <i class="fas fa-clock me-2"></i>Terbaru
-                    </a>
-                    <a href="{{ route('layanan-pengumuman.index', ['sort' => 'popular']) }}" class="sort-btn {{ request('sort') == 'popular' ? 'active' : '' }}">
-                        <i class="fas fa-fire me-2"></i>Populer
-                    </a>
-                    <a href="{{ route('layanan-pengumuman.index', ['sort' => 'oldest']) }}" class="sort-btn {{ request('sort') == 'oldest' ? 'active' : '' }}">
-                        <i class="fas fa-history me-2"></i>Terlama
-                    </a>
+	<section class="position-relative overflow-hidden" style="background: linear-gradient(135deg, #3730a3 0%, #4f46e5 50%, #7c3aed 100%); padding-top: 100px; padding-bottom: 60px; margin-top: 0;">
+		<div class="container">
+			<div class="row align-items-center g-4">
+				<div class="col-lg-7 text-white">
+					<nav aria-label="breadcrumb" class="mb-4">
+						<ol class="breadcrumb bg-transparent mb-0" style="--bs-breadcrumb-divider: '›';">
+							<li class="breadcrumb-item"><a class="text-white-50 text-decoration-none" href="{{ route('home') }}">Beranda</a></li>
+							<li class="breadcrumb-item active text-white" aria-current="page">Pengumuman</li>
+						</ol>
+					</nav>
+					<h1 class="display-5 fw-bold mb-3 text-white">Pengumuman Terkini</h1>
+					<p class="mb-0 text-white" style="font-size: 1.1rem; opacity: 0.95;">Informasi terbaru dan pengumuman penting dari LPPM-PM ITH.</p>
+				</div>
+				<div class="col-lg-5">
+					<form method="get" class="bg-white rounded-3 shadow-sm p-2 p-md-3">
+						<div class="row g-2 align-items-center">
+							<div class="col-12 col-md">
+								<div class="position-relative">
+									<i class="fas fa-search position-absolute" style="left: .9rem; top: 50%; transform: translateY(-50%); color: #64748b;"></i>
+									<input name="q" value="{{ $q ?? '' }}" class="form-control ps-5" placeholder="Cari pengumuman..." aria-label="Cari pengumuman">
+								</div>
+							</div>
+							<div class="col-6 col-md-auto">
+								<select name="sort" class="form-select">
+									<option value="latest" {{ ($sort ?? '')==='latest'?'selected':'' }}>Terbaru</option>
+									<option value="oldest" {{ ($sort ?? '')==='oldest'?'selected':'' }}>Terlama</option>
+									<option value="popular" {{ ($sort ?? '')==='popular'?'selected':'' }}>Terpopuler</option>
+								</select>
+							</div>
+							<div class="col-6 col-md-auto">
+								<select name="per_page" class="form-select">
+									@foreach([9,12,15,18,24] as $pp)
+										<option value="{{ $pp }}" {{ (isset($perPage) && $perPage==$pp)?'selected':'' }}>{{ $pp }}/hal</option>
+									@endforeach
+								</select>
+							</div>
+							<div class="col-12 col-md-auto">
+								<button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-2"></i>Terapkan</button>
+							</div>
+						</div>
+					</form>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Floating Background Elements -->
-    <div class="position-absolute" style="top: 10%; left: 5%; width: 100px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 50%; animation: float 6s ease-in-out infinite;"></div>
-    <div class="position-absolute" style="top: 60%; right: 10%; width: 150px; height: 150px; background: rgba(255,255,255,0.03); border-radius: 50%; animation: float-delayed 8s ease-in-out infinite;"></div>
 </section>
 
-<!-- Pengumuman Section -->
-<section class="py-5">
-    <div class="container">
-        <!-- Loading State -->
-        <div id="loading" class="text-center py-5 d-none">
-            <div class="spinner-border text-primary loading-spinner" role="status">
-                <span class="visually-hidden">Loading...</span>
+	<div class="container py-5">
+		@if($pengumuman->count()===0)
+			<div class="text-center text-muted py-5">
+				<i class="fas fa-bullhorn fa-3x mb-3"></i>
+				<p>Tidak ada pengumuman ditemukan.</p>
             </div>
-            <p class="mt-3 text-muted">Memuat pengumuman...</p>
-        </div>
-
-        <!-- Announcement Grid -->
-        <div class="row g-4" id="announcementList">
-            @forelse($pengumuman as $item)
-                <div class="col-lg-3 col-md-4 col-sm-6 fade-in-up">
-                    <article class="announcement-card h-100">
-                        <div class="announcement-image-container">
-                            @if($item->gambar)
-                                <img src="{{ Storage::url($item->gambar) }}" 
-                                     class="announcement-image" 
-                                     alt="{{ $item->judul }}"
-                                     loading="lazy">
+		@else
+			<div class="row g-4">
+				@foreach($pengumuman as $item)
+				<div class="col-xl-4 col-md-6">
+					<article class="card h-100 border-0 shadow-sm" style="border-radius: 16px; overflow:hidden;">
+						<div class="position-relative" style="height: 200px; background: #f3f4f6;">
+							@if($item->cover)
+								<img src="{{ asset('storage/'.$item->cover) }}" alt="{{ $item->judul }}" class="w-100 h-100" style="object-fit: cover;" loading="lazy">
                             @else
-                                <div class="d-flex align-items-center justify-content-center h-100" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);">
-                                    <i class="fas fa-bullhorn fa-4x text-primary" style="opacity: 0.3;"></i>
+								<div class="d-flex align-items-center justify-content-center w-100 h-100"><i class="fas fa-bullhorn text-muted" style="font-size: 3rem;"></i></div>
+							@endif
+							<div class="position-absolute top-0 start-0 m-3">
+								<span class="badge bg-primary" style="padding: 0.5rem 0.75rem; border-radius: 50px;">
+									<i class="fas fa-bullhorn me-1"></i> Pengumuman
+								</span>
                                 </div>
-                            @endif
-                            <div class="announcement-badge">
-                                <i class="far fa-bell me-1"></i> Pengumuman
+							<div class="position-absolute bottom-0 start-0 end-0 p-3" style="background: linear-gradient(to top, rgba(0,0,0,.55), transparent)">
+								<small class="text-white"><i class="far fa-calendar-alt me-1"></i>{{ $item->created_at->format('d M Y') }}</small>
                             </div>
                         </div>
-                        <div class="announcement-card-body">
-                            <div class="announcement-meta">
-                                <span class="announcement-date">
-                                    <i class="far fa-calendar-alt"></i>
-                                    {{ $item->created_at->format('d M Y') }}
-                                </span>
-                                <span class="mx-1">•</span>
-                                <span class="announcement-views">
-                                    <i class="far fa-eye"></i>
-                                    {{ number_format($item->dilihat ?? 0, 0, ',', '.') }}
-                                </span>
+						<div class="card-body">
+							<h6 class="mb-2" style="line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; color: #1e1b4b; font-weight: 600;">{{ $item->judul }}</h6>
+							<p class="text-muted small mb-3" style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{!! \Illuminate\Support\Str::limit(strip_tags($item->isi), 140) !!}</p>
+							<div class="d-flex justify-content-between align-items-center">
+								<a href="{{ route('layanan-pengumuman.show', ['slug'=>$item->slug]) }}" class="btn btn-sm btn-primary"><i class="fas fa-book-open me-2"></i>Baca</a>
+								<small class="text-muted"><i class="far fa-eye me-1"></i>{{ number_format($item->views ?? 0) }}</small>
                             </div>
-                            <h5 class="announcement-title">
-                                {{ Str::limit($item->judul, 65) }}
-                            </h5>
-                            <p class="announcement-excerpt">
-                                {{ Str::limit(strip_tags($item->isi), 100) }}
-                            </p>
-                            <a href="{{ route('pengumuman.show', $item->slug) }}" class="read-more-btn w-100">
-                                Baca Selengkapnya <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
                         </div>
                     </article>
                 </div>
-            @empty
-                <div class="col-12">
-                    <div class="no-results">
-                        <div class="mb-4">
-                            <i class="fas fa-bullhorn"></i>
+				@endforeach
                         </div>
-                        <h5>Belum ada pengumuman tersedia</h5>
-                        <p>Silakan kunjungi kembali nanti untuk informasi terbaru</p>
-                    </div>
-                </div>
-            @endforelse
-        </div>
-
-        <!-- Pagination -->
-        @if(method_exists($pengumuman, 'links'))
-            <div class="d-flex justify-content-center mt-5">
+			<div class="d-flex justify-content-center mt-4">
                 {{ $pengumuman->links() }}
             </div>
         @endif
     </div>
-</section>
-@endsection
+
+	@push('styles')
+	<style>
+		.card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,.08) !important; transition: .25s; }
+		@media (max-width: 768px) {
+			section[style*="padding-top: 100px"] {
+				padding-top: 80px !important;
+				padding-bottom: 40px !important;
+			}
+		}
+	</style>
+	@endpush
 
 @push('scripts')
 <script>
+		// Hide spinner when page loaded
     document.addEventListener('DOMContentLoaded', function() {
-        // Smooth scroll to top on pagination click
-        document.querySelectorAll('.pagination a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                setTimeout(() => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                }, 100);
-            });
-        });
-        
-        // Add fade-in animation to cards
-        const cards = document.querySelectorAll('.fade-in-up');
-        cards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
-        });
+			const spinner = document.getElementById('spinner');
+			if (spinner) {
+				spinner.classList.remove('show');
+			}
     });
 </script>
 @endpush
+</x-user-layout>

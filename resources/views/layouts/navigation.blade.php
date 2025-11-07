@@ -1,4 +1,4 @@
-@aware(['listMenu' => [
+~!@aware(['listMenu' => [
     ['Kelembagaan', 1, 'kelembagaan', [['Tentang','kelembagaan_tentang'],['Visi Misi','kelembagaan_visi_misi'],['Struktur Organisasi','kelembagaan_struktur_organisasi']]],
     ['Penelitian', 0, 'lppm'],
     ['Pengmas', 0, 'lpmu'],

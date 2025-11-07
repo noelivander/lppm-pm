@@ -20,7 +20,17 @@ class AgendaController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Agenda::query();
+            $query = Agenda::query()->where('is_shown', 1);
+
+            // Search by keyword in title or description
+            $q = trim((string) $request->get('q'));
+            if ($q !== '') {
+                $query->where(function($sub) use ($q) {
+                    $sub->where('judul', 'like', "%{$q}%")
+                        ->orWhere('deskripsi_singkat', 'like', "%{$q}%")
+                        ->orWhere('lokasi', 'like', "%{$q}%");
+                });
+            }
 
             // Filtering by month
             if ($request->filled('month')) {
@@ -32,8 +42,25 @@ class AgendaController extends Controller
                 $query->where('tag', $request->category);
             }
 
-            // Paginate the results (10 items per page)
-            $agenda = $query->orderBy('jadwal', 'asc')->paginate(10);
+            // Sorting
+            $sort = $request->get('sort', 'upcoming');
+            switch ($sort) {
+                case 'oldest':
+                    $query->orderBy('jadwal', 'asc');
+                    break;
+                case 'latest':
+                    $query->orderBy('jadwal', 'desc');
+                    break;
+                case 'upcoming':
+                default:
+                    $query->orderBy('jadwal', 'asc');
+                    break;
+            }
+
+            // Pagination
+            $perPage = (int) $request->get('per_page', 9);
+            $perPage = $perPage > 0 && $perPage <= 24 ? $perPage : 9;
+            $agenda = $query->paginate($perPage)->withQueryString();
 
             // Cache the results of these queries since they don't change often
             $availableMonths = cache()->remember('available_months', now()->addDay(), function () {
@@ -57,7 +84,7 @@ class AgendaController extends Controller
                     ->values();
             });
 
-            return view('user.agenda.index', compact('agenda', 'availableMonths', 'availableCategories'));
+            return view('user.agenda.index', compact('agenda', 'availableMonths', 'availableCategories', 'sort', 'q', 'perPage'));
             
         } catch (\Exception $e) {
             Log::error('Error in AgendaController@index: ' . $e->getMessage());

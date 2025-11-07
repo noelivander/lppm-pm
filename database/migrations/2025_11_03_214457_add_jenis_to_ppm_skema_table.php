@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('ppm_skema', function (Blueprint $table) {
-            $table->enum('jenis', ['penelitian', 'pengabdian'])->after('perihal')->default('penelitian');
+            if (!Schema::hasColumn('ppm_skema', 'jenis')) {
+                $table->enum('jenis', ['penelitian', 'pengabdian'])->after('perihal')->default('penelitian');
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('ppm_skema', function (Blueprint $table) {
-            $table->dropColumn('jenis');
+            if (Schema::hasColumn('ppm_skema', 'jenis')) {
+                $table->dropColumn('jenis');
+            }
         });
     }
 };

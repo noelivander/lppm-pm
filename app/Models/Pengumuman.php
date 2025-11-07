@@ -14,7 +14,7 @@ class Pengumuman extends Model
     protected $table = 'announcements';
 
     protected $fillable = [
-        'slug', 'user_id', 'judul', 'isi', 'dokumen', 'is_shown', 'cover', 'tag'
+        'slug', 'user_id', 'judul', 'isi', 'dokumen', 'is_shown', 'cover', 'tag', 'views'
     ];
 
     public function user() {

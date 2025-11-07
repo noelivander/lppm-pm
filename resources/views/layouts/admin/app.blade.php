@@ -138,7 +138,9 @@
         <script src="{{ mix('js/bootstrap.bundle.min.js') }}" defer></script>
         <script src="{{ asset('js/admin.js') }}" defer></script>
 
-        {{ $scripts ?? '' }}
+        @if(isset($scripts))
+            {!! $scripts !!}
+        @endif
 
         <script>
         document.addEventListener('DOMContentLoaded', function() {

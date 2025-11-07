@@ -16,7 +16,16 @@ class BeritaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Berita::query();
+        $query = Berita::query()->where('is_shown', 1);
+
+        // Search by keyword in title or content
+        $q = trim((string) $request->get('q'));
+        if ($q !== '') {
+            $query->where(function($sub) use ($q) {
+                $sub->where('judul', 'like', "%{$q}%")
+                    ->orWhere('isi', 'like', "%{$q}%");
+            });
+        }
 
         // Sorting
         $sort = $request->get('sort', 'latest');
@@ -33,9 +42,12 @@ class BeritaController extends Controller
                 break;
         }
 
-        $berita = $query->get();
+        // Pagination
+        $perPage = (int) $request->get('per_page', 9);
+        $perPage = $perPage > 0 && $perPage <= 24 ? $perPage : 9;
+        $berita = $query->paginate($perPage)->withQueryString();
 
-        return view('user.berita.index', compact('berita', 'sort'));
+        return view('user.berita.index', compact('berita', 'sort', 'q', 'perPage'));
     }
 
     /**
@@ -46,7 +58,10 @@ class BeritaController extends Controller
      */
     public function show($slug)
     {
-        $berita = Berita::where('slug',$slug)->first();
+        $berita = Berita::where('slug',$slug)->firstOrFail();
+        
+        // Increment views
+        $berita->increment('views');
 
         return view('user.berita.show', compact('berita'));
     }

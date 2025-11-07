@@ -156,6 +156,168 @@
                                 </div>
                             </div>
 
+                            <!-- Revisi Proposal Period -->
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-gray-800 mb-3">
+                                    <i class="fas fa-redo text-secondary me-2"></i>
+                                    Periode Revisi Proposal <span class="text-muted small">(Opsional)</span>
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Tanggal & Waktu Mulai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="revisi_proposal_start_date" 
+                                               id="revisi_proposal_start_date"
+                                               class="form-control form-control-lg @error('revisi_proposal_start_date') is-invalid @enderror" 
+                                               value="{{ old('revisi_proposal_start_date') }}">
+                                        @error('revisi_proposal_start_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Tanggal & Waktu Selesai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="revisi_proposal_end_date" 
+                                               id="revisi_proposal_end_date"
+                                               class="form-control form-control-lg @error('revisi_proposal_end_date') is-invalid @enderror" 
+                                               value="{{ old('revisi_proposal_end_date') }}">
+                                        @error('revisi_proposal_end_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Laporan Kemajuan Period -->
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-gray-800 mb-3">
+                                    <i class="fas fa-chart-line text-success me-2"></i>
+                                    Periode Laporan Kemajuan <span class="text-muted small">(Opsional)</span>
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Upload Mulai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="laporan_kemajuan_start_date" 
+                                               id="laporan_kemajuan_start_date"
+                                               class="form-control form-control-lg @error('laporan_kemajuan_start_date') is-invalid @enderror" 
+                                               value="{{ old('laporan_kemajuan_start_date') }}">
+                                        @error('laporan_kemajuan_start_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Upload Selesai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="laporan_kemajuan_end_date" 
+                                               id="laporan_kemajuan_end_date"
+                                               class="form-control form-control-lg @error('laporan_kemajuan_end_date') is-invalid @enderror" 
+                                               value="{{ old('laporan_kemajuan_end_date') }}">
+                                        @error('laporan_kemajuan_end_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Review Mulai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="laporan_kemajuan_review_start_date" 
+                                               id="laporan_kemajuan_review_start_date"
+                                               class="form-control form-control-lg @error('laporan_kemajuan_review_start_date') is-invalid @enderror" 
+                                               value="{{ old('laporan_kemajuan_review_start_date') }}">
+                                        @error('laporan_kemajuan_review_start_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Review Selesai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="laporan_kemajuan_review_end_date" 
+                                               id="laporan_kemajuan_review_end_date"
+                                               class="form-control form-control-lg @error('laporan_kemajuan_review_end_date') is-invalid @enderror" 
+                                               value="{{ old('laporan_kemajuan_review_end_date') }}">
+                                        @error('laporan_kemajuan_review_end_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Laporan Akhir Period -->
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-gray-800 mb-3">
+                                    <i class="fas fa-flag-checkered text-danger me-2"></i>
+                                    Periode Laporan Akhir <span class="text-muted small">(Opsional)</span>
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Upload Mulai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="laporan_akhir_start_date" 
+                                               id="laporan_akhir_start_date"
+                                               class="form-control form-control-lg @error('laporan_akhir_start_date') is-invalid @enderror" 
+                                               value="{{ old('laporan_akhir_start_date') }}">
+                                        @error('laporan_akhir_start_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Upload Selesai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="laporan_akhir_end_date" 
+                                               id="laporan_akhir_end_date"
+                                               class="form-control form-control-lg @error('laporan_akhir_end_date') is-invalid @enderror" 
+                                               value="{{ old('laporan_akhir_end_date') }}">
+                                        @error('laporan_akhir_end_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Review Mulai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="laporan_akhir_review_start_date" 
+                                               id="laporan_akhir_review_start_date"
+                                               class="form-control form-control-lg @error('laporan_akhir_review_start_date') is-invalid @enderror" 
+                                               value="{{ old('laporan_akhir_review_start_date') }}">
+                                        @error('laporan_akhir_review_start_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Review Selesai
+                                        </label>
+                                        <input type="datetime-local" 
+                                               name="laporan_akhir_review_end_date" 
+                                               id="laporan_akhir_review_end_date"
+                                               class="form-control form-control-lg @error('laporan_akhir_review_end_date') is-invalid @enderror" 
+                                               value="{{ old('laporan_akhir_review_end_date') }}">
+                                        @error('laporan_akhir_review_end_date')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
                             <hr class="my-4">
 
                             <!-- Additional Settings -->

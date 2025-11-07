@@ -50,10 +50,25 @@ class TimelineController extends Controller
             'period' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            // Upload Proposal
             'upload_start_date' => 'required|date',
             'upload_end_date' => 'required|date|after_or_equal:upload_start_date',
+            // Review Proposal
             'review_start_date' => 'required|date|after_or_equal:upload_end_date',
             'review_end_date' => 'required|date|after_or_equal:review_start_date',
+            // Revisi Proposal
+            'revisi_proposal_start_date' => 'nullable|date|after_or_equal:review_end_date',
+            'revisi_proposal_end_date' => 'nullable|date|after_or_equal:revisi_proposal_start_date',
+            // Laporan Kemajuan
+            'laporan_kemajuan_start_date' => 'nullable|date',
+            'laporan_kemajuan_end_date' => 'nullable|date|after_or_equal:laporan_kemajuan_start_date',
+            'laporan_kemajuan_review_start_date' => 'nullable|date|after_or_equal:laporan_kemajuan_end_date',
+            'laporan_kemajuan_review_end_date' => 'nullable|date|after_or_equal:laporan_kemajuan_review_start_date',
+            // Laporan Akhir
+            'laporan_akhir_start_date' => 'nullable|date',
+            'laporan_akhir_end_date' => 'nullable|date|after_or_equal:laporan_akhir_start_date',
+            'laporan_akhir_review_start_date' => 'nullable|date|after_or_equal:laporan_akhir_end_date',
+            'laporan_akhir_review_end_date' => 'nullable|date|after_or_equal:laporan_akhir_review_start_date',
             'is_active' => 'boolean',
             'order' => 'nullable|integer',
         ]);
@@ -91,10 +106,25 @@ class TimelineController extends Controller
             'period' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            // Upload Proposal
             'upload_start_date' => 'required|date',
             'upload_end_date' => 'required|date|after_or_equal:upload_start_date',
+            // Review Proposal
             'review_start_date' => 'required|date|after_or_equal:upload_end_date',
             'review_end_date' => 'required|date|after_or_equal:review_start_date',
+            // Revisi Proposal
+            'revisi_proposal_start_date' => 'nullable|date|after_or_equal:review_end_date',
+            'revisi_proposal_end_date' => 'nullable|date|after_or_equal:revisi_proposal_start_date',
+            // Laporan Kemajuan
+            'laporan_kemajuan_start_date' => 'nullable|date',
+            'laporan_kemajuan_end_date' => 'nullable|date|after_or_equal:laporan_kemajuan_start_date',
+            'laporan_kemajuan_review_start_date' => 'nullable|date|after_or_equal:laporan_kemajuan_end_date',
+            'laporan_kemajuan_review_end_date' => 'nullable|date|after_or_equal:laporan_kemajuan_review_start_date',
+            // Laporan Akhir
+            'laporan_akhir_start_date' => 'nullable|date',
+            'laporan_akhir_end_date' => 'nullable|date|after_or_equal:laporan_akhir_start_date',
+            'laporan_akhir_review_start_date' => 'nullable|date|after_or_equal:laporan_akhir_end_date',
+            'laporan_akhir_review_end_date' => 'nullable|date|after_or_equal:laporan_akhir_review_start_date',
             'is_active' => 'boolean',
             'order' => 'nullable|integer',
         ]);

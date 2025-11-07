@@ -18,6 +18,16 @@ class Timeline extends Model
         'upload_end_date',
         'review_start_date',
         'review_end_date',
+        'revisi_proposal_start_date',
+        'revisi_proposal_end_date',
+        'laporan_kemajuan_start_date',
+        'laporan_kemajuan_end_date',
+        'laporan_kemajuan_review_start_date',
+        'laporan_kemajuan_review_end_date',
+        'laporan_akhir_start_date',
+        'laporan_akhir_end_date',
+        'laporan_akhir_review_start_date',
+        'laporan_akhir_review_end_date',
         'is_active',
         'order',
     ];
@@ -27,6 +37,16 @@ class Timeline extends Model
         'upload_end_date' => 'datetime',
         'review_start_date' => 'datetime',
         'review_end_date' => 'datetime',
+        'revisi_proposal_start_date' => 'datetime',
+        'revisi_proposal_end_date' => 'datetime',
+        'laporan_kemajuan_start_date' => 'datetime',
+        'laporan_kemajuan_end_date' => 'datetime',
+        'laporan_kemajuan_review_start_date' => 'datetime',
+        'laporan_kemajuan_review_end_date' => 'datetime',
+        'laporan_akhir_start_date' => 'datetime',
+        'laporan_akhir_end_date' => 'datetime',
+        'laporan_akhir_review_start_date' => 'datetime',
+        'laporan_akhir_review_end_date' => 'datetime',
         'is_active' => 'boolean',
     ];
 
@@ -71,25 +91,58 @@ class Timeline extends Model
     public function isCurrentlyActive()
     {
         $now = Carbon::now();
-        return $now->between($this->upload_start_date, $this->review_end_date);
+        return $now->between($this->upload_start_date, $this->laporan_akhir_review_end_date ?? $this->review_end_date);
     }
 
     /**
-     * Get status of timeline
+     * Get status of timeline based on current stage
      */
     public function getStatus()
     {
         $now = Carbon::now();
         
+        // Check each stage in order
         if ($now->lt($this->upload_start_date)) {
             return 'upcoming';
         } elseif ($now->between($this->upload_start_date, $this->upload_end_date)) {
-            return 'upload';
+            return 'upload_proposal';
         } elseif ($now->between($this->review_start_date, $this->review_end_date)) {
-            return 'review';
+            return 'review_proposal';
+        } elseif ($this->revisi_proposal_start_date && $now->between($this->revisi_proposal_start_date, $this->revisi_proposal_end_date)) {
+            return 'revisi_proposal';
+        } elseif ($this->laporan_kemajuan_start_date && $now->between($this->laporan_kemajuan_start_date, $this->laporan_kemajuan_end_date)) {
+            return 'upload_laporan_kemajuan';
+        } elseif ($this->laporan_kemajuan_review_start_date && $now->between($this->laporan_kemajuan_review_start_date, $this->laporan_kemajuan_review_end_date)) {
+            return 'review_laporan_kemajuan';
+        } elseif ($this->laporan_akhir_start_date && $now->between($this->laporan_akhir_start_date, $this->laporan_akhir_end_date)) {
+            return 'upload_laporan_akhir';
+        } elseif ($this->laporan_akhir_review_start_date && $now->between($this->laporan_akhir_review_start_date, $this->laporan_akhir_review_end_date)) {
+            return 'review_laporan_akhir';
+        } elseif ($this->laporan_akhir_review_end_date && $now->gt($this->laporan_akhir_review_end_date)) {
+            return 'completed';
         } else {
             return 'completed';
         }
+    }
+
+    /**
+     * Get current active stage
+     */
+    public function getCurrentStage()
+    {
+        $status = $this->getStatus();
+        return match($status) {
+            'upload_proposal' => 'Upload Proposal',
+            'review_proposal' => 'Review Proposal',
+            'revisi_proposal' => 'Revisi Proposal',
+            'upload_laporan_kemajuan' => 'Upload Laporan Kemajuan',
+            'review_laporan_kemajuan' => 'Review Laporan Kemajuan',
+            'upload_laporan_akhir' => 'Upload Laporan Akhir',
+            'review_laporan_akhir' => 'Review Laporan Akhir',
+            'completed' => 'Selesai',
+            'upcoming' => 'Akan Dimulai',
+            default => 'Unknown',
+        };
     }
 
     /**
@@ -97,15 +150,7 @@ class Timeline extends Model
      */
     public function getStatusLabel()
     {
-        $status = $this->getStatus();
-        
-        return match($status) {
-            'upcoming' => 'Akan Datang',
-            'upload' => 'Upload Berlangsung',
-            'review' => 'Review Berlangsung',
-            'completed' => 'Selesai',
-            default => 'Unknown',
-        };
+        return $this->getCurrentStage();
     }
 
     /**
@@ -117,10 +162,28 @@ class Timeline extends Model
         
         return match($status) {
             'upcoming' => 'info',
-            'upload' => 'primary',
-            'review' => 'warning',
+            'upload_proposal', 'upload_laporan_kemajuan', 'upload_laporan_akhir' => 'primary',
+            'review_proposal', 'review_laporan_kemajuan', 'review_laporan_akhir' => 'warning',
+            'revisi_proposal' => 'secondary',
             'completed' => 'success',
             default => 'secondary',
+        };
+    }
+
+    /**
+     * Check if a specific stage is currently active
+     */
+    public function isStageActive($stage)
+    {
+        $now = Carbon::now();
+        
+        return match($stage) {
+            'upload_proposal' => $now->between($this->upload_start_date, $this->upload_end_date),
+            'review_proposal' => $now->between($this->review_start_date, $this->review_end_date),
+            'revisi_proposal' => $this->revisi_proposal_start_date && $this->revisi_proposal_end_date && $now->between($this->revisi_proposal_start_date, $this->revisi_proposal_end_date),
+            'laporan_kemajuan' => $this->laporan_kemajuan_start_date && $this->laporan_kemajuan_end_date && $now->between($this->laporan_kemajuan_start_date, $this->laporan_kemajuan_end_date),
+            'laporan_akhir' => $this->laporan_akhir_start_date && $this->laporan_akhir_end_date && $now->between($this->laporan_akhir_start_date, $this->laporan_akhir_end_date),
+            default => false,
         };
     }
 }

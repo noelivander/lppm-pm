@@ -13,8 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('ppm_skema', function (Blueprint $table) {
-            $table->enum('jenis', ['penelitian', 'pengabdian'])->after('perihal')->default('penelitian');
+        Schema::table('announcements', function (Blueprint $table) {
+            if (!Schema::hasColumn('announcements', 'views')) {
+                $table->integer('views')->default(0)->after('is_shown');
+            }
         });
     }
 
@@ -25,8 +27,10 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('ppm_skema', function (Blueprint $table) {
-            $table->dropColumn('jenis');
+        Schema::table('announcements', function (Blueprint $table) {
+            if (Schema::hasColumn('announcements', 'views')) {
+                $table->dropColumn('views');
+            }
         });
     }
 };

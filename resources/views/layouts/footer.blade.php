@@ -24,6 +24,6 @@
 		</div>
 	</div>
 	<div class="text-sm lg:text-base text-center font-heading font-light tracking-widest uppercase text-white opacity-75 pb-24">
-		{{ __('©2022 TIM LPPM-PM. INSTITUT TEKNOLOGI B.J. HABIBIE') }}
+		{{ __('©2022 TIM LPPM-PM. INSTITUT TEKNOLOGI BACHARUDDIN JUSUF HABIBIE') }}
 	</div>
 </div>

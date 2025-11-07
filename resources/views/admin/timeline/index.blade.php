@@ -103,14 +103,14 @@
 
                                     <!-- Timeline Details -->
                                     <div class="timeline-details">
-                                        <!-- Upload Period -->
+                                        <!-- Upload Proposal -->
                                         <div class="timeline-item mb-3">
                                             <div class="d-flex align-items-start">
                                                 <div class="timeline-icon bg-primary bg-opacity-10 text-primary me-3">
                                                     <i class="fas fa-upload"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h6 class="mb-1 fw-semibold text-gray-800">Periode Upload</h6>
+                                                    <h6 class="mb-1 fw-semibold text-gray-800">Upload Proposal</h6>
                                                     <p class="mb-0 small text-muted">
                                                         <i class="far fa-calendar me-1"></i>
                                                         {{ $timeline->upload_start_date->format('d M Y, H:i') }}
@@ -123,14 +123,14 @@
                                             </div>
                                         </div>
 
-                                        <!-- Review Period -->
-                                        <div class="timeline-item">
+                                        <!-- Review Proposal -->
+                                        <div class="timeline-item mb-3">
                                             <div class="d-flex align-items-start">
                                                 <div class="timeline-icon bg-warning bg-opacity-10 text-warning me-3">
                                                     <i class="fas fa-clipboard-check"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h6 class="mb-1 fw-semibold text-gray-800">Periode Review</h6>
+                                                    <h6 class="mb-1 fw-semibold text-gray-800">Review Proposal</h6>
                                                     <p class="mb-0 small text-muted">
                                                         <i class="far fa-calendar me-1"></i>
                                                         {{ $timeline->review_start_date->format('d M Y, H:i') }}
@@ -142,6 +142,76 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <!-- Revisi Proposal -->
+                                        @if($timeline->revisi_proposal_start_date && $timeline->revisi_proposal_end_date)
+                                        <div class="timeline-item mb-3">
+                                            <div class="d-flex align-items-start">
+                                                <div class="timeline-icon bg-secondary bg-opacity-10 text-secondary me-3">
+                                                    <i class="fas fa-redo"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 fw-semibold text-gray-800">Revisi Proposal</h6>
+                                                    <p class="mb-0 small text-muted">
+                                                        <i class="far fa-calendar me-1"></i>
+                                                        {{ $timeline->revisi_proposal_start_date->format('d M Y, H:i') }}
+                                                    </p>
+                                                    <p class="mb-0 small text-muted">
+                                                        <i class="far fa-calendar-check me-1"></i>
+                                                        {{ $timeline->revisi_proposal_end_date->format('d M Y, H:i') }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <!-- Laporan Kemajuan -->
+                                        @if($timeline->laporan_kemajuan_start_date && $timeline->laporan_kemajuan_end_date)
+                                        <div class="timeline-item mb-3">
+                                            <div class="d-flex align-items-start">
+                                                <div class="timeline-icon bg-success bg-opacity-10 text-success me-3">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 fw-semibold text-gray-800">Laporan Kemajuan</h6>
+                                                    <p class="mb-0 small text-muted">
+                                                        <i class="far fa-calendar me-1"></i>
+                                                        Upload: {{ $timeline->laporan_kemajuan_start_date->format('d M Y, H:i') }}
+                                                    </p>
+                                                    @if($timeline->laporan_kemajuan_review_start_date && $timeline->laporan_kemajuan_review_end_date)
+                                                    <p class="mb-0 small text-muted">
+                                                        <i class="far fa-calendar-check me-1"></i>
+                                                        Review: {{ $timeline->laporan_kemajuan_review_start_date->format('d M Y, H:i') }}
+                                                    </p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <!-- Laporan Akhir -->
+                                        @if($timeline->laporan_akhir_start_date && $timeline->laporan_akhir_end_date)
+                                        <div class="timeline-item">
+                                            <div class="d-flex align-items-start">
+                                                <div class="timeline-icon bg-danger bg-opacity-10 text-danger me-3">
+                                                    <i class="fas fa-flag-checkered"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 fw-semibold text-gray-800">Laporan Akhir</h6>
+                                                    <p class="mb-0 small text-muted">
+                                                        <i class="far fa-calendar me-1"></i>
+                                                        Upload: {{ $timeline->laporan_akhir_start_date->format('d M Y, H:i') }}
+                                                    </p>
+                                                    @if($timeline->laporan_akhir_review_start_date && $timeline->laporan_akhir_review_end_date)
+                                                    <p class="mb-0 small text-muted">
+                                                        <i class="far fa-calendar-check me-1"></i>
+                                                        Review: {{ $timeline->laporan_akhir_review_start_date->format('d M Y, H:i') }}
+                                                    </p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -225,7 +295,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="createPeriodBtn">
+                    <button type="button" class="btn btn-primary" id="createPeriodBtn" onclick="createNewPeriod()">
                         <i class="fas fa-check me-2"></i>Buat & Lanjutkan
                     </button>
                 </div>
@@ -319,7 +389,7 @@
     </style>
     @endpush
 
-    @push('scripts')
+    <x-slot name="scripts">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Period Selector
@@ -334,35 +404,72 @@
                 });
             }
 
-            // Create New Period
-            const createPeriodBtn = document.getElementById('createPeriodBtn');
-            const newPeriodInput = document.getElementById('newPeriodInput');
-            
-            if (createPeriodBtn) {
-                createPeriodBtn.addEventListener('click', function() {
-                    const period = newPeriodInput.value.trim();
-                    
-                    if (!period) {
-                        alert('Silakan masukkan periode akademik!');
-                        return;
-                    }
+            // Create New Period function - accessible globally
+            window.createNewPeriod = function() {
+                const newPeriodInput = document.getElementById('newPeriodInput');
+                const newPeriodModal = document.getElementById('newPeriodModal');
+                
+                if (!newPeriodInput) {
+                    alert('⚠️ Input periode tidak ditemukan!');
+                    console.error('newPeriodInput not found');
+                    return false;
+                }
+                
+                const period = newPeriodInput.value.trim();
+                
+                // Validate input
+                if (!period) {
+                    alert('⚠️ Silakan masukkan periode akademik!');
+                    newPeriodInput.focus();
+                    return false;
+                }
 
-                    // Validate format (YYYY/YYYY)
-                    const periodRegex = /^\d{4}\/\d{4}$/;
-                    if (!periodRegex.test(period)) {
-                        alert('Format periode tidak valid! Gunakan format: YYYY/YYYY (contoh: 2025/2026)');
-                        return;
-                    }
+                // Validate format (YYYY/YYYY)
+                const periodRegex = /^\d{4}\/\d{4}$/;
+                if (!periodRegex.test(period)) {
+                    alert('⚠️ Format periode tidak valid! Gunakan format: YYYY/YYYY (contoh: 2025/2026)');
+                    newPeriodInput.focus();
+                    return false;
+                }
 
-                    // Redirect to create page with period parameter
-                    window.location.href = `{{ route('admin.timeline.create') }}?period=${period}`;
+                // Close modal if Bootstrap is available
+                if (newPeriodModal) {
+                    try {
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            const modal = bootstrap.Modal.getInstance(newPeriodModal);
+                            if (modal) {
+                                modal.hide();
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Could not close modal:', e);
+                    }
+                }
+
+                // Redirect to create page
+                const createUrl = `{{ route('admin.timeline.create') }}?period=${encodeURIComponent(period)}`;
+                console.log('Redirecting to:', createUrl);
+                window.location.href = createUrl;
+                
+                return true;
+            };
+
+            // Also attach form submission listener
+            const newPeriodForm = document.getElementById('newPeriodForm');
+            if (newPeriodForm) {
+                newPeriodForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    window.createNewPeriod();
                 });
+            }
 
-                // Allow Enter key to submit
+            // Allow Enter key to submit
+            const newPeriodInput = document.getElementById('newPeriodInput');
+            if (newPeriodInput) {
                 newPeriodInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        createPeriodBtn.click();
+                        window.createNewPeriod();
                     }
                 });
             }
@@ -441,5 +548,5 @@
             }
         });
     </script>
-    @endpush
+    </x-slot>
 </x-admin-layout>
