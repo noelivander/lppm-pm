@@ -4,11 +4,10 @@
     </x-slot>
 
     <x-admin.heading name="Dashboard">
-        <a href="#" class="modern-btn modern-btn-primary">
+        <a href="#" class="modern-btn modern-btn-primary generate-report-btn">
             <i class="fa fa-download me-1"></i> Generate Report
         </a>
     </x-admin.heading>
-
     <div class="row">
         <x-admin.dash-content-card title="Program Studi" :value="$kpis['totalProdi']" color="primary">
             <i class="fas fa-university fa-2x text-gray-300"></i>

@@ -1,15 +1,15 @@
 <!-- Sidebar -->
 <style>
     :root { --sb-bg:#21163d; --sb-bg2:#352467; --sb-accent:#7c3aed; --sb-accent-2:#8b5cf6; --sb-text:#e5e7eb; --sb-text-dim:#9ca3af; --sb-active:#7c3aed; }
-    .sidebar.sidebar-modern { background: linear-gradient(180deg, var(--sb-bg) 0%, var(--sb-bg2) 100%); color: var(--sb-text); padding: 0.7rem 0.85rem 0.5rem; width: 280px; box-shadow: inset 0 0 0 1px rgba(124,58,237,0.15), 0 8px 30px rgba(2,6,23,.35); border-right: 1px solid rgba(124,58,237,0.18); position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; }
+    .sidebar.sidebar-modern { background: linear-gradient(180deg, var(--sb-bg) 0%, var(--sb-bg2) 100%); color: var(--sb-text); padding: 0.7rem 0.85rem 0.5rem; width: 280px; box-shadow: inset 0 0 0 1px rgba(124,58,237,0.15), 0 8px 30px rgba(2,6,23,.35); border-right: 1px solid rgba(124,58,237,0.18); position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; z-index: 1035; transition: transform .28s ease, box-shadow .28s ease; }
     .sidebar.sidebar-modern::-webkit-scrollbar { width: 0; height: 0; }
     .sidebar.sidebar-modern .sidebar-brand { padding: .85rem .75rem; margin: .25rem .25rem 0.75rem; border-radius: 14px; background: radial-gradient(120% 120% at 0% 0%, rgba(124,58,237,.22) 0%, rgba(139,92,246,.18) 42%, rgba(255,255,255,0.04) 100%); color: var(--sb-text); box-shadow: 0 4px 16px rgba(2,6,23,.25) inset, 0 6px 22px rgba(2,6,23,.35); }
-    .sidebar.sidebar-modern .sidebar-brand-text { font-weight: 700; letter-spacing: .4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+    .sidebar.sidebar-modern .sidebar-brand-text { font-weight: 700; letter-spacing: .4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; display: block; color: var(--sb-text); line-height: 1.2; }
     .sidebar.sidebar-modern .sidebar-brand small { color: var(--sb-text-dim); font-weight: 500; }
     .sidebar.sidebar-modern .sidebar-divider { border-color: rgba(255,255,255,0.06); margin: .65rem .5rem; }
     .sidebar.sidebar-modern .sidebar-heading { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sb-text-dim); padding: .25rem .75rem; }
-    .sidebar.sidebar-modern .nav-item { margin: .15rem .25rem; }
-    .sidebar.sidebar-modern .nav-link { position: relative; display: flex; align-items: center; gap: .65rem; padding: .7rem .85rem; border-radius: 12px; color: var(--sb-text); background: rgba(255,255,255,0.02); transition: all .18s ease; border: 1px solid transparent; }
+    .sidebar.sidebar-modern .nav-item { margin: .15rem .25rem; width: calc(100% - .5rem); }
+    .sidebar.sidebar-modern .nav-link { width: 100%; box-sizing: border-box; position: relative; display: flex; align-items: center; gap: .65rem; padding: .7rem .95rem; border-radius: 12px; color: var(--sb-text); background: rgba(255,255,255,0.02); transition: all .18s ease; border: 1px solid transparent; }
     .sidebar.sidebar-modern .nav-link i { width: 1.25rem; text-align: center; color: var(--sb-text-dim); }
     .sidebar.sidebar-modern .nav-link span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sidebar.sidebar-modern .nav-link:hover { background: rgba(124,58,237,0.10); border-color: rgba(124,58,237,0.28); box-shadow: 0 8px 20px rgba(124,58,237,.22); transform: translateY(-1px); }
@@ -25,6 +25,16 @@
     .sidebar .btn.btn-light.w-100:hover { background: linear-gradient(90deg, rgba(124,58,237,.28) 0%, rgba(139,92,246,.28) 100%); color: #fff; border-color: rgba(139,92,246,0.38); box-shadow: 0 10px 30px rgba(124,58,237,.28); }
     #sidebarToggle { width: 34px; height: 34px; background: rgba(255,255,255,0.06); color: var(--sb-text); }
     #sidebarToggle:hover { background: rgba(255,255,255,0.12); }
+    .sidebar-mobile-toggle { position: fixed; right: 1rem; top: 1rem; width: 48px; height: 48px; border-radius: 999px; border: none; background: rgba(124,58,237,0.95); color: white; display: none; align-items: center; justify-content: center; z-index: 1036; box-shadow: 0 12px 32px rgba(15,23,42,0.35); }
+    .sidebar-mobile-toggle:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
+    .sidebar-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 1030; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+    .sidebar-backdrop.active { opacity: 1; pointer-events: auto; }
+    body.sidebar-mobile-open { overflow: hidden; }
+    @media (max-width: 991.98px) {
+        .sidebar.sidebar-modern { width: min(85vw, 320px); transform: translateX(-105%); box-shadow: 0 25px 60px rgba(2,6,23,.45); }
+        .sidebar.sidebar-modern.is-open { transform: translateX(0); }
+        .sidebar-mobile-toggle { display: inline-flex; }
+    }
 </style>
 <ul class="navbar-nav sidebar sidebar-dark accordion d-flex flex-column sidebar-modern" id="accordionSidebar">
 
@@ -155,7 +165,6 @@
         <div id="collapseUtilitiesLPPM" class="collapse" aria-labelledby="headingUtilities"
             data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Pengaturan:</h6>
                 <!-- <a class="collapse-item" href="{{ route('luaran.index') }}">Hibah</a> -->
                 <a class="collapse-item @isroute('skema.index')" href="{{ route('skema.index') }}">Skema</a>
                 <a class="collapse-item @isroute('luaran.index')" href="{{ route('luaran.index') }}">Luaran</a>
@@ -280,9 +289,9 @@
     <hr class="sidebar-divider d-none d-md-block">
 
     <!-- Sidebar Toggler (Sidebar) -->
-    <div class="text-center d-none d-md-inline">
+    {{-- <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
-    </div>
+    </div> --}}
 
     <!-- Current User Info as Profile Link -->
     <li class="nav-item mt-auto mb-2">
@@ -312,4 +321,102 @@
     </div> -->
 
 </ul>
-<!-- End of Sidebar
+<!-- End of Sidebar -->
+
+<button class="sidebar-mobile-toggle" id="sidebarMobileToggle" type="button" aria-label="Tampilkan sidebar" aria-expanded="false">
+    <i class="fas fa-bars"></i>
+</button>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('accordionSidebar');
+    const mobileToggle = document.getElementById('sidebarMobileToggle');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const desktopToggle = document.getElementById('sidebarToggle');
+    const topToggle = document.getElementById('sidebarToggleTop');
+    const topbar = document.querySelector('.topbar');
+    const body = document.body;
+    const breakpoint = 992;
+
+    const updateMobileIcon = (isOpen) => {
+        if (!mobileToggle) return;
+        const icon = mobileToggle.querySelector('i');
+        if (!icon) return;
+        icon.classList.toggle('fa-bars', !isOpen);
+        icon.classList.toggle('fa-times', isOpen);
+    };
+
+    const resetLegacyToggle = () => {
+        body.classList.remove('sidebar-toggled');
+        sidebar && sidebar.classList.remove('toggled');
+    };
+
+    const openSidebar = () => {
+        resetLegacyToggle();
+        sidebar && sidebar.classList.add('is-open');
+        backdrop && backdrop.classList.add('active');
+        body.classList.add('sidebar-mobile-open');
+        mobileToggle && mobileToggle.setAttribute('aria-expanded', 'true');
+        updateMobileIcon(true);
+    };
+
+    const closeSidebar = () => {
+        resetLegacyToggle();
+        sidebar && sidebar.classList.remove('is-open');
+        backdrop && backdrop.classList.remove('active');
+        body.classList.remove('sidebar-mobile-open');
+        mobileToggle && mobileToggle.setAttribute('aria-expanded', 'false');
+        updateMobileIcon(false);
+    };
+
+    const setToggleOffset = () => {
+        if (!mobileToggle) return;
+        const offset = (topbar ? topbar.offsetHeight + 12 : 16);
+        mobileToggle.style.top = offset + 'px';
+    };
+
+    const handleResize = () => {
+        if (window.innerWidth >= breakpoint) {
+            closeSidebar();
+        }
+        setToggleOffset();
+    };
+
+    handleResize();
+    setToggleOffset();
+    window.addEventListener('resize', handleResize);
+
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', function () {
+            if (sidebar && sidebar.classList.contains('is-open')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+    }
+
+    backdrop && backdrop.addEventListener('click', closeSidebar);
+
+    const attachHijack = (btn, toggleBehavior = false) => {
+        if (!btn) return;
+        btn.addEventListener('click', function (event) {
+            if (window.innerWidth < breakpoint) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                if (toggleBehavior && sidebar && sidebar.classList.contains('is-open')) {
+                    closeSidebar();
+                } else if (toggleBehavior) {
+                    openSidebar();
+                } else {
+                    closeSidebar();
+                }
+            }
+        }, true);
+    };
+
+    attachHijack(desktopToggle);
+    attachHijack(topToggle, true);
+});
+</script>
