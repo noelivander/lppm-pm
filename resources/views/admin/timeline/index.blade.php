@@ -11,17 +11,17 @@
         <div class="modern-card-header d-flex align-items-start align-items-md-center justify-content-between flex-column flex-md-row gap-3">
             <div>
                 <h6 class="m-0 fw-semibold text-primary">
-                    <i class="fas fa-filter me-2"></i>Periode Akademik
+                    <i class="fas fa-filter me-2"></i>Tahun Timeline
                 </h6>
-                <p class="text-muted small mb-0">Pilih atau buat periode untuk mengelola timeline penelitian dan pengabdian.</p>
+                <p class="text-muted small mb-0">Pilih atau buat tahun untuk mengelola timeline penelitian dan pengabdian.</p>
             </div>
         </div>
         <div class="modern-card-body">
             <div class="row g-3 align-items-end">
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-gray-700 mb-2">Periode Akademik</label>
+                    <label class="form-label fw-semibold text-gray-700 mb-2">Tahun Timeline</label>
                     <select id="periodSelector" class="form-select form-select-lg rounded-3">
-                        <option value="">-- Pilih Periode --</option>
+                        <option value="">-- Pilih Tahun --</option>
                         @foreach($periods as $period)
                             <option value="{{ $period }}" {{ $selectedPeriod == $period ? 'selected' : '' }}>
                                 {{ $period }}
@@ -30,9 +30,9 @@
                     </select>
                 </div>
                 <div class="col-md-6 d-flex flex-column flex-md-row gap-2">
-                    <button type="button" class="modern-btn modern-btn-secondary flex-grow-1" data-bs-toggle="modal" data-bs-target="#newPeriodModal">
-                        <i class="fas fa-calendar-plus me-2"></i>Buat Periode
-                    </button>
+            <a href="{{ route('admin.timeline.create') }}" class="modern-btn modern-btn-secondary flex-grow-1">
+                <i class="fas fa-calendar-plus me-2"></i>Buat Timeline Baru
+            </a>
                     @if($timelines->count() > 0)
                         <button type="button" class="modern-btn modern-btn-outline flex-grow-1" onclick="window.print()">
                             <i class="fas fa-print me-2"></i>Cetak
@@ -124,7 +124,7 @@
                 </div>
                 <h4 class="text-muted mb-3">Belum Ada Timeline</h4>
                 <p class="text-muted mb-4">
-                    Belum ada timeline untuk periode <strong>{{ $selectedPeriod }}</strong>.<br>
+                    Belum ada timeline untuk tahun <strong>{{ $selectedPeriod }}</strong>.<br>
                     Mulai dengan menambahkan timeline baru.
                 </p>
                 <a href="{{ route('admin.timeline.create', ['period' => $selectedPeriod]) }}" class="modern-btn modern-btn-primary modern-btn-lg">
@@ -137,46 +137,16 @@
             <div class="mb-4">
                 <i class="fas fa-calendar-alt fa-4x text-muted opacity-50"></i>
             </div>
-            <h4 class="text-muted mb-3">Pilih Periode Akademik</h4>
+            <h4 class="text-muted mb-3">Pilih Tahun Timeline</h4>
             <p class="text-muted mb-4">
-                Silakan pilih periode akademik dari dropdown di atas<br>
-                atau buat periode baru untuk memulai.
+                Silakan pilih tahun timeline dari dropdown di atas<br>
+                atau buat timeline baru untuk memulai.
             </p>
-            <button type="button" class="modern-btn modern-btn-primary modern-btn-lg" data-bs-toggle="modal" data-bs-target="#newPeriodModal">
-                <i class="fas fa-calendar-plus me-2"></i>Buat Periode Baru
-            </button>
+            <a href="{{ route('admin.timeline.create') }}" class="modern-btn modern-btn-primary modern-btn-lg">
+                <i class="fas fa-calendar-plus me-2"></i>Buat Timeline Baru
+            </a>
         </div>
     @endif
-
-    <!-- New Period Modal -->
-    <div class="modal fade" id="newPeriodModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-calendar-plus me-2"></i>Buat Periode Baru
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="newPeriodForm">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Periode Akademik</label>
-                            <input type="text" class="form-control form-control-lg" id="newPeriodInput" 
-                                   placeholder="Contoh: 2025/2026" required>
-                            <div class="form-text">Format: YYYY/YYYY</div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="createPeriodBtn">
-                        <i class="fas fa-check me-2"></i>Buat & Lanjutkan
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @push('styles')
     <style>
@@ -245,7 +215,6 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Period Selector
             const periodSelector = document.getElementById('periodSelector');
             if (periodSelector) {
                 periodSelector.addEventListener('change', function() {
@@ -253,39 +222,6 @@
                         window.location.href = `{{ route('admin.timeline.index') }}?period=${this.value}`;
                     } else {
                         window.location.href = `{{ route('admin.timeline.index') }}`;
-                    }
-                });
-            }
-
-            // Create New Period
-            const createPeriodBtn = document.getElementById('createPeriodBtn');
-            const newPeriodInput = document.getElementById('newPeriodInput');
-            
-            if (createPeriodBtn) {
-                createPeriodBtn.addEventListener('click', function() {
-                    const period = newPeriodInput.value.trim();
-                    
-                    if (!period) {
-                        alert('Silakan masukkan periode akademik!');
-                        return;
-                    }
-
-                    // Validate format (YYYY/YYYY)
-                    const periodRegex = /^\d{4}\/\d{4}$/;
-                    if (!periodRegex.test(period)) {
-                        alert('Format periode tidak valid! Gunakan format: YYYY/YYYY (contoh: 2025/2026)');
-                        return;
-                    }
-
-                    // Redirect to create page with period parameter
-                    window.location.href = `{{ route('admin.timeline.create') }}?period=${period}`;
-                });
-
-                // Allow Enter key to submit
-                newPeriodInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        createPeriodBtn.click();
                     }
                 });
             }
