@@ -3,7 +3,7 @@
         {{ __('Dosen Dashboard') }}
     </x-slot>
 
-    <div class="container-fluid">
+    <div class="container-fluid dashboard-page">
         <div class="row mb-2">
             <div class="col-8">
                 <x-dosen.heading name="Dashboard"></x-dosen.heading>
@@ -119,11 +119,11 @@
     </div>
 
     <style>
-        .mb-2 {
+        .dashboard-page .mb-2 {
             margin-bottom: -1rem !important;
         }
 
-        .mb-3 {
+        .dashboard-page .mb-3 {
             margin-bottom: 1rem !important;
         }
     </style>

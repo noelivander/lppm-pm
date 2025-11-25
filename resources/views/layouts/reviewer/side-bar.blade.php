@@ -81,9 +81,9 @@
     <hr class="sidebar-divider d-none d-md-block">
 
     <!-- Sidebar Toggler (Sidebar) -->
-    <div class="text-center d-none d-md-inline">
+    {{-- <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
-    </div>
+    </div> --}}
 
     <!-- Sidebar Message -->
 <!--     <div class="sidebar-card d-none d-lg-flex">
@@ -93,7 +93,7 @@
     </div> -->
 
     <!-- Current User Info as Profile Link -->
-    <li class="nav-item mt-auto py-3">
+    <li class="nav-item mt-auto">
         <a class="d-flex align-items-center mb-2 text-decoration-none sidebar-user-link" href="{{ route('account.profile') }}">
             <img src="{{ Auth::user()->avatar_path ? Storage::url(Auth::user()->avatar_path) : url('img/undraw_profile.svg') }}" class="rounded-circle me-2 sidebar-avatar">
             <div class="text-white sidebar-user-text">
