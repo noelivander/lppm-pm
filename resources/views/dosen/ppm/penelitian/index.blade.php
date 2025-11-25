@@ -145,8 +145,8 @@
                             </a>
                         @else
                             <button class="modern-btn modern-btn-primary mt-2" disabled>
-                                <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
-                            </button>
+                            <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
+                        </button>
                         @endif
                 </div>
             </div>
@@ -155,27 +155,27 @@
 
     <script>
         if (typeof countdownDate !== 'undefined') {
-            var x = setInterval(function() {
-                var now = new Date().getTime();
-                var distance = countdownDate - now;
-    
-                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
+        var x = setInterval(function() {
+            var now = new Date().getTime();
+            var distance = countdownDate - now;
+
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
                 var el = document.getElementById('countdown');
                 if (el) {
                     el.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
                 }
-    
-                if (distance < 0) {
-                    clearInterval(x);
+
+            if (distance < 0) {
+                clearInterval(x);
                     if (el) {
                         el.innerHTML = "EXPIRED";
                     }
-                }
-            }, 1000);
+            }
+        }, 1000);
         }
     </script>
     
