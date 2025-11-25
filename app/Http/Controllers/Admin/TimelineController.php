@@ -16,7 +16,7 @@ class TimelineController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'period' => 'required|string|max:255',
+            'period' => 'required|digits:4',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'upload_start_date' => 'required|date',
@@ -60,7 +60,7 @@ class TimelineController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'period' => 'required|string|max:255',
+            'period' => 'required|digits:4',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'upload_start_date' => 'required|date',
