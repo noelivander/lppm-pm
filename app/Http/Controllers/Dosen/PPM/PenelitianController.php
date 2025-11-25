@@ -19,7 +19,7 @@ class PenelitianController extends Controller
     public function index()
     {
         $currentDate = now();
-        $timeline = Timeline::first();
+        $timeline = $this->getActiveTimeline();
         $penelitian = Penelitian::where('user_id', Auth::id())->get();
 
         // Get skema and luaran for penelitian
@@ -66,8 +66,12 @@ class PenelitianController extends Controller
     public function store(Request $request)
     {
         $currentDate = now();
-        $timeline = Timeline::first(); // Assuming there's only one timeline record
+        $timeline = $this->getActiveTimeline();
     
+        if (!$timeline) {
+            return redirect()->back()->with('error', 'Belum ada timeline aktif.');
+        }
+
         if ($currentDate < $timeline->upload_start_date || $currentDate > $timeline->upload_end_date) {
             return redirect()->back()->with('error', 'Anda tidak dapat mengunggah proposal di luar periode yang ditentukan.');
         }
@@ -142,4 +146,11 @@ class PenelitianController extends Controller
     }
 
 
+    protected function getActiveTimeline()
+    {
+        return Timeline::active()
+            ->orderBy('period', 'desc')
+            ->ordered()
+            ->first();
+    }
 }

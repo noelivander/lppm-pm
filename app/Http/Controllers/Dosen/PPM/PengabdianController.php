@@ -18,7 +18,7 @@ class PengabdianController extends Controller
     public function index()
     {
         $currentDate = now();
-        $timeline = Timeline::first();
+        $timeline = $this->getActiveTimeline();
         $pengabdian = Pengabdian::where('user_id', Auth::id())->get();
 
         // Get skema and luaran for pengabdian
@@ -64,6 +64,17 @@ class PengabdianController extends Controller
 
     public function store(Request $request)
     {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        if (!$timeline) {
+            return redirect()->back()->with('error', 'Belum ada timeline aktif.');
+        }
+
+        if ($currentDate < $timeline->upload_start_date || $currentDate > $timeline->upload_end_date) {
+            return redirect()->back()->with('error', 'Anda tidak dapat mengunggah proposal di luar periode yang ditentukan.');
+        }
+
         $request->validate([
             'judul' => 'required',
             'luaran_wajib' => 'required',
@@ -119,4 +130,11 @@ class PengabdianController extends Controller
         return redirect()->route('pengabdian-dos.index')->with('success', 'Proposal submitted successfully.');
     }
 
+    protected function getActiveTimeline()
+    {
+        return Timeline::active()
+            ->orderBy('period', 'desc')
+            ->ordered()
+            ->first();
+    }
 }

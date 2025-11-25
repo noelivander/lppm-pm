@@ -17,7 +17,7 @@ class PengabdianController extends Controller
     public function index()
     {
         $currentDate = now();
-        $timeline = Timeline::first();
+        $timeline = $this->getActiveTimeline();
         $proposals = Pengabdian::all();
         $reviews = Review::where('reviewer_id', auth()->id())->pluck('pengabdian_id')->toArray();
         $existingReviews = Review::all();
@@ -43,7 +43,7 @@ class PengabdianController extends Controller
     public function review($id)
     {
         $currentDate = now();
-        $timeline = Timeline::first();
+        $timeline = $this->getActiveTimeline();
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
         }
@@ -103,7 +103,7 @@ class PengabdianController extends Controller
 
     public function store(Request $request)
     {
-        $timeline = Timeline::first();
+        $timeline = $this->getActiveTimeline();
         $currentDate = now();
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
@@ -146,7 +146,7 @@ class PengabdianController extends Controller
 
     public function updateReview(Request $request, $id)
     {
-        $timeline = Timeline::first();
+        $timeline = $this->getActiveTimeline();
         $currentDate = now();
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
@@ -187,7 +187,7 @@ class PengabdianController extends Controller
 
     public function editReview($id)
     {
-        $timeline = Timeline::first();
+        $timeline = $this->getActiveTimeline();
         $currentDate = now();
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
@@ -222,4 +222,11 @@ class PengabdianController extends Controller
         }
     }
 
+    protected function getActiveTimeline()
+    {
+        return Timeline::active()
+            ->orderBy('period', 'desc')
+            ->ordered()
+            ->first();
+    }
 }
