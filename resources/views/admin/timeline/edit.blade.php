@@ -30,8 +30,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="title"><i class="fa fa-tag me-2"></i>Judul</label>
-                                        <input type="text" name="title" id="title" class="modern-form-input" value="{{ old('title', $timeline->title) }}" placeholder="Misal: Timeline Penelitian 2025">
+                                        <label class="modern-form-label" for="title"><i class="fa fa-tag me-2"></i>Judul <span class="text-danger">*</span></label>
+                                        <input type="text" name="title" id="title" class="modern-form-input" value="{{ old('title', $timeline->title) }}" placeholder="Misal: Timeline Penelitian 2025" required>
                                         @error('title')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -54,7 +54,7 @@
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="upload_start_date"><i class="fa fa-calendar me-2"></i>Upload Start Date & Time <span class="text-danger">*</span></label>
+                                        <label class="modern-form-label" for="upload_start_date"></i>Upload Start Date & Time <span class="text-danger">*</span></label>
                                         <input type="datetime-local" name="upload_start_date" id="upload_start_date" class="modern-form-input" value="{{ old('upload_start_date', $timeline->upload_start_date ? date('Y-m-d\TH:i', strtotime($timeline->upload_start_date)) : '') }}" required>
                                         @error('upload_start_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -63,7 +63,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="upload_end_date"><i class="fa fa-calendar me-2"></i>Upload End Date & Time <span class="text-danger">*</span></label>
+                                        <label class="modern-form-label" for="upload_end_date"></i>Upload End Date & Time <span class="text-danger">*</span></label>
                                         <input type="datetime-local" name="upload_end_date" id="upload_end_date" class="modern-form-input" value="{{ old('upload_end_date', $timeline->upload_end_date ? date('Y-m-d\TH:i', strtotime($timeline->upload_end_date)) : '') }}" required>
                                         @error('upload_end_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -77,7 +77,7 @@
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="review_start_date"><i class="fa fa-calendar me-2"></i>Review Start Date & Time <span class="text-danger">*</span></label>
+                                        <label class="modern-form-label" for="review_start_date"></i>Review Start Date & Time <span class="text-danger">*</span></label>
                                         <input type="datetime-local" name="review_start_date" id="review_start_date" class="modern-form-input" value="{{ old('review_start_date', $timeline->review_start_date ? date('Y-m-d\TH:i', strtotime($timeline->review_start_date)) : '') }}" required>
                                         @error('review_start_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="review_end_date"><i class="fa fa-calendar me-2"></i>Review End Date & Time <span class="text-danger">*</span></label>
+                                        <label class="modern-form-label" for="review_end_date"></i>Review End Date & Time <span class="text-danger">*</span></label>
                                         <input type="datetime-local" name="review_end_date" id="review_end_date" class="modern-form-input" value="{{ old('review_end_date', $timeline->review_end_date ? date('Y-m-d\TH:i', strtotime($timeline->review_end_date)) : '') }}" required>
                                         @error('review_end_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -100,8 +100,8 @@
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="revision_start_date"><i class="fa fa-calendar me-2"></i>Revisi Start Date & Time</label>
-                                        <input type="datetime-local" name="revision_start_date" id="revision_start_date" class="modern-form-input" value="{{ old('revision_start_date', $timeline->revision_start_date ? date('Y-m-d\TH:i', strtotime($timeline->revision_start_date)) : '') }}">
+                                        <label class="modern-form-label" for="revision_start_date"></i>Revisi Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="revision_start_date" id="revision_start_date" class="modern-form-input" value="{{ old('revision_start_date', $timeline->revision_start_date ? date('Y-m-d\TH:i', strtotime($timeline->revision_start_date)) : '') }}" required>
                                         @error('revision_start_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -109,8 +109,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="revision_end_date"><i class="fa fa-calendar me-2"></i>Revisi End Date & Time</label>
-                                        <input type="datetime-local" name="revision_end_date" id="revision_end_date" class="modern-form-input" value="{{ old('revision_end_date', $timeline->revision_end_date ? date('Y-m-d\TH:i', strtotime($timeline->revision_end_date)) : '') }}">
+                                        <label class="modern-form-label" for="revision_end_date"></i>Revisi End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="revision_end_date" id="revision_end_date" class="modern-form-input" value="{{ old('revision_end_date', $timeline->revision_end_date ? date('Y-m-d\TH:i', strtotime($timeline->revision_end_date)) : '') }}" required>
                                         @error('revision_end_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -121,13 +121,11 @@
                             <!-- 4. Periode Laporan Kemajuan -->
                             <h5 class="mb-3 text-primary"><i class="fa fa-chart-line me-2"></i>4. Periode Laporan Kemajuan</h5>
                             <div class="row mb-3">
-                                <div class="col-12">
-                                    <small class="text-muted d-block mb-2"><strong>Pengajuan:</strong></small>
-                                </div>
+                                
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="progress_submission_start_date"><i class="fa fa-calendar me-2"></i>Pengajuan Start Date & Time</label>
-                                        <input type="datetime-local" name="progress_submission_start_date" id="progress_submission_start_date" class="modern-form-input" value="{{ old('progress_submission_start_date', $timeline->progress_submission_start_date ? date('Y-m-d\TH:i', strtotime($timeline->progress_submission_start_date)) : '') }}">
+                                        <label class="modern-form-label" for="progress_submission_start_date"></i>Pengajuan Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="progress_submission_start_date" id="progress_submission_start_date" class="modern-form-input" value="{{ old('progress_submission_start_date', $timeline->progress_submission_start_date ? date('Y-m-d\TH:i', strtotime($timeline->progress_submission_start_date)) : '') }}" required>
                                         @error('progress_submission_start_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -135,8 +133,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="progress_submission_end_date"><i class="fa fa-calendar me-2"></i>Pengajuan End Date & Time</label>
-                                        <input type="datetime-local" name="progress_submission_end_date" id="progress_submission_end_date" class="modern-form-input" value="{{ old('progress_submission_end_date', $timeline->progress_submission_end_date ? date('Y-m-d\TH:i', strtotime($timeline->progress_submission_end_date)) : '') }}">
+                                        <label class="modern-form-label" for="progress_submission_end_date"></i>Pengajuan End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="progress_submission_end_date" id="progress_submission_end_date" class="modern-form-input" value="{{ old('progress_submission_end_date', $timeline->progress_submission_end_date ? date('Y-m-d\TH:i', strtotime($timeline->progress_submission_end_date)) : '') }}" required>
                                         @error('progress_submission_end_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -144,13 +142,11 @@
                                 </div>
                             </div>
                             <div class="row mb-4">
-                                <div class="col-12">
-                                    <small class="text-muted d-block mb-2"><strong>Peninjauan/Revisi:</strong></small>
-                                </div>
+                                
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="progress_review_start_date"><i class="fa fa-calendar me-2"></i>Peninjauan Start Date & Time</label>
-                                        <input type="datetime-local" name="progress_review_start_date" id="progress_review_start_date" class="modern-form-input" value="{{ old('progress_review_start_date', $timeline->progress_review_start_date ? date('Y-m-d\TH:i', strtotime($timeline->progress_review_start_date)) : '') }}">
+                                        <label class="modern-form-label" for="progress_review_start_date"></i>Peninjauan Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="progress_review_start_date" id="progress_review_start_date" class="modern-form-input" value="{{ old('progress_review_start_date', $timeline->progress_review_start_date ? date('Y-m-d\TH:i', strtotime($timeline->progress_review_start_date)) : '') }}" required>
                                         @error('progress_review_start_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -158,8 +154,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="progress_review_end_date"><i class="fa fa-calendar me-2"></i>Peninjauan End Date & Time</label>
-                                        <input type="datetime-local" name="progress_review_end_date" id="progress_review_end_date" class="modern-form-input" value="{{ old('progress_review_end_date', $timeline->progress_review_end_date ? date('Y-m-d\TH:i', strtotime($timeline->progress_review_end_date)) : '') }}">
+                                        <label class="modern-form-label" for="progress_review_end_date"></i>Peninjauan End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="progress_review_end_date" id="progress_review_end_date" class="modern-form-input" value="{{ old('progress_review_end_date', $timeline->progress_review_end_date ? date('Y-m-d\TH:i', strtotime($timeline->progress_review_end_date)) : '') }}" required>
                                         @error('progress_review_end_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -170,13 +166,11 @@
                             <!-- 5. Periode Laporan Akhir -->
                             <h5 class="mb-3 text-primary"><i class="fa fa-flag-checkered me-2"></i>5. Periode Laporan Akhir</h5>
                             <div class="row mb-3">
-                                <div class="col-12">
-                                    <small class="text-muted d-block mb-2"><strong>Pengajuan:</strong></small>
-                                </div>
+                                
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="final_submission_start_date"><i class="fa fa-calendar me-2"></i>Pengajuan Start Date & Time</label>
-                                        <input type="datetime-local" name="final_submission_start_date" id="final_submission_start_date" class="modern-form-input" value="{{ old('final_submission_start_date', $timeline->final_submission_start_date ? date('Y-m-d\TH:i', strtotime($timeline->final_submission_start_date)) : '') }}">
+                                        <label class="modern-form-label" for="final_submission_start_date"></i>Pengajuan Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="final_submission_start_date" id="final_submission_start_date" class="modern-form-input" value="{{ old('final_submission_start_date', $timeline->final_submission_start_date ? date('Y-m-d\TH:i', strtotime($timeline->final_submission_start_date)) : '') }}" required>
                                         @error('final_submission_start_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -184,8 +178,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="final_submission_end_date"><i class="fa fa-calendar me-2"></i>Pengajuan End Date & Time</label>
-                                        <input type="datetime-local" name="final_submission_end_date" id="final_submission_end_date" class="modern-form-input" value="{{ old('final_submission_end_date', $timeline->final_submission_end_date ? date('Y-m-d\TH:i', strtotime($timeline->final_submission_end_date)) : '') }}">
+                                        <label class="modern-form-label" for="final_submission_end_date"></i>Pengajuan End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="final_submission_end_date" id="final_submission_end_date" class="modern-form-input" value="{{ old('final_submission_end_date', $timeline->final_submission_end_date ? date('Y-m-d\TH:i', strtotime($timeline->final_submission_end_date)) : '') }}" required>
                                         @error('final_submission_end_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -193,13 +187,11 @@
                                 </div>
                             </div>
                             <div class="row mb-4">
-                                <div class="col-12">
-                                    <small class="text-muted d-block mb-2"><strong>Peninjauan/Revisi:</strong></small>
-                                </div>
+                                
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="final_review_start_date"><i class="fa fa-calendar me-2"></i>Peninjauan Start Date & Time</label>
-                                        <input type="datetime-local" name="final_review_start_date" id="final_review_start_date" class="modern-form-input" value="{{ old('final_review_start_date', $timeline->final_review_start_date ? date('Y-m-d\TH:i', strtotime($timeline->final_review_start_date)) : '') }}">
+                                        <label class="modern-form-label" for="final_review_start_date"></i>Peninjauan Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="final_review_start_date" id="final_review_start_date" class="modern-form-input" value="{{ old('final_review_start_date', $timeline->final_review_start_date ? date('Y-m-d\TH:i', strtotime($timeline->final_review_start_date)) : '') }}" required>
                                         @error('final_review_start_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -207,8 +199,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
-                                        <label class="modern-form-label" for="final_review_end_date"><i class="fa fa-calendar me-2"></i>Peninjauan End Date & Time</label>
-                                        <input type="datetime-local" name="final_review_end_date" id="final_review_end_date" class="modern-form-input" value="{{ old('final_review_end_date', $timeline->final_review_end_date ? date('Y-m-d\TH:i', strtotime($timeline->final_review_end_date)) : '') }}">
+                                        <label class="modern-form-label" for="final_review_end_date"></i>Peninjauan End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="final_review_end_date" id="final_review_end_date" class="modern-form-input" value="{{ old('final_review_end_date', $timeline->final_review_end_date ? date('Y-m-d\TH:i', strtotime($timeline->final_review_end_date)) : '') }}" required>
                                         @error('final_review_end_date')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
@@ -228,13 +220,13 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <div class="modern-form-group">
                                         <label class="modern-form-label" for="order"><i class="fa fa-sort-numeric-down me-2"></i>Urutan</label>
                                         <input type="number" name="order" id="order" class="modern-form-input" value="{{ old('order', $timeline->order ?? 0) }}" min="0">
                                         <small class="text-muted">Urutan tampil (0 = pertama)</small>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                         <div class="modern-card-footer d-flex gap-2">
@@ -262,6 +254,99 @@
             </script>
         @endif
         <script>
+            const timelineFields = [
+                { start: 'upload_start_date', end: 'upload_end_date', name: 'Upload' },
+                { start: 'review_start_date', end: 'review_end_date', name: 'Review' },
+                { start: 'revision_start_date', end: 'revision_end_date', name: 'Revisi' },
+                { start: 'progress_submission_start_date', end: 'progress_submission_end_date', name: 'Laporan Kemajuan - Pengajuan' },
+                { start: 'progress_review_start_date', end: 'progress_review_end_date', name: 'Laporan Kemajuan - Peninjauan' },
+                { start: 'final_submission_start_date', end: 'final_submission_end_date', name: 'Laporan Akhir - Pengajuan' },
+                { start: 'final_review_start_date', end: 'final_review_end_date', name: 'Laporan Akhir - Peninjauan' },
+            ];
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const periodInput = document.getElementById('period');
+                const dateInputs = [...new Set(timelineFields.flatMap(field => [field.start, field.end]))]
+                    .map(id => document.getElementById(id))
+                    .filter(Boolean);
+
+                const getYearBounds = () => {
+                    if (!periodInput) return null;
+                    const year = parseInt(periodInput.value, 10);
+                    if (!Number.isInteger(year) || year < 1900 || year > 2999) return null;
+                    return {
+                        start: `${year}-01-01T00:00`,
+                        end: `${year}-12-31T23:59`
+                    };
+                };
+
+                const applyYearLimits = () => {
+                    const bounds = getYearBounds();
+                    dateInputs.forEach(input => {
+                        if (bounds) {
+                            input.min = bounds.start;
+                            input.max = bounds.end;
+                        } else {
+                            input.removeAttribute('min');
+                            input.removeAttribute('max');
+                        }
+                    });
+                };
+
+                const applySequentialConstraints = () => {
+                    const bounds = getYearBounds();
+                    let currentMin = bounds ? bounds.start : '';
+
+                    timelineFields.forEach(field => {
+                        const startInput = document.getElementById(field.start);
+                        const endInput = document.getElementById(field.end);
+                        if (!startInput || !endInput) return;
+
+                        if (currentMin) {
+                            startInput.min = currentMin;
+                        } else {
+                            startInput.removeAttribute('min');
+                        }
+                        if (bounds) {
+                            startInput.max = bounds.end;
+                        } else {
+                            startInput.removeAttribute('max');
+                        }
+
+                        const startValue = startInput.value;
+                        if (startValue) {
+                            endInput.min = startValue;
+                        } else if (currentMin) {
+                            endInput.min = currentMin;
+                        } else {
+                            endInput.removeAttribute('min');
+                        }
+                        if (bounds) {
+                            endInput.max = bounds.end;
+                        } else {
+                            endInput.removeAttribute('max');
+                        }
+
+                        const endValue = endInput.value;
+                        if (endValue) {
+                            currentMin = endValue;
+                        }
+                    });
+                };
+
+                const handlePeriodChange = () => {
+                    applyYearLimits();
+                    applySequentialConstraints();
+                };
+
+                periodInput && periodInput.addEventListener('input', handlePeriodChange);
+                dateInputs.forEach(input => {
+                    input.addEventListener('input', applySequentialConstraints);
+                });
+
+                handlePeriodChange();
+            });
+
             function showValidationError(message) {
                 Swal.fire({
                     icon: 'warning',
@@ -281,20 +366,10 @@
                     }
                 }
 
-                const fields = [
-                    { start: 'upload_start_date', end: 'upload_end_date', name: 'Upload' },
-                    { start: 'review_start_date', end: 'review_end_date', name: 'Review' },
-                    { start: 'revision_start_date', end: 'revision_end_date', name: 'Revisi', optional: true },
-                    { start: 'progress_submission_start_date', end: 'progress_submission_end_date', name: 'Laporan Kemajuan - Pengajuan', optional: true },
-                    { start: 'progress_review_start_date', end: 'progress_review_end_date', name: 'Laporan Kemajuan - Peninjauan', optional: true },
-                    { start: 'final_submission_start_date', end: 'final_submission_end_date', name: 'Laporan Akhir - Pengajuan', optional: true },
-                    { start: 'final_review_start_date', end: 'final_review_end_date', name: 'Laporan Akhir - Peninjauan', optional: true },
-                ];
-
                 let prevEnd = null;
 
-                for (let i = 0; i < fields.length; i++) {
-                    const field = fields[i];
+                for (let i = 0; i < timelineFields.length; i++) {
+                    const field = timelineFields[i];
                     const startInput = document.getElementById(field.start);
                     const endInput = document.getElementById(field.end);
 
@@ -303,31 +378,25 @@
                     const startValue = startInput.value;
                     const endValue = endInput.value;
 
-                    if (field.optional && !startValue && !endValue) {
-                        continue;
-                    }
-
-                    if ((startValue && !endValue) || (!startValue && endValue)) {
-                        showValidationError(`${field.name}: Start dan End harus diisi keduanya atau dikosongkan keduanya.`);
+                    if (!startValue || !endValue) {
+                        showValidationError(`${field.name}: Start dan End harus diisi.`);
                         return false;
                     }
 
-                    if (startValue && endValue) {
-                        const start = new Date(startValue);
-                        const end = new Date(endValue);
+                    const start = new Date(startValue);
+                    const end = new Date(endValue);
 
-                        if (end <= start) {
-                            showValidationError(`${field.name}: End Date & Time harus lebih besar dari Start Date & Time.`);
-                            return false;
-                        }
-
-                        if (prevEnd && start <= prevEnd) {
-                            showValidationError(`${field.name}: Start Date & Time harus lebih besar dari periode sebelumnya.`);
-                            return false;
-                        }
-
-                        prevEnd = end;
+                    if (end <= start) {
+                        showValidationError(`${field.name}: End Date & Time harus lebih besar dari Start Date & Time.`);
+                        return false;
                     }
+
+                    if (prevEnd && start <= prevEnd) {
+                        showValidationError(`${field.name}: Start Date & Time harus lebih besar dari periode sebelumnya.`);
+                        return false;
+                    }
+
+                    prevEnd = end;
                 }
 
                 return true;
