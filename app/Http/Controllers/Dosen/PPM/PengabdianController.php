@@ -19,12 +19,9 @@ class PengabdianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        $pengabdian = Pengabdian::where('user_id', Auth::id())->get();
-
-        // Get skema and luaran for pengabdian
-        $skemaPengabdian = Skema::where('jenis', 'pengabdian')->where('is_shown', 1)->get();
-        $luaranWajibPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
-        $luaranTambahanPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+        $pengabdian = Pengabdian::where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->get();
 
         foreach ($pengabdian as $item) {
             $item->judul = EncryptionHelper::decrypt($item->judul);
@@ -37,7 +34,25 @@ class PengabdianController extends Controller
             $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
         }
 
-        return view('dosen.ppm.pengabdian.index', compact('pengabdian','timeline','currentDate','skemaPengabdian','luaranWajibPengabdian','luaranTambahanPengabdian'));
+        return view('dosen.ppm.pengabdian.index', compact('pengabdian','timeline','currentDate'));
+    }
+
+    public function create()
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $skemaPengabdian = Skema::where('jenis', 'pengabdian')->where('is_shown', 1)->get();
+        $luaranWajibPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
+        $luaranTambahanPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+
+        return view('dosen.ppm.pengabdian.create', compact(
+            'timeline',
+            'currentDate',
+            'skemaPengabdian',
+            'luaranWajibPengabdian',
+            'luaranTambahanPengabdian'
+        ));
     }
 
     public function viewReviews($pengabdian_id, $review_number)

@@ -20,12 +20,9 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        $penelitian = Penelitian::where('user_id', Auth::id())->get();
-
-        // Get skema and luaran for penelitian
-        $skemaPenelitian = Skema::where('jenis', 'penelitian')->where('is_shown', 1)->get();
-        $luaranWajibPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
-        $luaranTambahanPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+        $penelitian = Penelitian::where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->get();
 
         foreach ($penelitian as $item) {
             $item->judul = EncryptionHelper::decrypt($item->judul);
@@ -38,7 +35,25 @@ class PenelitianController extends Controller
             $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
         }
 
-        return view('dosen.ppm.penelitian.index', compact('penelitian','timeline','currentDate','skemaPenelitian','luaranWajibPenelitian','luaranTambahanPenelitian'));
+        return view('dosen.ppm.penelitian.index', compact('penelitian','timeline','currentDate'));
+    }
+
+    public function create()
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $skemaPenelitian = Skema::where('jenis', 'penelitian')->where('is_shown', 1)->get();
+        $luaranWajibPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
+        $luaranTambahanPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+
+        return view('dosen.ppm.penelitian.create', compact(
+            'timeline',
+            'currentDate',
+            'skemaPenelitian',
+            'luaranWajibPenelitian',
+            'luaranTambahanPenelitian'
+        ));
     }
 
     public function viewReviews($penelitian_id, $review_number)
