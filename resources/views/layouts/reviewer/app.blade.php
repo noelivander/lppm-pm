@@ -38,6 +38,11 @@
         /* Center main content area */
         #content > .container-fluid { max-width: 100% !important; margin-left: 0; margin-right: 0; padding-left: 1rem; padding-right: 2rem; }
         #content > .container-fluid.mt-3 { padding-left: 1rem; padding-right: 2rem; }
+        #content > .container-fluid > .container-fluid,
+        #content > .container-fluid > .container {
+            padding-left: 0;
+            padding-right: 0;
+        }
         /* Sidebar width control */
         #accordionSidebar.sidebar-modern { width: 260px !important; transition: transform .25s ease, box-shadow .25s ease; }
         body.sidebar-toggled #accordionSidebar.sidebar-modern { transform: translateX(-105%); box-shadow: none; }
@@ -64,6 +69,11 @@
             #content > .container-fluid.mt-3 {
                 padding-left: 1rem;
                 padding-right: 1rem;
+            }
+            #content > .container-fluid > .container-fluid,
+            #content > .container-fluid > .container {
+                padding-left: 0;
+                padding-right: 0;
             }
             body.sidebar-toggled #content-wrapper { margin-left: 0 !important; }
         }
