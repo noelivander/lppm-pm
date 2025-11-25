@@ -3,8 +3,9 @@
     :root { --sb-bg:#21163d; --sb-bg2:#352467; --sb-accent:#7c3aed; --sb-accent-2:#8b5cf6; --sb-text:#e5e7eb; --sb-text-dim:#9ca3af; --sb-active:#7c3aed; }
     .sidebar.sidebar-modern { background: linear-gradient(180deg, var(--sb-bg) 0%, var(--sb-bg2) 100%); color: var(--sb-text); padding: 0.7rem 0.85rem 0.5rem; width: 280px; box-shadow: inset 0 0 0 1px rgba(124,58,237,0.15), 0 8px 30px rgba(2,6,23,.35); border-right: 1px solid rgba(124,58,237,0.18); position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; z-index: 1035; transition: transform .28s ease, box-shadow .28s ease; }
     .sidebar.sidebar-modern::-webkit-scrollbar { width: 0; height: 0; }
-    .sidebar.sidebar-modern .sidebar-brand { padding: .85rem .75rem; margin: .25rem .25rem 0.75rem; border-radius: 14px; background: radial-gradient(120% 120% at 0% 0%, rgba(124,58,237,.22) 0%, rgba(139,92,246,.18) 42%, rgba(255,255,255,0.04) 100%); color: var(--sb-text); box-shadow: 0 4px 16px rgba(2,6,23,.25) inset, 0 6px 22px rgba(2,6,23,.35); }
-    .sidebar.sidebar-modern .sidebar-brand-text { font-weight: 700; letter-spacing: .4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; display: block; color: var(--sb-text); line-height: 1.2; }
+    .sidebar.sidebar-modern .sidebar-brand { padding: .85rem .75rem; margin: .25rem .25rem 0.75rem; border-radius: 14px; background: radial-gradient(120% 120% at 0% 0%, rgba(124,58,237,.22) 0%, rgba(139,92,246,.18) 42%, rgba(255,255,255,0.04) 100%); color: var(--sb-text); box-shadow: 0 4px 16px rgba(2,6,23,.25) inset, 0 6px 22px rgba(2,6,23,.35); position: relative; }
+    .sidebar.sidebar-modern .sidebar-brand-icon { flex-shrink: 0; }
+    .sidebar.sidebar-modern .sidebar-brand-text { font-weight: 700; letter-spacing: .4px; white-space: nowrap; position: absolute; left: 50%; transform: translateX(-50%); color: var(--sb-text); line-height: 1.2; }
     .sidebar.sidebar-modern .sidebar-brand small { color: var(--sb-text-dim); font-weight: 500; }
     .sidebar.sidebar-modern .sidebar-divider { border-color: rgba(255,255,255,0.06); margin: .65rem .5rem; }
     .sidebar.sidebar-modern .sidebar-heading { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sb-text-dim); padding: .25rem .75rem; }
@@ -34,16 +35,19 @@
         .sidebar.sidebar-modern { width: min(85vw, 320px); transform: translateX(-105%); box-shadow: 0 25px 60px rgba(2,6,23,.45); }
         .sidebar.sidebar-modern.is-open { transform: translateX(0); }
         .sidebar-mobile-toggle { display: inline-flex; }
+        .sidebar.sidebar-modern .sidebar-brand { flex-direction: row; align-items: center; }
+        .sidebar.sidebar-modern .sidebar-brand-icon { margin-bottom: 0; margin-right: 0.5rem !important; }
+        .sidebar.sidebar-modern .sidebar-brand-text { position: absolute !important; transform: translateX(-50%) !important; left: 50% !important; text-align: center; width: auto; margin-top: 0; display: block !important; }
     }
 </style>
 <ul class="navbar-nav sidebar sidebar-dark accordion d-flex flex-column sidebar-modern" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-start" href="{{ route('admin.dashboard') }}">
-        <div class="sidebar-brand-icon me-2">
+    <a class="sidebar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}">
+        <div class="sidebar-brand-icon">
             <img src="{{ url('Logo.png') }}" height="36">
         </div>
-        <div class="sidebar-brand-text mx-1">
+        <div class="sidebar-brand-text">
             LPPM-PM
             <div><small>Administration</small></div>
         </div>
