@@ -40,7 +40,6 @@
         .sidebar.sidebar-modern .sidebar-brand-text { position: absolute !important; transform: translateX(-50%) !important; left: 50% !important; text-align: center; width: auto; margin-top: 0; display: block !important; }
     }
 </style>
-
 <ul class="navbar-nav sidebar sidebar-dark accordion d-flex flex-column sidebar-modern" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
@@ -73,11 +72,9 @@
         </a>
         <div id="collapseKelembagaan" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item @isroute('tentang-satker.index')"
-                    href="{{ route('tentang-satker.index') }}">Tentang</a>
+                <a class="collapse-item @isroute('tentang-satker.index')" href="{{ route('tentang-satker.index') }}">Tentang</a>
                 <a class="collapse-item @isroute('visi-misi.index')" href="{{ route('visi-misi.index') }}">Visi Misi</a>
-                <a class="collapse-item @isroute('struktur-organisasi.index')"
-                    href="{{ route('struktur-organisasi.index') }}">Struktur Organisasi</a>
+                <a class="collapse-item @isroute('struktur-organisasi.index')" href="{{ route('struktur-organisasi.index') }}">Struktur Organisasi</a>
             </div>
         </div>
     </li>
@@ -94,15 +91,13 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('agenda.index')" href="{{ route('agenda.index') }}">Agenda</a>
                 <a class="collapse-item @isroute('berita.index')" href="{{ route('berita.index') }}">Berita</a>
-                <a class="collapse-item @isroute('dokumen_penting.index')"
-                    href="{{ route('dokumen_penting.index') }}">Dokumen</a>
-                <a class="collapse-item @isroute('pengumuman.index')"
-                    href="{{ route('pengumuman.index') }}">Pengumuman</a>
+                <a class="collapse-item @isroute('dokumen_penting.index')" href="{{ route('dokumen_penting.index') }}">Dokumen</a>
+                <a class="collapse-item @isroute('pengumuman.index')" href="{{ route('pengumuman.index') }}">Pengumuman</a>
             </div>
         </div>
     </li>
 
-    <!-- Nav Item - Pengaturan Collapse Menu (General) -->
+    <!-- Nav Item - Pengaturan Collapse Menu -->
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUtilitiesUmum"
             aria-expanded="true" aria-controls="collapseUtilitiesUmum">
@@ -113,18 +108,16 @@
             data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('jurusan.index')" href="{{ route('jurusan.index') }}">Jurusan</a>
-                <a class="collapse-item @isroute('program_studi.index')"
-                    href="{{ route('program_studi.index') }}">Program Studi</a>
+                <a class="collapse-item @isroute('program_studi.index')" href="{{ route('program_studi.index') }}">Program Studi</a>
                 <a class="collapse-item @isroute('pegawai.index')" href="{{ route('pegawai.index') }}">Pegawai</a>
-                <a class="collapse-item @isroute('related_link.index')"
-                    href="{{ route('related_link.index') }}">Tautan</a>
+                <a class="collapse-item @isroute('related_link.index')" href="{{ route('related_link.index') }}">Tautan</a>
                 <a class="collapse-item @isroute('admin.landing-page.index')"
-                    href="{{ route('admin.landing-page.index') }}">Landing Page</a>
+                href="{{ route('admin.landing-page.index') }}">Landing Page</a>
             </div>
         </div>
     </li>
 
-    <!-- Kelola User -->
+    <!-- Kelola User moved outside of Pengaturan -->
     <li class="nav-item @isroute('users.index')">
         <a class="nav-link" href="{{ route('users.index') }}">
             <i class="fas fa-fw fa-users"></i>
@@ -185,113 +178,251 @@
         </div>
     </li>
 
+
+    <!-- Heading -->
+    <!-- <div class="sidebar-heading">
+        Pengabdian Masyarakat
+    </div> -->
+
+    <!-- Nav Item - Pages Collapse Menu -->
+    <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseDokumenLPMU"
+            aria-expanded="true" aria-controls="collapseDokumenLPMU">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Dokumen</span>
+        </a>
+        <div id="collapseDokumenLPMU" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Custom Dokumen:</h6>
+                <a class="collapse-item" href="buttons.html">Buttons</a>
+                <a class="collapse-item" href="cards.html">Cards</a>
+            </div>
+        </div>
+    </li> -->
+
+    <!-- Nav Item - Pages Collapse Menu -->
+    <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAkreditasi"
+            aria-expanded="true" aria-controls="collapseAkreditasi">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Akreditasi</span>
+        </a>
+        <div id="collapseAkreditasi" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Custom Akreditasi:</h6>
+                <a class="collapse-item" href="buttons.html">Buttons</a>
+                <a class="collapse-item" href="cards.html">Cards</a>
+            </div>
+        </div>
+    </li> -->
+
+    <!-- Nav Item - Pages Collapse Menu -->
+   <!--  <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAgendaLPMU"
+            aria-expanded="true" aria-controls="collapseAgendaLPMU">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Agenda</span>
+        </a>
+        <div id="collapseAgendaLPMU" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Custom Agenda:</h6>
+                <a class="collapse-item" href="buttons.html">Buttons</a>
+                <a class="collapse-item" href="cards.html">Cards</a>
+            </div>
+        </div>
+    </li> -->
+
+    <!-- Nav Item - Utilities Collapse Menu -->
+    <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUtilitiesLPMU"
+            aria-expanded="true" aria-controls="collapseUtilitiesLPMU">
+            <i class="fas fa-fw fa-wrench"></i>
+            <span>Utilities</span>
+        </a>
+        <div id="collapseUtilitiesLPMU" class="collapse" aria-labelledby="headingUtilities"
+            data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Custom Utilities:</h6>
+                <a class="collapse-item" href="utilities-color.html">Dokumen</a>
+                <a class="collapse-item" href="utilities-border.html">Akreditasi</a>
+                <a class="collapse-item" href="utilities-animation.html">Agenda</a>
+                <a class="collapse-item" href="utilities-other.html">Other</a>
+            </div>
+        </div>
+    </li> -->
+
+    <!-- Heading -->
+    <!-- <div class="sidebar-heading">
+        LPMU
+    </div> -->
+
+    <!-- Nav Item - Pages Collapse Menu -->
+    <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages"
+            aria-expanded="true" aria-controls="collapsePages">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Pages</span>
+        </a>
+        <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Login Screens:</h6>
+                <a class="collapse-item" href="login.html">Login</a>
+                <a class="collapse-item" href="register.html">Register</a>
+                <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
+                <div class="collapse-divider"></div>
+                <h6 class="collapse-header">Other Pages:</h6>
+                <a class="collapse-item" href="404.html">404 Page</a>
+                <a class="collapse-item" href="blank.html">Blank Page</a>
+            </div>
+        </div>
+    </li> -->
+
+    <!-- Nav Item - Charts -->
+    <!-- <li class="nav-item">
+        <a class="nav-link" href="charts.html">
+            <i class="fas fa-fw fa-chart-area"></i>
+            <span>Charts</span></a>
+    </li> -->
+
+    <!-- Nav Item - Tables -->
+    <!-- <li class="nav-item">
+        <a class="nav-link" href="tables.html">
+            <i class="fas fa-fw fa-table"></i>
+            <span>Tables</span></a>
+    </li> -->
+
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
 
     <!-- Sidebar Toggler (Sidebar) -->
-    <div class="text-center d-none d-md-inline">
-        <i class="fas fa-sign-out-alt me-1"></i>
-        <span>Logout</span>
-    </div>
+    {{-- <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div> --}}
+
+    <!-- Current User Info as Profile Link -->
+    <li class="nav-item mt-auto mb-2">
+        <a class="d-flex align-items-center mb-2 text-decoration-none sidebar-user-link" href="{{ route('account.profile') }}">
+            <img src="{{ Auth::user()->avatar_path ? Storage::url(Auth::user()->avatar_path) : url('img/undraw_profile.svg') }}" class="rounded-circle me-2 sidebar-avatar">
+            <div class="text-white sidebar-user-text">
+                <div class="fw-bold">{{ Auth::user()->name }}</div>
+                <div class="small text-white-50 text-capitalize">{{ Auth::user()->role }}</div>
+            </div>
+        </a>
+    </li>
+    <li class="nav-item mt-2 mb-3">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <a class="btn btn-light w-100" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
+                <i class="fas fa-sign-out-alt me-1"></i>
+                <span>Logout</span>
+            </a>
+        </form>
+    </li>
+
+    <!-- Sidebar Message -->
+<!--     <div class="sidebar-card d-none d-lg-flex">
+        <img class="sidebar-card-illustration mb-2" src="img/undraw_rocket.svg" alt="...">
+        <p class="text-center mb-2"><strong>LPPM-LPMU ITH</strong> is packed with premium features, components, and more!</p>
+        <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro">Upgrade to Pro!</a>
+    </div> -->
 
 </ul>
 <!-- End of Sidebar -->
 
-<button class="sidebar-mobile-toggle" id="sidebarMobileToggle" type="button" aria-label="Tampilkan sidebar"
-    aria-expanded="false">
+<button class="sidebar-mobile-toggle" id="sidebarMobileToggle" type="button" aria-label="Tampilkan sidebar" aria-expanded="false">
     <i class="fas fa-bars"></i>
 </button>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const sidebar = document.getElementById('accordionSidebar');
-        const mobileToggle = document.getElementById('sidebarMobileToggle');
-        const backdrop = document.getElementById('sidebarBackdrop');
-        const desktopToggle = document.getElementById('sidebarToggle');
-        const topToggle = document.getElementById('sidebarToggleTop');
-        const topbar = document.querySelector('.topbar');
-        const body = document.body;
-        const breakpoint = 992;
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('accordionSidebar');
+    const mobileToggle = document.getElementById('sidebarMobileToggle');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const desktopToggle = document.getElementById('sidebarToggle');
+    const topToggle = document.getElementById('sidebarToggleTop');
+    const topbar = document.querySelector('.topbar');
+    const body = document.body;
+    const breakpoint = 992;
 
-        const updateMobileIcon = (isOpen) => {
-            if (!mobileToggle) return;
-            const icon = mobileToggle.querySelector('i');
-            if (!icon) return;
-            icon.classList.toggle('fa-bars', !isOpen);
-            icon.classList.toggle('fa-times', isOpen);
-        };
+    const updateMobileIcon = (isOpen) => {
+        if (!mobileToggle) return;
+        const icon = mobileToggle.querySelector('i');
+        if (!icon) return;
+        icon.classList.toggle('fa-bars', !isOpen);
+        icon.classList.toggle('fa-times', isOpen);
+    };
 
-        const resetLegacyToggle = () => {
-            body.classList.remove('sidebar-toggled');
-            sidebar && sidebar.classList.remove('toggled');
-        };
+    const resetLegacyToggle = () => {
+        body.classList.remove('sidebar-toggled');
+        sidebar && sidebar.classList.remove('toggled');
+    };
 
-        const openSidebar = () => {
-            resetLegacyToggle();
-            sidebar && sidebar.classList.add('is-open');
-            backdrop && backdrop.classList.add('active');
-            body.classList.add('sidebar-mobile-open');
-            mobileToggle && mobileToggle.setAttribute('aria-expanded', 'true');
-            updateMobileIcon(true);
-        };
+    const openSidebar = () => {
+        resetLegacyToggle();
+        sidebar && sidebar.classList.add('is-open');
+        backdrop && backdrop.classList.add('active');
+        body.classList.add('sidebar-mobile-open');
+        mobileToggle && mobileToggle.setAttribute('aria-expanded', 'true');
+        updateMobileIcon(true);
+    };
 
-        const closeSidebar = () => {
-            resetLegacyToggle();
-            sidebar && sidebar.classList.remove('is-open');
-            backdrop && backdrop.classList.remove('active');
-            body.classList.remove('sidebar-mobile-open');
-            mobileToggle && mobileToggle.setAttribute('aria-expanded', 'false');
-            updateMobileIcon(false);
-        };
+    const closeSidebar = () => {
+        resetLegacyToggle();
+        sidebar && sidebar.classList.remove('is-open');
+        backdrop && backdrop.classList.remove('active');
+        body.classList.remove('sidebar-mobile-open');
+        mobileToggle && mobileToggle.setAttribute('aria-expanded', 'false');
+        updateMobileIcon(false);
+    };
 
-        const setToggleOffset = () => {
-            if (!mobileToggle) return;
-            const offset = (topbar ? topbar.offsetHeight + 12 : 16);
-            mobileToggle.style.top = offset + 'px';
-        };
+    const setToggleOffset = () => {
+        if (!mobileToggle) return;
+        const offset = (topbar ? topbar.offsetHeight + 12 : 16);
+        mobileToggle.style.top = offset + 'px';
+    };
 
-        const handleResize = () => {
-            if (window.innerWidth >= breakpoint) {
-                closeSidebar();
-            }
-            setToggleOffset();
-        };
-
-        handleResize();
-        setToggleOffset();
-        window.addEventListener('resize', handleResize);
-
-        if (mobileToggle) {
-            mobileToggle.addEventListener('click', function () {
-                if (sidebar && sidebar.classList.contains('is-open')) {
-                    closeSidebar();
-                } else {
-                    openSidebar();
-                }
-            });
+    const handleResize = () => {
+        if (window.innerWidth >= breakpoint) {
+            closeSidebar();
         }
+        setToggleOffset();
+    };
 
-        backdrop && backdrop.addEventListener('click', closeSidebar);
+    handleResize();
+    setToggleOffset();
+    window.addEventListener('resize', handleResize);
 
-        const attachHijack = (btn, toggleBehavior = false) => {
-            if (!btn) return;
-            btn.addEventListener('click', function (event) {
-                if (window.innerWidth < breakpoint) {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                    if (toggleBehavior && sidebar && sidebar.classList.contains('is-open')) {
-                        closeSidebar();
-                    } else if (toggleBehavior) {
-                        openSidebar();
-                    } else {
-                        closeSidebar();
-                    }
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', function () {
+            if (sidebar && sidebar.classList.contains('is-open')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+    }
+
+    backdrop && backdrop.addEventListener('click', closeSidebar);
+
+    const attachHijack = (btn, toggleBehavior = false) => {
+        if (!btn) return;
+        btn.addEventListener('click', function (event) {
+            if (window.innerWidth < breakpoint) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                if (toggleBehavior && sidebar && sidebar.classList.contains('is-open')) {
+                    closeSidebar();
+                } else if (toggleBehavior) {
+                    openSidebar();
+                } else {
+                    closeSidebar();
                 }
-            }, true);
-        };
+            }
+        }, true);
+    };
 
-        attachHijack(desktopToggle);
-        attachHijack(topToggle, true);
-    });
+    attachHijack(desktopToggle);
+    attachHijack(topToggle, true);
+});
 </script>
