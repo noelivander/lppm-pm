@@ -56,7 +56,7 @@
                             <td>{{ $key+1 }}</td>
                             <td>
                                 @if($value->kode)
-                                    <span class="badge bg-primary">{{ $value->kode }}</span>
+                                    <span class="status-badge kode">{{ $value->kode }}</span>
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
