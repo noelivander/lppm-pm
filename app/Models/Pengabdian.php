@@ -25,5 +25,15 @@ class Pengabdian extends Model
         return $this->hasMany(Review::class, 'pengabdian_id');
     }
 
+    public function anggota()
+    {
+        return $this->hasMany(Anggota_pengabdian::class);
+    }
+
+    public function rab()
+    {
+        return $this->hasMany(RabPengabdian::class);
+    }
+
 }
 

@@ -28,5 +28,10 @@ class Penelitian extends Model
         return $this->hasMany(Review::class, 'penelitian_id');
     }
 
+    public function rab()
+    {
+        return $this->hasMany(RabPenelitian::class);
+    }
+
 }
 

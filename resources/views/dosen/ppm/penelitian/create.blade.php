@@ -3,6 +3,24 @@
         {{ __('Penelitian') }}
     </x-slot>
 
+    @php
+        $rabKelompokOptions = [
+            'Honorarium' => 'Honorarium',
+            'Perjalanan' => 'Perjalanan',
+            'Operasional' => 'Operasional',
+            'Peralatan' => 'Peralatan',
+            'Lainnya' => 'Lainnya',
+        ];
+
+        $rabKomponenOptions = [
+            'SDM' => 'Sumber Daya Manusia',
+            'Material' => 'Material / Bahan',
+            'Jasa' => 'Jasa / Konsultan',
+            'Transportasi' => 'Transportasi',
+            'Lainnya' => 'Lainnya',
+        ];
+    @endphp
+
     <div class="container-fluid pb-5">
         <div class="row">
             <div class="col-md-12">
@@ -151,6 +169,87 @@
                                         </div>
                                     </div>
 
+                                <div class="mt-4">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                                        <h4 class="mb-0">
+                                            <i class="fa fa-coins me-2"></i>Rencana Anggaran Biaya
+                                        </h4>
+                                        <button type="button" class="modern-btn modern-btn-secondary" id="addRabRow">
+                                            <i class="fa fa-plus me-2"></i>Tambah Baris RAB
+                                        </button>
+                                    </div>
+
+                                    <div class="modern-table-container">
+                                        <table class="modern-table" id="rabTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Kelompok RAB</th>
+                                                    <th>Komponen</th>
+                                                    <th>Item</th>
+                                                    <th>Satuan</th>
+                                                    <th>Volume</th>
+                                                    <th>Harga Satuan</th>
+                                                    <th>Total</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="6" class="text-end fw-bold">Total Anggaran</td>
+                                                    <td class="text-end">
+                                                        <span id="rabGrandTotal">Rp 0</span>
+                                                        <input type="hidden" name="rab_total_anggaran" id="rabGrandTotalInput" value="0">
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+
+                                    <template id="rabRowTemplate">
+                                        <tr>
+                                            <td>
+                                                <select name="rab_kelompok[]" class="modern-form-select" required>
+                                                    <option value="" disabled selected>Pilih kelompok...</option>
+                                                    @foreach($rabKelompokOptions as $value => $label)
+                                                        <option value="{{ $value }}">{{ $label }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select name="rab_komponen[]" class="modern-form-select" required>
+                                                    <option value="" disabled selected>Pilih komponen...</option>
+                                                    @foreach($rabKomponenOptions as $value => $label)
+                                                        <option value="{{ $value }}">{{ $label }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="rab_item[]" class="modern-form-input" placeholder="Nama item" required>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="rab_satuan[]" class="modern-form-input" placeholder="pcs/buah/OK" required>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="rab_volume[]" class="modern-form-input rab-volume" inputmode="numeric" placeholder="0" required>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="rab_harga_satuan[]" class="modern-form-input rab-harga" inputmode="numeric" placeholder="0" required>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="fw-bold rab-row-total">Rp 0</span>
+                                                <input type="hidden" name="rab_total[]" class="rab-total-value" value="0">
+                                            </td>
+                                            <td>
+                                                <button type="button" class="modern-btn modern-btn-danger modern-btn-sm remove-rab-row">
+                                                    <i class="fa fa-trash me-1"></i>Hapus
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </div><br>
+
                                     <div class="mt-4">
                                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                                             <h4 class="mb-0"><i class="fa fa-users me-2"></i>Tim Peneliti</h4>
@@ -175,7 +274,7 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                    </div>
+                                    </div><br>
                                 </div>
                             </fieldset>
 
@@ -228,6 +327,11 @@
         const form = document.querySelector('form');
         const anggotaTableBody = document.querySelector('#anggotaTable tbody');
         const submitButton = document.getElementById('submitProposal');
+        const rabTableBody = document.querySelector('#rabTable tbody');
+        const rabTemplate = document.getElementById('rabRowTemplate');
+        const rabAddBtn = document.getElementById('addRabRow');
+        const rabGrandTotalDisplay = document.getElementById('rabGrandTotal');
+        const rabGrandTotalInput = document.getElementById('rabGrandTotalInput');
 
         function updateWordCount() {
             const words = ringkasanInput.value.trim().split(/\s+/).filter(Boolean);
@@ -239,6 +343,90 @@
 
         function restrictNumberInput(event) {
             event.target.value = event.target.value.replace(/[^0-9]/g, '');
+        }
+
+        function sanitizeNumber(value) {
+            return parseInt((value || '').toString().replace(/[^0-9]/g, ''), 10) || 0;
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
+            }).format(value || 0);
+        }
+
+        function updateRabRowTotal(row) {
+            if (!row) {
+                return;
+            }
+
+            const volumeInput = row.querySelector('.rab-volume');
+            const hargaInput = row.querySelector('.rab-harga');
+            const totalDisplay = row.querySelector('.rab-row-total');
+            const totalInput = row.querySelector('.rab-total-value');
+
+            const volume = sanitizeNumber(volumeInput?.value);
+            const harga = sanitizeNumber(hargaInput?.value);
+            const total = volume * harga;
+
+            if (totalDisplay) {
+                totalDisplay.textContent = formatCurrency(total);
+            }
+            if (totalInput) {
+                totalInput.value = total;
+            }
+
+            updateRabGrandTotal();
+        }
+
+        function updateRabGrandTotal() {
+            const totals = Array.from(document.querySelectorAll('.rab-total-value')).map((input) => sanitizeNumber(input.value));
+            const sum = totals.reduce((acc, value) => acc + value, 0);
+            if (rabGrandTotalDisplay) {
+                rabGrandTotalDisplay.textContent = formatCurrency(sum);
+            }
+            if (rabGrandTotalInput) {
+                rabGrandTotalInput.value = sum;
+            }
+        }
+
+        function addRabRow() {
+            if (!rabTemplate || !rabTableBody) {
+                return;
+            }
+
+            const clone = rabTemplate.content.firstElementChild.cloneNode(true);
+            const volumeInput = clone.querySelector('.rab-volume');
+            const hargaInput = clone.querySelector('.rab-harga');
+            const removeBtn = clone.querySelector('.remove-rab-row');
+
+            if (volumeInput) {
+                volumeInput.addEventListener('input', (event) => {
+                    restrictNumberInput(event);
+                    updateRabRowTotal(clone);
+                });
+            }
+
+            if (hargaInput) {
+                hargaInput.addEventListener('input', (event) => {
+                    restrictNumberInput(event);
+                    updateRabRowTotal(clone);
+                });
+            }
+
+            if (removeBtn) {
+                removeBtn.addEventListener('click', () => {
+                    clone.remove();
+                    updateRabGrandTotal();
+                    validateForm();
+                });
+            }
+
+            rabTableBody.appendChild(clone);
+            updateRabRowTotal(clone);
+            validateForm();
         }
 
         function toggleSintaOptions(event) {
@@ -299,25 +487,137 @@
         }
 
         function validateForm() {
-            if (!form) {
+            if (!form || !submitButton) {
                 return;
             }
 
-            const hasMember = anggotaTableBody.children.length > 0;
-            const formValid = form.checkValidity() && hasMember;
-            submitButton.disabled = !formValid || submitButton.hasAttribute('disabled');
+            // Check if upload is open (from server-side)
+            const uploadOpen = @json($uploadOpen ?? false);
+            
+            // Check if form has required elements
+            const hasMember = anggotaTableBody && anggotaTableBody.children.length > 0;
+            const hasRabRow = rabTableBody && rabTableBody.children.length > 0;
+            
+            // Validate anggota rows - check if at least one row is completely filled
+            let anggotaValid = false;
+            if (hasMember) {
+                const anggotaRows = anggotaTableBody.querySelectorAll('tr');
+                for (let row of anggotaRows) {
+                    const nama = row.querySelector('input[name="anggota_nama[]"]');
+                    const peran = row.querySelector('select[name="anggota_peran[]"]');
+                    const jabatan = row.querySelector('select[name="anggota_jabatan[]"]');
+                    const nidn = row.querySelector('input[name="anggota_nidn[]"]');
+                    const email = row.querySelector('input[name="anggota_email[]"]');
+                    const telepon = row.querySelector('input[name="anggota_telepon[]"]');
+                    
+                    // Check if this row is completely filled
+                    const isRowComplete = 
+                        nama && nama.value.trim() &&
+                        peran && peran.value &&
+                        jabatan && jabatan.value &&
+                        nidn && nidn.value.trim() &&
+                        email && email.value.trim() && email.validity.valid &&
+                        telepon && telepon.value.trim();
+                    
+                    if (isRowComplete) {
+                        anggotaValid = true;
+                        break; // At least one row is valid
+                    }
+                }
+            }
+            
+            // Validate RAB rows - check if at least one row is completely filled
+            let rabRowsValid = false;
+            if (hasRabRow) {
+                const rabRows = rabTableBody.querySelectorAll('tr');
+                for (let row of rabRows) {
+                    const kelompok = row.querySelector('select[name="rab_kelompok[]"]');
+                    const komponen = row.querySelector('select[name="rab_komponen[]"]');
+                    const item = row.querySelector('input[name="rab_item[]"]');
+                    const satuan = row.querySelector('input[name="rab_satuan[]"]');
+                    const volume = row.querySelector('input[name="rab_volume[]"]');
+                    const harga = row.querySelector('input[name="rab_harga_satuan[]"]');
+                    
+                    // Check if this row is completely filled
+                    const isRowComplete = 
+                        kelompok && kelompok.value &&
+                        komponen && komponen.value &&
+                        item && item.value.trim() &&
+                        satuan && satuan.value.trim() &&
+                        volume && volume.value && parseInt(volume.value) > 0 &&
+                        harga && harga.value && parseFloat(harga.value) >= 0;
+                    
+                    if (isRowComplete) {
+                        rabRowsValid = true;
+                        break; // At least one row is valid
+                    }
+                }
+            }
+            
+            // Check basic form fields manually
+            const judul = document.getElementById('judul');
+            const skema = document.getElementById('skema');
+            const luaranWajib = document.getElementById('luaran_wajib');
+            const lamaPenelitian = document.getElementById('lama_penelitian');
+            const biayaDiusulkan = document.getElementById('biaya_diusulkan');
+            const ringkasanProposal = document.getElementById('ringkasan_proposal');
+            const dokumenProposal = document.getElementById('dokumen_proposal');
+            
+            const basicFieldsValid = 
+                judul && judul.value.trim() &&
+                skema && skema.value &&
+                luaranWajib && luaranWajib.value &&
+                lamaPenelitian && lamaPenelitian.value.trim() &&
+                biayaDiusulkan && biayaDiusulkan.value.trim() &&
+                ringkasanProposal && ringkasanProposal.value.trim() &&
+                dokumenProposal && dokumenProposal.files.length > 0;
+            
+            // Check if sinta_index is required and filled
+            let sintaValid = true;
+            const sintaOptions = document.getElementById('sintaOptions');
+            const sintaIndex = document.getElementById('sinta_index');
+            if (sintaOptions && sintaOptions.style.display !== 'none') {
+                sintaValid = sintaIndex && sintaIndex.value;
+            }
+            
+            // Final validation
+            const isValid = uploadOpen && basicFieldsValid && anggotaValid && rabRowsValid && sintaValid;
+            
+            // Only enable button if everything is valid and upload is open
+            submitButton.disabled = !isValid;
         }
 
         ringkasanInput.addEventListener('input', updateWordCount);
         biayaInput.addEventListener('input', restrictNumberInput);
         document.getElementById('luaran_wajib').addEventListener('change', toggleSintaOptions);
         document.getElementById('addAnggota').addEventListener('click', addAnggotaRow);
+        if (rabAddBtn) {
+            rabAddBtn.addEventListener('click', addRabRow);
+        }
+
         form.addEventListener('input', validateForm);
+        form.addEventListener('change', validateForm);
+        
+        // Also validate when file is selected
+        const dokumenProposalInput = document.getElementById('dokumen_proposal');
+        if (dokumenProposalInput) {
+            dokumenProposalInput.addEventListener('change', validateForm);
+        }
+        
+        // Also validate when select/input changes in RAB or anggota tables
+        document.addEventListener('change', function(e) {
+            if (e.target.matches('select[name^="rab_"], input[name^="rab_"], select[name^="anggota_"], input[name^="anggota_"]')) {
+                validateForm();
+            }
+        });
 
         window.addEventListener('load', function () {
             addAnggotaRow();
+            addRabRow();
             updateWordCount();
-            validateForm();
+            
+            // Delay validation slightly to ensure DOM is fully ready
+            setTimeout(validateForm, 100);
         });
     </script>
 </x-dosen-layout>
