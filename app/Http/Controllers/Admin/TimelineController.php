@@ -8,45 +8,14 @@ use Illuminate\Http\Request;
 
 class TimelineController extends Controller
 {
-    /**
-     * Display a listing of timelines grouped by period
-     */
-    public function index(Request $request)
+    public function create()
     {
-        $selectedPeriod = $request->get('period');
-        $periods = Timeline::getAllPeriods();
-        
-        // If no period selected, use the latest period
-        if (!$selectedPeriod && $periods->isNotEmpty()) {
-            $selectedPeriod = $periods->first();
-        }
-        
-        $timelines = Timeline::when($selectedPeriod, function($query) use ($selectedPeriod) {
-                return $query->byPeriod($selectedPeriod);
-            })
-            ->ordered()
-            ->get();
-        
-        return view('admin.timeline.index', compact('timelines', 'periods', 'selectedPeriod'));
+        return view('admin.timeline.create'); // Create a view for setting the timeline
     }
 
-    /**
-     * Show the form for creating a new timeline
-     */
-    public function create(Request $request)
-    {
-        $period = $request->get('period');
-        $periods = Timeline::getAllPeriods();
-        
-        return view('admin.timeline.create', compact('period', 'periods'));
-    }
-
-    /**
-     * Store a newly created timeline
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'period' => 'required|digits:4',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -56,53 +25,43 @@ class TimelineController extends Controller
             // Review Proposal
             'review_start_date' => 'required|date|after_or_equal:upload_end_date',
             'review_end_date' => 'required|date|after_or_equal:review_start_date',
-            // Revisi Proposal
-            'revisi_proposal_start_date' => 'nullable|date|after_or_equal:review_end_date',
-            'revisi_proposal_end_date' => 'nullable|date|after_or_equal:revisi_proposal_start_date',
-            // Laporan Kemajuan
-            'laporan_kemajuan_start_date' => 'nullable|date',
-            'laporan_kemajuan_end_date' => 'nullable|date|after_or_equal:laporan_kemajuan_start_date',
-            'laporan_kemajuan_review_start_date' => 'nullable|date|after_or_equal:laporan_kemajuan_end_date',
-            'laporan_kemajuan_review_end_date' => 'nullable|date|after_or_equal:laporan_kemajuan_review_start_date',
-            // Laporan Akhir
-            'laporan_akhir_start_date' => 'nullable|date',
-            'laporan_akhir_end_date' => 'nullable|date|after_or_equal:laporan_akhir_start_date',
-            'laporan_akhir_review_start_date' => 'nullable|date|after_or_equal:laporan_akhir_end_date',
-            'laporan_akhir_review_end_date' => 'nullable|date|after_or_equal:laporan_akhir_review_start_date',
-            'is_active' => 'boolean',
+            'revision_start_date' => 'required|date|after_or_equal:review_end_date',
+            'revision_end_date' => 'required|date|after_or_equal:revision_start_date',
+            'progress_submission_start_date' => 'required|date|after_or_equal:revision_end_date',
+            'progress_submission_end_date' => 'required|date|after_or_equal:progress_submission_start_date',
+            'progress_review_start_date' => 'required|date|after_or_equal:progress_submission_end_date',
+            'progress_review_end_date' => 'required|date|after_or_equal:progress_review_start_date',
+            'final_submission_start_date' => 'required|date|after_or_equal:progress_review_end_date',
+            'final_submission_end_date' => 'required|date|after_or_equal:final_submission_start_date',
+            'final_review_start_date' => 'required|date|after_or_equal:final_submission_end_date',
+            'final_review_end_date' => 'required|date|after_or_equal:final_review_start_date',
+            'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
         ]);
 
-        // Set default values
-        $validated['is_active'] = $request->has('is_active');
-        $validated['order'] = $validated['order'] ?? 0;
+        Timeline::create($request->all());
 
-        Timeline::create($validated);
-
-        return redirect()
-            ->route('admin.timeline.index', ['period' => $validated['period']])
-            ->with('success', 'Timeline berhasil ditambahkan!');
+        return redirect()->route('timeline.index')->with('success', 'Timeline berhasil dibuat.');
     }
 
-    /**
-     * Show the form for editing the specified timeline
-     */
+    public function index()
+    {
+        $timelines = Timeline::orderBy('period', 'desc')
+            ->orderBy('order', 'asc')
+            ->orderBy('upload_start_date', 'asc')
+            ->get();
+        
+        return view('admin.timeline.index', compact('timelines'));
+    }
     public function edit($id)
     {
         $timeline = Timeline::findOrFail($id);
-        $periods = Timeline::getAllPeriods();
-        
-        return view('admin.timeline.edit', compact('timeline', 'periods'));
+        return view('admin.timeline.edit', compact('timeline'));
     }
 
-    /**
-     * Update the specified timeline
-     */
     public function update(Request $request, $id)
     {
-        $timeline = Timeline::findOrFail($id);
-        
-        $validated = $request->validate([
+        $request->validate([
             'period' => 'required|digits:4',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -112,61 +71,31 @@ class TimelineController extends Controller
             // Review Proposal
             'review_start_date' => 'required|date|after_or_equal:upload_end_date',
             'review_end_date' => 'required|date|after_or_equal:review_start_date',
-            // Revisi Proposal
-            'revisi_proposal_start_date' => 'nullable|date|after_or_equal:review_end_date',
-            'revisi_proposal_end_date' => 'nullable|date|after_or_equal:revisi_proposal_start_date',
-            // Laporan Kemajuan
-            'laporan_kemajuan_start_date' => 'nullable|date',
-            'laporan_kemajuan_end_date' => 'nullable|date|after_or_equal:laporan_kemajuan_start_date',
-            'laporan_kemajuan_review_start_date' => 'nullable|date|after_or_equal:laporan_kemajuan_end_date',
-            'laporan_kemajuan_review_end_date' => 'nullable|date|after_or_equal:laporan_kemajuan_review_start_date',
-            // Laporan Akhir
-            'laporan_akhir_start_date' => 'nullable|date',
-            'laporan_akhir_end_date' => 'nullable|date|after_or_equal:laporan_akhir_start_date',
-            'laporan_akhir_review_start_date' => 'nullable|date|after_or_equal:laporan_akhir_end_date',
-            'laporan_akhir_review_end_date' => 'nullable|date|after_or_equal:laporan_akhir_review_start_date',
-            'is_active' => 'boolean',
+            'revision_start_date' => 'required|date|after_or_equal:review_end_date',
+            'revision_end_date' => 'required|date|after_or_equal:revision_start_date',
+            'progress_submission_start_date' => 'required|date|after_or_equal:revision_end_date',
+            'progress_submission_end_date' => 'required|date|after_or_equal:progress_submission_start_date',
+            'progress_review_start_date' => 'required|date|after_or_equal:progress_submission_end_date',
+            'progress_review_end_date' => 'required|date|after_or_equal:progress_review_start_date',
+            'final_submission_start_date' => 'required|date|after_or_equal:progress_review_end_date',
+            'final_submission_end_date' => 'required|date|after_or_equal:final_submission_start_date',
+            'final_review_start_date' => 'required|date|after_or_equal:final_submission_end_date',
+            'final_review_end_date' => 'required|date|after_or_equal:final_review_start_date',
+            'is_active' => 'nullable|boolean',
             'order' => 'nullable|integer',
         ]);
 
-        // Set default values
-        $validated['is_active'] = $request->has('is_active');
-        $validated['order'] = $validated['order'] ?? $timeline->order;
+        $timeline = Timeline::findOrFail($id);
+        $timeline->update($request->all());
 
-        $timeline->update($validated);
-
-        return redirect()
-            ->route('admin.timeline.index', ['period' => $validated['period']])
-            ->with('success', 'Timeline berhasil diperbarui!');
+        return redirect()->route('timeline.index')->with('success', 'Timeline berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified timeline
-     */
     public function destroy($id)
     {
         $timeline = Timeline::findOrFail($id);
-        $period = $timeline->period;
         $timeline->delete();
 
-        return redirect()
-            ->route('admin.timeline.index', ['period' => $period])
-            ->with('success', 'Timeline berhasil dihapus!');
-    }
-
-    /**
-     * Toggle timeline active status
-     */
-    public function toggleActive($id)
-    {
-        $timeline = Timeline::findOrFail($id);
-        $timeline->is_active = !$timeline->is_active;
-        $timeline->save();
-
-        return response()->json([
-            'success' => true,
-            'is_active' => $timeline->is_active,
-            'message' => 'Status timeline berhasil diubah!'
-        ]);
+        return redirect()->route('timeline.index')->with('success', 'Timeline deleted successfully.');
     }
 }

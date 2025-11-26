@@ -1,447 +1,407 @@
 <x-admin-layout>
-    <div class="container-fluid px-4 py-4">
-        <!-- Header -->
-        <div class="mb-4">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('admin.timeline.index') }}">Timeline Management</a></li>
-                    <li class="breadcrumb-item active">Tambah Timeline</li>
-                </ol>
-            </nav>
-            <h1 class="h3 mb-2 text-gray-800 fw-bold">
-                <i class="fas fa-plus-circle text-primary me-2"></i>
-                Tambah Timeline Baru
-            </h1>
-            <p class="text-muted">Buat jadwal timeline untuk tahun berjalan</p>
-        </div>
+    <x-slot name="header">
+        {{ __('Buat Timeline') }}
+    </x-slot>
 
+    <div class="container-fluid pb-5">
         <div class="row">
-            <div class="col-xl-8 col-lg-10 mx-auto">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-gradient-primary text-white border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            Informasi Timeline
-                        </h5>
+            <div class="col-md-12">
+                <div class="modern-card fade-in-up">
+                    <div class="modern-card-header d-flex align-items-center justify-content-between">
+                        <h4 class="mb-0"><i class="fa fa-calendar-plus me-2"></i>Buat Timeline</h4>
+                        <a href="{{ route('timeline.index') }}" class="modern-btn modern-btn-secondary">
+                            <i class="fa fa-arrow-left me-2"></i>Kembali
+                        </a>
                     </div>
-                    <div class="card-body p-4">
-                        <form action="{{ route('admin.timeline.store') }}" method="POST" id="timelineForm">
-                            @csrf
-
-                            <!-- Period and Title -->
+                    <form method="POST" action="{{ route('timeline.store') }}" onsubmit="return validateTimeline()">
+                @csrf
+                        <div class="modern-card-body">
                             <div class="row mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">
-                                        <i class="fas fa-calendar-check text-primary me-2"></i>
-                                        Tahun Timeline <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" 
-                                           name="period" 
-                                           class="form-control form-control-lg @error('period') is-invalid @enderror" 
-                                           value="{{ old('period', $period ?? '') }}" 
-                                           placeholder="Contoh: 2025"
-                                           required>
-                                    @error('period')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <div class="form-text">Masukkan satu tahun (4 digit), contoh: 2025</div>
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="period"><i class="fa fa-calendar-alt me-2"></i>Periode (Tahun) <span class="text-danger">*</span></label>
+                                        <input type="number" name="period" id="period" class="modern-form-input" value="{{ old('period') }}" placeholder="2025" required min="1900" max="2999" step="1" inputmode="numeric">
+                                        <small class="text-muted">Masukkan tahun periode timeline (contoh: 2025). Hanya angka diperbolehkan.</small>
+                                        @error('period')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">
-                                        <i class="fas fa-tag text-primary me-2"></i>
-                                        Judul Timeline <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" 
-                                           name="title" 
-                                           class="form-control form-control-lg @error('title') is-invalid @enderror" 
-                                           value="{{ old('title') }}" 
-                                           placeholder="Contoh: Proposal Submission"
-                                           required>
-                                    @error('title')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="title"><i class="fa fa-tag me-2"></i>Judul <span class="text-danger">*</span></label>
+                                        <input type="text" name="title" id="title" class="modern-form-input" value="{{ old('title') }}" placeholder="Misal: Timeline Penelitian 2025" required>
+                                        @error('title')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Description -->
-                            <div class="mb-4">
-                                <label class="form-label fw-semibold">
-                                    <i class="fas fa-align-left text-primary me-2"></i>
-                                    Deskripsi <span class="text-muted">(Opsional)</span>
-                                </label>
-                                <textarea name="description" 
-                                          class="form-control @error('description') is-invalid @enderror" 
-                                          rows="3" 
-                                          placeholder="Deskripsi singkat tentang timeline ini...">{{ old('description') }}</textarea>
+                            <div class="modern-form-group mb-4">
+                                <label class="modern-form-label" for="description"><i class="fa fa-align-left me-2"></i>Deskripsi</label>
+                                <textarea name="description" id="description" class="modern-form-input" rows="3" placeholder="Deskripsi timeline (opsional)">{{ old('description') }}</textarea>
                                 @error('description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <hr class="my-4">
 
-                            <!-- Upload Period -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold text-gray-800 mb-3">
-                                    <i class="fas fa-upload text-primary me-2"></i>
-                                    Periode Upload
-                                </h6>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Tanggal & Waktu Mulai <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="upload_start_date" 
-                                               id="upload_start_date"
-                                               class="form-control form-control-lg @error('upload_start_date') is-invalid @enderror" 
-                                               value="{{ old('upload_start_date') }}"
-                                               required>
-                                        @error('upload_start_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Tanggal & Waktu Selesai <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="upload_end_date" 
-                                               id="upload_end_date"
-                                               class="form-control form-control-lg @error('upload_end_date') is-invalid @enderror" 
-                                               value="{{ old('upload_end_date') }}"
-                                               required>
-                                        @error('upload_end_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Review Period -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold text-gray-800 mb-3">
-                                    <i class="fas fa-clipboard-check text-warning me-2"></i>
-                                    Periode Review
-                                </h6>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Tanggal & Waktu Mulai <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="review_start_date" 
-                                               id="review_start_date"
-                                               class="form-control form-control-lg @error('review_start_date') is-invalid @enderror" 
-                                               value="{{ old('review_start_date') }}"
-                                               required>
-                                        @error('review_start_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Tanggal & Waktu Selesai <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="review_end_date" 
-                                               id="review_end_date"
-                                               class="form-control form-control-lg @error('review_end_date') is-invalid @enderror" 
-                                               value="{{ old('review_end_date') }}"
-                                               required>
-                                        @error('review_end_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Revisi Proposal Period -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold text-gray-800 mb-3">
-                                    <i class="fas fa-redo text-secondary me-2"></i>
-                                    Periode Revisi Proposal <span class="text-muted small">(Opsional)</span>
-                                </h6>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Tanggal & Waktu Mulai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="revisi_proposal_start_date" 
-                                               id="revisi_proposal_start_date"
-                                               class="form-control form-control-lg @error('revisi_proposal_start_date') is-invalid @enderror" 
-                                               value="{{ old('revisi_proposal_start_date') }}">
-                                        @error('revisi_proposal_start_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Tanggal & Waktu Selesai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="revisi_proposal_end_date" 
-                                               id="revisi_proposal_end_date"
-                                               class="form-control form-control-lg @error('revisi_proposal_end_date') is-invalid @enderror" 
-                                               value="{{ old('revisi_proposal_end_date') }}">
-                                        @error('revisi_proposal_end_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr class="my-4">
-
-                            <!-- Laporan Kemajuan Period -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold text-gray-800 mb-3">
-                                    <i class="fas fa-chart-line text-success me-2"></i>
-                                    Periode Laporan Kemajuan <span class="text-muted small">(Opsional)</span>
-                                </h6>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Upload Mulai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="laporan_kemajuan_start_date" 
-                                               id="laporan_kemajuan_start_date"
-                                               class="form-control form-control-lg @error('laporan_kemajuan_start_date') is-invalid @enderror" 
-                                               value="{{ old('laporan_kemajuan_start_date') }}">
-                                        @error('laporan_kemajuan_start_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Upload Selesai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="laporan_kemajuan_end_date" 
-                                               id="laporan_kemajuan_end_date"
-                                               class="form-control form-control-lg @error('laporan_kemajuan_end_date') is-invalid @enderror" 
-                                               value="{{ old('laporan_kemajuan_end_date') }}">
-                                        @error('laporan_kemajuan_end_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Review Mulai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="laporan_kemajuan_review_start_date" 
-                                               id="laporan_kemajuan_review_start_date"
-                                               class="form-control form-control-lg @error('laporan_kemajuan_review_start_date') is-invalid @enderror" 
-                                               value="{{ old('laporan_kemajuan_review_start_date') }}">
-                                        @error('laporan_kemajuan_review_start_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Review Selesai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="laporan_kemajuan_review_end_date" 
-                                               id="laporan_kemajuan_review_end_date"
-                                               class="form-control form-control-lg @error('laporan_kemajuan_review_end_date') is-invalid @enderror" 
-                                               value="{{ old('laporan_kemajuan_review_end_date') }}">
-                                        @error('laporan_kemajuan_review_end_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Laporan Akhir Period -->
-                            <div class="mb-4">
-                                <h6 class="fw-bold text-gray-800 mb-3">
-                                    <i class="fas fa-flag-checkered text-danger me-2"></i>
-                                    Periode Laporan Akhir <span class="text-muted small">(Opsional)</span>
-                                </h6>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Upload Mulai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="laporan_akhir_start_date" 
-                                               id="laporan_akhir_start_date"
-                                               class="form-control form-control-lg @error('laporan_akhir_start_date') is-invalid @enderror" 
-                                               value="{{ old('laporan_akhir_start_date') }}">
-                                        @error('laporan_akhir_start_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Upload Selesai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="laporan_akhir_end_date" 
-                                               id="laporan_akhir_end_date"
-                                               class="form-control form-control-lg @error('laporan_akhir_end_date') is-invalid @enderror" 
-                                               value="{{ old('laporan_akhir_end_date') }}">
-                                        @error('laporan_akhir_end_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Review Mulai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="laporan_akhir_review_start_date" 
-                                               id="laporan_akhir_review_start_date"
-                                               class="form-control form-control-lg @error('laporan_akhir_review_start_date') is-invalid @enderror" 
-                                               value="{{ old('laporan_akhir_review_start_date') }}">
-                                        @error('laporan_akhir_review_start_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-semibold">
-                                            Review Selesai
-                                        </label>
-                                        <input type="datetime-local" 
-                                               name="laporan_akhir_review_end_date" 
-                                               id="laporan_akhir_review_end_date"
-                                               class="form-control form-control-lg @error('laporan_akhir_review_end_date') is-invalid @enderror" 
-                                               value="{{ old('laporan_akhir_review_end_date') }}">
-                                        @error('laporan_akhir_review_end_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr class="my-4">
-
-                            <!-- Additional Settings -->
+                            <!-- 1. Periode Upload Proposal -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-upload me-2"></i>1. Periode Upload Proposal</h5>
                             <div class="row mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">
-                                        <i class="fas fa-sort text-primary me-2"></i>
-                                        Urutan <span class="text-muted">(Opsional)</span>
-                                    </label>
-                                    <input type="number" 
-                                           name="order" 
-                                           class="form-control @error('order') is-invalid @enderror" 
-                                           value="{{ old('order', 0) }}" 
-                                           min="0"
-                                           placeholder="0">
-                                    @error('order')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <div class="form-text">Urutan tampilan timeline (semakin kecil semakin atas)</div>
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="upload_start_date"></i>Upload Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="upload_start_date" id="upload_start_date" class="modern-form-input" value="{{ old('upload_start_date') }}" required>
+                                        @error('upload_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">
-                                        <i class="fas fa-toggle-on text-primary me-2"></i>
-                                        Status
-                                    </label>
-                                    <div class="form-check form-switch mt-2">
-                                        <input class="form-check-input" 
-                                               type="checkbox" 
-                                               name="is_active" 
-                                               id="is_active" 
-                                               {{ old('is_active', true) ? 'checked' : '' }}
-                                               style="width: 3rem; height: 1.5rem; cursor: pointer;">
-                                        <label class="form-check-label ms-2" for="is_active">
-                                            Timeline Aktif
-                                        </label>
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="upload_end_date"></i>Upload End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="upload_end_date" id="upload_end_date" class="modern-form-input" value="{{ old('upload_end_date') }}" required>
+                                        @error('upload_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    <div class="form-text">Timeline aktif akan ditampilkan kepada pengguna</div>
                                 </div>
                             </div>
 
-                            <!-- Action Buttons -->
-                            <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
-                                <a href="{{ route('admin.timeline.index', ['period' => $period ?? '']) }}" 
-                                   class="btn btn-lg btn-outline-secondary">
-                                    <i class="fas fa-times me-2"></i>Batal
-                                </a>
-                                <button type="submit" class="btn btn-lg btn-primary">
-                                    <i class="fas fa-save me-2"></i>Simpan Timeline
-                                </button>
+                            <!-- 2. Periode Review Proposal -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-clipboard-check me-2"></i>2. Periode Review Proposal</h5>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="review_start_date"></i>Review Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="review_start_date" id="review_start_date" class="modern-form-input" value="{{ old('review_start_date') }}" required>
+                                        @error('review_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="review_end_date"></i>Review End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="review_end_date" id="review_end_date" class="modern-form-input" value="{{ old('review_end_date') }}" required>
+                                        @error('review_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
-                        </form>
+
+                            <!-- 3. Periode Revisi Proposal -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-edit me-2"></i>3. Periode Revisi Proposal</h5>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="revision_start_date"></i>Revisi Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="revision_start_date" id="revision_start_date" class="modern-form-input" value="{{ old('revision_start_date') }}" required>
+                                        @error('revision_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="revision_end_date"></i>Revisi End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="revision_end_date" id="revision_end_date" class="modern-form-input" value="{{ old('revision_end_date') }}" required>
+                                        @error('revision_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Periode Laporan Kemajuan -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-chart-line me-2"></i>4. Periode Laporan Kemajuan</h5>
+                            <div class="row mb-3">
+                                <div class="col-12">
+                    
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="progress_submission_start_date"></i>Pengajuan Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="progress_submission_start_date" id="progress_submission_start_date" class="modern-form-input" value="{{ old('progress_submission_start_date') }}" required>
+                                        @error('progress_submission_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="progress_submission_end_date"></i>Pengajuan End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="progress_submission_end_date" id="progress_submission_end_date" class="modern-form-input" value="{{ old('progress_submission_end_date') }}" required>
+                                        @error('progress_submission_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                
+                    <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="progress_review_start_date"></i>Peninjauan Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="progress_review_start_date" id="progress_review_start_date" class="modern-form-input" value="{{ old('progress_review_start_date') }}" required>
+                                        @error('progress_review_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                    </div>
+                    <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="progress_review_end_date"></i>Peninjauan End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="progress_review_end_date" id="progress_review_end_date" class="modern-form-input" value="{{ old('progress_review_end_date') }}" required>
+                                        @error('progress_review_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                     </div>
                 </div>
 
-                <!-- Help Card -->
-                <div class="card border-0 shadow-sm mt-4 bg-light">
-                    <div class="card-body">
-                        <h6 class="fw-bold mb-3">
-                            <i class="fas fa-info-circle text-info me-2"></i>
-                            Panduan Pengisian
-                        </h6>
-                        <ul class="mb-0 small">
-                            <li class="mb-2"><strong>Tahun Timeline:</strong> Gunakan format tahun penuh (contoh: 2025)</li>
-                            <li class="mb-2"><strong>Judul Timeline:</strong> Nama deskriptif untuk timeline ini</li>
-                            <li class="mb-2"><strong>Periode Upload:</strong> Waktu dimana pengguna dapat mengupload proposal/laporan</li>
-                            <li class="mb-2"><strong>Periode Review:</strong> Waktu untuk proses review oleh reviewer</li>
-                            <li><strong>Urutan:</strong> Menentukan urutan tampilan (angka lebih kecil = tampil lebih atas)</li>
-                        </ul>
+                            <!-- 5. Periode Laporan Akhir -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-flag-checkered me-2"></i>5. Periode Laporan Akhir</h5>
+                            <div class="row mb-3">
+                                
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="final_submission_start_date"></i>Pengajuan Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="final_submission_start_date" id="final_submission_start_date" class="modern-form-input" value="{{ old('final_submission_start_date') }}" required>
+                                        @error('final_submission_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="final_submission_end_date"></i>Pengajuan End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="final_submission_end_date" id="final_submission_end_date" class="modern-form-input" value="{{ old('final_submission_end_date') }}" required>
+                                        @error('final_submission_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                
+                    <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="final_review_start_date"></i>Peninjauan Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="final_review_start_date" id="final_review_start_date" class="modern-form-input" value="{{ old('final_review_start_date') }}" required>
+                                        @error('final_review_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                     </div>
+                    <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="final_review_end_date"></i>Peninjauan End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="final_review_end_date" id="final_review_end_date" class="modern-form-input" value="{{ old('final_review_end_date') }}" required>
+                                        @error('final_review_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                    </div>
+                </div>
+
+                            <hr class="my-4">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <input type="hidden" name="is_active" value="0">
+                                        <label class="modern-form-label" for="is_active">
+                                            <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }} class="me-2">
+                                            Status Aktif
+                                        </label>
+                                    </div>
+                                </div>
+                                {{-- <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="order"><i class="fa fa-sort-numeric-down me-2"></i>Urutan</label>
+                                        <input type="number" name="order" id="order" class="modern-form-input" value="{{ old('order', 0) }}" min="0">
+                                        <small class="text-muted">Urutan tampil (0 = pertama)</small>
+                                    </div>
+                                </div> --}}
+                            </div>
+                        </div>
+                        <div class="modern-card-footer d-flex gap-2">
+                            <button type="submit" class="modern-btn modern-btn-success"><i class="fa fa-save me-1"></i>Simpan</button>
+                            <a href="{{ route('timeline.index') }}" class="modern-btn modern-btn-secondary"><i class="fa fa-times me-1"></i>Batal</a>
+                </div>
+            </form>
                 </div>
             </div>
         </div>
     </div>
 
-    @push('scripts')
+    <x-slot name="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @if ($errors->any())
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const errors = @json($errors->all());
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validasi Form Gagal',
+                        html: errors.map(err => `<div class="text-start">• ${err}</div>`).join('')
+                    });
+                });
+            </script>
+        @endif
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('timelineForm');
-            
-            form.addEventListener('submit', function(e) {
-                if (!validateTimeline()) {
-                    e.preventDefault();
-                }
+            const timelineFields = [
+                { start: 'upload_start_date', end: 'upload_end_date', name: 'Upload' },
+                { start: 'review_start_date', end: 'review_end_date', name: 'Review' },
+                { start: 'revision_start_date', end: 'revision_end_date', name: 'Revisi' },
+                { start: 'progress_submission_start_date', end: 'progress_submission_end_date', name: 'Laporan Kemajuan - Pengajuan' },
+                { start: 'progress_review_start_date', end: 'progress_review_end_date', name: 'Laporan Kemajuan - Peninjauan' },
+                { start: 'final_submission_start_date', end: 'final_submission_end_date', name: 'Laporan Akhir - Pengajuan' },
+                { start: 'final_review_start_date', end: 'final_review_end_date', name: 'Laporan Akhir - Peninjauan' },
+            ];
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const periodInput = document.getElementById('period');
+                const dateInputs = [...new Set(timelineFields.flatMap(field => [field.start, field.end]))]
+                    .map(id => document.getElementById(id))
+                    .filter(Boolean);
+
+                const getYearBounds = () => {
+                    if (!periodInput) return null;
+                    const year = parseInt(periodInput.value, 10);
+                    if (!Number.isInteger(year) || year < 1900 || year > 2999) return null;
+                    return {
+                        start: `${year}-01-01T00:00`,
+                        end: `${year}-12-31T23:59`
+                    };
+                };
+
+                const applyYearLimits = () => {
+                    const bounds = getYearBounds();
+                    dateInputs.forEach(input => {
+                        if (bounds) {
+                            input.min = bounds.start;
+                            input.max = bounds.end;
+                        } else {
+                            input.removeAttribute('min');
+                            input.removeAttribute('max');
+                        }
+                    });
+                };
+
+                const applySequentialConstraints = () => {
+                    const bounds = getYearBounds();
+                    let currentMin = bounds ? bounds.start : '';
+
+                    timelineFields.forEach(field => {
+                        const startInput = document.getElementById(field.start);
+                        const endInput = document.getElementById(field.end);
+                        if (!startInput || !endInput) return;
+
+                        if (currentMin) {
+                            startInput.min = currentMin;
+                        } else {
+                            startInput.removeAttribute('min');
+                        }
+                        if (bounds) {
+                            startInput.max = bounds.end;
+                        } else {
+                            startInput.removeAttribute('max');
+                        }
+
+                        const startValue = startInput.value;
+                        if (startValue) {
+                            endInput.min = startValue;
+                        } else if (currentMin) {
+                            endInput.min = currentMin;
+                        } else {
+                            endInput.removeAttribute('min');
+                        }
+                        if (bounds) {
+                            endInput.max = bounds.end;
+                        } else {
+                            endInput.removeAttribute('max');
+                        }
+
+                        const endValue = endInput.value;
+                        if (endValue) {
+                            currentMin = endValue;
+                        }
+                    });
+                };
+
+                const handlePeriodChange = () => {
+                    applyYearLimits();
+                    applySequentialConstraints();
+                };
+
+                periodInput && periodInput.addEventListener('input', handlePeriodChange);
+                dateInputs.forEach(input => {
+                    input.addEventListener('input', applySequentialConstraints);
+                });
+
+                handlePeriodChange();
             });
 
-            function validateTimeline() {
-                const uploadStart = new Date(document.getElementById('upload_start_date').value);
-                const uploadEnd = new Date(document.getElementById('upload_end_date').value);
-                const reviewStart = new Date(document.getElementById('review_start_date').value);
-                const reviewEnd = new Date(document.getElementById('review_end_date').value);
-
-                // Validate Upload Period
-                if (uploadEnd <= uploadStart) {
-                    alert('⚠️ Tanggal selesai upload harus lebih besar dari tanggal mulai upload!');
-                    return false;
-                }
-
-                // Validate Review Start after Upload End
-                if (reviewStart < uploadEnd) {
-                    alert('⚠️ Tanggal mulai review harus setelah tanggal selesai upload!');
-                    return false;
-                }
-
-                // Validate Review Period
-                if (reviewEnd <= reviewStart) {
-                    alert('⚠️ Tanggal selesai review harus lebih besar dari tanggal mulai review!');
-                    return false;
-                }
-
-                return true;
+            function showValidationError(message) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validasi Timeline',
+                    text: message
+                });
             }
 
-            // Auto-fill review start date when upload end date is set
-            document.getElementById('upload_end_date').addEventListener('change', function() {
-                const uploadEnd = new Date(this.value);
-                const reviewStart = document.getElementById('review_start_date');
-                
-                if (!reviewStart.value) {
-                    // Set review start to 1 day after upload end
-                    uploadEnd.setDate(uploadEnd.getDate() + 1);
-                    reviewStart.value = uploadEnd.toISOString().slice(0, 16);
+        function validateTimeline() {
+                const periodInput = document.getElementById('period');
+                if (periodInput) {
+                    const periodValue = periodInput.value.trim();
+                    const periodNumber = parseInt(periodValue, 10);
+                    if (!/^\d{4}$/.test(periodValue) || periodNumber < 1900 || periodNumber > 2999) {
+                        showValidationError('Periode harus berupa 4 digit angka antara 1900 dan 2999.');
+                        return false;
+                    }
                 }
-            });
-        });
+
+                let prevEnd = null;
+
+                for (let i = 0; i < timelineFields.length; i++) {
+                    const field = timelineFields[i];
+                    const startInput = document.getElementById(field.start);
+                    const endInput = document.getElementById(field.end);
+
+                    if (!startInput || !endInput) continue;
+
+                    const startValue = startInput.value;
+                    const endValue = endInput.value;
+
+                    if (!startValue || !endValue) {
+                        showValidationError(`${field.name}: Start dan End harus diisi.`);
+                        return false;
+                    }
+
+                    const start = new Date(startValue);
+                    const end = new Date(endValue);
+
+                    if (end <= start) {
+                        showValidationError(`${field.name}: End Date & Time harus lebih besar dari Start Date & Time.`);
+                        return false;
+                    }
+
+                    if (prevEnd && start <= prevEnd) {
+                        showValidationError(`${field.name}: Start Date & Time harus lebih besar dari periode sebelumnya.`);
+                        return false;
+                    }
+
+                    prevEnd = end;
+            }
+
+            return true;
+        }
     </script>
-    @endpush
+    </x-slot>
 </x-admin-layout>

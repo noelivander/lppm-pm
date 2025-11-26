@@ -18,13 +18,10 @@ class PengabdianController extends Controller
     public function index()
     {
         $currentDate = now();
-        $timeline = Timeline::first();
-        $pengabdian = Pengabdian::where('user_id', Auth::id())->get();
-
-        // Get skema and luaran for pengabdian
-        $skemaPengabdian = Skema::where('jenis', 'pengabdian')->where('is_shown', 1)->get();
-        $luaranWajibPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
-        $luaranTambahanPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+        $timeline = $this->getActiveTimeline();
+        $pengabdian = Pengabdian::where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->get();
 
         foreach ($pengabdian as $item) {
             $item->judul = EncryptionHelper::decrypt($item->judul);
@@ -37,7 +34,25 @@ class PengabdianController extends Controller
             $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
         }
 
-        return view('dosen.ppm.pengabdian.index', compact('pengabdian','timeline','currentDate','skemaPengabdian','luaranWajibPengabdian','luaranTambahanPengabdian'));
+        return view('dosen.ppm.pengabdian.index', compact('pengabdian','timeline','currentDate'));
+    }
+
+    public function create()
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $skemaPengabdian = Skema::where('jenis', 'pengabdian')->where('is_shown', 1)->get();
+        $luaranWajibPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
+        $luaranTambahanPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+
+        return view('dosen.ppm.pengabdian.create', compact(
+            'timeline',
+            'currentDate',
+            'skemaPengabdian',
+            'luaranWajibPengabdian',
+            'luaranTambahanPengabdian'
+        ));
     }
 
     public function viewReviews($pengabdian_id, $review_number)
@@ -64,6 +79,17 @@ class PengabdianController extends Controller
 
     public function store(Request $request)
     {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        if (!$timeline) {
+            return redirect()->back()->with('error', 'Belum ada timeline aktif.');
+        }
+
+        if ($currentDate < $timeline->upload_start_date || $currentDate > $timeline->upload_end_date) {
+            return redirect()->back()->with('error', 'Anda tidak dapat mengunggah proposal di luar periode yang ditentukan.');
+        }
+
         $request->validate([
             'judul' => 'required',
             'luaran_wajib' => 'required',
@@ -119,4 +145,11 @@ class PengabdianController extends Controller
         return redirect()->route('pengabdian-dos.index')->with('success', 'Proposal submitted successfully.');
     }
 
+    protected function getActiveTimeline()
+    {
+        return Timeline::active()
+            ->orderBy('period', 'desc')
+            ->ordered()
+            ->first();
+    }
 }

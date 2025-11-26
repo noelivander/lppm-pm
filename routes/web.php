@@ -66,6 +66,10 @@ Route::view('/pengumuman', 'pengumuman')->name('pengumuman');
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 });
+Route::prefix('admin')->group(function () {
+    Route::resource('timeline', TimelineController::class);
+});
+
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('timeline', TimelineController::class)->except(['show']);
     Route::resource('landing-page', \App\Http\Controllers\Admin\LandingPageController::class)->only(['index', 'update']);
