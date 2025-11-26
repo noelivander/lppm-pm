@@ -49,7 +49,7 @@
         </div>
         <div class="sidebar-brand-text">
             LPPM-PM
-            <div><small>Administration</small></div>
+            <div><small>Admin</small></div>
         </div>
     </a>
 
