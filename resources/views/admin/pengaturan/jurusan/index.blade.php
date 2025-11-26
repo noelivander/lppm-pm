@@ -36,7 +36,7 @@
                         <tr>
                             <td>{{ $key+1 }}</td>
                             <td>
-                                <span class="badge bg-primary">{{ strtoupper($value->kode) }}</span>
+                                <span class="status-badge kode">{{ strtoupper($value->kode) }}</span>
                             </td>
                             <td>
                                 <div class="fw-bold">{{ $value->nama }}</div>

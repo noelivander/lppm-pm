@@ -140,12 +140,12 @@
         </a>
     </li>
 
-    <li class="nav-item @isroute('fokus-bidang.index')">
+    {{-- <li class="nav-item @isroute('fokus-bidang.index')">
         <a class="nav-link" href="{{ route('fokus-bidang.index') }}">
             <i class="fas fa-fw fa-bullseye"></i>
             <span>Bidang Fokus</span>
         </a>
-    </li>
+    </li> --}}
 
     <li class="nav-item @isroute('penelitian-adm.index')">
         <a class="nav-link" href="{{ route('penelitian-adm.index') }}">

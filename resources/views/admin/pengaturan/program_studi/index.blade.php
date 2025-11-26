@@ -38,13 +38,13 @@
                             <td>{{ $key+1 }}</td>
                             <td>
                                 @if($value->jurusan)
-                                    <span class="badge bg-info">{{ $value->jurusan->nama }}</span>
+                                    <span class="status-badge jurusan">{{ $value->jurusan->nama }}</span>
                                 @else
-                                    <span class="badge bg-secondary">Jurusan tidak ditemukan</span>
+                                    <span class="status-badge pending">Jurusan tidak ditemukan</span>
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-primary">{{ strtoupper($value->kode ?? '-') }}</span>
+                                <span class="status-badge kode">{{ strtoupper($value->kode ?? '-') }}</span>
                             </td>
                             <td>
                                 <div class="fw-bold">{{ $value->nama }}</div>

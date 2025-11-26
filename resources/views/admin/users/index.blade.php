@@ -74,19 +74,20 @@
                                             <a href="{{ route('users.edit', $user) }}" class="modern-btn modern-btn-warning modern-btn-sm">
                                                 <i class="fa fa-edit me-1"></i>Edit
                                             </a>
-                                            <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm('Hapus user ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm">
-                                                    <i class="fa fa-trash me-1"></i>Hapus
-                                                </button>
-                                            </form>
+                                            <button type="button" class="modern-btn modern-btn-danger modern-btn-sm show_confirm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteUser" 
+                                                    data-id-user="{{ $user->id }}" 
+                                                    data-nama-user="{{ $user->name }}"
+                                                    data-url-user="{{ route('users.destroy', $user) }}">
+                                                <i class="fa fa-trash me-1"></i>Hapus
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6">
+                                    <td colspan="7">
                                         <div class="modern-alert modern-alert-info mb-0">
                                             <i class="fa fa-info-circle me-2"></i>Belum ada user.
                                         </div>
@@ -103,6 +104,64 @@
             </div>
         </div>
     </div>
+    
+    <x-slot name="modals">
+        <div class="modal fade modern-modal" id="deleteUser" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">
+                            <i class="fa fa-exclamation-triangle text-warning me-2"></i>
+                            Hapus User
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="#">
+                        @method('DELETE')
+                        @csrf
+                        <div class="modal-body">
+                            <div class="modern-alert modern-alert-warning">
+                                <i class="fa fa-warning me-2"></i>
+                                Apakah Anda yakin ingin menghapus user <strong class="text-primary"></strong>? Tindakan ini tidak dapat dibatalkan.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-dismiss="modal">
+                                <i class="fa fa-times me-1"></i> Batalkan
+                            </button>
+                            <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm">
+                                <i class="fa fa-trash me-1"></i> Hapus
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </x-slot>
+    
+    <x-slot name="scripts">
+        <script type="text/javascript">
+            var deleteUserModal = document.getElementById('deleteUser')
+            if (deleteUserModal) {
+                deleteUserModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget
+                    var id = button.getAttribute('data-id-user')
+                    var nama = button.getAttribute('data-nama-user')
+                    var url = button.getAttribute('data-url-user')
+
+                    var modalBodyInput = deleteUserModal.querySelector('.modal-body strong')
+                    var modalForm = deleteUserModal.querySelector('form')
+
+                    if (modalBodyInput) {
+                        modalBodyInput.textContent = nama
+                    }
+                    if (modalForm && url) {
+                        modalForm.action = url
+                    }
+                })
+            }
+        </script>
+    </x-slot>
 </x-admin-layout>
 
 

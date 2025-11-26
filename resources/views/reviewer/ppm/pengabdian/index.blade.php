@@ -74,7 +74,9 @@
                                     @endphp
                                     <tr>
                                         <td class="judul"><div class="fw-bold">{{ $proposal->judul }}</div></td>
-                                        <td class="skema"><span class="badge bg-info">{{ $proposal->skema }}</span></td>
+                                        <td class="skema">
+                                            <span class="status-badge skema">{{ $proposal->skema }}</span>
+                                        </td>
                                         <td>{{ $proposal->created_at->year }}</td>
                                         <td>
                                             <span class="status-badge

@@ -48,7 +48,7 @@
                                 <i class="fa fa-envelope me-1"></i>{{ $value->email }}
                             </td>
                             <td>
-                                <span class="badge bg-secondary">{{ $value->nip }}</span>
+                                <span class="status-badge nip">{{ $value->nip }}</span>
                             </td>
                             <td>
                                 @if($value->program_studi_id && $value->program_studi)
