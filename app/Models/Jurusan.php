@@ -16,4 +16,9 @@ class Jurusan extends Model
     protected $fillable = [
         'kode', 'nama', 'tahun', 'urutan'
     ];
+
+    public function programStudi()
+    {
+        return $this->hasMany('App\Models\ProgramStudi', 'jurusan_id', 'id');
+    }
 }
