@@ -70,7 +70,7 @@
                                             <div class="fw-bold">{{ $proposal->judul }}</div>
                                         </td>
                                         <td class="skema">
-                                            <span class="badge bg-info">{{ $proposal->skema }}</span>
+                                            <span class="status-badge skema">{{ $proposal->skema }}</span>
                                         </td>
                                         <td>{{ $proposal->created_at->year }}</td>
                                         <td>

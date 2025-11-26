@@ -47,7 +47,7 @@
         <div class="sidebar-brand-icon">
             <img src="{{ url('Logo.png') }}" height="36">
         </div>
-        <div class="sidebar-brand-text">LPPM-PM</div>
+        <div class="sidebar-brand-text">LPPM-PM<div><small>Reviewer</small></div></div>
     </a>
 
     <!-- Divider -->

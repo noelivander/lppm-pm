@@ -54,7 +54,7 @@
                             <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>
-                                    <span class="badge bg-primary">{{ $timeline->period ?? '-' }}</span>
+                                    <span class="status-badge kode">{{ $timeline->period ?? '-' }}</span>
                                 </td>
                                 <td>
                                     <div class="fw-bold mb-1">{{ $timeline->title ?? 'Timeline' }}</div>

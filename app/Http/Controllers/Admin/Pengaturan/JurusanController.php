@@ -39,13 +39,19 @@ class JurusanController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'kode' => 'required|string|max:255|unique:jurusan,kode',
+            'nama' => 'required|string|max:255',
+            'tahun' => 'required|integer|min:1900|max:' . date('Y'),
+        ]);
+
         $new = new Jurusan;
         $new->kode = $request->input('kode');
         $new->nama = $request->input('nama');
         $new->tahun = $request->input('tahun');
         $new->save();
 
-        return redirect()->back();
+        return redirect()->route('jurusan.index')->with('success', 'Jurusan berhasil ditambahkan.');
     }
 
     /**
@@ -65,9 +71,9 @@ class JurusanController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Jurusan $jurusan)
     {
-        //
+        return view('admin.pengaturan.jurusan.edit', compact('jurusan'));
     }
 
     /**
@@ -79,12 +85,18 @@ class JurusanController extends Controller
      */
     public function update(Request $request, Jurusan $jurusan)
     {
+        $request->validate([
+            'kode' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'tahun' => 'required|integer|min:1900|max:' . date('Y'),
+        ]);
+
         $jurusan->kode = $request->input('kode');
         $jurusan->nama = $request->input('nama');
         $jurusan->tahun = $request->input('tahun');
         $jurusan->save();
 
-        return redirect()->back();
+        return redirect()->route('jurusan.index')->with('success', 'Jurusan berhasil diperbarui.');
     }
 
     /**
@@ -95,8 +107,13 @@ class JurusanController extends Controller
      */
     public function destroy(Jurusan $jurusan)
     {
+        // Check if jurusan has program studi
+        if ($jurusan->programStudi()->count() > 0) {
+            return redirect()->back()->with('error', 'Jurusan tidak dapat dihapus karena masih memiliki program studi terkait.');
+        }
+
         $jurusan->delete();
 
-        return redirect()->back();
+        return redirect()->route('jurusan.index')->with('success', 'Jurusan berhasil dihapus.');
     }
 }

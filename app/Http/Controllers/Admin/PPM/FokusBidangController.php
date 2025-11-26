@@ -160,6 +160,20 @@ class FokusBidangController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $fokus_bidang = FokusBidang::findOrFail($id);
+        
+        // Delete cover file if exists
+        if ($fokus_bidang->cover && Storage::disk('public')->exists($fokus_bidang->cover)) {
+            Storage::disk('public')->delete($fokus_bidang->cover);
+        }
+        
+        // Delete description file if exists
+        if ($fokus_bidang->deskripsi_file && Storage::disk('public')->exists($fokus_bidang->deskripsi_file)) {
+            Storage::disk('public')->delete($fokus_bidang->deskripsi_file);
+        }
+        
+        $fokus_bidang->delete();
+        
+        return redirect()->route('fokus-bidang.index')->with('success', 'Bidang fokus berhasil dihapus.');
     }
 }

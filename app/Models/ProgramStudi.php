@@ -13,10 +13,15 @@ class ProgramStudi extends Model
     protected $table = 'program_studi';
 
     protected $fillable = [
-        'jurusan_id', 'nama', 'singkatan', 'tahun', 'urutan'
+        'jurusan_id', 'nama', 'kode', 'tahun', 'urutan'
     ];
 
     public function jurusan() {
         return $this->belongsTo('App\Models\Jurusan', 'jurusan_id', 'id');
+    }
+
+    public function pegawai()
+    {
+        return $this->hasMany('App\Models\Pegawai', 'program_studi_id', 'id');
     }
 }

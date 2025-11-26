@@ -52,7 +52,9 @@
                                             <td>
                                                 <div class="fw-bold">{{ $item->judul }}</div>
                                             </td>
-                                            <td>{{ $item->skema }}</td>
+                                            <td>
+                                                <span class="status-badge skema">{{ $item->skema }}</span>
+                                            </td>
                                             <td>{{ $item->created_at->year }}</td>
                                             <td>
                                                 <span class="status-badge

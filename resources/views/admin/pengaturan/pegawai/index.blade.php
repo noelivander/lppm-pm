@@ -9,6 +9,17 @@
         </a>
     </x-admin.heading>
 
+    @if (session('success'))
+        <div class="modern-alert modern-alert-success mb-3 fade-in-up">
+            <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="modern-alert modern-alert-danger mb-3 fade-in-up">
+            <i class="fa fa-exclamation-triangle me-2"></i>{{ session('error') }}
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-lg-12">
             <div class="modern-table-container mb-4 fade-in-up">
@@ -29,7 +40,7 @@
                             <td>{{ $key+1 }}</td>
                             <td>
                                 <div class="fw-bold">{{ strtoupper($value->nama) }}</div>
-                                @if($value->pangkat_golongan_ruang_id)
+                                @if($value->pangkat_golongan_ruang_id && $value->pangkat_golongan_ruang)
                                     <small class="text-muted">{{ $value->pangkat_golongan_ruang->golongan }}/{{ $value->pangkat_golongan_ruang->ruang }}</small>
                                 @endif
                             </td>
@@ -37,12 +48,16 @@
                                 <i class="fa fa-envelope me-1"></i>{{ $value->email }}
                             </td>
                             <td>
-                                <span class="badge bg-secondary">{{ $value->nip }}</span>
+                                <span class="status-badge nip">{{ $value->nip }}</span>
                             </td>
                             <td>
-                                @if($value->program_studi_id)
+                                @if($value->program_studi_id && $value->program_studi)
                                     <div class="fw-bold">{{ $value->program_studi->nama }}</div>
-                                    <small class="text-muted">{{ $value->program_studi->jurusan->nama }}</small>
+                                    @if($value->program_studi->jurusan)
+                                        <small class="text-muted">{{ $value->program_studi->jurusan->nama }}</small>
+                                    @else
+                                        <small class="text-danger">Jurusan tidak ditemukan</small>
+                                    @endif
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif

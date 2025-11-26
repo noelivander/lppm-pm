@@ -16,7 +16,7 @@ class RelatedLinkController extends Controller
      */
     public function index()
     {
-        $related_link = RelatedLink::all();
+        $related_link = RelatedLink::orderBy('created_at', 'desc')->get();
 
         return view('admin.pengaturan.tautan.index', compact('related_link'));
     }
@@ -39,7 +39,13 @@ class RelatedLinkController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'url' => 'required|url|max:255',
+        ]);
+
+        RelatedLink::create($request->all());
+        return redirect()->route('related_link.index')->with('success', 'Tautan berhasil ditambahkan.');
     }
 
     /**
@@ -59,9 +65,9 @@ class RelatedLinkController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(RelatedLink $related_link)
     {
-        //
+        return view('admin.pengaturan.tautan.edit', compact('related_link'));
     }
 
     /**
@@ -71,9 +77,15 @@ class RelatedLinkController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, RelatedLink $related_link)
     {
-        //
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'url' => 'required|url|max:255',
+        ]);
+
+        $related_link->update($request->all());
+        return redirect()->route('related_link.index')->with('success', 'Tautan berhasil diperbarui.');
     }
 
     /**
@@ -82,8 +94,9 @@ class RelatedLinkController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(RelatedLink $related_link)
     {
-        //
+        $related_link->delete();
+        return redirect()->route('related_link.index')->with('success', 'Tautan berhasil dihapus.');
     }
 }

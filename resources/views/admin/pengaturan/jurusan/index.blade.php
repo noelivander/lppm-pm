@@ -7,6 +7,17 @@
         
     </x-admin.heading>
 
+    @if (session('success'))
+        <div class="modern-alert modern-alert-success mb-3 fade-in-up">
+            <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="modern-alert modern-alert-danger mb-3 fade-in-up">
+            <i class="fa fa-exclamation-triangle me-2"></i>{{ session('error') }}
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-lg-8">
             <div class="modern-table-container mb-4 fade-in-up">
@@ -25,7 +36,7 @@
                         <tr>
                             <td>{{ $key+1 }}</td>
                             <td>
-                                <span class="badge bg-primary">{{ strtoupper($value->kode) }}</span>
+                                <span class="status-badge kode">{{ strtoupper($value->kode) }}</span>
                             </td>
                             <td>
                                 <div class="fw-bold">{{ $value->nama }}</div>
@@ -38,14 +49,13 @@
                                         <i class="fa fa-edit me-1"></i> Ubah
                                     </a>
                                     
-                                    <form method="POST" action="{{ route('jurusan.destroy', $value->id) }}" class="d-inline">
-                                        @method('DELETE')
-                                        @csrf
-                                        <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm show_confirm" 
-                                                data-toggle="tooltip" title='Delete'>
-                                            <i class="fa fa-trash me-1"></i> Hapus
-                                        </button>
-                                    </form>
+                                    <button type="button" class="modern-btn modern-btn-danger modern-btn-sm show_confirm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteJurusan" 
+                                            data-id-jurusan="{{ $value->id }}" 
+                                            data-nama-jurusan="{{ $value->nama }}">
+                                        <i class="fa fa-trash me-1"></i> Hapus
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -95,7 +105,60 @@
             </div>
         </div>
     </div>
+    <x-slot name="modals">
+        <div class="modal fade modern-modal" id="deleteJurusan" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">
+                            <i class="fa fa-exclamation-triangle text-warning me-2"></i>
+                            Hapus Jurusan
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="#">
+                        @method('DELETE')
+                        @csrf
+                        <div class="modal-body">
+                            <div class="modern-alert modern-alert-warning">
+                                <i class="fa fa-warning me-2"></i>
+                                Apakah Anda yakin ingin menghapus jurusan <strong class="text-primary"></strong>? Tindakan ini tidak dapat dibatalkan.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-dismiss="modal">
+                                <i class="fa fa-times me-1"></i> Batalkan
+                            </button>
+                            <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm">
+                                <i class="fa fa-trash me-1"></i> Hapus
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </x-slot>
+    
     <x-slot name="scripts">
+        <script type="text/javascript">
+            var deleteJurusanModal = document.getElementById('deleteJurusan')
+            if (deleteJurusanModal) {
+                deleteJurusanModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget
+                    var id = button.getAttribute('data-id-jurusan')
+                    var nama = button.getAttribute('data-nama-jurusan')
 
+                    var modalBodyInput = deleteJurusanModal.querySelector('.modal-body strong')
+                    var modalForm = deleteJurusanModal.querySelector('form')
+
+                    if (modalBodyInput) {
+                        modalBodyInput.textContent = nama
+                    }
+                    if (modalForm) {
+                        modalForm.action = "{{ route('jurusan.index') }}/" + id
+                    }
+                })
+            }
+        </script>
     </x-slot>
 </x-admin-layout>

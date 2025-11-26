@@ -9,6 +9,12 @@
         </a>
     </x-admin.heading>
 
+    @if (session('success'))
+        <div class="modern-alert modern-alert-success mb-3 fade-in-up">
+            <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-lg-8">
             <div class="modern-table-container mb-4 fade-in-up">
@@ -43,14 +49,13 @@
                                    class="modern-btn modern-btn-warning modern-btn-sm">
                                     <i class="fa fa-edit me-1"></i> Ubah
                                 </a>
-                                <form method="POST" action="{{ route('fokus-bidang.destroy', $value->id) }}" class="d-inline">
-                                    @method('DELETE')
-                                    @csrf
-                                    <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm show_confirm" 
-                                            data-toggle="tooltip" title='Delete'>
-                                        <i class="fa fa-trash me-1"></i> Hapus
-                                    </button>
-                                </form>
+                                <button type="button" class="modern-btn modern-btn-danger modern-btn-sm show_confirm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteFokusBidang" 
+                                        data-id-fokus="{{ $value->id }}" 
+                                        data-nama-fokus="{{ $value->nama }}">
+                                    <i class="fa fa-trash me-1"></i> Hapus
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -60,7 +65,62 @@
             </div>
         </div>
     </div>
+    <x-slot name="modals">
+        <div class="modal fade modern-modal" id="deleteFokusBidang" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">
+                            <i class="fa fa-exclamation-triangle text-warning me-2"></i>
+                            Hapus Bidang Fokus
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="#">
+                        @method('DELETE')
+                        @csrf
+                        <div class="modal-body">
+                            <div class="modern-alert modern-alert-warning">
+                                <i class="fa fa-warning me-2"></i>
+                                Apakah Anda yakin ingin menghapus bidang fokus <strong class="text-primary"></strong>? Tindakan ini tidak dapat dibatalkan.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-dismiss="modal">
+                                <i class="fa fa-times me-1"></i> Batalkan
+                            </button>
+                            <button type="submit" class="modern-btn modern-btn-danger modern-btn-sm">
+                                <i class="fa fa-trash me-1"></i> Hapus
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </x-slot>
+    
     <x-slot name="scripts">
+        <script type="text/javascript">
+            var deleteFokusBidangModal = document.getElementById('deleteFokusBidang')
+            if (deleteFokusBidangModal) {
+                deleteFokusBidangModal.addEventListener('show.bs.modal', function (event) {
+                    // Button that triggered the modal
+                    var button = event.relatedTarget
+                    // Extract info from data-bs-* attributes
+                    var id = button.getAttribute('data-id-fokus')
+                    var nama = button.getAttribute('data-nama-fokus')
 
+                    var modalBodyInput = deleteFokusBidangModal.querySelector('.modal-body strong')
+                    var modalForm = deleteFokusBidangModal.querySelector('form')
+
+                    if (modalBodyInput) {
+                        modalBodyInput.textContent = nama
+                    }
+                    if (modalForm) {
+                        modalForm.action = "{{ route('fokus-bidang.index') }}/" + id
+                    }
+                })
+            }
+        </script>
     </x-slot>
 </x-admin-layout>

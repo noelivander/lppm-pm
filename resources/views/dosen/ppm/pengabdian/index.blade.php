@@ -46,7 +46,9 @@
                                         <tr>
                                             <td class="text-center">{{ $loop->iteration }}</td>
                                             <td class="judul">{{ $item->judul }}</td>
-                                            <td>{{ $item->skema }}</td>
+                                            <td>
+                                                <span class="status-badge skema">{{ $item->skema }}</span>
+                                            </td>
                                             <td>{{ $item->created_at->year }}</td>
                                             <td>
                                                 <span class="status-badge
