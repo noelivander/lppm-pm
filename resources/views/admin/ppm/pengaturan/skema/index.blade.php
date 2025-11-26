@@ -55,7 +55,7 @@
                             <td>{{ $key+1 }}</td>
                             <td>
                                 @if($value->kode)
-                                    <span class="badge bg-primary">{{ $value->kode }}</span>
+                                    <span class="status-badge kode">{{ $value->kode }}</span>
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
@@ -66,7 +66,7 @@
                                     <small class="text-muted d-block mb-1">{{ Str::limit($value->perihal, 50) }}</small>
                                 @endif
                                 @if($value->jenis_skema)
-                                    <span class="badge bg-secondary">{{ $value->jenis_skema->nama }}</span>
+                                    <span class="status-badge info">{{ $value->jenis_skema->nama }}</span>
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif

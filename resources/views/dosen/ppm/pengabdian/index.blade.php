@@ -137,15 +137,15 @@
                             </a>
                         @else
                             <button class="modern-btn modern-btn-primary mt-3" disabled>
-                                <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
-                            </button>
+                            <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
+                        </button>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    
 </x-dosen-layout>
 <script>
     // Countdown Timer (uses countdownDate set in the alert block above)
