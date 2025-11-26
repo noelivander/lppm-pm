@@ -50,12 +50,20 @@ class PengabdianController extends Controller
         $luaranWajibPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
         $luaranTambahanPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
 
+        // Get RAB data from database
+        $kelompokRab = \App\Models\KelompokRab::where('is_active', true)->orderBy('nama')->get();
+        $komponenRab = \App\Models\KomponenRab::with('satuan')->where('is_active', true)->orderBy('nama')->get();
+        $satuanRab = \App\Models\SatuanRab::where('is_active', true)->orderBy('nama')->get();
+
         return view('dosen.ppm.pengabdian.create', compact(
             'timeline',
             'currentDate',
             'skemaPengabdian',
             'luaranWajibPengabdian',
-            'luaranTambahanPengabdian'
+            'luaranTambahanPengabdian',
+            'kelompokRab',
+            'komponenRab',
+            'satuanRab'
         ));
     }
 

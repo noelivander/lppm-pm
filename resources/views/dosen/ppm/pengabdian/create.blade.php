@@ -3,23 +3,7 @@
         {{ __('Pengabdian') }}
     </x-slot>
 
-    @php
-        $rabKelompokOptions = [
-            'Honorarium' => 'Honorarium',
-            'Perjalanan' => 'Perjalanan',
-            'Operasional' => 'Operasional',
-            'Peralatan' => 'Peralatan',
-            'Lainnya' => 'Lainnya',
-        ];
-
-        $rabKomponenOptions = [
-            'SDM' => 'Sumber Daya Manusia',
-            'Material' => 'Material / Bahan',
-            'Jasa' => 'Jasa / Konsultan',
-            'Transportasi' => 'Transportasi',
-            'Lainnya' => 'Lainnya',
-        ];
-    @endphp
+    {{-- RAB options are now loaded from database via controller --}}
 
     <div class="container-fluid pb-5">
         <div class="row">
@@ -212,18 +196,18 @@
                                     <template id="rabRowTemplate">
                                         <tr>
                                             <td>
-                                                <select name="rab_kelompok[]" class="modern-form-select" required>
+                                                <select name="rab_kelompok[]" class="modern-form-select rab-kelompok-select" required>
                                                     <option value="" disabled selected>Pilih kelompok...</option>
-                                                    @foreach($rabKelompokOptions as $value => $label)
-                                                        <option value="{{ $value }}">{{ $label }}</option>
+                                                    @foreach($kelompokRab ?? [] as $kelompok)
+                                                        <option value="{{ $kelompok->nama }}">{{ $kelompok->nama }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
                                             <td>
-                                                <select name="rab_komponen[]" class="modern-form-select" required>
+                                                <select name="rab_komponen[]" class="modern-form-select rab-komponen-select" required>
                                                     <option value="" disabled selected>Pilih komponen...</option>
-                                                    @foreach($rabKomponenOptions as $value => $label)
-                                                        <option value="{{ $value }}">{{ $label }}</option>
+                                                    @foreach($komponenRab ?? [] as $komponen)
+                                                        <option value="{{ $komponen->nama }}" data-komponen-id="{{ $komponen->id }}">{{ $komponen->nama }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -231,7 +215,9 @@
                                                 <input type="text" name="rab_item[]" class="modern-form-input" placeholder="Nama item" required>
                                             </td>
                                             <td>
-                                                <input type="text" name="rab_satuan[]" class="modern-form-input" placeholder="pcs/buah/OK" required>
+                                                <select name="rab_satuan[]" class="modern-form-select rab-satuan-select" required>
+                                                    <option value="" disabled selected>Pilih komponen dulu...</option>
+                                                </select>
                                             </td>
                                             <td>
                                                 <input type="text" name="rab_volume[]" class="modern-form-input rab-volume" inputmode="numeric" placeholder="0" required>
@@ -394,6 +380,46 @@
             }
         }
 
+        function updateSatuanByKomponen(selectElement, row) {
+            const komponenName = selectElement.value;
+            const satuanSelect = row ? row.querySelector('.rab-satuan-select') : selectElement.closest('tr')?.querySelector('.rab-satuan-select');
+            
+            if (!satuanSelect || !komponenName) {
+                if (satuanSelect) {
+                    satuanSelect.innerHTML = '<option value="" disabled selected>Pilih komponen dulu...</option>';
+                }
+                return;
+            }
+
+            // Show loading
+            satuanSelect.innerHTML = '<option value="">Memuat satuan...</option>';
+            satuanSelect.disabled = true;
+
+            // Fetch satuan for this komponen
+            fetch(`{{ route('dosen.rab.get-satuan-by-komponen') }}?komponen=${encodeURIComponent(komponenName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    satuanSelect.innerHTML = '<option value="" disabled selected>Pilih satuan...</option>';
+                    
+                    if (data.satuan && data.satuan.length > 0) {
+                        data.satuan.forEach(satuan => {
+                            const option = document.createElement('option');
+                            option.value = satuan.nama;
+                            option.textContent = satuan.singkatan ? `${satuan.nama} (${satuan.singkatan})` : satuan.nama;
+                            satuanSelect.appendChild(option);
+                        });
+                    } else {
+                        satuanSelect.innerHTML = '<option value="" disabled>Belum ada satuan untuk komponen ini</option>';
+                    }
+                    satuanSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error loading satuan:', error);
+                    satuanSelect.innerHTML = '<option value="" disabled>Error memuat satuan</option>';
+                    satuanSelect.disabled = false;
+                });
+        }
+
         function addRabRow() {
             if (!rabTemplate || !rabTableBody) {
                 return;
@@ -403,6 +429,7 @@
             const volumeInput = clone.querySelector('.rab-volume');
             const hargaInput = clone.querySelector('.rab-harga');
             const removeBtn = clone.querySelector('.remove-rab-row');
+            const komponenSelect = clone.querySelector('.rab-komponen-select');
 
             if (volumeInput) {
                 volumeInput.addEventListener('input', (event) => {
@@ -415,6 +442,14 @@
                 hargaInput.addEventListener('input', (event) => {
                     restrictNumberInput(event);
                     updateRabRowTotal(clone);
+                });
+            }
+
+            // Add event listener for komponen change to update satuan
+            if (komponenSelect) {
+                komponenSelect.addEventListener('change', (event) => {
+                    updateSatuanByKomponen(event.target, clone);
+                    validateForm();
                 });
             }
 
@@ -610,6 +645,14 @@
         document.addEventListener('change', function(e) {
             if (e.target.matches('select[name^="rab_"], input[name^="rab_"], select[name^="anggota_"], input[name^="anggota_"]')) {
                 validateForm();
+            }
+            
+            // Handle komponen change to update satuan dynamically
+            if (e.target.matches('.rab-komponen-select')) {
+                const row = e.target.closest('tr');
+                if (row) {
+                    updateSatuanByKomponen(e.target, row);
+                }
             }
         });
 

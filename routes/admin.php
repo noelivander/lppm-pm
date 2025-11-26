@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\Pengaturan\ProgramStudiController;
 use App\Http\Controllers\Admin\Pengaturan\RelatedLinkController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\LuaranController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\SkemaController;
+use App\Http\Controllers\Admin\PPM\Pengaturan\RabController;
 use App\Http\Controllers\Admin\PPM\FokusBidangController;
 use App\Http\Controllers\Admin\PPM\PenelitianController;
 use App\Http\Controllers\Admin\PPM\PengabdianController;
@@ -57,6 +58,31 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('luaran/{luaran}/edit', [LuaranController::class, 'edit'])->name('luaran.edit');
     Route::put('luaran/{luaran}', [LuaranController::class, 'update'])->name('luaran.update');
     Route::delete('luaran/{luaran}', [LuaranController::class, 'destroy'])->name('luaran.destroy');
+    
+    // RAB routes
+    Route::get('rab', [RabController::class, 'index'])->name('rab.index');
+    
+    // Kelompok RAB routes
+    Route::post('rab/kelompok', [RabController::class, 'storeKelompok'])->name('rab.store.kelompok');
+    Route::get('rab/kelompok/{id}/edit', [RabController::class, 'editKelompok'])->name('rab.edit.kelompok');
+    Route::put('rab/kelompok/{id}', [RabController::class, 'updateKelompok'])->name('rab.update.kelompok');
+    Route::delete('rab/kelompok/{id}', [RabController::class, 'destroyKelompok'])->name('rab.destroy.kelompok');
+    
+    // Komponen RAB routes
+    Route::post('rab/komponen', [RabController::class, 'storeKomponen'])->name('rab.store.komponen');
+    Route::get('rab/komponen/{id}/edit', [RabController::class, 'editKomponen'])->name('rab.edit.komponen');
+    Route::put('rab/komponen/{id}', [RabController::class, 'updateKomponen'])->name('rab.update.komponen');
+    Route::delete('rab/komponen/{id}', [RabController::class, 'destroyKomponen'])->name('rab.destroy.komponen');
+    
+    // Satuan RAB routes
+    Route::post('rab/satuan', [RabController::class, 'storeSatuan'])->name('rab.store.satuan');
+    Route::get('rab/satuan/{id}/edit', [RabController::class, 'editSatuan'])->name('rab.edit.satuan');
+    Route::put('rab/satuan/{id}', [RabController::class, 'updateSatuan'])->name('rab.update.satuan');
+    Route::delete('rab/satuan/{id}', [RabController::class, 'destroySatuan'])->name('rab.destroy.satuan');
+    
+    // Komponen-Satuan assignment routes
+    Route::get('rab/komponen/{id}/satuan', [RabController::class, 'getSatuanForKomponen'])->name('rab.komponen.satuan');
+    Route::post('rab/komponen/{id}/assign-satuan', [RabController::class, 'assignSatuanToKomponen'])->name('rab.assign.satuan');
 
     Route::resource('kelembagaan/struktur-organisasi', StrukturorgController::class)->only([
         'index', 'store'

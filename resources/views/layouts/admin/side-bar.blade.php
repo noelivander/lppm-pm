@@ -174,6 +174,7 @@
                 <!-- <a class="collapse-item" href="{{ route('luaran.index') }}">Hibah</a> -->
                 <a class="collapse-item @isroute('skema.index')" href="{{ route('skema.index') }}">Skema</a>
                 <a class="collapse-item @isroute('luaran.index')" href="{{ route('luaran.index') }}">Luaran</a>
+                <a class="collapse-item @isroute('rab.index')" href="{{ route('rab.index') }}">Kelola RAB</a>
             </div>
         </div>
     </li>
