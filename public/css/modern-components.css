@@ -490,6 +490,36 @@
 .modern-btn-sm {
   padding: 0.5rem 1rem;
   font-size: 0.75rem;
+  border-radius: var(--border-radius) !important;
+}
+
+/* Ensure consistent border-radius for all small buttons in tables */
+.modern-table .modern-btn-sm,
+.modern-table-container .modern-btn-sm,
+.modern-btn.modern-btn-sm,
+.modern-table td .modern-btn-sm,
+.modern-table tbody .modern-btn-sm {
+  border-radius: var(--border-radius) !important;
+  -webkit-border-radius: var(--border-radius) !important;
+  -moz-border-radius: var(--border-radius) !important;
+}
+
+/* Specific styling for action buttons in tables - ensure consistent border-radius */
+.modern-table .remove-rab-row,
+.modern-table .removeAnggota,
+.modern-table button.modern-btn-danger.modern-btn-sm,
+#rabTable .modern-btn-sm,
+#anggotaTable .modern-btn-sm,
+table.modern-table button.modern-btn-sm {
+  border-radius: var(--border-radius) !important;
+  -webkit-border-radius: var(--border-radius) !important;
+  -moz-border-radius: var(--border-radius) !important;
+}
+
+/* Override any conflicting styles for buttons inside tables */
+.modern-table-container .modern-table td button.modern-btn,
+.modern-table-container .modern-table tbody button.modern-btn {
+  border-radius: var(--border-radius) !important;
 }
 
 .modern-btn-lg {
