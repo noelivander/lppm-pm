@@ -155,6 +155,7 @@
             width: 100%;
             padding: 0.875rem 1rem;
             padding-left: 3rem;
+            padding-right: 3rem;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 0.95rem;
@@ -171,6 +172,7 @@
         
         .input-icon {
             position: relative;
+            width: 100%;
         }
         
         .input-icon i {
@@ -180,6 +182,8 @@
             transform: translateY(-50%);
             color: #94a3b8;
             font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.3s ease;
         }
         
         .input-icon input:focus + i {
@@ -188,16 +192,34 @@
         
         .password-toggle {
             position: absolute;
-            right: 1rem;
+            right: 0.5rem;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
             color: #94a3b8;
-            transition: color 0.3s;
+            transition: color 0.3s, background 0.3s;
+            border: none;
+            background: transparent;
+            padding: 0;
+            width: 2.25rem;
+            height: 2.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
         }
         
-        .password-toggle:hover {
+        .password-toggle i {
+            pointer-events: none;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        
+        .password-toggle:hover,
+        .password-toggle:focus-visible {
             color: #7c3aed;
+            outline: none;
+            background: rgba(124, 58, 237, 0.12);
         }
         
         .form-options {
@@ -458,9 +480,13 @@
                                 required
                             >
                             <i class="fas fa-lock"></i>
-                            <span class="password-toggle" onclick="togglePassword()">
-                                <i class="fas fa-eye" id="toggleIcon"></i>
-                            </span>
+                            <button 
+                                class="password-toggle" 
+                                type="button" 
+                                data-target="password" 
+                                aria-label="Tampilkan atau sembunyikan password"
+                            ><i class="fas fa-eye"></i>
+                            </button>
                         </div>
                     </div>
                     
@@ -504,29 +530,36 @@
     
     <!-- Password Toggle Script -->
     <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('toggleIcon');
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordToggles = document.querySelectorAll('.password-toggle');
             
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        }
-        
-        // Auto-hide alerts after 5 seconds
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert-modern');
-            alerts.forEach(alert => {
-                alert.style.animation = 'slideDown 0.3s ease-out reverse';
-                setTimeout(() => alert.remove(), 300);
+            passwordToggles.forEach(toggle => {
+                toggle.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.getElementById(targetId);
+                    const toggleIcon = this.querySelector('i');
+                    
+                    if (!passwordInput) return;
+                    
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                    }
+                });
             });
-        }, 5000);
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert-modern');
+                alerts.forEach(alert => {
+                    alert.style.animation = 'slideDown 0.3s ease-out reverse';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+        });
     </script>
 </body>
 </html>

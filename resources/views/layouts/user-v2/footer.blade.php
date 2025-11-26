@@ -10,7 +10,7 @@
                     <div class="col align-self-end">
                         <p class="align-bottom m-0">
                             <b class="h2 text-white">{{ __($project_name) }}</b><br>
-                            <small>{{ __($institut_name) }}</small>
+                            <small class="text-white">{{ __($institut_name) }}</small>
                         </p>
                     </div>
                 </div>
@@ -18,17 +18,17 @@
                 </a>
 
                 <dl class="row pt-4">
-                    <dt class="col-1"><i class="fa fa-map-marker-alt me-3"></i></dt>
+                    <dt class="col-1"><i class="fa fa-map-marker-alt me-3 text-white"></i></dt>
                     <dd class="col-11">
-                        <p><b class="text-white">Kampus 1:</b> <span>Jl. Balai Kota No. 1 Parepare</span><br>
-                            <b class="text-white">Kampus 2:</b> <span>Jl. Pemuda No. 6 Parepare</span></p>
+                        <p><b class="text-white">Kampus 1:</b> <span class="text-white"> Jl. Balai Kota No. 1 Parepare</span><br>
+                            <b class="text-white">Kampus 2:</b> <span class="text-white"> Jl. Pemuda No. 6 Parepare</span></p>
                     </dd>
 
-                    <dt class="col-1"><i class="fa fa-phone-alt me-3"></i></dt>
-                    <dd class="col-11"><p>(0421) 2924000</p></dd>
+                    <dt class="col-1"><i class="fa fa-phone-alt me-3 text-white"></i></dt>
+                    <dd class="col-11"><p class="text-white">(0421) 2924000</p></dd>
 
-                    <dt class="col-1"><i class="fa fa-envelope me-3"></i></dt>
-                    <dd class="col-11"><p>{{ $project_email }}</p></dd>
+                    <dt class="col-1"><i class="fa fa-envelope me-3 text-white"></i></dt>
+                    <dd class="col-11"><p class="text-white">{{ $project_email }}</p></dd>
                 </dl>
 
                 <div class="d-flex">
@@ -56,16 +56,6 @@
                         <a class="text-white-75 mb-2" href="{{ $link->url }}" target="_blank"><i class="fa fa-angle-right me-2"></i>{{ __($link->nama)}}</a>
                     @endforeach
                 </div>
-                
-                <!-- Newsletter -->
-                <div class="mt-4">
-                    <h6 class="text-white mb-3">Newsletter</h6>
-                    <p class="text-white-75 small mb-3">Dapatkan update terbaru dari LPPM-PM ITH</p>
-                    <div class="d-flex">
-                        <input type="email" class="form-control form-control-sm me-2" placeholder="Email Anda" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
-                        <button class="btn btn-light btn-sm">Kirim</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -74,13 +64,6 @@
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
                     &copy; <a class="border-bottom text-white-50" href="#">{{ __('2024 TIM LPPM-PM ITH') }}</a>, All Right Reserved. 
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a class="text-white-75 me-3" href="{{ route('home') }}">Beranda</a>
-                        <a class="text-white-75 me-3" href="{{ route('dokumen.index') }}">Dokumen</a>
-                        <a class="text-white-75" href="{{ route('kelembagaan_tentang') }}">Tentang</a>
-                    </div>
                 </div>
             </div>
         </div>

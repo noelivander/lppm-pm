@@ -12,7 +12,7 @@
                 <i class="fas fa-plus-circle text-primary me-2"></i>
                 Tambah Timeline Baru
             </h1>
-            <p class="text-muted">Buat jadwal timeline untuk periode akademik</p>
+            <p class="text-muted">Buat jadwal timeline untuk tahun berjalan</p>
         </div>
 
         <div class="row">
@@ -33,18 +33,18 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">
                                         <i class="fas fa-calendar-check text-primary me-2"></i>
-                                        Periode Akademik <span class="text-danger">*</span>
+                                        Tahun Timeline <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" 
                                            name="period" 
                                            class="form-control form-control-lg @error('period') is-invalid @enderror" 
                                            value="{{ old('period', $period ?? '') }}" 
-                                           placeholder="Contoh: 2025/2026"
+                                           placeholder="Contoh: 2025"
                                            required>
                                     @error('period')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <div class="form-text">Format: YYYY/YYYY</div>
+                                    <div class="form-text">Masukkan satu tahun (4 digit), contoh: 2025</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">
@@ -380,7 +380,7 @@
                             Panduan Pengisian
                         </h6>
                         <ul class="mb-0 small">
-                            <li class="mb-2"><strong>Periode Akademik:</strong> Format tahun ajaran (contoh: 2025/2026)</li>
+                            <li class="mb-2"><strong>Tahun Timeline:</strong> Gunakan format tahun penuh (contoh: 2025)</li>
                             <li class="mb-2"><strong>Judul Timeline:</strong> Nama deskriptif untuk timeline ini</li>
                             <li class="mb-2"><strong>Periode Upload:</strong> Waktu dimana pengguna dapat mengupload proposal/laporan</li>
                             <li class="mb-2"><strong>Periode Review:</strong> Waktu untuk proses review oleh reviewer</li>

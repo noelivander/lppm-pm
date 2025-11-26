@@ -30,6 +30,9 @@
     <link href="{{ asset('css/user-style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/modern-components.css') }}" rel="stylesheet">
     <link href="{{ asset('css/landing-page.css') }}" rel="stylesheet">
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body>
@@ -71,20 +74,9 @@
     
     <!-- Modern Landing Page Scripts -->
     <script>
-        // Scroll reveal animation
-        function revealOnScroll() {
-            const reveals = document.querySelectorAll('.reveal');
-            reveals.forEach(element => {
-                const windowHeight = window.innerHeight;
-                const elementTop = element.getBoundingClientRect().top;
-                const elementVisible = 150;
-                
-                if (elementTop < windowHeight - elementVisible) {
-                    element.classList.add('show');
-                }
-            });
-        }
-        
+        // Initialize WOW.js for scroll animations
+        new WOW().init();
+
         // Counter animation
         function animateCounters() {
             const counters = document.querySelectorAll('.counter');
@@ -117,19 +109,9 @@
         });
         
         // Initialize animations
-        window.addEventListener('scroll', revealOnScroll);
         window.addEventListener('load', () => {
-            revealOnScroll();
             // Start counter animation after a delay
             setTimeout(animateCounters, 1000);
-        });
-        
-        // Newsletter form handling
-        document.querySelector('input[type="email"]')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.nextElementSibling.click();
-            }
         });
     </script>
 </body>

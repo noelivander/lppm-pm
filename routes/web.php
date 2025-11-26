@@ -31,7 +31,7 @@ use App\Http\Controllers\AccountController;
 */
 
 Route::get('/foo', function () {
-   Artisan::call('storage:link');
+    Artisan::call('storage:link');
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -68,6 +68,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('timeline', TimelineController::class)->except(['show']);
+    Route::resource('landing-page', \App\Http\Controllers\Admin\LandingPageController::class)->only(['index', 'update']);
 });
 
 
@@ -91,7 +92,7 @@ Route::middleware(['auth', 'role:kaprodi'])->group(function () {
     Route::get('/kaprodi/dashboard', [KaprodiController::class, 'dashboard'])->name('kaprodi.dashboard');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Account routes (shared by all authenticated roles)
 Route::middleware(['auth'])->group(function () {

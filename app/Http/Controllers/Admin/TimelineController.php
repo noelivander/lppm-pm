@@ -47,7 +47,7 @@ class TimelineController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'period' => 'required|string|max:255',
+            'period' => 'required|digits:4',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             // Upload Proposal
@@ -103,7 +103,7 @@ class TimelineController extends Controller
         $timeline = Timeline::findOrFail($id);
         
         $validated = $request->validate([
-            'period' => 'required|string|max:255',
+            'period' => 'required|digits:4',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             // Upload Proposal
