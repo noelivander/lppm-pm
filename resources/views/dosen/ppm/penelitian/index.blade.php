@@ -7,9 +7,30 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3 fade-in-up">
-                    <h3 class="mb-3">
-                        <i class="fa fa-flask me-2"></i>Proposal Penelitian
-                    </h3>
+                    @php
+                        $uploadOpen = $timeline && $currentDate >= $timeline->upload_start_date && $currentDate <= $timeline->upload_end_date;
+                        $hasDraft = isset($draft) && $draft;
+                    @endphp
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                        <h3 class="mb-0">
+                            <i class="fa fa-flask me-2"></i>Proposal Penelitian
+                        </h3>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if ($hasDraft)
+                                <a href="{{ route('penelitian-dos.create') }}" class="modern-btn modern-btn-warning">
+                                    <i class="fa fa-edit me-2"></i> Lanjutkan Draft
+                                </a>
+                            @elseif ($uploadOpen)
+                                <a href="{{ route('penelitian-dos.create') }}" class="modern-btn modern-btn-primary">
+                                    <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
+                                </a>
+                            @else
+                                <button class="modern-btn modern-btn-primary" disabled>
+                                    <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
+                                </button>
+                            @endif
+                        </div>
+                    </div>
                         @if (!$timeline)
                             <div class="modern-alert modern-alert-danger"><i class="fa fa-exclamation-circle me-2"></i>No upload schedule available. You cannot upload a proposal.</div>
                         @else
@@ -27,32 +48,77 @@
                                 <div class="modern-alert modern-alert-danger"><i class="fa fa-times-circle me-2"></i>The upload period has ended.</div>
                             @endif
                         @endif
-                        @if ($penelitian->isEmpty())
+                        
+                        <form method="GET" class="modern-card p-3 mb-3 filter-card">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="modern-form-label text-uppercase small fw-semibold">Cari Judul</label>
+                                    <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="modern-form-input" placeholder="Cari judul proposal...">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="modern-form-label text-uppercase small fw-semibold">Skema</label>
+                                    <select name="skema" class="modern-form-select">
+                                        <option value="">Semua Skema</option>
+                                        @foreach($filterSkemas as $skemaOption)
+                                            <option value="{{ $skemaOption }}" @selected(($filters['skema'] ?? '') === $skemaOption)>{{ $skemaOption }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="modern-form-label text-uppercase small fw-semibold">Tahun</label>
+                                    <select name="year" class="modern-form-select">
+                                        <option value="">Semua Tahun</option>
+                                        @foreach($filterYears as $yearOption)
+                                            <option value="{{ $yearOption }}" @selected(($filters['year'] ?? '') == $yearOption)>{{ $yearOption }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="modern-form-label text-uppercase small fw-semibold">Status</label>
+                                    <select name="status" class="modern-form-select">
+                                        <option value="">Semua Status</option>
+                                        @foreach($statuses as $statusOption)
+                                            <option value="{{ $statusOption }}" @selected(($filters['status'] ?? '') === $statusOption)>{{ $statusOption }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2 d-flex gap-2">
+                                    <button type="submit" class="modern-btn modern-btn-primary w-100">
+                                        <i class="fa fa-filter me-1"></i> Terapkan
+                                    </button>
+                                    <a href="{{ route('penelitian-dos.index') }}" class="modern-btn modern-btn-outline w-100">
+                                        Reset
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+
+                        @if ($penelitian->count() === 0)
                             <div class="modern-alert modern-alert-info">
                                 <i class="fa fa-info-circle me-2"></i>Belum ada proposal penelitian.
                             </div>
                         @else
                         <div class="modern-table-container mb-3">
-                            <table class="modern-table">
+                            <table class="modern-table modern-table-fixed">
                                 <thead>
                                     <tr>
-                                        <th>No.</th>
-                                        <th>Judul</th>
-                                        <th>Skema</th>
+                                        <th class="col-no text-center">#</th>
+                                        <th class="col-judul">Judul</th>
+                                        <th class="col-skema">Skema</th>
                                         <th>Tahun</th>
                                         <th>Status</th>
-                                        <th>Dokumen Proposal</th>
+                                        <th>Proposal</th>
                                         <th>Dokumen Review</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($penelitian as $item)
                                         <tr>
-                                            <td class="text-center">{{ $loop->iteration }}</td>
-                                            <td>
+                                            <td class="col-no text-center">{{ $penelitian->firstItem() + $loop->index }}</td>
+                                            <td class="col-judul">
                                                 <div class="fw-bold">{{ $item->judul }}</div>
                                             </td>
-                                            <td>
+                                            <td class="col-skema">
                                                 <span class="status-badge skema">{{ $item->skema }}</span>
                                             </td>
                                             <td>{{ $item->created_at->year }}</td>
@@ -137,31 +203,12 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="d-flex justify-content-end modern-pagination">
+                            {{ $penelitian->links('pagination::bootstrap-5') }}
+                        </div>
                         
                         @endif
 
-                        @php($uploadOpen = $timeline && $currentDate >= $timeline->upload_start_date && $currentDate <= $timeline->upload_end_date)
-                        @if($uploadOpen)
-                            @if(isset($draft) && $draft)
-                                <a href="{{ route('penelitian-dos.create') }}" class="modern-btn modern-btn-warning mt-2">
-                                    <i class="fa fa-edit me-2"></i> Lanjutkan Draft
-                                </a>
-                            @else
-                                <a href="{{ route('penelitian-dos.create') }}" class="modern-btn modern-btn-primary mt-2">
-                                    <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
-                                </a>
-                            @endif
-                        @else
-                            @if(isset($draft) && $draft)
-                                <a href="{{ route('penelitian-dos.create') }}" class="modern-btn modern-btn-warning mt-2">
-                                    <i class="fa fa-edit me-2"></i> Lanjutkan Draft
-                                </a>
-                            @else
-                                <button class="modern-btn modern-btn-primary mt-2" disabled>
-                                    <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
-                                </button>
-                            @endif
-                        @endif
                 </div>
             </div>
         </div>
@@ -194,3 +241,97 @@
     </script>
     
 </x-dosen-layout>
+
+<style>
+    .filter-card {
+        border: 1px solid rgba(0,0,0,0.05);
+        background: #fff;
+        border-radius: 16px;
+    }
+    .filter-card .modern-form-label {
+        font-size: 0.78rem;
+        letter-spacing: .04em;
+        color: #6b7280;
+    }
+    .modern-table-container {
+        overflow-x: auto;
+    }
+    .modern-table.modern-table-fixed {
+        table-layout: fixed;
+        width: 100%;
+    }
+    .modern-table.modern-table-fixed th,
+    .modern-table.modern-table-fixed td {
+        white-space: normal;
+        word-break: break-word;
+        vertical-align: top;
+    }
+    .modern-table.modern-table-fixed .col-judul {
+        width: 35%;
+    }
+    .modern-table.modern-table-fixed .col-no {
+        width: 60px;
+        text-align: center;
+    }
+    .modern-table.modern-table-fixed .col-skema {
+        width: 18%;
+    }
+    .modern-table .status-badge.skema {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: .4rem .75rem;
+        min-height: 38px;
+        line-height: 1.2;
+        white-space: normal;
+        max-width: 100%;
+    }
+    .modern-btn.modern-btn-outline {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        color: #374151;
+        transition: all .2s ease;
+    }
+    .modern-btn.modern-btn-outline:hover {
+        border-color: #9ca3af;
+        color: #111827;
+        background: #f9fafb;
+    }
+    .modern-pagination nav {
+        width: auto;
+    }
+    .modern-pagination nav > .d-none.flex-sm-fill {
+        gap: 1rem;
+        align-items: center;
+    }
+    .modern-pagination .pagination {
+        gap: .35rem;
+        align-items: center;
+    }
+    .modern-pagination .page-link {
+        border-radius: 999px !important;
+        border: none;
+        background: #f3f4f6;
+        color: #1f2937;
+        padding: .45rem .85rem;
+        font-weight: 600;
+        min-width: 40px;
+        text-align: center;
+        transition: all .2s ease;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+    }
+    .modern-pagination .page-link:hover {
+        background: #e5e7eb;
+        color: #111827;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+    }
+    .modern-pagination .page-item.active .page-link {
+        background: linear-gradient(120deg,#1f2937,#111827);
+        color: #fff;
+        box-shadow: 0 10px 20px rgba(17,24,39,.25);
+    }
+    .modern-pagination .page-link:focus {
+        box-shadow: none;
+    }
+</style>

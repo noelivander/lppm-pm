@@ -18,14 +18,46 @@ use Illuminate\Support\Facades\Storage;
 
 class PengabdianController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        $pengabdian = Pengabdian::where('user_id', Auth::id())
-            ->where('is_draft', false)
-            ->orderByDesc('created_at')
-            ->get();
+
+        $baseQuery = Pengabdian::where('user_id', Auth::id())
+            ->where('is_draft', false);
+
+        $filterSkemas = (clone $baseQuery)->select('skema')
+            ->whereNotNull('skema')
+            ->distinct()
+            ->orderBy('skema')
+            ->pluck('skema');
+
+        $filterYears = (clone $baseQuery)->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        $statuses = ['Pending', 'Diproses', 'Selesai'];
+
+        if ($search = $request->get('search')) {
+            $baseQuery->where('judul', 'like', '%' . $search . '%');
+        }
+
+        if ($status = $request->get('status')) {
+            $baseQuery->where('status', $status);
+        }
+
+        if ($skema = $request->get('skema')) {
+            $baseQuery->where('skema', $skema);
+        }
+
+        if ($year = $request->get('year')) {
+            $baseQuery->whereYear('created_at', $year);
+        }
+
+        $pengabdian = $baseQuery->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
 
         // Cek apakah ada draft
         $draft = Pengabdian::where('user_id', Auth::id())
@@ -34,7 +66,18 @@ class PengabdianController extends Controller
 
         // Data sudah tidak dienkripsi, tidak perlu dekripsi
 
-        return view('dosen.ppm.pengabdian.index', compact('pengabdian','timeline','currentDate', 'draft'));
+        $filters = $request->only(['search', 'status', 'skema', 'year']);
+
+        return view('dosen.ppm.pengabdian.index', compact(
+            'pengabdian',
+            'timeline',
+            'currentDate',
+            'draft',
+            'filterSkemas',
+            'filterYears',
+            'statuses',
+            'filters'
+        ));
     }
 
     public function create()
