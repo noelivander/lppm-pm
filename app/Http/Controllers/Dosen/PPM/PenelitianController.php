@@ -9,7 +9,6 @@ use App\Models\Anggota;
 use App\Models\RabPenelitian;
 use App\Models\Review;
 use Mpdf\Mpdf;
-use App\Helpers\EncryptionHelper;
 use App\Models\Timeline;
 use App\Models\PPM\Skema;
 use App\Models\PPM\Luaran;
@@ -25,27 +24,30 @@ class PenelitianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
         $penelitian = Penelitian::where('user_id', Auth::id())
+            ->where('is_draft', false)
             ->orderByDesc('created_at')
             ->get();
 
-        foreach ($penelitian as $item) {
-            $item->judul = EncryptionHelper::decrypt($item->judul);
-            $item->luaran_wajib = EncryptionHelper::decrypt($item->luaran_wajib);
-            $item->sinta_index = EncryptionHelper::decrypt($item->sinta_index);
-            $item->lama_penelitian = EncryptionHelper::decrypt($item->lama_penelitian);
-            $item->biaya_diusulkan = EncryptionHelper::decrypt($item->biaya_diusulkan);
-            $item->skema = EncryptionHelper::decrypt($item->skema);
-            $item->luaran_tambahan = EncryptionHelper::decrypt($item->luaran_tambahan);
-            $item->ringkasan_proposal = EncryptionHelper::decrypt($item->ringkasan_proposal);
-        }
+        // Cek apakah ada draft
+        $draft = Penelitian::where('user_id', Auth::id())
+            ->where('is_draft', true)
+            ->first();
 
-        return view('dosen.ppm.penelitian.index', compact('penelitian','timeline','currentDate'));
+        // Data sudah tidak dienkripsi, tidak perlu dekripsi
+
+        return view('dosen.ppm.penelitian.index', compact('penelitian','timeline','currentDate', 'draft'));
     }
 
     public function create()
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
+
+        // Cek apakah ada draft
+        $draft = Penelitian::where('user_id', Auth::id())
+            ->where('is_draft', true)
+            ->with(['anggota', 'rab'])
+            ->first();
 
         $skemaPenelitian = Skema::where('jenis', 'penelitian')->where('is_shown', 1)->get();
         $luaranWajibPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
@@ -64,7 +66,8 @@ class PenelitianController extends Controller
             'luaranTambahanPenelitian',
             'kelompokRab',
             'komponenRab',
-            'satuanRab'
+            'satuanRab',
+            'draft'
         ));
     }
 
@@ -95,21 +98,35 @@ class PenelitianController extends Controller
         try {
             $currentDate = now();
             $timeline = $this->getActiveTimeline();
+            
+            $isDraft = $request->has('save_as_draft') && $request->save_as_draft == '1';
         
-            if (!$timeline) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Belum ada timeline aktif.');
+            // Check if existing draft has dokumen_proposal for submit (non-draft)
+            $hasExistingDokumen = false;
+            if (!$isDraft) {
+                $checkDraft = Penelitian::where('user_id', Auth::id())
+                    ->where('is_draft', true)
+                    ->first();
+                $hasExistingDokumen = $checkDraft && $checkDraft->dokumen_proposal;
+            }
+        
+            // Untuk draft, validasi lebih ringan
+            if (!$isDraft) {
+                if (!$timeline) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Belum ada timeline aktif.');
+                }
+
+                if ($currentDate < $timeline->upload_start_date || $currentDate > $timeline->upload_end_date) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Anda tidak dapat mengunggah proposal di luar periode yang ditentukan.');
+                }
             }
 
-            if ($currentDate < $timeline->upload_start_date || $currentDate > $timeline->upload_end_date) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Anda tidak dapat mengunggah proposal di luar periode yang ditentukan.');
-            }
-
-            // Validation rules
-            $validatedData = $request->validate([
+            // Validation rules - lebih ringan untuk draft
+            $validationRules = [
                 'judul' => 'required|string|max:255',
                 'luaran_wajib' => 'required|string',
                 'lama_penelitian' => 'required|string',
@@ -117,7 +134,7 @@ class PenelitianController extends Controller
                 'skema' => 'required|string',
                 'luaran_tambahan' => 'nullable|string',
                 'ringkasan_proposal' => 'required|string',
-                'dokumen_proposal' => 'required|mimes:pdf|max:10000',
+                'dokumen_proposal' => ($isDraft || $hasExistingDokumen) ? 'nullable|mimes:pdf|max:10000' : 'required|mimes:pdf|max:10000',
                 'sinta_index' => 'nullable|string',
                 'anggota_nama' => 'required|array|min:1',
                 'anggota_nama.*' => 'required|string',
@@ -147,7 +164,45 @@ class PenelitianController extends Controller
                 'rab_total' => 'required|array|min:1',
                 'rab_total.*' => 'required|numeric|min:0',
                 'rab_total_anggaran' => 'nullable|numeric|min:0',
-            ], [
+            ];
+            
+            // Untuk draft, beberapa field tidak wajib
+            if ($isDraft) {
+                $validationRules['judul'] = 'nullable|string|max:255';
+                $validationRules['luaran_wajib'] = 'nullable|string';
+                $validationRules['lama_penelitian'] = 'nullable|string';
+                $validationRules['biaya_diusulkan'] = 'nullable|string';
+                $validationRules['skema'] = 'nullable|string';
+                $validationRules['ringkasan_proposal'] = 'nullable|string';
+                $validationRules['anggota_nama'] = 'nullable|array';
+                $validationRules['anggota_nama.*'] = 'nullable|string';
+                $validationRules['anggota_peran'] = 'nullable|array';
+                $validationRules['anggota_peran.*'] = 'nullable|string|in:Ketua,Anggota';
+                $validationRules['anggota_nidn'] = 'nullable|array';
+                $validationRules['anggota_nidn.*'] = 'nullable|string';
+                $validationRules['anggota_jabatan'] = 'nullable|array';
+                $validationRules['anggota_jabatan.*'] = 'nullable|string|in:Dosen,Mahasiswa';
+                $validationRules['anggota_email'] = 'nullable|array';
+                $validationRules['anggota_email.*'] = 'nullable|email';
+                $validationRules['anggota_telepon'] = 'nullable|array';
+                $validationRules['anggota_telepon.*'] = 'nullable|string';
+                $validationRules['rab_kelompok'] = 'nullable|array';
+                $validationRules['rab_kelompok.*'] = 'nullable|string|in:Honorarium,Perjalanan,Operasional,Peralatan,Lainnya';
+                $validationRules['rab_komponen'] = 'nullable|array';
+                $validationRules['rab_komponen.*'] = 'nullable|string|in:SDM,Material,Jasa,Transportasi,Lainnya';
+                $validationRules['rab_item'] = 'nullable|array';
+                $validationRules['rab_item.*'] = 'nullable|string|max:255';
+                $validationRules['rab_satuan'] = 'nullable|array';
+                $validationRules['rab_satuan.*'] = 'nullable|string|max:50';
+                $validationRules['rab_volume'] = 'nullable|array';
+                $validationRules['rab_volume.*'] = 'nullable|integer';
+                $validationRules['rab_harga_satuan'] = 'nullable|array';
+                $validationRules['rab_harga_satuan.*'] = 'nullable|numeric|min:0';
+                $validationRules['rab_total'] = 'nullable|array';
+                $validationRules['rab_total.*'] = 'nullable|numeric|min:0';
+            }
+            
+            $validatedData = $request->validate($validationRules, [
                 'rab_kelompok.required' => 'Minimal satu baris RAB harus diisi.',
                 'rab_kelompok.*.required' => 'Kelompok RAB harus dipilih.',
                 'rab_komponen.*.required' => 'Komponen RAB harus dipilih.',
@@ -161,39 +216,79 @@ class PenelitianController extends Controller
             ]);
 
             // Store file with error handling
-            if (!$request->hasFile('dokumen_proposal')) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Dokumen proposal wajib diunggah.');
+            $dokumenProposal = null;
+            if ($request->hasFile('dokumen_proposal')) {
+                $dokumenProposal = $request->file('dokumen_proposal')->store('public/proposals');
+                if (!$dokumenProposal) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Gagal mengunggah dokumen proposal. Silakan coba lagi.');
+                }
+            } elseif (!$isDraft) {
+                // Check if existing draft has dokumen_proposal
+                $existingDraft = Penelitian::where('user_id', Auth::id())
+                    ->where('is_draft', true)
+                    ->first();
+                
+                if (!$existingDraft || !$existingDraft->dokumen_proposal) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Dokumen proposal wajib diunggah.');
+                }
             }
-
-            $dokumenProposal = $request->file('dokumen_proposal')->store('public/proposals');
-            if (!$dokumenProposal) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Gagal mengunggah dokumen proposal. Silakan coba lagi.');
-            }
-
-            $encryptedDokumenProposal = EncryptionHelper::encryptFile($dokumenProposal);
 
             // Use database transaction for atomic operations
             DB::beginTransaction();
 
             try {
-                // Create penelitian
-                $penelitian = Penelitian::create([
-                    'judul' => EncryptionHelper::encrypt($request->judul),
-                    'luaran_wajib' => EncryptionHelper::encrypt($request->luaran_wajib),
-                    'sinta_index' => EncryptionHelper::encrypt($request->sinta_index ?? ''),
-                    'lama_penelitian' => EncryptionHelper::encrypt($request->lama_penelitian),
-                    'biaya_diusulkan' => EncryptionHelper::encrypt($request->biaya_diusulkan),
-                    'skema' => EncryptionHelper::encrypt($request->skema),
-                    'luaran_tambahan' => EncryptionHelper::encrypt($request->luaran_tambahan ?? ''),
-                    'ringkasan_proposal' => EncryptionHelper::encrypt($request->ringkasan_proposal),
-                    'dokumen_proposal' => $encryptedDokumenProposal,
-                    'status' => 'Pending',
+                // Cek apakah ada draft yang akan diupdate
+                $existingDraft = Penelitian::where('user_id', Auth::id())
+                    ->where('is_draft', true)
+                    ->first();
+                
+                $data = [
+                    'judul' => $request->judul ?? null,
+                    'luaran_wajib' => $request->luaran_wajib ?? null,
+                    'sinta_index' => $request->sinta_index ?? null,
+                    'lama_penelitian' => $request->lama_penelitian ?? null,
+                    'biaya_diusulkan' => !empty($request->biaya_diusulkan) ? $request->biaya_diusulkan : null,
+                    'skema' => $request->skema ?? null,
+                    'luaran_tambahan' => $request->luaran_tambahan ?? null,
+                    'ringkasan_proposal' => $request->ringkasan_proposal ?? null,
+                    'is_draft' => $isDraft,
                     'user_id' => Auth::id(),
-                ]);
+                ];
+                
+                if ($dokumenProposal) {
+                    $data['dokumen_proposal'] = $dokumenProposal;
+                    // Hapus file lama jika ada
+                    if ($existingDraft && $existingDraft->dokumen_proposal) {
+                        Storage::delete($existingDraft->dokumen_proposal);
+                    }
+                } elseif ($existingDraft && $existingDraft->dokumen_proposal) {
+                    // Keep existing file if no new file uploaded
+                    $data['dokumen_proposal'] = $existingDraft->dokumen_proposal;
+                } else {
+                    // Allow null for draft
+                    $data['dokumen_proposal'] = null;
+                }
+                
+                if (!$isDraft) {
+                    $data['status'] = 'Pending';
+                }
+                
+                if ($existingDraft) {
+                    // Update draft yang ada
+                    $penelitian = $existingDraft;
+                    $penelitian->update($data);
+                    
+                    // Hapus anggota dan RAB lama
+                    Anggota::where('penelitian_id', $penelitian->id)->delete();
+                    RabPenelitian::where('penelitian_id', $penelitian->id)->delete();
+                } else {
+                    // Create baru
+                    $penelitian = Penelitian::create($data);
+                }
 
                 if (!$penelitian) {
                     throw new \Exception('Gagal membuat penelitian.');
@@ -208,12 +303,12 @@ class PenelitianController extends Controller
 
                         Anggota::create([
                             'penelitian_id' => $penelitian->id,
-                            'nama' => EncryptionHelper::encrypt($nama),
-                            'jabatan' => EncryptionHelper::encrypt($request->anggota_jabatan[$key] ?? ''),
-                            'peran' => $request->anggota_peran[$key] ?? 'Anggota',
-                            'nidn' => EncryptionHelper::encrypt($request->anggota_nidn[$key] ?? ''),
-                            'email' => EncryptionHelper::encrypt($request->anggota_email[$key] ?? ''),
-                            'telepon' => EncryptionHelper::encrypt($request->anggota_telepon[$key] ?? ''),
+                            'nama' => $nama,
+                            'jabatan' => !empty($request->anggota_jabatan[$key]) ? $request->anggota_jabatan[$key] : null,
+                            'peran' => !empty($request->anggota_peran[$key]) ? $request->anggota_peran[$key] : 'Anggota',
+                            'nidn' => !empty($request->anggota_nidn[$key]) ? $request->anggota_nidn[$key] : null,
+                            'email' => !empty($request->anggota_email[$key]) ? $request->anggota_email[$key] : null,
+                            'telepon' => !empty($request->anggota_telepon[$key]) ? $request->anggota_telepon[$key] : null,
                         ]);
                     }
                 }
@@ -244,22 +339,27 @@ class PenelitianController extends Controller
                         RabPenelitian::create([
                             'penelitian_id' => $penelitian->id,
                             'kelompok' => $kelompok,
-                            'komponen' => $request->rab_komponen[$key] ?? '',
-                            'item' => $request->rab_item[$key] ?? '',
-                            'satuan' => $request->rab_satuan[$key] ?? '',
-                            'volume' => $volume,
-                            'harga_satuan' => $hargaSatuan,
-                            'total' => $total,
+                            'komponen' => !empty($request->rab_komponen[$key]) ? $request->rab_komponen[$key] : null,
+                            'item' => !empty($request->rab_item[$key]) ? $request->rab_item[$key] : null,
+                            'satuan' => !empty($request->rab_satuan[$key]) ? $request->rab_satuan[$key] : null,
+                            'volume' => $volume > 0 ? $volume : null,
+                            'harga_satuan' => $hargaSatuan > 0 ? $hargaSatuan : null,
+                            'total' => $total > 0 ? $total : null,
                         ]);
                     }
-                } else {
+                } elseif (!$isDraft) {
                     throw new \Exception('Data RAB tidak ditemukan. Minimal satu baris RAB harus diisi.');
                 }
 
                 DB::commit();
 
-                return redirect()->route('penelitian-dos.index')
-                    ->with('success', 'Proposal penelitian berhasil diajukan.');
+                if ($isDraft) {
+                    return redirect()->route('penelitian-dos.index')
+                        ->with('success', 'Draft berhasil disimpan.');
+                } else {
+                    return redirect()->route('penelitian-dos.index')
+                        ->with('success', 'Proposal penelitian berhasil diajukan.');
+                }
 
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -299,13 +399,13 @@ class PenelitianController extends Controller
     public function downloadDokumenProposal($id)
     {
         $penelitian = Penelitian::findOrFail($id);
-        $encryptedFilePath = $penelitian->dokumen_proposal;
+        $filePath = $penelitian->dokumen_proposal;
 
-        $decryptedContent = EncryptionHelper::decryptFile($encryptedFilePath);
+        if (!Storage::exists($filePath)) {
+            abort(404, 'File tidak ditemukan');
+        }
 
-        return response($decryptedContent)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="proposal.pdf"');
+        return Storage::download($filePath, 'proposal.pdf');
     }
 
 

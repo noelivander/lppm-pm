@@ -13,7 +13,7 @@ class Penelitian extends Model
     protected $fillable = [
         'judul', 'luaran_wajib', 'lama_penelitian', 'biaya_diusulkan', 'sinta_index', 
         'skema', 'luaran_tambahan', 'ringkasan_proposal', 'dokumen_proposal', 
-        'status', 'user_id'
+        'status', 'user_id', 'is_draft'
     ];
     public function anggota()
     {

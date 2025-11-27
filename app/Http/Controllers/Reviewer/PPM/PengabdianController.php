@@ -10,7 +10,6 @@ use App\Models\Anggota_pengabdian;
 use App\Models\Timeline;
 use App\Models\Review;
 use Illuminate\Support\Facades\Log;
-use App\Helpers\EncryptionHelper; 
 
 class PengabdianController extends Controller
 {
@@ -18,23 +17,14 @@ class PengabdianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        $proposals = Pengabdian::all();
+        // Hanya tampilkan proposal yang sudah disubmit (bukan draft) dan urutkan terbaru
+        $proposals = Pengabdian::where('is_draft', false)
+            ->orderByDesc('updated_at')
+            ->get();
         $reviews = Review::where('reviewer_id', auth()->id())->pluck('pengabdian_id')->toArray();
         $existingReviews = Review::all();
 
-        foreach ($proposals as $proposal) {
-            try {
-                $proposal->judul = EncryptionHelper::decrypt($proposal->judul);
-            } catch (\Exception $e) {
-                $proposal->judul = null;
-            }
-
-            try {
-                $proposal->skema = EncryptionHelper::decrypt($proposal->skema);
-            } catch (\Exception $e) {
-                $proposal->skema = null;
-            }
-        }
+        // Data sudah tidak dienkripsi, tidak perlu dekripsi
     
         return view('reviewer.ppm.pengabdian.index', compact('proposals', 'reviews', 'existingReviews','timeline','currentDate'));
     }
@@ -58,17 +48,17 @@ class PengabdianController extends Controller
                              ->where('peran', 'anggota')
                              ->get();
         
-        $ketuaTimName = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nama) : '';
-        $nidn = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nidn) : '';
-        $jabatan = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->jabatan) : '';
+        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
 
         $anggotaNames = $anggotaTim->map(function($anggota) {
-            return EncryptionHelper::decrypt($anggota->nama);
+            return $anggota->nama;
         })->join(', ');
 
-        $judul = EncryptionHelper::decrypt($proposal->judul);
-        $biayaUsulan = EncryptionHelper::decrypt($proposal->biaya_diusulkan); 
-        $sintaIndex = EncryptionHelper::decrypt($proposal->sinta_index);
+        $judul = $proposal->judul;
+        $biayaUsulan = $proposal->biaya_diusulkan; 
+        $sintaIndex = $proposal->sinta_index;
     
         if ($review) {
             return view('reviewer.ppm.pengabdian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'anggotaNames', 'judul', 'jabatan', 'biayaUsulan', 'sintaIndex'));
@@ -203,17 +193,17 @@ class PengabdianController extends Controller
                 ->where('peran', 'anggota')
                 ->get();
 
-        $ketuaTimName = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nama) : '';
-        $nidn = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nidn) : '';
-        $jabatan = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->jabatan) : '';
+        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
                 
         $anggotaNames = $anggotaTim->map(function($anggota) {
-            return EncryptionHelper::decrypt($anggota->nama);
+            return $anggota->nama;
         })->join(', ');
         
-        $judul = EncryptionHelper::decrypt($proposal->judul);
-        $biayaUsulan = EncryptionHelper::decrypt($proposal->biaya_diusulkan); 
-        $sintaIndex = EncryptionHelper::decrypt($proposal->sinta_index);
+        $judul = $proposal->judul;
+        $biayaUsulan = $proposal->biaya_diusulkan; 
+        $sintaIndex = $proposal->sinta_index;
 
         if ($review) {
             return view('reviewer.ppm.pengabdian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'judul', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));

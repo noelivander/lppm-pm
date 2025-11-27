@@ -132,13 +132,25 @@
 
                         @php($uploadOpen = $timeline && $currentDate >= $timeline->upload_start_date && $currentDate <= $timeline->upload_end_date)
                         @if($uploadOpen)
-                            <a href="{{ route('pengabdian-dos.create') }}" class="modern-btn modern-btn-primary mt-3">
-                                <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
-                            </a>
+                            @if(isset($draft) && $draft)
+                                <a href="{{ route('pengabdian-dos.create') }}" class="modern-btn modern-btn-warning mt-3">
+                                    <i class="fa fa-edit me-2"></i> Lanjutkan Draft
+                                </a>
+                            @else
+                                <a href="{{ route('pengabdian-dos.create') }}" class="modern-btn modern-btn-primary mt-3">
+                                    <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
+                                </a>
+                            @endif
                         @else
-                            <button class="modern-btn modern-btn-primary mt-3" disabled>
-                            <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
-                        </button>
+                            @if(isset($draft) && $draft)
+                                <a href="{{ route('pengabdian-dos.create') }}" class="modern-btn modern-btn-warning mt-3">
+                                    <i class="fa fa-edit me-2"></i> Lanjutkan Draft
+                                </a>
+                            @else
+                                <button class="modern-btn modern-btn-primary mt-3" disabled>
+                                    <i class="fa fa-plus me-2"></i> Tambah Usulan Baru
+                                </button>
+                            @endif
                         @endif
                     </div>
                 </div>

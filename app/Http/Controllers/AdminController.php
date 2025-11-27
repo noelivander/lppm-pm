@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Penelitian;
 use App\Models\Pengabdian;
 use App\Models\ProgramStudi;
-use App\Helpers\EncryptionHelper;
 
 class AdminController extends Controller
 {
@@ -36,14 +35,9 @@ class AdminController extends Controller
             return Pengabdian::whereYear('created_at', $year)->whereMonth('created_at', $m)->count();
         });
 
-        // Pie breakdown for skema (decrypt, top 3 + others)
+        // Pie breakdown for skema (top 3 + others)
         $allSkemaCounts = Penelitian::pluck('skema')
-            ->map(function ($v) {
-                $plain = EncryptionHelper::decrypt($v);
-                $label = trim((string) ($plain !== false && $plain !== null ? $plain : $v));
-                return $label;
-            })
-            ->filter(fn($v) => $v !== '')
+            ->filter(fn($v) => $v !== '' && $v !== null)
             ->countBy()
             ->sortDesc();
 
@@ -65,16 +59,8 @@ class AdminController extends Controller
             ->pluck('total', 'status');
 
         // Recent submissions
-        $latestPenelitian = Penelitian::latest('created_at')->take(5)->get(['id', 'judul', 'status', 'created_at'])
-            ->map(function ($it) {
-                $it->judul = EncryptionHelper::decrypt($it->judul) ?: $it->judul;
-                return $it;
-            });
-        $latestPengabdian = Pengabdian::latest('created_at')->take(5)->get(['id', 'judul', 'status', 'created_at'])
-            ->map(function ($it) {
-                $it->judul = EncryptionHelper::decrypt($it->judul) ?: $it->judul;
-                return $it;
-            });
+        $latestPenelitian = Penelitian::latest('created_at')->take(5)->get(['id', 'judul', 'status', 'created_at']);
+        $latestPengabdian = Pengabdian::latest('created_at')->take(5)->get(['id', 'judul', 'status', 'created_at']);
 
         return view('admin.dashboard', [
             'kpis' => [

@@ -10,7 +10,7 @@
                     <div class="modern-card-body">
                         <h3>Proposal Penelitian</h3>
                         <h5 class="mb-3">"{{ $judul }}"</h5>
-                        <iframe src="{{ $decryptedFileUrl }}" style="width:100%; height:700px;"></iframe>
+                        <iframe src="{{ $fileUrl }}" style="width:100%; height:700px;"></iframe>
                     </div>
                 </div>
 

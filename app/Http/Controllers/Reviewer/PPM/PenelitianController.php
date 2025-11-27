@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Anggota;
 use App\Models\Review;
 use Illuminate\Support\Facades\Log;
-use App\Helpers\EncryptionHelper; 
 use Illuminate\Support\Facades\Storage;
 use App\Models\Timeline;
 
@@ -20,23 +19,14 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        $proposals = Penelitian::all();
+        // Hanya tampilkan proposal yang sudah disubmit (bukan draft) dan urutkan terbaru
+        $proposals = Penelitian::where('is_draft', false)
+            ->orderByDesc('updated_at')
+            ->get();
         $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
         $existingReviews = Review::all(); 
 
-        foreach ($proposals as $proposal) {
-            try {
-                $proposal->judul = EncryptionHelper::decrypt($proposal->judul);
-            } catch (\Exception $e) {
-                $proposal->judul = null;
-            }
-
-            try {
-                $proposal->skema = EncryptionHelper::decrypt($proposal->skema);
-            } catch (\Exception $e) {
-                $proposal->skema = null;
-            }
-        }
+        // Data sudah tidak dienkripsi, tidak perlu dekripsi
         
         return view('reviewer.ppm.penelitian.index', compact('proposals', 'reviews', 'existingReviews','timeline','currentDate'));
     }
@@ -60,33 +50,25 @@ class PenelitianController extends Controller
                             ->where('peran', 'anggota')
                             ->get();
         
-        $ketuaTimName = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nama) : '';
-        $nidn = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nidn) : '';
-        $jabatan = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->jabatan) : '';
+        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
         
         $anggotaNames = $anggotaTim->map(function($anggota) {
-            return EncryptionHelper::decrypt($anggota->nama);
+            return $anggota->nama;
         })->join(', ');
         
-        $judul = EncryptionHelper::decrypt($proposal->judul);
-        $biayaUsulan = EncryptionHelper::decrypt($proposal->biaya_diusulkan); 
-        $sintaIndex = EncryptionHelper::decrypt($proposal->sinta_index);
+        $judul = $proposal->judul;
+        $biayaUsulan = $proposal->biaya_diusulkan; 
+        $sintaIndex = $proposal->sinta_index;
 
-        $encryptedFilePath = $proposal->dokumen_proposal;
-
-        $decryptedContent = EncryptionHelper::decryptFile($encryptedFilePath);
-
-        // Simpan file sementara di public/temp
-        $fileName = 'temp/decrypted_' . uniqid() . '.pdf';
-        Storage::disk('public')->put($fileName, $decryptedContent);
-
-        // Buat URL publik
-        $decryptedFileUrl = asset('storage/' . $fileName);
+        // Buat URL publik untuk file proposal
+        $fileUrl = Storage::url($proposal->dokumen_proposal);
 
         if ($review) {
-            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'decryptedFileUrl', 'nidn', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'fileUrl', 'nidn', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
         } else {
-            return view('reviewer.ppm.penelitian.review', compact('proposal', 'ketuaTimName', 'nidn', 'decryptedFileUrl', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.review', compact('proposal', 'ketuaTimName', 'nidn', 'fileUrl', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
         }
     }
     
@@ -217,31 +199,23 @@ class PenelitianController extends Controller
                 ->where('peran', 'anggota')
                 ->get();
 
-        $ketuaTimName = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nama) : '';
-        $nidn = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->nidn) : '';
-        $jabatan = $ketuaTim ? EncryptionHelper::decrypt($ketuaTim->jabatan) : '';
+        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
         
         $anggotaNames = $anggotaTim->map(function($anggota) {
-            return EncryptionHelper::decrypt($anggota->nama);
+            return $anggota->nama;
         })->join(', ');
 
-        $judul = EncryptionHelper::decrypt($proposal->judul);
-        $biayaUsulan = EncryptionHelper::decrypt($proposal->biaya_diusulkan); 
-        $sintaIndex = EncryptionHelper::decrypt($proposal->sinta_index);
+        $judul = $proposal->judul;
+        $biayaUsulan = $proposal->biaya_diusulkan; 
+        $sintaIndex = $proposal->sinta_index;
 
-        $encryptedFilePath = $proposal->dokumen_proposal;
-
-        $decryptedContent = EncryptionHelper::decryptFile($encryptedFilePath);
-
-        // Simpan file sementara di public/temp
-        $fileName = 'temp/decrypted_' . uniqid() . '.pdf';
-        Storage::disk('public')->put($fileName, $decryptedContent);
-
-        // Buat URL publik
-        $decryptedFileUrl = asset('storage/' . $fileName);
+        // Buat URL publik untuk file proposal
+        $fileUrl = Storage::url($proposal->dokumen_proposal);
 
         if ($review) {
-            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'decryptedFileUrl', 'judul', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'fileUrl', 'judul', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
         } else {
             return redirect()->back()->with('error', 'Review not found.');
         }

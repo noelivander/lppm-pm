@@ -55,7 +55,7 @@
                                 <span class="badge bg-secondary">Form dikunci</span>
                             @endunless
                         </div>
-                        <form method="POST" action="{{ route('penelitian-dos.store') }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('penelitian-dos.store') }}" enctype="multipart/form-data" novalidate>
                             @csrf
                             <fieldset class="border-0 p-0 m-0" @disabled(!$uploadOpen)>
                                 <div class="modern-card-body">
@@ -66,7 +66,7 @@
                                                     <i class="fa fa-heading me-2"></i>Judul Penelitian
                                                     <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="text" name="judul" id="judul" class="modern-form-input" placeholder="Masukkan judul penelitian..." required>
+                                                <input type="text" name="judul" id="judul" class="modern-form-input" placeholder="Masukkan judul penelitian..." value="{{ old('judul', $draft->judul ?? '') }}" required>
                                             </div>
 
                                             <div class="modern-form-group">
@@ -74,7 +74,7 @@
                                                     <i class="fa fa-clock me-2"></i>Lama Penelitian
                                                     <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="text" name="lama_penelitian" id="lama_penelitian" class="modern-form-input" placeholder="Contoh: 12 bulan" required>
+                                                <input type="text" name="lama_penelitian" id="lama_penelitian" class="modern-form-input" placeholder="Contoh: 12 bulan" value="{{ old('lama_penelitian', $draft->lama_penelitian ?? '') }}" required>
                                             </div>
 
                                             <div class="modern-form-group">
@@ -82,7 +82,7 @@
                                                     <i class="fa fa-money-bill me-2"></i>Biaya yang Diusulkan (Rp.)
                                                     <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="text" name="biaya_diusulkan" id="biaya_diusulkan" class="modern-form-input" inputmode="numeric" pattern="[0-9]*" placeholder="Masukkan jumlah biaya..." required>
+                                                <input type="text" name="biaya_diusulkan" id="biaya_diusulkan" class="modern-form-input" inputmode="numeric" pattern="[0-9]*" placeholder="Masukkan jumlah biaya..." value="{{ old('biaya_diusulkan', $draft->biaya_diusulkan ?? '') }}" required>
                                             </div>
 
                                             <div class="modern-form-group">
@@ -90,7 +90,7 @@
                                                     <i class="fa fa-file-text me-2"></i>Ringkasan Proposal
                                                     <span class="text-danger">*</span>
                                                 </label>
-                                                <textarea name="ringkasan_proposal" id="ringkasan_proposal" class="modern-form-textarea" placeholder="Tuliskan ringkasan proposal penelitian..." required></textarea>
+                                                <textarea name="ringkasan_proposal" id="ringkasan_proposal" class="modern-form-textarea" placeholder="Tuliskan ringkasan proposal penelitian..." required>{{ old('ringkasan_proposal', $draft->ringkasan_proposal ?? '') }}</textarea>
                                                 <div id="wordCount" class="text-muted small mt-1">0/500 words</div>
                                             </div>
                                         </div>
@@ -101,9 +101,9 @@
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <select name="skema" id="skema" class="modern-form-select" required>
-                                                    <option value="" disabled selected>Pilih skema penelitian...</option>
+                                                    <option value="" disabled {{ !old('skema', $draft->skema ?? '') ? 'selected' : '' }}>Pilih skema penelitian...</option>
                                                     @foreach($skemaPenelitian as $skema)
-                                                        <option value="{{ $skema->nama }}">{{ $skema->nama }}</option>
+                                                        <option value="{{ $skema->nama }}" {{ old('skema', $draft->skema ?? '') == $skema->nama ? 'selected' : '' }}>{{ $skema->nama }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -113,9 +113,9 @@
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <select name="luaran_wajib" id="luaran_wajib" class="modern-form-select" required>
-                                                    <option value="" disabled selected>Pilih luaran wajib...</option>
+                                                    <option value="" disabled {{ !old('luaran_wajib', $draft->luaran_wajib ?? '') ? 'selected' : '' }}>Pilih luaran wajib...</option>
                                                     @foreach($luaranWajibPenelitian as $luaran)
-                                                        <option value="{{ $luaran->nama }}">{{ $luaran->nama }}</option>
+                                                        <option value="{{ $luaran->nama }}" {{ old('luaran_wajib', $draft->luaran_wajib ?? '') == $luaran->nama ? 'selected' : '' }}>{{ $luaran->nama }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -125,21 +125,21 @@
                                                     <span class="text-danger" id="sintaRequiredIndicator" style="display:none">*</span>
                                                 </label>
                                                 <select name="sinta_index" id="sinta_index" class="modern-form-select">
-                                                    <option value="" disabled selected>Pilih level Sinta...</option>
-                                                    <option value="Sinta 1">Sinta 1</option>
-                                                    <option value="Sinta 2">Sinta 2</option>
-                                                    <option value="Sinta 3">Sinta 3</option>
-                                                    <option value="Sinta 4">Sinta 4</option>
-                                                    <option value="Sinta 5">Sinta 5</option>
-                                                    <option value="Sinta 6">Sinta 6</option>
+                                                    <option value="" disabled {{ !old('sinta_index', $draft->sinta_index ?? '') ? 'selected' : '' }}>Pilih level Sinta...</option>
+                                                    <option value="Sinta 1" {{ old('sinta_index', $draft->sinta_index ?? '') == 'Sinta 1' ? 'selected' : '' }}>Sinta 1</option>
+                                                    <option value="Sinta 2" {{ old('sinta_index', $draft->sinta_index ?? '') == 'Sinta 2' ? 'selected' : '' }}>Sinta 2</option>
+                                                    <option value="Sinta 3" {{ old('sinta_index', $draft->sinta_index ?? '') == 'Sinta 3' ? 'selected' : '' }}>Sinta 3</option>
+                                                    <option value="Sinta 4" {{ old('sinta_index', $draft->sinta_index ?? '') == 'Sinta 4' ? 'selected' : '' }}>Sinta 4</option>
+                                                    <option value="Sinta 5" {{ old('sinta_index', $draft->sinta_index ?? '') == 'Sinta 5' ? 'selected' : '' }}>Sinta 5</option>
+                                                    <option value="Sinta 6" {{ old('sinta_index', $draft->sinta_index ?? '') == 'Sinta 6' ? 'selected' : '' }}>Sinta 6</option>
                                                 </select>
                                             </div>
                                             <div class="modern-form-group">
                                                 <label for="luaran_tambahan" class="modern-form-label"><i class="fa fa-plus-circle me-2"></i>Luaran Tambahan</label>
                                                 <select name="luaran_tambahan" id="luaran_tambahan" class="modern-form-select">
-                                                    <option value="" disabled selected>Pilih luaran tambahan (opsional)...</option>
+                                                    <option value="" disabled {{ !old('luaran_tambahan', $draft->luaran_tambahan ?? '') ? 'selected' : '' }}>Pilih luaran tambahan (opsional)...</option>
                                                     @foreach($luaranTambahanPenelitian as $luaran)
-                                                        <option value="{{ $luaran->nama }}">{{ $luaran->nama }}</option>
+                                                        <option value="{{ $luaran->nama }}" {{ old('luaran_tambahan', $draft->luaran_tambahan ?? '') == $luaran->nama ? 'selected' : '' }}>{{ $luaran->nama }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -148,6 +148,12 @@
                                                     <i class="fa fa-file-pdf me-2"></i>Dokumen Proposal (PDF)
                                                     <span class="text-danger">*</span>
                                                 </label>
+                                                @if(isset($draft) && $draft && $draft->dokumen_proposal)
+                                                    <div class="modern-alert modern-alert-info mb-2">
+                                                        <i class="fa fa-info-circle me-2"></i>Dokumen proposal sudah diunggah sebelumnya. Unggah file baru untuk menggantinya.
+                                                        <br><small>File saat ini: <a href="{{ Storage::url($draft->dokumen_proposal) }}" target="_blank" class="text-decoration-underline">{{ basename($draft->dokumen_proposal) }}</a></small>
+                                                    </div>
+                                                @endif
                                                 <input type="file" name="dokumen_proposal" id="dokumen_proposal" class="modern-form-input" accept="application/pdf" required>
                                             </div>
                                         </div>
@@ -268,6 +274,9 @@
                                 <a href="{{ route('penelitian-dos.index') }}" class="modern-btn modern-btn-secondary">
                                     <i class="fa fa-times me-1"></i>Batalkan
                                 </a>
+                                <button type="submit" name="save_as_draft" value="1" class="modern-btn modern-btn-warning" id="saveDraftBtn" formnovalidate>
+                                    <i class="fa fa-save me-1"></i>Simpan sebagai Draft
+                                </button>
                                 <button type="submit" class="modern-btn modern-btn-success" id="submitProposal" @disabled(!$uploadOpen)>
                                     <i class="fa fa-paper-plane me-1"></i>Submit Proposal
                                 </button>
@@ -313,11 +322,42 @@
         const form = document.querySelector('form');
         const anggotaTableBody = document.querySelector('#anggotaTable tbody');
         const submitButton = document.getElementById('submitProposal');
+        const saveDraftBtn = document.getElementById('saveDraftBtn');
         const rabTableBody = document.querySelector('#rabTable tbody');
         const rabTemplate = document.getElementById('rabRowTemplate');
         const rabAddBtn = document.getElementById('addRabRow');
         const rabGrandTotalDisplay = document.getElementById('rabGrandTotal');
         const rabGrandTotalInput = document.getElementById('rabGrandTotalInput');
+        
+        // Handle save as draft button - remove all required attributes
+        // Use mousedown to run before validation
+        if (saveDraftBtn) {
+            saveDraftBtn.addEventListener('mousedown', function(e) {
+                // Remove required attributes from ALL form fields immediately
+                const allInputs = form.querySelectorAll('input, select, textarea');
+                allInputs.forEach(function(input) {
+                    input.removeAttribute('required');
+                    input.removeAttribute('pattern');
+                    input.required = false;
+                });
+                
+                // Disable HTML5 validation on form
+                form.setAttribute('novalidate', 'novalidate');
+                form.noValidate = true;
+            });
+            
+            // Also handle click as backup
+            saveDraftBtn.addEventListener('click', function(e) {
+                const allInputs = form.querySelectorAll('input, select, textarea');
+                allInputs.forEach(function(input) {
+                    input.removeAttribute('required');
+                    input.removeAttribute('pattern');
+                    input.required = false;
+                });
+                form.setAttribute('novalidate', 'novalidate');
+                form.noValidate = true;
+            });
+        }
 
         function updateWordCount() {
             const words = ringkasanInput.value.trim().split(/\s+/).filter(Boolean);
@@ -378,7 +418,7 @@
             }
         }
 
-        function updateSatuanByKomponen(selectElement, row) {
+        function updateSatuanByKomponen(selectElement, row, callback) {
             const komponenName = selectElement.value;
             const satuanSelect = row ? row.querySelector('.rab-satuan-select') : selectElement.closest('tr')?.querySelector('.rab-satuan-select');
             
@@ -386,6 +426,7 @@
                 if (satuanSelect) {
                     satuanSelect.innerHTML = '<option value="" disabled selected>Pilih komponen dulu...</option>';
                 }
+                if (callback) callback();
                 return;
             }
 
@@ -410,11 +451,15 @@
                         satuanSelect.innerHTML = '<option value="" disabled>Belum ada satuan untuk komponen ini</option>';
                     }
                     satuanSelect.disabled = false;
+                    
+                    // Call callback after satuan is loaded
+                    if (callback) callback();
                 })
                 .catch(error => {
                     console.error('Error loading satuan:', error);
                     satuanSelect.innerHTML = '<option value="" disabled>Error memuat satuan</option>';
                     satuanSelect.disabled = false;
+                    if (callback) callback();
                 });
         }
 
@@ -539,6 +584,11 @@
                 const anggotaRows = anggotaTableBody.querySelectorAll('tr');
                 for (let row of anggotaRows) {
                     const nama = row.querySelector('input[name="anggota_nama[]"]');
+                    // Skip empty rows (rows with no nama filled)
+                    if (!nama || !nama.value.trim()) {
+                        continue;
+                    }
+                    
                     const peran = row.querySelector('select[name="anggota_peran[]"]');
                     const jabatan = row.querySelector('select[name="anggota_jabatan[]"]');
                     const nidn = row.querySelector('input[name="anggota_nidn[]"]');
@@ -547,11 +597,11 @@
                     
                     // Check if this row is completely filled
                     const isRowComplete = 
-                        nama && nama.value.trim() &&
+                        nama.value.trim() &&
                         peran && peran.value &&
                         jabatan && jabatan.value &&
                         nidn && nidn.value.trim() &&
-                        email && email.value.trim() && email.validity.valid &&
+                        email && email.value.trim() && (email.validity.valid || email.value.includes('@')) &&
                         telepon && telepon.value.trim();
                     
                     if (isRowComplete) {
@@ -559,6 +609,9 @@
                         break; // At least one row is valid
                     }
                 }
+            } else {
+                // If no anggota rows exist, it's invalid for submit
+                anggotaValid = false;
             }
             
             // Validate RAB rows - check if at least one row is completely filled
@@ -567,26 +620,36 @@
                 const rabRows = rabTableBody.querySelectorAll('tr');
                 for (let row of rabRows) {
                     const kelompok = row.querySelector('select[name="rab_kelompok[]"]');
+                    // Skip empty rows (rows with no kelompok selected)
+                    if (!kelompok || !kelompok.value) {
+                        continue;
+                    }
+                    
                     const komponen = row.querySelector('select[name="rab_komponen[]"]');
                     const item = row.querySelector('input[name="rab_item[]"]');
-                    const satuan = row.querySelector('input[name="rab_satuan[]"]');
+                    const satuan = row.querySelector('select[name="rab_satuan[]"]');
                     const volume = row.querySelector('input[name="rab_volume[]"]');
                     const harga = row.querySelector('input[name="rab_harga_satuan[]"]');
                     
                     // Check if this row is completely filled
+                    const volumeValue = volume && volume.value ? parseInt(volume.value) : 0;
+                    const hargaValue = harga && harga.value ? parseFloat(harga.value) : 0;
                     const isRowComplete = 
-                        kelompok && kelompok.value &&
+                        kelompok.value &&
                         komponen && komponen.value &&
                         item && item.value.trim() &&
-                        satuan && satuan.value.trim() &&
-                        volume && volume.value && parseInt(volume.value) > 0 &&
-                        harga && harga.value && parseFloat(harga.value) >= 0;
+                        satuan && satuan.value &&
+                        volumeValue > 0 &&
+                        hargaValue >= 0;
                     
                     if (isRowComplete) {
                         rabRowsValid = true;
                         break; // At least one row is valid
                     }
                 }
+            } else {
+                // If no RAB rows exist, it's invalid for submit
+                rabRowsValid = false;
             }
             
             // Check basic form fields manually
@@ -598,6 +661,14 @@
             const ringkasanProposal = document.getElementById('ringkasan_proposal');
             const dokumenProposal = document.getElementById('dokumen_proposal');
             
+            // Check if draft has existing dokumen_proposal
+            const hasExistingDokumen = @json(isset($draft) && $draft && $draft->dokumen_proposal ? true : false);
+            
+            // Dokumen valid if: new file uploaded OR existing dokumen in draft
+            const dokumenValid = dokumenProposal && (
+                dokumenProposal.files.length > 0 || hasExistingDokumen
+            );
+            
             const basicFieldsValid = 
                 judul && judul.value.trim() &&
                 skema && skema.value &&
@@ -605,7 +676,7 @@
                 lamaPenelitian && lamaPenelitian.value.trim() &&
                 biayaDiusulkan && biayaDiusulkan.value.trim() &&
                 ringkasanProposal && ringkasanProposal.value.trim() &&
-                dokumenProposal && dokumenProposal.files.length > 0;
+                dokumenValid;
             
             // Check if sinta_index is required and filled
             let sintaValid = true;
@@ -615,11 +686,27 @@
                 sintaValid = sintaIndex && sintaIndex.value;
             }
             
-            // Final validation
+            // Final validation - only for submit proposal, not for draft
+            // For submit: all fields must be valid
+            // For draft: no validation needed (handled by formnovalidate)
             const isValid = uploadOpen && basicFieldsValid && anggotaValid && rabRowsValid && sintaValid;
             
-            // Only enable button if everything is valid and upload is open
-            submitButton.disabled = !isValid;
+            // Only enable submit button if everything is valid and upload is open
+            // Draft button is always enabled (has formnovalidate attribute)
+            if (submitButton) {
+                submitButton.disabled = !isValid;
+            }
+            
+            // Debug log (can be removed later)
+            if (!isValid && uploadOpen) {
+                console.log('Validation failed:', {
+                    uploadOpen,
+                    basicFieldsValid,
+                    anggotaValid,
+                    rabRowsValid,
+                    sintaValid
+                });
+            }
         }
 
         ringkasanInput.addEventListener('input', updateWordCount);
@@ -630,13 +717,33 @@
             rabAddBtn.addEventListener('click', addRabRow);
         }
 
+        // Handle form submit - disable HTML5 validation for draft
+        form.addEventListener('submit', function(e) {
+            const isDraft = e.submitter && (e.submitter.id === 'saveDraftBtn' || e.submitter.name === 'save_as_draft');
+            if (isDraft) {
+                // Remove all required attributes before submit (double check)
+                const allInputs = form.querySelectorAll('input, select, textarea');
+                allInputs.forEach(function(input) {
+                    input.removeAttribute('required');
+                    input.removeAttribute('pattern');
+                    input.required = false;
+                });
+                
+                // Ensure novalidate is set
+                form.setAttribute('novalidate', 'novalidate');
+                form.noValidate = true;
+            }
+        });
+        
         form.addEventListener('input', validateForm);
         form.addEventListener('change', validateForm);
         
-        // Also validate when file is selected
+        // Also validate when file is selected or removed
         const dokumenProposalInput = document.getElementById('dokumen_proposal');
         if (dokumenProposalInput) {
             dokumenProposalInput.addEventListener('change', validateForm);
+            // Also validate when file input is cleared (if user removes file)
+            dokumenProposalInput.addEventListener('input', validateForm);
         }
         
         // Also validate when select/input changes in RAB or anggota tables
@@ -655,12 +762,99 @@
         });
 
         window.addEventListener('load', function () {
-            addAnggotaRow();
-            addRabRow();
+            @if(isset($draft) && $draft)
+                // Pre-fill anggota dari draft
+                @if($draft->anggota && $draft->anggota->count() > 0)
+                    @foreach($draft->anggota as $anggota)
+                        addAnggotaRow();
+                        const anggotaRows = document.querySelectorAll('#anggotaTable tbody tr');
+                        const lastRow = anggotaRows[anggotaRows.length - 1];
+                        if (lastRow) {
+                            lastRow.querySelector('input[name="anggota_nama[]"]').value = '{{ $anggota->nama }}';
+                            lastRow.querySelector('input[name="anggota_nidn[]"]').value = '{{ $anggota->nidn }}';
+                            lastRow.querySelector('input[name="anggota_email[]"]').value = '{{ $anggota->email }}';
+                            lastRow.querySelector('input[name="anggota_telepon[]"]').value = '{{ $anggota->telepon }}';
+                            lastRow.querySelector('select[name="anggota_peran[]"]').value = '{{ $anggota->peran }}';
+                            lastRow.querySelector('select[name="anggota_jabatan[]"]').value = '{{ $anggota->jabatan }}';
+                        }
+                    @endforeach
+                @else
+                    addAnggotaRow();
+                @endif
+                
+                // Pre-fill RAB dari draft
+                @if($draft->rab && $draft->rab->count() > 0)
+                    let rabPopulateCount = 0;
+                    const totalRabRows = {{ $draft->rab->count() }};
+                    
+                    @foreach($draft->rab as $rab)
+                        addRabRow();
+                        const rabRows = document.querySelectorAll('#rabTable tbody tr');
+                        const lastRabRow = rabRows[rabRows.length - 1];
+                        if (lastRabRow) {
+                            lastRabRow.querySelector('select[name="rab_kelompok[]"]').value = '{{ $rab->kelompok }}';
+                            
+                            // Set komponen dan load satuan dengan callback
+                            const komponenSelect = lastRabRow.querySelector('select[name="rab_komponen[]"]');
+                            const satuanSelect = lastRabRow.querySelector('select[name="rab_satuan[]"]');
+                            const satuanValue = '{{ $rab->satuan }}';
+                            
+                            if (komponenSelect && '{{ $rab->komponen }}') {
+                                komponenSelect.value = '{{ $rab->komponen }}';
+                                
+                                // Load satuan with callback to set value after loading
+                                updateSatuanByKomponen(komponenSelect, lastRabRow, function() {
+                                    // Set satuan value after options are loaded
+                                    if (satuanValue && satuanSelect) {
+                                        satuanSelect.value = satuanValue;
+                                    }
+                                    
+                                    // Set other fields
+                                    lastRabRow.querySelector('input[name="rab_item[]"]').value = '{{ $rab->item }}';
+                                    lastRabRow.querySelector('input[name="rab_volume[]"]').value = '{{ $rab->volume }}';
+                                    lastRabRow.querySelector('input[name="rab_harga_satuan[]"]').value = '{{ $rab->harga_satuan }}';
+                                    
+                                    // Trigger change untuk update total
+                                    const volumeInput = lastRabRow.querySelector('input[name="rab_volume[]"]');
+                                    const hargaInput = lastRabRow.querySelector('input[name="rab_harga_satuan[]"]');
+                                    if (volumeInput && hargaInput) {
+                                        volumeInput.dispatchEvent(new Event('input'));
+                                        hargaInput.dispatchEvent(new Event('input'));
+                                    }
+                                    
+                                    // Increment counter and validate when all rows are done
+                                    rabPopulateCount++;
+                                    if (rabPopulateCount === totalRabRows) {
+                                        setTimeout(validateForm, 200);
+                                    }
+                                });
+                            } else {
+                                // If no komponen, set other fields directly
+                                lastRabRow.querySelector('input[name="rab_item[]"]').value = '{{ $rab->item }}';
+                                lastRabRow.querySelector('input[name="rab_volume[]"]').value = '{{ $rab->volume }}';
+                                lastRabRow.querySelector('input[name="rab_harga_satuan[]"]').value = '{{ $rab->harga_satuan }}';
+                                
+                                // Increment counter and validate when all rows are done
+                                rabPopulateCount++;
+                                if (rabPopulateCount === totalRabRows) {
+                                    setTimeout(validateForm, 200);
+                                }
+                            }
+                        }
+                    @endforeach
+                @else
+                    addRabRow();
+                @endif
+            @else
+                addAnggotaRow();
+                addRabRow();
+            @endif
+            
             updateWordCount();
             
             // Delay validation slightly to ensure DOM is fully ready
-            setTimeout(validateForm, 100);
+            // Use longer delay to ensure all async operations (like satuan loading) are complete
+            setTimeout(validateForm, 500);
         });
     </script>
 </x-dosen-layout>
