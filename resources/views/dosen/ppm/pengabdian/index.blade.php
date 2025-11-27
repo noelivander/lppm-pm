@@ -113,7 +113,9 @@
                                     @foreach ($pengabdian as $item)
                                         <tr>
                                             <td class="col-no text-center">{{ $pengabdian->firstItem() + $loop->index }}</td>
-                                            <td class="col-judul">{{ $item->judul }}</td>
+                                            <td class="col-judul">
+                                                <div class="fw-bold proposal-title">{{ $item->judul }}</div>
+                                            </td>
                                             <td class="col-skema">
                                                 <span class="status-badge skema">{{ $item->skema }}</span>
                                             </td>
@@ -247,20 +249,33 @@
         color: #6b7280;
     }
     .modern-table-container {
+        width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .modern-table-container .modern-table {
+        min-width: 960px;
     }
     .modern-table.modern-table-fixed {
-        table-layout: fixed;
+        table-layout: auto;
         width: 100%;
     }
     .modern-table.modern-table-fixed th,
     .modern-table.modern-table-fixed td {
-        white-space: normal;
-        word-break: break-word;
+        white-space: nowrap;
         vertical-align: top;
     }
     .modern-table.modern-table-fixed .col-judul {
-        width: 35%;
+        width: clamp(260px, 35%, 420px);
+        min-width: 260px;
+        max-width: 420px;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+    .modern-table.modern-table-fixed .col-judul .proposal-title {
+        display: block;
+        white-space: normal;
     }
     .modern-table.modern-table-fixed .col-no {
         width: 60px;
@@ -268,6 +283,7 @@
     }
     .modern-table.modern-table-fixed .col-skema {
         width: 18%;
+        min-width: 180px;
     }
     .modern-table .status-badge.skema {
         display: inline-flex;
@@ -277,7 +293,7 @@
         padding: .4rem .75rem;
         min-height: 38px;
         line-height: 1.2;
-        white-space: normal;
+        white-space: nowrap;
         max-width: 100%;
     }
     .modern-btn.modern-btn-outline {
