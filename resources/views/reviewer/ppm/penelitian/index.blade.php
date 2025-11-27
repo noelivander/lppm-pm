@@ -19,10 +19,20 @@
                             <div class="modern-alert modern-alert-warning">
                                 <i class="fa fa-clock me-2"></i>Review period will start in <span id="countdown"></span>.
                             </div>
+                            <script>
+                                var countdownDate = new Date("{{ $timeline->review_start_date }}").getTime();
+                            </script>
                         @elseif ($currentDate > $timeline->review_end_date)
                             <div class="modern-alert modern-alert-danger">
                                 <i class="fa fa-times-circle me-2"></i>The review period has ended.
                             </div>
+                        @else
+                            <div class="modern-alert modern-alert-info">
+                                <i class="fa fa-info-circle me-2"></i>Review period is open. It will close in <span id="countdown"></span>.
+                            </div>
+                            <script>
+                                var countdownDate = new Date("{{ $timeline->review_end_date }}").getTime();
+                            </script>
                         @endif
 
                         @if ($proposals->isEmpty())
@@ -116,23 +126,29 @@
     </div>
 
     <script>
-        // Countdown Timer
-        var countdownDate = new Date("{{ $timeline->review_start_date }}").getTime();
-        var x = setInterval(function() {
-            var now = new Date().getTime();
-            var distance = countdownDate - now;
+        // Countdown Timer (uses countdownDate set in the alert block above)
+        if (typeof countdownDate !== 'undefined') {
+            var countdownTimer = setInterval(function() {
+                var now = new Date().getTime();
+                var distance = countdownDate - now;
 
-            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            document.getElementById("countdown").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+                var el = document.getElementById('countdown');
+                if (el) {
+                    el.innerHTML = days + 'd ' + hours + 'h ' + minutes + 'm ' + seconds + 's ';
+                }
 
-            if (distance < 0) {
-                clearInterval(x);
-                document.getElementById("countdown").innerHTML = "EXPIRED";
-            }
-        }, 1000);
+                if (distance < 0) {
+                    clearInterval(countdownTimer);
+                    if (el) {
+                        el.innerHTML = 'EXPIRED';
+                    }
+                }
+            }, 1000);
+        }
     </script>
 </x-reviewer-layout>

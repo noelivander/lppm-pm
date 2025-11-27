@@ -39,7 +39,9 @@ class PenelitianController extends Controller
             return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
         }
 
-        $proposal = Penelitian::findOrFail($id);
+        $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
+        $anggotaList = $proposal->anggota ?? collect();
+        $rabItems = $proposal->rab ?? collect();
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
         
         $ketuaTim = Anggota::where('penelitian_id', $id)
@@ -66,9 +68,34 @@ class PenelitianController extends Controller
         $fileUrl = Storage::url($proposal->dokumen_proposal);
 
         if ($review) {
-            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'fileUrl', 'nidn', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.edit_review', compact(
+                'proposal',
+                'review',
+                'ketuaTimName',
+                'fileUrl',
+                'nidn',
+                'anggotaNames',
+                'jabatan',
+                'judul',
+                'biayaUsulan',
+                'sintaIndex',
+                'anggotaList',
+                'rabItems'
+            ));
         } else {
-            return view('reviewer.ppm.penelitian.review', compact('proposal', 'ketuaTimName', 'nidn', 'fileUrl', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.review', compact(
+                'proposal',
+                'ketuaTimName',
+                'nidn',
+                'fileUrl',
+                'anggotaNames',
+                'jabatan',
+                'judul',
+                'biayaUsulan',
+                'sintaIndex',
+                'anggotaList',
+                'rabItems'
+            ));
         }
     }
     
@@ -188,7 +215,9 @@ class PenelitianController extends Controller
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->route('penelitian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
         }
-        $proposal = Penelitian::findOrFail($id);
+        $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
+        $anggotaList = $proposal->anggota ?? collect();
+        $rabItems = $proposal->rab ?? collect();
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
 
         $ketuaTim = Anggota::where('penelitian_id', $id)
@@ -215,7 +244,20 @@ class PenelitianController extends Controller
         $fileUrl = Storage::url($proposal->dokumen_proposal);
 
         if ($review) {
-            return view('reviewer.ppm.penelitian.edit_review', compact('proposal', 'review', 'fileUrl', 'judul', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.penelitian.edit_review', compact(
+                'proposal',
+                'review',
+                'fileUrl',
+                'judul',
+                'ketuaTimName',
+                'nidn',
+                'anggotaNames',
+                'jabatan',
+                'biayaUsulan',
+                'sintaIndex',
+                'anggotaList',
+                'rabItems'
+            ));
         } else {
             return redirect()->back()->with('error', 'Review not found.');
         }

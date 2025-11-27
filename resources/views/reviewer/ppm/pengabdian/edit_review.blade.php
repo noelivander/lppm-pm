@@ -26,59 +26,148 @@
 
                             <h3 class="mb-3"><i class="fa fa-clipboard-check me-2"></i>Formulir Penilaian Proposal Pengabdian</h3>
 
-                            <div class="form-group">
-                                <div class="row">
+                            <div class="mb-4">
+                                <br>
+                                <h4 class="mb-3"><i class="fa fa-info-circle me-2"></i>Informasi Proposal</h4>
+                                <div class="row g-3">
                                     <div class="col-md-6">
-                                        <div class="form-group d-flex align-items-baseline">
-                                            <label for="ketua_tim" class="form-label" style="font-weight: bold; width: 40%;">Ketua Tim Pelaksana :</label>
-                                            <div style="width: 60%;">
-                                                <span class="form-text">{{ $ketuaTimName }}</span>
-                                                <input type="hidden" name="ketua_tim" value="{{ $ketuaTimName }}">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="form-group d-flex align-items-baseline">
-                                            <label for="nidn" class="form-label" style="font-weight: bold; width: 40%;">NIDN :</label>
-                                            <div style="width: 60%;">
-                                                <span class="form-text">{{ $nidn }}</span>
-                                                <input type="hidden" name="nidn" value="{{ $nidn }}">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="form-group d-flex align-items-baseline">
-                                            <label for="jabatan" class="form-label" style="font-weight: bold; width: 40%;">Jabatan :</label>
-                                            <div style="width: 60%;">
-                                                <span class="form-text">{{ $jabatan }}</span>
-                                                <input type="hidden" name="jabatan" value="{{ $jabatan }}">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="form-group d-flex align-items-baseline" style="margin-bottom: 10px;">
-                                            <label for="anggota" class="form-label" style="font-weight: bold; width: 40%;">Anggota Peneliti :</label>
-                                            <div class="form-group">
-                                                <div style="width: 100%; word-wrap: break-word;">
-                                                    @foreach(explode(',', $anggotaNames) as $anggota)
-                                                        <span class="form-text">{{ trim($anggota) }}<br></span>
-                                                    @endforeach
-                                                    <input type="hidden" name="anggota" value="{{ $anggotaNames }}">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="form-group d-flex align-items-baseline">
-                                            <label for="biaya_usulan" class="form-label" style="font-weight: bold; width: 40%;">Biaya yang Diusulkan :</label>
-                                            <div style="width: 60%;">
-                                                <span class="form-text">Rp. {{ number_format($biayaUsulan, 0, ',', '.') }}</span>
-                                                <input type="hidden" name="biaya_usulan" value="{{ $biayaUsulan }}">
-                                            </div>
+                                        <div class="d-flex flex-column p-3 border rounded-3 h-100">
+                                            <span class="text-muted text-uppercase small fw-semibold">Skema</span>
+                                            <span class="fw-bold">{{ $proposal->skema ?? '-' }}</span>
+                                            
+                                            <span class="text-muted text-uppercase small fw-semibold mt-3">Luaran Wajib</span>
+                                            <span class="fw-bold">{{ $proposal->luaran_wajib ?? '-' }}</span>
+                                            <span class="text-muted text-uppercase small fw-semibold mt-3">Luaran Tambahan</span>
+                                            <span class="fw-bold">{{ $proposal->luaran_tambahan ?? '–' }}</span>
                                         </div>
                                     </div>
-                            
+                                    <div class="col-md-6">
+                                        <div class="d-flex flex-column p-3 border rounded-3 h-100">
+                                            <span class="text-muted text-uppercase small fw-semibold">Durasi</span>
+                                            <span class="fw-bold">{{ $proposal->lama_penelitian ?? '-' }}</span>
+                                            <span class="text-muted text-uppercase small fw-semibold mt-3">Biaya Diusulkan</span>
+                                            <span class="fw-bold">Rp {{ number_format($biayaUsulan ?? 0, 0, ',', '.') }}</span>
+                                            <span class="text-muted text-uppercase small fw-semibold mt-3">Status</span>
+                                            <span class="fw-bold">{{ $proposal->status ?? 'Belum ditentukan' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="p-3 border rounded-3">
+                                            <span class="text-muted text-uppercase small fw-semibold d-block mb-2">Ringkasan Proposal</span>
+                                            <p class="mb-0 text-muted">{{ $proposal->ringkasan_proposal ?? 'Ringkasan belum tersedia.' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <br>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="mb-0"><i class="fa fa-users me-2"></i>Tim Pelaksana</h4>
+                                    <span class="text-muted small">{{ $anggotaList->count() }} anggota</span>
+                                </div>
+                                @if($anggotaList->count())
+                                    <div class="modern-table-container">
+                                        <table class="modern-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nama</th>
+                                                    <th>Peran</th>
+                                                    <th>Jabatan</th>
+                                                    <th>NIDN/NIM</th>
+                                                    <th>Email</th>
+                                                    <th>Telepon</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($anggotaList as $anggota)
+                                                    <tr>
+                                                        <td>{{ $anggota->nama ?? '-' }}</td>
+                                                        <td>{{ ucfirst($anggota->peran ?? '-') }}</td>
+                                                        <td>{{ $anggota->jabatan ?? '-' }}</td>
+                                                        <td>{{ $anggota->nidn ?? $anggota->nim ?? '-' }}</td>
+                                                        <td>{{ $anggota->email ?? '-' }}</td>
+                                                        <td>{{ $anggota->telepon ?? '-' }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="modern-alert modern-alert-info">
+                                        <i class="fa fa-info-circle me-2"></i>Belum ada data anggota pelaksana.
+                                    </div>
+                                @endif
+                                <input type="hidden" name="anggota" value="{{ $anggotaNames }}">
+                            </div>
+
+                            <div class="mb-4">
+                                <br>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="mb-0"><i class="fa fa-money-bill-wave me-2"></i>Rencana Anggaran Biaya</h4>
+                                    
+                                </div>
+                                @if($rabItems->count())
+                                    <div class="modern-table-container">
+                                        <table class="modern-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Kelompok</th>
+                                                    <th>Komponen</th>
+                                                    <th>Item</th>
+                                                    <th>Satuan</th>
+                                                    <th class="text-end">Volume</th>
+                                                    <th class="text-end">Harga Satuan</th>
+                                                    <th class="text-end">Subtotal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @php $totalRab = 0; @endphp
+                                                @foreach($rabItems as $rab)
+                                                    @php
+                                                        $volume = (float) ($rab->volume ?? 0);
+                                                        $harga = (float) ($rab->harga_satuan ?? 0);
+                                                        $subtotal = $volume * $harga;
+                                                        $totalRab += $subtotal;
+                                                    @endphp
+                                                    <tr>
+                                                        <td>{{ $rab->kelompok ?? '-' }}</td>
+                                                        <td>{{ $rab->komponen ?? '-' }}</td>
+                                                        <td>{{ $rab->item ?? '-' }}</td>
+                                                        <td>{{ $rab->satuan ?? '-' }}</td>
+                                                        <td class="text-end">{{ $volume ?: '-' }}</td>
+                                                        <td class="text-end">Rp {{ number_format($harga, 0, ',', '.') }}</td>
+                                                        <td class="text-end">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="6" class="text-end fw-bold">Total</td>
+                                                    <td class="text-end fw-bold">Rp {{ number_format($totalRab, 0, ',', '.') }}</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="modern-alert modern-alert-info">
+                                        <i class="fa fa-info-circle me-2"></i>Belum ada data RAB.
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="form-group">
+                                <br>
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="modern-form-group">
                                             <label for="scopus" class="modern-form-label"><i class="fa fa-chart-line me-2"></i>H-Index (Scopus)</label>
                                             <input type="text" id="scopus" name="scopus" class="modern-form-input" value="{{ $review->scopus }}">
                                         </div>
+                                    </div>
+                            
+                                    <div class="col-md-6">
+                                        
                             
                                         <div class="modern-form-group">
                                             <label for="disarankan" class="modern-form-label"><i class="fa fa-lightbulb me-2"></i>Disarankan</label>

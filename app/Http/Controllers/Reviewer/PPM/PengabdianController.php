@@ -37,7 +37,9 @@ class PengabdianController extends Controller
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
         }
-        $proposal = Pengabdian::findOrFail($id);
+        $proposal = Pengabdian::with(['anggota', 'rab'])->findOrFail($id);
+        $anggotaList = $proposal->anggota ?? collect();
+        $rabItems = $proposal->rab ?? collect();
         $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();
         
         $ketuaTim = Anggota_pengabdian::where('pengabdian_id', $id)
@@ -61,9 +63,32 @@ class PengabdianController extends Controller
         $sintaIndex = $proposal->sinta_index;
     
         if ($review) {
-            return view('reviewer.ppm.pengabdian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'anggotaNames', 'judul', 'jabatan', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.pengabdian.edit_review', compact(
+                'proposal',
+                'review',
+                'ketuaTimName',
+                'nidn',
+                'anggotaNames',
+                'judul',
+                'jabatan',
+                'biayaUsulan',
+                'sintaIndex',
+                'anggotaList',
+                'rabItems'
+            ));
         } else {
-            return view('reviewer.ppm.pengabdian.review', compact('proposal', 'ketuaTimName', 'nidn', 'anggotaNames', 'jabatan', 'judul', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.pengabdian.review', compact(
+                'proposal',
+                'ketuaTimName',
+                'nidn',
+                'anggotaNames',
+                'jabatan',
+                'judul',
+                'biayaUsulan',
+                'sintaIndex',
+                'anggotaList',
+                'rabItems'
+            ));
         }
     }
     
@@ -182,7 +207,9 @@ class PengabdianController extends Controller
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
         }
-        $proposal = Pengabdian::findOrFail($id);
+        $proposal = Pengabdian::with(['anggota', 'rab'])->findOrFail($id);
+        $anggotaList = $proposal->anggota ?? collect();
+        $rabItems = $proposal->rab ?? collect();
         $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();
 
         $ketuaTim = Anggota_pengabdian::where('pengabdian_id', $id)
@@ -206,7 +233,19 @@ class PengabdianController extends Controller
         $sintaIndex = $proposal->sinta_index;
 
         if ($review) {
-            return view('reviewer.ppm.pengabdian.edit_review', compact('proposal', 'review', 'ketuaTimName', 'nidn', 'judul', 'anggotaNames', 'jabatan', 'biayaUsulan', 'sintaIndex'));
+            return view('reviewer.ppm.pengabdian.edit_review', compact(
+                'proposal',
+                'review',
+                'ketuaTimName',
+                'nidn',
+                'judul',
+                'anggotaNames',
+                'jabatan',
+                'biayaUsulan',
+                'sintaIndex',
+                'anggotaList',
+                'rabItems'
+            ));
         } else {
             return redirect()->back()->with('error', 'Review not found.');
         }
