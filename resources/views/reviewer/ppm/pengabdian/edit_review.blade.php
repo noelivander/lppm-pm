@@ -6,6 +6,13 @@
     <div class="container-fluid pb-5">
         <div class="row mt-3">
             <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0"><i class="fa fa-clipboard me-2"></i>Form Edit Review</h3>
+                    <a href="{{ route('pengabdian-rev.index') }}" class="modern-btn modern-btn-secondary">
+                        <i class="fa fa-arrow-left me-1"></i> Kembali
+                    </a>
+                </div>
+
                 <div class="modern-card mb-4 fade-in-up">
                     <div class="modern-card-body">
                         <h3>Proposal Pengabdian</h3>
