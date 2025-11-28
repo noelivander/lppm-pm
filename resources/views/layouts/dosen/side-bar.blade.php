@@ -1,7 +1,7 @@
 <!-- Sidebar -->
 <style>
     :root { --sb-bg:#21163d; --sb-bg2:#352467; --sb-accent:#7c3aed; --sb-accent-2:#8b5cf6; --sb-text:#e5e7eb; --sb-text-dim:#9ca3af; --sb-active:#7c3aed; }
-    .sidebar.sidebar-modern { background: linear-gradient(180deg, var(--sb-bg) 0%, var(--sb-bg2) 100%); color: var(--sb-text); padding: 0.7rem 0.85rem 0.5rem; width: 280px; box-shadow: inset 0 0 0 1px rgba(124,58,237,0.15), 0 8px 30px rgba(2,6,23,.35); border-right: 1px solid rgba(124,58,237,0.18); position: fixed; top: 0; left: 0; bottom: 0; min-height: 100vh; height: 100%; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; z-index: 1035; transition: transform .28s ease, box-shadow .28s ease; }
+    .sidebar.sidebar-modern { background: linear-gradient(180deg, var(--sb-bg) 0%, var(--sb-bg2) 100%); color: var(--sb-text); padding: 0.7rem 0.85rem 0.5rem; width: var(--sidebar-width-full, 280px); box-shadow: inset 0 0 0 1px rgba(124,58,237,0.15), 0 8px 30px rgba(2,6,23,.35); border-right: 1px solid rgba(124,58,237,0.18); position: fixed; top: 0; left: 0; bottom: 0; min-height: 100vh; height: 100%; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; z-index: 1035; transition: transform .28s ease, box-shadow .28s ease, width .28s ease; }
     .sidebar.sidebar-modern::-webkit-scrollbar { width: 0; height: 0; }
     .sidebar.sidebar-modern .sidebar-brand { padding: .85rem .75rem; margin: .25rem .25rem 0.75rem; border-radius: 14px; background: radial-gradient(120% 120% at 0% 0%, rgba(124,58,237,.22) 0%, rgba(139,92,246,.18) 42%, rgba(255,255,255,0.04) 100%); color: var(--sb-text); box-shadow: 0 4px 16px rgba(2,6,23,.25) inset, 0 6px 22px rgba(2,6,23,.35); position: sticky; top: 0; z-index: 1; }
     .sidebar.sidebar-modern .sidebar-brand-icon { flex-shrink: 0; }
@@ -27,18 +27,46 @@
     .sidebar .btn.btn-light.w-100:hover { background: linear-gradient(90deg, rgba(124,58,237,.28) 0%, rgba(139,92,246,.28) 100%); color: #fff; border-color: rgba(139,92,246,0.38); box-shadow: 0 10px 30px rgba(124,58,237,.28); }
     #sidebarToggle { width: 34px; height: 34px; background: rgba(255,255,255,0.06); color: var(--sb-text); }
     #sidebarToggle:hover { background: rgba(255,255,255,0.12); }
-    .sidebar-mobile-toggle { position: fixed; right: 1rem; top: 1rem; width: 48px; height: 48px; border-radius: 999px; border: none; background: rgba(124,58,237,0.95); color: white; display: none; align-items: center; justify-content: center; z-index: 1036; box-shadow: 0 12px 32px rgba(15,23,42,0.35); }
-    .sidebar-mobile-toggle:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
-    .sidebar-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 1030; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
-    .sidebar-backdrop.active { opacity: 1; pointer-events: auto; }
-    body.sidebar-mobile-open { overflow: hidden; }
+    .sidebar-collapse-toggle {
+        position: fixed;
+        top: 50%;
+        left: var(--sidebar-width-full, 320px);
+        transform: translate(-50%, -50%);
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: none;
+        background: #fff;
+        color: var(--sb-bg);
+        box-shadow: 0 12px 30px rgba(2,6,23,.25);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1036;
+        transition: left .25s ease, background .2s ease, color .2s ease, transform .25s ease;
+    }
+    .sidebar-collapse-toggle:hover {
+        background: #f3f4f6;
+        color: var(--sb-accent);
+    }
+    body.sidebar-hidden .sidebar-collapse-toggle {
+        left: 0.5rem;
+        transform: translate(-50%, -50%);
+        background: var(--sb-accent);
+        color: #fff;
+        box-shadow: 0 12px 30px rgba(124,58,237,.45);
+    }
     @media (max-width: 1023.98px) {
-        .sidebar.sidebar-modern { width: min(85vw, 320px); transform: translateX(-105%); box-shadow: 0 25px 60px rgba(2,6,23,.45); height: 100vh; }
-        .sidebar.sidebar-modern.is-open { transform: translateX(0); }
-        .sidebar-mobile-toggle { display: inline-flex; }
+        .sidebar.sidebar-modern { width: var(--sidebar-width-full, 280px); height: 100vh; }
         .sidebar.sidebar-modern .sidebar-brand { flex-direction: row; align-items: center; }
         .sidebar.sidebar-modern .sidebar-brand-icon { margin-bottom: 0; margin-right: 0.5rem !important; }
         .sidebar.sidebar-modern .sidebar-brand-text { position: absolute !important; transform: translateX(-50%) !important; left: 50% !important; text-align: center; width: auto; margin-top: 0; display: block !important; }
+        .sidebar.sidebar-modern,
+        .sidebar.sidebar-modern .nav-link,
+        .sidebar.sidebar-modern .collapse-inner,
+        .sidebar.sidebar-modern .collapse-item { text-align: left; }
+        body:not(.sidebar-ready) #accordionSidebar.sidebar-modern { transform: translateX(-105%); transition: none !important; }
     }
 </style>
 <ul class="navbar-nav sidebar sidebar-dark accordion d-flex flex-column sidebar-modern" id="accordionSidebar">
@@ -141,98 +169,109 @@
 </ul>
 <!-- End of Sidebar -->
 
-<button class="sidebar-mobile-toggle" id="sidebarMobileToggle" type="button" aria-label="Tampilkan sidebar" aria-expanded="false">
-    <i class="fas fa-bars"></i>
+<button class="sidebar-collapse-toggle" id="sidebarCollapseToggle" type="button" aria-label="Sembunyikan sidebar">
+    <i class="fas fa-chevron-left"></i>
 </button>
-<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const sidebar = document.getElementById('accordionSidebar');
-    const mobileToggle = document.getElementById('sidebarMobileToggle');
-    const backdrop = document.getElementById('sidebarBackdrop');
     const desktopToggle = document.getElementById('sidebarToggle');
-    const topbar = document.querySelector('.topbar');
+    const topToggle = document.getElementById('sidebarToggleTop');
+    const collapseToggle = document.getElementById('sidebarCollapseToggle');
     const body = document.body;
     const breakpoint = 1024;
-
-    const updateMobileIcon = (isOpen) => {
-        if (!mobileToggle) return;
-        const icon = mobileToggle.querySelector('i');
-        if (!icon) return;
-        icon.classList.toggle('fa-bars', !isOpen);
-        icon.classList.toggle('fa-times', isOpen);
-    };
+    const hiddenClass = 'sidebar-hidden';
+    const hiddenStorageKey = 'sidebarHiddenStateDosen';
 
     const resetLegacyToggle = () => {
         body.classList.remove('sidebar-toggled');
         sidebar && sidebar.classList.remove('toggled');
     };
 
-    const openSidebar = () => {
-        resetLegacyToggle();
-        sidebar && sidebar.classList.add('is-open');
-        backdrop && backdrop.classList.add('active');
-        body.classList.add('sidebar-mobile-open');
-        mobileToggle && mobileToggle.setAttribute('aria-expanded', 'true');
-        updateMobileIcon(true);
-    };
-
-    const closeSidebar = () => {
-        resetLegacyToggle();
-        sidebar && sidebar.classList.remove('is-open');
-        backdrop && backdrop.classList.remove('active');
-        body.classList.remove('sidebar-mobile-open');
-        mobileToggle && mobileToggle.setAttribute('aria-expanded', 'false');
-        updateMobileIcon(false);
-    };
-
-    const setToggleOffset = () => {
-        if (!mobileToggle) return;
-        const offset = (topbar ? topbar.offsetHeight + 12 : 16);
-        mobileToggle.style.top = offset + 'px';
-    };
-
-    const handleResize = () => {
-        if (window.innerWidth >= breakpoint) {
-            closeSidebar();
+    const getHiddenPreference = () => {
+        try {
+            return window.localStorage.getItem(hiddenStorageKey);
+        } catch (error) {
+            return null;
         }
-        setToggleOffset();
     };
 
-    handleResize();
-    setToggleOffset();
-    window.addEventListener('resize', handleResize);
+    const setHiddenPreference = (value) => {
+        try {
+            window.localStorage.setItem(hiddenStorageKey, value);
+        } catch (error) {
+            /* noop */
+        }
+    };
 
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', function () {
-            if (sidebar && sidebar.classList.contains('is-open')) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
+    const updateCollapseIcon = () => {
+        if (!collapseToggle) return;
+        const icon = collapseToggle.querySelector('i');
+        if (!icon) return;
+        const isHidden = body.classList.contains(hiddenClass);
+        icon.classList.toggle('fa-chevron-left', !isHidden);
+        icon.classList.toggle('fa-chevron-right', isHidden);
+    };
+
+    const applyHiddenPreference = () => {
+        const stored = getHiddenPreference();
+        const shouldHide = stored === '1' || (stored === null && window.innerWidth < breakpoint);
+        body.classList.toggle(hiddenClass, shouldHide);
+        updateCollapseIcon();
+    };
+
+    const toggleSidebarVisibility = () => {
+        resetLegacyToggle();
+        const shouldHide = !body.classList.contains(hiddenClass);
+        if (shouldHide) {
+            body.classList.add(hiddenClass);
+        } else {
+            body.classList.remove(hiddenClass);
+        }
+        setHiddenPreference(shouldHide ? '1' : '0');
+        updateCollapseIcon();
+    };
+
+    applyHiddenPreference();
+    window.addEventListener('resize', function () {
+        if (getHiddenPreference() === null) {
+            applyHiddenPreference();
+        } else {
+            updateCollapseIcon();
+        }
+    });
+
+    const wireToggleButton = (btn) => {
+        if (!btn) return;
+        btn.addEventListener('click', function (event) {
+            event.preventDefault();
+            toggleSidebarVisibility();
+        });
+    };
+
+    wireToggleButton(desktopToggle);
+    wireToggleButton(topToggle);
+
+    if (collapseToggle) {
+        collapseToggle.addEventListener('click', function (event) {
+            event.preventDefault();
+            toggleSidebarVisibility();
         });
     }
 
-    backdrop && backdrop.addEventListener('click', closeSidebar);
-
-    const attachHijack = (btn, toggleBehavior = false) => {
-        if (!btn) return;
-        btn.addEventListener('click', function (event) {
-            if (window.innerWidth < breakpoint) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                if (toggleBehavior && sidebar && sidebar.classList.contains('is-open')) {
-                    closeSidebar();
-                } else if (toggleBehavior) {
-                    openSidebar();
-                } else {
-                    closeSidebar();
-                }
-            }
-        }, true);
+    const autoHideAfterNavigate = (element) => {
+        if (!element) return;
+        element.addEventListener('click', function () {
+            if (window.innerWidth >= breakpoint) return;
+            if (body.classList.contains(hiddenClass)) return;
+            toggleSidebarVisibility();
+        });
     };
 
-    attachHijack(desktopToggle);
+    const navLinks = sidebar ? sidebar.querySelectorAll('.nav-link:not([data-bs-toggle="collapse"]), .collapse-item:not(.disabled-link)') : [];
+    navLinks.forEach(autoHideAfterNavigate);
+
+    body.classList.add('sidebar-ready');
 });
 </script>

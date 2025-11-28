@@ -19,6 +19,11 @@
         <link rel="stylesheet" href="{{ asset('css/modern-components.css') }}">
         <style>
         body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif !important; }
+        :root {
+            --sidebar-width-full: 300px;
+            --bs-primary: #7c3aed;
+            --bs-primary-rgb: 124,58,237;
+        }
         /* Page background */
         html, body, #content-wrapper, #content { background-color: #f3f4f6; }
         /* Strong dark text for main content */
@@ -30,23 +35,24 @@
         #content .table thead th { color: #1a1a1a !important; }
         #content .table td, #content .table th { vertical-align: middle; }
         /* Center main content area */
-        #content > .container-fluid { max-width: 100% !important; margin-left: 0; margin-right: 0; padding-left: 1rem; padding-right: 2rem; }
-        #content > .container-fluid.mt-3 { padding-left: 1rem; padding-right: 2rem; }
+        #content > .container-fluid { max-width: 100% !important; margin-left: 0; margin-right: 0; padding-left: 2rem; padding-right: 2rem; }
+        #content > .container-fluid.mt-3 { padding-left: 2rem; padding-right: 2rem; }
         #content > .container-fluid > .container-fluid,
         #content > .container-fluid > .container {
             padding-left: 0;
             padding-right: 0;
         }
         /* Sidebar width control */
-        #accordionSidebar.sidebar-modern { width: 260px !important; transition: transform .25s ease, box-shadow .25s ease; }
+        #accordionSidebar.sidebar-modern { width: var(--sidebar-width-full) !important; transition: transform .25s ease, box-shadow .25s ease, width .25s ease; }
+        body.sidebar-hidden #accordionSidebar.sidebar-modern,
         body.sidebar-toggled #accordionSidebar.sidebar-modern { transform: translateX(-105%); box-shadow: none; }
         /* Shift only the content area, not the whole body */
-        #content-wrapper { margin-left: 280px; transition: margin-left .25s ease; overflow: visible !important; }
-        body.sidebar-toggled #content-wrapper { margin-left: 0; }
+        #content-wrapper { margin-left: var(--sidebar-width-full); transition: margin-left .25s ease; overflow: visible !important; }
+        body.sidebar-hidden #content-wrapper,
+        body.sidebar-toggled #content-wrapper { margin-left: 0 !important; }
         .sidebar-avatar { width: 40px; height: 40px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 50% !important; flex-shrink: 0; }
         .sidebar-user-link img { border-radius: 50% !important; }
         /* Global purple theme overrides */
-        :root { --bs-primary: #7c3aed; --bs-primary-rgb: 124,58,237; }
         .btn-primary { background-color: var(--bs-primary) !important; border-color: var(--bs-primary) !important; }
         .btn-primary:hover, .btn-primary:focus { background-color: #6d28d9 !important; border-color: #6d28d9 !important; }
         .btn-outline-primary { color: var(--bs-primary) !important; border-color: var(--bs-primary) !important; }
@@ -61,8 +67,8 @@
             #content-wrapper { margin-left: 0 !important; }
             #content > .container-fluid,
             #content > .container-fluid.mt-3 {
-                padding-left: 1rem;
-                padding-right: 1rem;
+                padding-left: 1.25rem;
+                padding-right: 1.25rem;
             }
             #content > .container-fluid > .container-fluid,
             #content > .container-fluid > .container {
@@ -119,21 +125,6 @@
         <script src="{{ asset('js/dosen.js') }}" defer></script>
 
         {{ $scripts ?? '' }}
-
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var bodyEl = document.body;
-            var breakpoint = 1024; // px
-            // Handle mobile sidebar state
-            var applyState = function() {
-                if (window.innerWidth > breakpoint && bodyEl.classList.contains('sidebar-mobile-open')) {
-                    bodyEl.classList.remove('sidebar-mobile-open');
-                }
-            };
-            applyState();
-            window.addEventListener('resize', applyState);
-        });
-        </script>
 
     </body>
 </html>
