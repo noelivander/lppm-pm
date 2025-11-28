@@ -57,7 +57,7 @@
         .progress-bar.bg-primary { background-color: var(--bs-primary) !important; }
         .border-left-primary { border-left: .25rem solid var(--bs-primary) !important; }
         .border-bottom-primary { border-bottom: .25rem solid var(--bs-primary) !important; }
-        @media (max-width: 991.98px) {
+        @media (max-width: 1023.98px) {
             #content-wrapper { margin-left: 0 !important; }
             #content > .container-fluid,
             #content > .container-fluid.mt-3 {
@@ -123,7 +123,7 @@
         <script>
         document.addEventListener('DOMContentLoaded', function() {
             var bodyEl = document.body;
-            var breakpoint = 992; // px
+            var breakpoint = 1024; // px
             // Handle mobile sidebar state
             var applyState = function() {
                 if (window.innerWidth > breakpoint && bodyEl.classList.contains('sidebar-mobile-open')) {

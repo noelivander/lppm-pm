@@ -52,7 +52,9 @@
                                 <h4 class="mb-0"><i class="fa fa-file-signature me-2"></i>Form Usulan Penelitian</h4>
                             </div>
                             @unless($uploadOpen)
-                                <span class="badge bg-secondary">Form dikunci</span>
+                                <span class="status-badge locked">
+                                    <i class="fa fa-lock"></i>Form dikunci
+                                </span>
                             @endunless
                         </div>
                         <form method="POST" action="{{ route('penelitian-dos.store') }}" enctype="multipart/form-data" novalidate>

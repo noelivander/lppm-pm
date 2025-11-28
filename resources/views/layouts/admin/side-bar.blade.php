@@ -31,7 +31,7 @@
     .sidebar-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 1030; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
     .sidebar-backdrop.active { opacity: 1; pointer-events: auto; }
     body.sidebar-mobile-open { overflow: hidden; }
-    @media (max-width: 991.98px) {
+    @media (max-width: 1023.98px) {
         .sidebar.sidebar-modern { width: min(85vw, 320px); transform: translateX(-105%); box-shadow: 0 25px 60px rgba(2,6,23,.45); }
         .sidebar.sidebar-modern.is-open { transform: translateX(0); }
         .sidebar-mobile-toggle { display: inline-flex; }
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const topToggle = document.getElementById('sidebarToggleTop');
     const topbar = document.querySelector('.topbar');
     const body = document.body;
-    const breakpoint = 992;
+    const breakpoint = 1024;
 
     const updateMobileIcon = (isOpen) => {
         if (!mobileToggle) return;

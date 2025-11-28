@@ -50,7 +50,9 @@
                                 <h4 class="mb-0"><i class="fa fa-file-alt me-2"></i>Form Usulan Pengabdian</h4>
                             </div>
                             @unless($uploadOpen)
-                                <span class="badge bg-secondary">Form dikunci</span>
+                                <span class="status-badge locked">
+                                    <i class="fa fa-lock"></i>Form dikunci
+                                </span>
                             @endunless
                         </div>
                         <form method="POST" action="{{ route('pengabdian-dos.store') }}" enctype="multipart/form-data" novalidate>
