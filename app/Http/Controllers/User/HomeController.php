@@ -12,8 +12,7 @@ class HomeController extends Controller
     public function index()
     {
         $berita = Berita::latest()->take(3)->get();
-        $landingPage = LandingPageContent::all()->pluck('value', 'key');
 
-        return view('user.home', compact('berita', 'landingPage'));
+        return view('user.home', compact('berita'));
     }
 }
