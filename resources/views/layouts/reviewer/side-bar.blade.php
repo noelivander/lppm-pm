@@ -18,6 +18,7 @@
     .sidebar.sidebar-modern .collapse-inner { background: rgba(255, 255, 255, 1) !important; border-radius: 12px; margin: .25rem .5rem .5rem; padding: .5rem; border: 1px dashed rgba(255,255,255,0.07); }
     .sidebar.sidebar-modern .collapse-item { border-radius: 10px; padding: .5rem .65rem; color: var(--sb-text); }
     .sidebar.sidebar-modern .collapse-item:hover, .sidebar.sidebar-modern .collapse-item.active { background: rgba(255,255,255,0.06); }
+    .sidebar.sidebar-modern .collapse-item.disabled-link { opacity: 0.45; cursor: not-allowed; }
     .sidebar-user-link { background: rgba(255,255,255,0.03); padding: .7rem .85rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); transition: all .18s ease; }
     .sidebar-user-link:hover { background: rgba(255,255,255,0.06); transform: translateY(-1px); }
     .sidebar-avatar { width: 42px; height: 42px; object-fit: cover; box-shadow: 0 6px 18px rgba(2,6,23,.35); border: 2px solid rgba(255,255,255,0.15); }
@@ -61,20 +62,43 @@
         </a>
     </li>
 
+    @php
+        $penelitianMenuActive = request()->routeIs('penelitian-rev.index');
+        $pengabdianMenuActive = request()->routeIs('pengabdian-rev.index');
+    @endphp
+
     <!-- Nav Item - Penelitian -->
-    <li class="nav-item @isroute('penelitian-rev.index')">
-        <a class="nav-link" href="{{ route('penelitian-rev.index') }}">
+    <li class="nav-item {{ $penelitianMenuActive ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePenelitianReviewer"
+            aria-expanded="{{ $penelitianMenuActive ? 'true' : 'false' }}" aria-controls="collapsePenelitianReviewer">
             <i class="fas fa-fw fa-flask"></i>
             <span>Penelitian</span>
         </a>
+        <div id="collapsePenelitianReviewer" class="collapse {{ $penelitianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item @isroute('penelitian-rev.index')" href="{{ route('penelitian-rev.index') }}">Daftar Proposal</a>
+                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
+                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
+            </div>
+        </div>
     </li>
 
     <!-- Nav Item - Pengabdian -->
-    <li class="nav-item @isroute('pengabdian-rev.index')">
-        <a class="nav-link" href="{{ route('pengabdian-rev.index') }}">
+    <li class="nav-item {{ $pengabdianMenuActive ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePengabdianReviewer"
+            aria-expanded="{{ $pengabdianMenuActive ? 'true' : 'false' }}" aria-controls="collapsePengabdianReviewer">
             <i class="fas fa-fw fa-hands-helping"></i>
             <span>Pengabdian</span>
         </a>
+        <div id="collapsePengabdianReviewer" class="collapse {{ $pengabdianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item @isroute('pengabdian-rev.index')" href="{{ route('pengabdian-rev.index') }}">Daftar Proposal</a>
+                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
+                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
+            </div>
+        </div>
     </li>
 
     <!-- Divider -->
