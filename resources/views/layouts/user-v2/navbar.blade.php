@@ -23,16 +23,7 @@
                             <a href="{{ route('kelembagaan_struktur_organisasi') }}" class="dropdown-item rounded-2">Struktur Organisasi</a>
                         </div>
                     </li>
-                    @if(count($daftar_fokus_bidang)!=0)
-                    <li class="nav-item dropdown">
-                        <a href="#" class="nav-link" data-bs-toggle="dropdown">Bidang Fokus</a>
-                        <div class="dropdown-menu m-0 shadow-sm border-0 rounded-3 p-2" style="max-height: 60vh; overflow-y: auto;">
-                            @foreach($daftar_fokus_bidang as $key => $value)
-                                <a href="{{ route('bidang-fokus.show',['slug'=>$value->slug]) }}" class="dropdown-item rounded-2">{{$value->nama}}</a>
-                            @endforeach
-                        </div>
-                    </li>
-                    @endif
+                    
                     <li class="nav-item"><a href="{{ route('dokumen.index') }}" class="nav-link fw-medium">Dokumen</a></li>
                     <li class="nav-item"><a href="{{ route('layanan-berita.index') }}" class="nav-link fw-medium">Berita</a></li>
                     <li class="nav-item dropdown">
