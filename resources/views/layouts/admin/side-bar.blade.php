@@ -58,20 +58,34 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item @isroute('admin.dashboard')">
+    @php
+        $isAdminDashboard = request()->routeIs('admin.dashboard');
+        $isKelolaUser = request()->routeIs('users.index');
+        $isTimeline = request()->routeIs('admin.timeline.index');
+    @endphp
+
+    <li class="nav-item {{ $isAdminDashboard ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span></a>
     </li>
 
+    @php
+        $isKelembagaanMenu = request()->routeIs('tentang-satker.index', 'visi-misi.index', 'struktur-organisasi.index');
+        $isLayananMenu = request()->routeIs('agenda.index', 'berita.index', 'dokumen_penting.index', 'pengumuman.index');
+        $isPengaturanUmumMenu = request()->routeIs('jurusan.index', 'program_studi.index', 'pegawai.index', 'related_link.index', 'admin.landing-page.index');
+        $isPengaturanLppmMenu = request()->routeIs('skema.index', 'luaran.index', 'rab.index');
+    @endphp
+
     <!-- Nav Item - Pages Collapse Menu -->
-    <li class="nav-item">
+    <li class="nav-item {{ $isKelembagaanMenu ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseKelembagaan"
-            aria-expanded="true" aria-controls="collapseKelembagaan">
+            aria-expanded="{{ $isKelembagaanMenu ? 'true' : 'false' }}" aria-controls="collapseKelembagaan">
             <i class="fas fa-fw fa-university"></i>
             <span>Kelembagaan</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
         </a>
-        <div id="collapseKelembagaan" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
+        <div id="collapseKelembagaan" class="collapse {{ $isKelembagaanMenu ? 'show' : '' }}" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('tentang-satker.index')" href="{{ route('tentang-satker.index') }}">Tentang</a>
                 <a class="collapse-item @isroute('visi-misi.index')" href="{{ route('visi-misi.index') }}">Visi Misi</a>
@@ -81,13 +95,14 @@
     </li>
 
     <!-- Nav Item - Utilities Collapse Menu -->
-    <li class="nav-item">
+    <li class="nav-item {{ $isLayananMenu ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayanan"
-            aria-expanded="true" aria-controls="collapseLayanan">
+            aria-expanded="{{ $isLayananMenu ? 'true' : 'false' }}" aria-controls="collapseLayanan">
             <i class="fas fa-fw fa-bullhorn"></i>
             <span>Layanan</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
         </a>
-        <div id="collapseLayanan" class="collapse" aria-labelledby="headingUtilities"
+        <div id="collapseLayanan" class="collapse {{ $isLayananMenu ? 'show' : '' }}" aria-labelledby="headingUtilities"
             data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('agenda.index')" href="{{ route('agenda.index') }}">Agenda</a>
@@ -99,13 +114,14 @@
     </li>
 
     <!-- Nav Item - Pengaturan Collapse Menu -->
-    <li class="nav-item">
+    <li class="nav-item {{ $isPengaturanUmumMenu ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUtilitiesUmum"
-            aria-expanded="true" aria-controls="collapseUtilitiesUmum">
+            aria-expanded="{{ $isPengaturanUmumMenu ? 'true' : 'false' }}" aria-controls="collapseUtilitiesUmum">
             <i class="fas fa-fw fa-wrench"></i>
             <span>Pengaturan</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
         </a>
-        <div id="collapseUtilitiesUmum" class="collapse" aria-labelledby="headingUtilities"
+        <div id="collapseUtilitiesUmum" class="collapse {{ $isPengaturanUmumMenu ? 'show' : '' }}" aria-labelledby="headingUtilities"
             data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('jurusan.index')" href="{{ route('jurusan.index') }}">Jurusan</a>
@@ -119,7 +135,7 @@
     </li>
 
     <!-- Kelola User moved outside of Pengaturan -->
-    <li class="nav-item @isroute('users.index')">
+    <li class="nav-item {{ $isKelolaUser ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('users.index') }}">
             <i class="fas fa-fw fa-users"></i>
             <span>Kelola User</span>
@@ -134,7 +150,7 @@
         Penelitian dan Pengabdian
     </div>
 
-    <li class="nav-item @isroute('admin.timeline.index')">
+    <li class="nav-item {{ $isTimeline ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.timeline.index') }}">
             <i class="fas fa-fw fa-clock"></i>
             <span>Timeline</span>
@@ -158,6 +174,7 @@
             aria-expanded="{{ $penelitianMenuActive ? 'true' : 'false' }}" aria-controls="collapsePenelitianAdmin">
             <i class="fas fa-fw fa-flask"></i>
             <span>Penelitian</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
         </a>
         <div id="collapsePenelitianAdmin" class="collapse {{ $penelitianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
@@ -174,6 +191,7 @@
             aria-expanded="{{ $pengabdianMenuActive ? 'true' : 'false' }}" aria-controls="collapsePengabdianAdmin">
             <i class="fas fa-fw fa-hands-helping"></i>
             <span>Pengabdian</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
         </a>
         <div id="collapsePengabdianAdmin" class="collapse {{ $pengabdianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
@@ -186,13 +204,14 @@
     </li>
 
     <!-- Nav Item - Utilities Collapse Menu -->
-    <li class="nav-item">
+    <li class="nav-item {{ $isPengaturanLppmMenu ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUtilitiesLPPM"
-            aria-expanded="true" aria-controls="collapseUtilitiesLPPM">
+            aria-expanded="{{ $isPengaturanLppmMenu ? 'true' : 'false' }}" aria-controls="collapseUtilitiesLPPM">
             <i class="fas fa-fw fa-wrench"></i>
             <span>Pengaturan</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
         </a>
-        <div id="collapseUtilitiesLPPM" class="collapse" aria-labelledby="headingUtilities"
+        <div id="collapseUtilitiesLPPM" class="collapse {{ $isPengaturanLppmMenu ? 'show' : '' }}" aria-labelledby="headingUtilities"
             data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <!-- <a class="collapse-item" href="{{ route('luaran.index') }}">Hibah</a> -->

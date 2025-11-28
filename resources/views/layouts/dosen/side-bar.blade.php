@@ -55,17 +55,17 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item @isroute('dosen.dashboard')">
+    @php
+        $isDosenDashboard = request()->routeIs('dosen.dashboard');
+        $penelitianMenuActive = request()->routeIs('penelitian-dos.index');
+        $pengabdianMenuActive = request()->routeIs('pengabdian-dos.index');
+    @endphp
+    <li class="nav-item {{ $isDosenDashboard ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('dosen.dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
         </a>
     </li>
-
-    @php
-        $penelitianMenuActive = request()->routeIs('penelitian-dos.index');
-        $pengabdianMenuActive = request()->routeIs('pengabdian-dos.index');
-    @endphp
 
     <!-- Nav Item - Penelitian -->
     <li class="nav-item {{ $penelitianMenuActive ? 'active' : '' }}">
@@ -73,6 +73,7 @@
             aria-expanded="{{ $penelitianMenuActive ? 'true' : 'false' }}" aria-controls="collapsePenelitianDosen">
             <i class="fas fa-fw fa-flask"></i>
             <span>Penelitian</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
         </a>
         <div id="collapsePenelitianDosen" class="collapse {{ $penelitianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
@@ -90,6 +91,7 @@
             aria-expanded="{{ $pengabdianMenuActive ? 'true' : 'false' }}" aria-controls="collapsePengabdianDosen">
             <i class="fas fa-fw fa-hands-helping"></i>
             <span>Pengabdian</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
         </a>
         <div id="collapsePengabdianDosen" class="collapse {{ $pengabdianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
