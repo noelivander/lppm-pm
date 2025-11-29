@@ -20,7 +20,7 @@
         <style>
         body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif !important; }
         :root {
-            --sidebar-width-full: 300px;
+            --sidebar-width-full: 280px;
             --bs-primary: #7c3aed;
             --bs-primary-rgb: 124,58,237;
         }
