@@ -141,6 +141,30 @@
                                 </div>
                 </div>
 
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <h6 class="text-muted text-uppercase small fw-bold">Peninjauan Revisi Proposal</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="revision_review_start_date"></i>Peninjauan Revisi Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="revision_review_start_date" id="revision_review_start_date" class="modern-form-input" value="{{ old('revision_review_start_date', $timeline->revision_review_start_date ? date('Y-m-d\TH:i', strtotime($timeline->revision_review_start_date)) : '') }}" required>
+                                        @error('revision_review_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="revision_review_end_date"></i>Peninjauan Revisi End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="revision_review_end_date" id="revision_review_end_date" class="modern-form-input" value="{{ old('revision_review_end_date', $timeline->revision_review_end_date ? date('Y-m-d\TH:i', strtotime($timeline->revision_review_end_date)) : '') }}" required>
+                                        @error('revision_review_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- 5. Periode Laporan Kemajuan -->
                             <h5 class="mb-3 text-primary"><i class="fa fa-chart-line me-2"></i>5. Periode Laporan Kemajuan</h5>
                             <div class="row mb-3">
@@ -281,7 +305,8 @@
                 { start: 'upload_start_date', end: 'upload_end_date', name: 'Upload' },
                 { start: 'review_start_date', end: 'review_end_date', name: 'Review' },
                 { start: 'admin_decision_start_date', end: 'admin_decision_end_date', name: 'Penyetujuan Admin' },
-                { start: 'revision_start_date', end: 'revision_end_date', name: 'Revisi' },
+                { start: 'revision_start_date', end: 'revision_end_date', name: 'Revisi - Pengajuan' },
+                { start: 'revision_review_start_date', end: 'revision_review_end_date', name: 'Revisi - Peninjauan' },
                 { start: 'progress_submission_start_date', end: 'progress_submission_end_date', name: 'Laporan Kemajuan - Pengajuan' },
                 { start: 'progress_review_start_date', end: 'progress_review_end_date', name: 'Laporan Kemajuan - Peninjauan' },
                 { start: 'final_submission_start_date', end: 'final_submission_end_date', name: 'Laporan Akhir - Pengajuan' },

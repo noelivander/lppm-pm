@@ -22,6 +22,8 @@ class Timeline extends Model
         'admin_decision_end_date',
         'revision_start_date',
         'revision_end_date',
+        'revision_review_start_date',
+        'revision_review_end_date',
         'progress_submission_start_date',
         'progress_submission_end_date',
         'progress_review_start_date',
@@ -43,6 +45,8 @@ class Timeline extends Model
         'admin_decision_end_date' => 'datetime',
         'revision_start_date' => 'datetime',
         'revision_end_date' => 'datetime',
+        'revision_review_start_date' => 'datetime',
+        'revision_review_end_date' => 'datetime',
         'progress_submission_start_date' => 'datetime',
         'progress_submission_end_date' => 'datetime',
         'progress_review_start_date' => 'datetime',
@@ -105,6 +109,11 @@ class Timeline extends Model
     {
         $now = Carbon::now();
         
+        $revisionStart = $this->revision_start_date ?? $this->revisi_proposal_start_date;
+        $revisionEnd = $this->revision_end_date ?? $this->revisi_proposal_end_date;
+        $revisionReviewStart = $this->revision_review_start_date ?? $this->revisi_proposal_review_start_date;
+        $revisionReviewEnd = $this->revision_review_end_date ?? $this->revisi_proposal_review_end_date;
+
         // Check each stage in order
         if ($now->lt($this->upload_start_date)) {
             return 'upcoming';
@@ -112,8 +121,10 @@ class Timeline extends Model
             return 'upload_proposal';
         } elseif ($now->between($this->review_start_date, $this->review_end_date)) {
             return 'review_proposal';
-        } elseif ($this->revisi_proposal_start_date && $now->between($this->revisi_proposal_start_date, $this->revisi_proposal_end_date)) {
+        } elseif ($revisionStart && $revisionEnd && $now->between($revisionStart, $revisionEnd)) {
             return 'revisi_proposal';
+        } elseif ($revisionReviewStart && $revisionReviewEnd && $now->between($revisionReviewStart, $revisionReviewEnd)) {
+            return 'review_revisi_proposal';
         } elseif ($this->laporan_kemajuan_start_date && $now->between($this->laporan_kemajuan_start_date, $this->laporan_kemajuan_end_date)) {
             return 'upload_laporan_kemajuan';
         } elseif ($this->laporan_kemajuan_review_start_date && $now->between($this->laporan_kemajuan_review_start_date, $this->laporan_kemajuan_review_end_date)) {
@@ -139,6 +150,7 @@ class Timeline extends Model
             'upload_proposal' => 'Upload Proposal',
             'review_proposal' => 'Review Proposal',
             'revisi_proposal' => 'Revisi Proposal',
+            'review_revisi_proposal' => 'Review Revisi Proposal',
             'upload_laporan_kemajuan' => 'Upload Laporan Kemajuan',
             'review_laporan_kemajuan' => 'Review Laporan Kemajuan',
             'upload_laporan_akhir' => 'Upload Laporan Akhir',
@@ -167,7 +179,7 @@ class Timeline extends Model
         return match($status) {
             'upcoming' => 'info',
             'upload_proposal', 'upload_laporan_kemajuan', 'upload_laporan_akhir' => 'primary',
-            'review_proposal', 'review_laporan_kemajuan', 'review_laporan_akhir' => 'warning',
+            'review_proposal', 'review_laporan_kemajuan', 'review_laporan_akhir', 'review_revisi_proposal' => 'warning',
             'revisi_proposal' => 'secondary',
             'completed' => 'success',
             default => 'secondary',
@@ -184,7 +196,8 @@ class Timeline extends Model
         return match($stage) {
             'upload_proposal' => $now->between($this->upload_start_date, $this->upload_end_date),
             'review_proposal' => $now->between($this->review_start_date, $this->review_end_date),
-            'revisi_proposal' => $this->revisi_proposal_start_date && $this->revisi_proposal_end_date && $now->between($this->revisi_proposal_start_date, $this->revisi_proposal_end_date),
+            'revisi_proposal' => ($this->revision_start_date ?? $this->revisi_proposal_start_date) && ($this->revision_end_date ?? $this->revisi_proposal_end_date) && $now->between($this->revision_start_date ?? $this->revisi_proposal_start_date, $this->revision_end_date ?? $this->revisi_proposal_end_date),
+            'review_revisi_proposal' => ($this->revision_review_start_date ?? $this->revisi_proposal_review_start_date) && ($this->revision_review_end_date ?? $this->revisi_proposal_review_end_date) && $now->between($this->revision_review_start_date ?? $this->revisi_proposal_review_start_date, $this->revision_review_end_date ?? $this->revisi_proposal_review_end_date),
             'laporan_kemajuan' => $this->laporan_kemajuan_start_date && $this->laporan_kemajuan_end_date && $now->between($this->laporan_kemajuan_start_date, $this->laporan_kemajuan_end_date),
             'laporan_akhir' => $this->laporan_akhir_start_date && $this->laporan_akhir_end_date && $now->between($this->laporan_akhir_start_date, $this->laporan_akhir_end_date),
             default => false,

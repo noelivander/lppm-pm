@@ -95,14 +95,16 @@ class PengabdianController extends Controller
         $proposal = Pengabdian::with(['anggota', 'rab'])->findOrFail($id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
         
+        [$reviewStart, $reviewEnd] = $this->getReviewWindow($timeline, $proposal);
+
         // Cek apakah bisa melakukan review:
-        // - dalam periode review, dan
+        // - dalam periode review (awal atau revisi), dan
         // - period pada timeline sama dengan tahun pembuatan proposal
         $canReview = $timeline && 
-                     $timeline->review_start_date && 
-                     $timeline->review_end_date &&
-                     $currentDate >= $timeline->review_start_date && 
-                     $currentDate <= $timeline->review_end_date &&
+                     $reviewStart && 
+                     $reviewEnd &&
+                     $currentDate >= $reviewStart && 
+                     $currentDate <= $reviewEnd &&
                      $proposalYear && (string) $timeline->period === (string) $proposalYear;
         
         // Cek apakah reviewer saat ini sudah pernah review
@@ -212,12 +214,16 @@ class PengabdianController extends Controller
         $proposal = Pengabdian::findOrFail($request->pengabdian_id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
 
+        [$reviewStart, $reviewEnd] = $this->getReviewWindow($timeline, $proposal);
+
         if (
             !$timeline ||
             !$proposalYear ||
             (string) $timeline->period !== (string) $proposalYear ||
-            $currentDate < $timeline->review_start_date ||
-            $currentDate > $timeline->review_end_date
+            !$reviewStart ||
+            !$reviewEnd ||
+            $currentDate < $reviewStart ||
+            $currentDate > $reviewEnd
         ) {
             return redirect()->route('pengabdian-rev.index')
                 ->with('error', 'Periode review untuk proposal ini telah berakhir atau belum dimulai.');
@@ -283,12 +289,16 @@ class PengabdianController extends Controller
         $proposal = Pengabdian::findOrFail($review->pengabdian_id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
 
+        [$reviewStart, $reviewEnd] = $this->getReviewWindow($timeline, $proposal);
+
         if (
             !$timeline ||
             !$proposalYear ||
             (string) $timeline->period !== (string) $proposalYear ||
-            $currentDate < $timeline->review_start_date ||
-            $currentDate > $timeline->review_end_date
+            !$reviewStart ||
+            !$reviewEnd ||
+            $currentDate < $reviewStart ||
+            $currentDate > $reviewEnd
         ) {
             return redirect()->route('pengabdian-rev.index')
                 ->with('error', 'Periode review untuk proposal ini telah berakhir atau belum dimulai.');
@@ -328,14 +338,16 @@ class PengabdianController extends Controller
         $proposal = Pengabdian::with(['anggota', 'rab'])->findOrFail($id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
 
+        [$reviewStart, $reviewEnd] = $this->getReviewWindow($timeline, $proposal);
+
         // Cek apakah bisa melakukan review:
         // - dalam periode review, dan
         // - period pada timeline sama dengan tahun pembuatan proposal
         $canReview = $timeline && 
-                     $timeline->review_start_date && 
-                     $timeline->review_end_date &&
-                     $currentDate >= $timeline->review_start_date && 
-                     $currentDate <= $timeline->review_end_date &&
+                     $reviewStart && 
+                     $reviewEnd &&
+                     $currentDate >= $reviewStart && 
+                     $currentDate <= $reviewEnd &&
                      $proposalYear && (string) $timeline->period === (string) $proposalYear;
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
@@ -385,6 +397,19 @@ class PengabdianController extends Controller
         } else {
             return redirect()->back()->with('error', 'Review not found.');
         }
+    }
+
+    protected function getReviewWindow(?Timeline $timeline, Pengabdian $proposal): array
+    {
+        if (!$timeline) {
+            return [null, null];
+        }
+
+        if ($proposal->is_revised) {
+            return [$timeline->revision_review_start_date, $timeline->revision_review_end_date];
+        }
+
+        return [$timeline->review_start_date, $timeline->review_end_date];
     }
 
     protected function getActiveTimeline()

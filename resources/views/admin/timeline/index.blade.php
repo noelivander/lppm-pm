@@ -98,12 +98,12 @@
                                 <td>
                                     @if($timeline->revision_start_date && $timeline->revision_end_date)
                                     <div class="small">
-                                        <div class="fw-bold text-primary">Start:</div>
-                                        <div>{{ \Carbon\Carbon::parse($timeline->revision_start_date)->format('d M Y') }}</div>
-                                        <div class="text-muted">{{ \Carbon\Carbon::parse($timeline->revision_start_date)->format('H:i') }}</div>
-                                        <div class="fw-bold text-primary mt-2">End:</div>
-                                        <div>{{ \Carbon\Carbon::parse($timeline->revision_end_date)->format('d M Y') }}</div>
-                                        <div class="text-muted">{{ \Carbon\Carbon::parse($timeline->revision_end_date)->format('H:i') }}</div>
+                                        <div class="fw-bold text-success">Pengajuan:</div>
+                                        <div>{{ \Carbon\Carbon::parse($timeline->revision_start_date)->format('d M Y') }} - {{ \Carbon\Carbon::parse($timeline->revision_end_date)->format('d M Y') }}</div>
+                                        @if($timeline->revision_review_start_date && $timeline->revision_review_end_date)
+                                        <div class="fw-bold text-warning mt-2">Peninjauan:</div>
+                                        <div>{{ \Carbon\Carbon::parse($timeline->revision_review_start_date)->format('d M Y') }} - {{ \Carbon\Carbon::parse($timeline->revision_review_end_date)->format('d M Y') }}</div>
+                                        @endif
                                     </div>
                                     @else
                                     <span class="text-muted small">-</span>

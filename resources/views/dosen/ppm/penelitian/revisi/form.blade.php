@@ -71,6 +71,7 @@
                     @endif
 
                     @php($feedbackSource = $originalProposal ?? $proposal)
+                    @php($isEditingRevision = $isEditingRevision ?? false)
 
                     <div class="modern-card mt-4">
                         <div class="modern-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -226,7 +227,7 @@
                                                         @endif
                                                     </div>
                                                 @endif
-                                                <input type="file" name="dokumen_proposal" id="dokumen_proposal" class="modern-form-input" accept="application/pdf" @required(!$isEditingRevision)>
+                                                <input type="file" name="dokumen_proposal" id="dokumen_proposal" class="modern-form-input" accept="application/pdf" {{ $isEditingRevision ? '' : 'required' }}>
                                                 @error('dokumen_proposal')
                                                     <small class="text-danger d-block mt-1">{{ $message }}</small>
                                                 @enderror
