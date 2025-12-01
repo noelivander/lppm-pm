@@ -39,4 +39,15 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
         ->name('penelitian-rev.revisi.index');
     Route::get('ppm/pengabdian-rev/revisi/proposal', [PengabdianController::class, 'revisiIndex'])
         ->name('pengabdian-rev.revisi.index');
+
+    // Form khusus review hasil revisi (ACC/Tolak + komentar)
+    Route::get('ppm/penelitian-rev/revisi/{id}/review', [PenelitianController::class, 'revisiReview'])
+        ->name('penelitian-rev.revisi.review');
+    Route::post('ppm/penelitian-rev/revisi/{id}/submit', [PenelitianController::class, 'revisiReviewStore'])
+        ->name('penelitian-rev.revisi.submit');
+
+    Route::get('ppm/pengabdian-rev/revisi/{id}/review', [PengabdianController::class, 'revisiReview'])
+        ->name('pengabdian-rev.revisi.review');
+    Route::post('ppm/pengabdian-rev/revisi/{id}/submit', [PengabdianController::class, 'revisiReviewStore'])
+        ->name('pengabdian-rev.revisi.submit');
 });

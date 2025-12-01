@@ -137,6 +137,13 @@ class PenelitianController extends Controller
             }
         }
 
+        // Proposal revisi yang sudah pernah diberi keputusan revisi oleh reviewer yang login
+        $reviewedRevisionIds = Review::whereNotNull('revision_decision')
+            ->where('reviewer_id', auth()->id())
+            ->whereNotNull('penelitian_id')
+            ->pluck('penelitian_id')
+            ->toArray();
+
         $proposals = $baseQuery->orderByDesc('updated_at')
             ->paginate(10)
             ->withQueryString();
@@ -148,8 +155,184 @@ class PenelitianController extends Controller
             'filterSkemas',
             'filterYears',
             'statuses',
-            'filters'
+            'filters',
+            'reviewedRevisionIds'
         ));
+    }
+
+    /**
+     * Tampilkan form review untuk proposal yang sudah direvisi dosen.
+     * Fokus hanya pada ringkasan, tim, dan RAB + keputusan ACC/Tolak & komentar.
+     */
+    public function revisiReview($id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $proposal = Penelitian::with(['anggota', 'rab', 'reviews.reviewer', 'revisionParent.reviews.reviewer'])
+            ->where('is_revised', true)
+            ->findOrFail($id);
+
+        // Jika sudah ada reviewer lain yang sudah memberi keputusan revisi (disetujui/ditolak), blok akses reviewer lain
+        $finalRevisionReview = Review::where('penelitian_id', $proposal->id)
+            ->whereNotNull('revision_decision')
+            ->first();
+
+        if ($finalRevisionReview && $finalRevisionReview->reviewer_id !== Auth::id()) {
+            return redirect()
+                ->route('penelitian-rev.revisi.index')
+                ->with('error', 'Proposal revisi ini sudah diberikan keputusan oleh reviewer lain. Anda tidak dapat lagi melakukan peninjauan revisi.');
+        }
+
+        // Gunakan proposal asli (sebelum revisi) untuk membaca review & komentar admin
+        $originalProposal = $proposal->revisionParent ?: $proposal;
+
+        $proposalYear = $originalProposal->created_at ? $originalProposal->created_at->format('Y') : null;
+
+        [$reviewStart, $reviewEnd] = $this->getReviewWindow($timeline, $proposal);
+
+        // Cek apakah bisa melakukan review revisi:
+        // - dalam periode review revisi, dan
+        // - period pada timeline sama dengan tahun pembuatan proposal
+        $canReview = $timeline &&
+            $reviewStart &&
+            $reviewEnd &&
+            $currentDate >= $reviewStart &&
+            $currentDate <= $reviewEnd &&
+            $proposalYear &&
+            (string) $timeline->period === (string) $proposalYear;
+
+        $anggotaList = $proposal->anggota ?? collect();
+        $rabItems = $proposal->rab ?? collect();
+
+        $ketuaTim = Anggota::where('penelitian_id', $id)
+            ->where('peran', 'ketua')
+            ->first();
+
+        $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
+        $nidn = $ketuaTim ? $ketuaTim->nidn : '';
+        $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
+
+        $anggotaTim = Anggota::where('penelitian_id', $id)
+            ->where('peran', 'anggota')
+            ->get();
+
+        $anggotaNames = $anggotaTim->map(function ($anggota) {
+            return $anggota->nama;
+        })->join(', ');
+
+        $judul = $proposal->judul;
+        $biayaUsulan = $proposal->biaya_diusulkan;
+
+        // Tampilkan dokumen proposal revisi
+        $fileUrl = Storage::url($proposal->dokumen_proposal);
+
+        // Hasil review revisi untuk reviewer saat ini (jika sudah pernah diisi)
+        $review = Review::where('penelitian_id', $id)
+            ->where('reviewer_id', Auth::id())
+            ->first();
+
+        // Review awal dari kedua reviewer melekat pada proposal asli
+        $allReviews = $originalProposal->reviews ?? collect();
+
+        return view('reviewer.ppm.penelitian.revisi.review', [
+            'proposal' => $proposal,
+            'originalProposal' => $originalProposal,
+            'judul' => $judul,
+            'biayaUsulan' => $biayaUsulan,
+            'fileUrl' => $fileUrl,
+            'anggotaList' => $anggotaList,
+            'rabItems' => $rabItems,
+            'ketuaTimName' => $ketuaTimName,
+            'nidn' => $nidn,
+            'jabatan' => $jabatan,
+            'anggotaNames' => $anggotaNames,
+            'timeline' => $timeline,
+            'currentDate' => $currentDate,
+            'canReview' => $canReview,
+            'review' => $review,
+            'allReviews' => $allReviews,
+        ]);
+    }
+
+    /**
+     * Simpan keputusan review terhadap proposal revisi (ACC/Tolak + komentar).
+     */
+    public function revisiReviewStore(Request $request, $id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $proposal = Penelitian::with(['anggota', 'rab'])
+            ->where('is_revised', true)
+            ->findOrFail($id);
+
+        // Cegah submit jika sudah ada reviewer lain yang memberi keputusan revisi
+        $finalRevisionReview = Review::where('penelitian_id', $proposal->id)
+            ->whereNotNull('revision_decision')
+            ->first();
+
+        if ($finalRevisionReview && $finalRevisionReview->reviewer_id !== Auth::id()) {
+            return redirect()
+                ->route('penelitian-rev.revisi.index')
+                ->with('error', 'Proposal revisi ini sudah diberikan keputusan oleh reviewer lain. Anda tidak dapat lagi menyimpan peninjauan revisi.');
+        }
+
+        $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
+
+        [$reviewStart, $reviewEnd] = $this->getReviewWindow($timeline, $proposal);
+
+        if (
+            !$timeline ||
+            !$proposalYear ||
+            (string) $timeline->period !== (string) $proposalYear ||
+            !$reviewStart ||
+            !$reviewEnd ||
+            $currentDate < $reviewStart ||
+            $currentDate > $reviewEnd
+        ) {
+            return redirect()
+                ->route('penelitian-rev.revisi.index')
+                ->with('error', 'Periode review revisi untuk proposal ini telah berakhir atau belum dimulai.');
+        }
+
+        $validated = $request->validate([
+            'revision_decision' => 'required|in:approved,rejected',
+            'revision_comment' => 'required|string|max:2000',
+        ]);
+
+        $review = Review::firstOrCreate(
+            [
+                'penelitian_id' => $proposal->id,
+                'reviewer_id' => Auth::id(),
+            ],
+            [
+                'type' => 'penelitian',
+                'reviewer_name' => Auth::user()->name,
+                'judul_kegiatan' => $proposal->judul,
+                'ketua_tim' => $proposal->ketua_tim ?? null,
+                'nidn' => $proposal->nidn ?? null,
+                'jabatan' => $proposal->jabatan ?? null,
+                'anggota' => null,
+                'biaya_usulan' => $proposal->biaya_diusulkan,
+            ]
+        );
+
+        $review->revision_decision = $validated['revision_decision'];
+        $review->revision_comment = $validated['revision_comment'];
+        $review->save();
+
+        // Update status proposal sesuai keputusan peninjauan revisi
+        if ($validated['revision_decision'] === 'approved') {
+            $proposal->status = 'Disetujui';
+        } elseif ($validated['revision_decision'] === 'rejected') {
+            $proposal->status = 'Ditolak';
+        }
+        $proposal->save();
+
+        return redirect()
+            ->route('penelitian-rev.revisi.index')
+            ->with('success', 'Keputusan review revisi berhasil disimpan.');
     }
 
     public function review($id)

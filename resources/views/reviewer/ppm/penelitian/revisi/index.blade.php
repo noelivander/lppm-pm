@@ -136,8 +136,13 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    <a href="{{ route('penelitian-rev.review', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
-                                                        <i class="fa fa-file me-1"></i> Review
+                                                    @php
+                                                        $hasRevisionReview = in_array($proposal->id, $reviewedRevisionIds ?? []);
+                                                        $btnClass = $hasRevisionReview ? 'modern-btn-warning' : 'modern-btn-primary';
+                                                        $iconClass = $hasRevisionReview ? 'fa-pen' : 'fa-file';
+                                                    @endphp
+                                                    <a href="{{ route('penelitian-rev.revisi.review', $proposal->id) }}" class="modern-btn {{ $btnClass }} modern-btn-sm">
+                                                        <i class="fa {{ $iconClass }} me-1"></i> {{ $hasRevisionReview ? 'Edit' : 'Review' }}
                                                     </a>
                                                 </div>
                                             </td>

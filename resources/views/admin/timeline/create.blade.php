@@ -119,7 +119,7 @@
 
                             <!-- 4. Periode Revisi Proposal -->
                             <h5 class="mb-3 text-primary"><i class="fa fa-edit me-2"></i>4. Periode Revisi Proposal</h5>
-                            <div class="row mb-4">
+                            <div class="row mb-3">
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
                                         <label class="modern-form-label" for="revision_start_date"></i>Revisi Start Date & Time <span class="text-danger">*</span></label>
@@ -140,10 +140,8 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-4">
-                                <div class="col-md-12">
-                                    <h6 class="text-muted text-uppercase small fw-bold">Peninjauan Revisi Proposal</h6>
-                                </div>
+                            <div class="row mb-3">
+                                
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
                                         <label class="modern-form-label" for="revision_review_start_date"></i>Peninjauan Revisi Start Date & Time <span class="text-danger">*</span></label>
