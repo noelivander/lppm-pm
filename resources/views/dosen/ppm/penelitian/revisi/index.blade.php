@@ -62,8 +62,9 @@
                             <div class="col-md-2">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Status</label>
                                 <select name="status" class="modern-form-select">
+                                    <option value="">Semua Status</option>
                                     @foreach($statuses as $statusOption)
-                                        <option value="{{ $statusOption }}" @selected(($filters['status'] ?? 'Disetujui') === $statusOption)>{{ $statusOption }}</option>
+                                        <option value="{{ $statusOption }}" @selected(($filters['status'] ?? '') === $statusOption)>{{ $statusOption }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -97,6 +98,25 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($proposals as $proposal)
+                                        @php
+                                            $revision = $proposal->revisionChild;
+                                            if ($revision) {
+                                                $revisionState = $revision->status ?? 'Diproses';
+                                                if ($revisionState === 'Pending') {
+                                                    $revisionState = 'Diproses';
+                                                }
+                                            } else {
+                                                $revisionState = 'Pending';
+                                            }
+
+                                            $statusClass = match($revisionState) {
+                                                'Diproses' => 'diproses',
+                                                'Disetujui' => 'selesai',
+                                                'Ditolak' => 'ditolak',
+                                                default => 'pending',
+                                            };
+                                            $canEditRevision = $revisionState !== 'Disetujui' && $revisionState !== 'Ditolak';
+                                        @endphp
                                         <tr>
                                             <td class="text-center">{{ $proposals->firstItem() + $loop->index }}</td>
                                             <td class="col-judul">
@@ -107,19 +127,18 @@
                                             </td>
                                             <td>{{ optional($proposal->created_at)->format('Y') ?? '-' }}</td>
                                             <td>
-                                                <span class="status-badge
-                                                    @if ($proposal->status === 'Pending') pending
-                                                    @elseif ($proposal->status === 'Diproses') diproses
-                                                    @elseif ($proposal->status === 'Disetujui') selesai
-                                                    @elseif ($proposal->status === 'Ditolak') ditolak
-                                                    @endif">
-                                                    {{ $proposal->status }}
+                                                <span class="status-badge {{ $statusClass }}">
+                                                    {{ $revisionState }}
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" data-proposal-id="{{ $proposal->id }}">
-                                                    <i class="fa fa-edit me-1"></i> Revisi
-                                                </button>
+                                                @if($revision && !$canEditRevision)
+                                                    <span class="text-muted small">Revisi {{ strtolower($revisionState) }}</span>
+                                                @else
+                                                    <a href="{{ route('penelitian-dos.revisi.create', $proposal->id) }}" class="modern-btn modern-btn-sm {{ $revision ? 'modern-btn-primary' : 'modern-btn-warning' }}">
+                                                        <i class="fa {{ $revision ? 'fa-pen' : 'fa-edit' }} me-1"></i>{{ $revision ? 'Edit' : 'Revisi' }}
+                                                    </a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

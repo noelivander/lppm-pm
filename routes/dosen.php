@@ -19,6 +19,14 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
         ->name('penelitian-dos.revisi.index');
     Route::get('ppm/pengabdian-dos/revisi/proposal', [PengabdianController::class, 'revisiIndex'])
         ->name('pengabdian-dos.revisi.index');
+    Route::get('ppm/penelitian-dos/{penelitian}/revisi', [PenelitianController::class, 'revisiCreate'])
+        ->name('penelitian-dos.revisi.create');
+    Route::post('ppm/penelitian-dos/{penelitian}/revisi', [PenelitianController::class, 'revisiStore'])
+        ->name('penelitian-dos.revisi.store');
+    Route::get('ppm/pengabdian-dos/{pengabdian}/revisi', [PengabdianController::class, 'revisiCreate'])
+        ->name('pengabdian-dos.revisi.create');
+    Route::post('ppm/pengabdian-dos/{pengabdian}/revisi', [PengabdianController::class, 'revisiStore'])
+        ->name('pengabdian-dos.revisi.store');
 
     Route::resource('ppm/penelitian-dos', PenelitianController::class);
     Route::resource('ppm/pengabdian-dos', PengabdianController::class);
