@@ -19,7 +19,9 @@ class PengabdianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
 
-        $baseQuery = Pengabdian::where('is_draft', false);
+        // Hanya tampilkan proposal awal (bukan entitas revisi)
+        $baseQuery = Pengabdian::where('is_draft', false)
+            ->where('is_revised', false);
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -566,14 +568,9 @@ class PengabdianController extends Controller
             return redirect()->route('pengabdian-rev.index')
                 ->with('error', 'Periode review untuk proposal ini telah berakhir atau belum dimulai.');
         }
+        // Validasi hanya field yang benar-benar bisa diedit di form Edit Review
         $validatedData = $request->validate([
-            'judul_kegiatan' => 'required|string|max:255',
-            'ketua_tim' => 'required|string|max:255',
-            'nidn' => 'required|string|max:255',
-            'jabatan' => 'required|string|max:255',
             'scopus' => 'nullable|string|max:255',
-            'anggota' => 'nullable|string|max:255',
-            'biaya_usulan' => 'required|numeric',
             'disarankan' => 'nullable|string|max:255',
             'skor_1' => 'required|integer|min:1|max:7',
             'skor_2' => 'required|integer|min:1|max:7',
@@ -583,12 +580,18 @@ class PengabdianController extends Controller
             'komentar' => 'nullable|string',
         ]);
 
-        $review = Review::findOrFail($id);
+        // Update hanya field penilaian, jangan mengubah metadata judul/ketua/NIDN, dll.
+        $review->scopus = $validatedData['scopus'] ?? $review->scopus;
+        $review->disarankan = $validatedData['disarankan'] ?? $review->disarankan;
+        $review->skor_1 = $validatedData['skor_1'];
+        $review->skor_2 = $validatedData['skor_2'];
+        $review->skor_3 = $validatedData['skor_3'];
+        $review->skor_4 = $validatedData['skor_4'];
+        $review->skor_5 = $validatedData['skor_5'];
+        $review->komentar = $validatedData['komentar'] ?? $review->komentar;
+        $review->save();
 
-        $review->update($validatedData);
-
-        $pengabdian = Pengabdian::findOrFail($review->pengabdian_id);
-        // Status tetap Diproses jika sudah ada review, tidak perlu diubah lagi
+        // Status proposal tetap Diproses/Selesai sesuai logika sebelumnya – tidak diubah di sini
 
         return redirect()->route('pengabdian-rev.index')->with('success', 'Review berhasil diperbarui.');
     }

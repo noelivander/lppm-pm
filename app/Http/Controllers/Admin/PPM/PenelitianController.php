@@ -188,6 +188,96 @@ class PenelitianController extends Controller
     }
 
     /**
+     * List proposal revisi (hasil revisi dosen) beserta status review revisinya.
+     */
+    public function revisiIndex(Request $request)
+    {
+        $baseQuery = Penelitian::with(['user'])
+            ->where('is_draft', false)
+            ->where('is_revised', true);
+
+        $filterSkemas = (clone $baseQuery)->select('skema')
+            ->whereNotNull('skema')
+            ->distinct()
+            ->orderBy('skema')
+            ->pluck('skema');
+
+        $filterYears = (clone $baseQuery)->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        $statuses = ['Pending', 'Diproses', 'Selesai'];
+
+        $filters = [
+            'search' => $request->get('search'),
+            'skema' => $request->get('skema'),
+            'year' => $request->get('year'),
+            'status' => $request->get('status'),
+        ];
+
+        if ($filters['search']) {
+            $baseQuery->where('judul', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if ($filters['skema']) {
+            $baseQuery->where('skema', $filters['skema']);
+        }
+
+        if ($filters['year']) {
+            $baseQuery->whereYear('created_at', $filters['year']);
+        }
+
+        if ($filters['status']) {
+            $baseQuery->where('status', $filters['status']);
+        }
+
+        $proposals = $baseQuery->orderByDesc('updated_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.ppm.penelitian.revisi.index', compact(
+            'proposals',
+            'filterSkemas',
+            'filterYears',
+            'statuses',
+            'filters'
+        ));
+    }
+
+    /**
+     * Detail proposal revisi beserta komentar reviewer.
+     */
+    public function revisiShow($id)
+    {
+        $proposal = Penelitian::with([
+                'user',
+                'anggota',
+                'rab',
+                'revisionParent.user',
+            ])
+            ->where('is_revised', true)
+            ->findOrFail($id);
+
+        $originalProposal = $proposal->revisionParent;
+
+        $revisionReviews = Review::with('reviewer')
+            ->where('penelitian_id', $proposal->id)
+            ->whereNotNull('revision_comment')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        $fileUrl = $proposal->dokumen_proposal ? Storage::url($proposal->dokumen_proposal) : null;
+
+        return view('admin.ppm.penelitian.revisi.show', compact(
+            'proposal',
+            'originalProposal',
+            'revisionReviews',
+            'fileUrl'
+        ));
+    }
+
+    /**
      * Get active timeline
      */
     protected function getActiveTimeline()

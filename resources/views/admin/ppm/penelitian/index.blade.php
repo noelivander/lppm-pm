@@ -132,7 +132,7 @@
                                                         <i class="fa fa-times-circle me-1"></i>Ditolak
                                                     </span>
                                                 @else
-                                                    <span class="status-badge diproses">
+                                                    <span class="status-badge pending">
                                                         <i class="fa fa-clock me-1"></i>Pending
                                                     </span>
                                                 @endif

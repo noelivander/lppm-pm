@@ -193,8 +193,8 @@
     </li> --}}
 
     @php
-        $penelitianMenuActive = request()->routeIs('penelitian-adm.index');
-        $pengabdianMenuActive = request()->routeIs('pengabdian-adm.index');
+        $penelitianMenuActive = request()->routeIs('penelitian-adm.*');
+        $pengabdianMenuActive = request()->routeIs('pengabdian-adm.*');
     @endphp
 
     <li class="nav-item {{ $penelitianMenuActive ? 'active' : '' }}">
@@ -207,7 +207,7 @@
         <div id="collapsePenelitianAdmin" class="collapse {{ $penelitianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('penelitian-adm.index')" href="{{ route('penelitian-adm.index') }}">Daftar Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item @isroute('penelitian-adm.revisi.index')" href="{{ route('penelitian-adm.revisi.index') }}">Revisi Proposal</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
@@ -224,7 +224,7 @@
         <div id="collapsePengabdianAdmin" class="collapse {{ $pengabdianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('pengabdian-adm.index')" href="{{ route('pengabdian-adm.index') }}">Daftar Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item @isroute('pengabdian-adm.revisi.index')" href="{{ route('pengabdian-adm.revisi.index') }}">Revisi Proposal</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>

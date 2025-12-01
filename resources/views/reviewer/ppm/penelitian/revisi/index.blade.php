@@ -108,24 +108,24 @@
                                 <tbody>
                                     @foreach ($proposals as $proposal)
                                         @php
-                                            $displayStatus = $proposal->status;
-                                            if (in_array($proposal->status, ['Pending', 'Diproses'])) {
-                                                $displayStatus = 'Pending';
-                                            } elseif ($proposal->status === 'Selesai') {
-                                                $displayStatus = 'Selesai';
-                                            }
-
-                                            // Jika proposal revisi sudah penuh dikomentari 2 reviewer dan reviewer ini belum komentar,
-                                            // tunjukkan status "Reviewed" (badge abu-abu)
                                             $hasRevisionReview = in_array($proposal->id, $reviewedRevisionIds ?? []);
                                             $isFullyReviewed = in_array($proposal->id, $fullReviewedIds ?? []);
-                                            if ($isFullyReviewed && !$hasRevisionReview) {
+
+                                            // Status ditampilkan dari perspektif reviewer saat ini:
+                                            // - Jika reviewer ini sudah memberi komentar revisi -> Selesai (hijau)
+                                            // - Jika sudah 2 komentar dari reviewer lain, tapi reviewer ini belum komentar -> Reviewed (abu-abu)
+                                            // - Selain itu -> Pending
+                                            if ($hasRevisionReview) {
+                                                $displayStatus = 'Selesai';
+                                            } elseif ($isFullyReviewed) {
                                                 $displayStatus = 'Reviewed';
+                                            } else {
+                                                $displayStatus = 'Pending';
                                             }
 
                                             $statusClass = match($displayStatus) {
                                                 'Selesai' => 'selesai',
-                                                'Reviewed' => 'reviewed', // gunakan style abu-abu
+                                                'Reviewed' => 'reviewed', // badge abu-abu
                                                 default => 'pending',
                                             };
                                         @endphp
