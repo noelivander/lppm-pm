@@ -20,7 +20,14 @@
                 @endif
 
                 @if ($timeline && $timeline->admin_decision_start_date && $timeline->admin_decision_end_date)
-                    @if ($currentDate < $timeline->admin_decision_start_date)
+                    @php
+                        $matchPeriod = isset($proposalYear) && (string) $timeline->period === (string) $proposalYear;
+                    @endphp
+                    @if (!$matchPeriod)
+                        <div class="modern-alert modern-alert-warning mb-3">
+                            <i class="fa fa-lock me-2"></i>Proposal ini berada pada periode {{ $proposalYear ?? '-' }}, sedangkan periode penyetujuan aktif adalah {{ $timeline->period }}. Penyetujuan tidak dapat dilakukan.
+                        </div>
+                    @elseif ($currentDate < $timeline->admin_decision_start_date)
                         <div class="modern-alert modern-alert-warning mb-3">
                             <i class="fa fa-clock me-2"></i>Periode penyetujuan admin akan dimulai pada <strong>{{ $timeline->admin_decision_start_date->format('d F Y H:i') }}</strong>.
                         </div>
@@ -295,7 +302,9 @@
                         @endif
 
                         @php
-                            $canMakeDecision = $timeline && 
+                            $matchPeriod = isset($proposalYear) && $timeline && (string) $timeline->period === (string) $proposalYear;
+                            $canMakeDecision = $matchPeriod &&
+                                $timeline && 
                                 $timeline->admin_decision_start_date && 
                                 $timeline->admin_decision_end_date &&
                                 $currentDate >= $timeline->admin_decision_start_date && 

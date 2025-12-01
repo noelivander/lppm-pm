@@ -91,15 +91,19 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
+
+        $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
+        $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
         
-        // Cek apakah bisa melakukan review (dalam periode review)
+        // Cek apakah bisa melakukan review:
+        // - dalam periode review, dan
+        // - period pada timeline sama dengan tahun pembuatan proposal
         $canReview = $timeline && 
                      $timeline->review_start_date && 
                      $timeline->review_end_date &&
                      $currentDate >= $timeline->review_start_date && 
-                     $currentDate <= $timeline->review_end_date;
-
-        $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
+                     $currentDate <= $timeline->review_end_date &&
+                     $proposalYear && (string) $timeline->period === (string) $proposalYear;
         
         // Cek apakah reviewer saat ini sudah pernah review
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
@@ -206,8 +210,18 @@ class PenelitianController extends Controller
     {
         $timeline = $this->getActiveTimeline();
         $currentDate = now();
-        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
-            return redirect()->route('penelitian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
+        $proposal = Penelitian::findOrFail($request->penelitian_id);
+        $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
+
+        if (
+            !$timeline ||
+            !$proposalYear ||
+            (string) $timeline->period !== (string) $proposalYear ||
+            $currentDate < $timeline->review_start_date ||
+            $currentDate > $timeline->review_end_date
+        ) {
+            return redirect()->route('penelitian-rev.index')
+                ->with('error', 'Periode review untuk proposal ini telah berakhir atau belum dimulai.');
         }
         
         // Validasi: cek apakah sudah ada 2 reviewer
@@ -265,8 +279,19 @@ class PenelitianController extends Controller
     {
         $timeline = $this->getActiveTimeline();
         $currentDate = now();
-        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
-            return redirect()->route('penelitian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
+        $review = Review::findOrFail($id);
+        $proposal = Penelitian::findOrFail($review->penelitian_id);
+        $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
+
+        if (
+            !$timeline ||
+            !$proposalYear ||
+            (string) $timeline->period !== (string) $proposalYear ||
+            $currentDate < $timeline->review_start_date ||
+            $currentDate > $timeline->review_end_date
+        ) {
+            return redirect()->route('penelitian-rev.index')
+                ->with('error', 'Periode review untuk proposal ini telah berakhir atau belum dimulai.');
         }
         $validatedData = $request->validate([
             'judul_kegiatan' => 'required|string|max:255',
@@ -300,14 +325,19 @@ class PenelitianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
         
-        // Cek apakah bisa melakukan review (dalam periode review)
+        $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
+        $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
+
+        // Cek apakah bisa melakukan review:
+        // - dalam periode review, dan
+        // - period pada timeline sama dengan tahun pembuatan proposal
         $canReview = $timeline && 
                      $timeline->review_start_date && 
                      $timeline->review_end_date &&
                      $currentDate >= $timeline->review_start_date && 
-                     $currentDate <= $timeline->review_end_date;
+                     $currentDate <= $timeline->review_end_date &&
+                     $proposalYear && (string) $timeline->period === (string) $proposalYear;
         
-        $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();

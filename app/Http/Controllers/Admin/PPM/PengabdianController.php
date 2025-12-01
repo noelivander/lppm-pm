@@ -91,6 +91,7 @@ class PengabdianController extends Controller
         $timeline = $this->getActiveTimeline();
         
         $proposal = Pengabdian::with(['anggota', 'rab', 'user', 'reviews.reviewer'])->findOrFail($id);
+        $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
         
         // Pastikan proposal sudah direview minimal 2 reviewer
         $reviews = $proposal->reviews;
@@ -121,7 +122,8 @@ class PengabdianController extends Controller
             'anggotaTim',
             'fileUrl',
             'timeline',
-            'currentDate'
+            'currentDate',
+            'proposalYear'
         ));
     }
 
@@ -133,10 +135,19 @@ class PengabdianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
         
+        $proposal = Pengabdian::findOrFail($id);
+        $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
+        
         // Validasi periode admin decision
-        if (!$timeline || !$timeline->admin_decision_start_date || !$timeline->admin_decision_end_date) {
+        if (
+            !$timeline ||
+            !$timeline->admin_decision_start_date ||
+            !$timeline->admin_decision_end_date ||
+            !$proposalYear ||
+            (string) $timeline->period !== (string) $proposalYear
+        ) {
             return redirect()->back()
-                ->with('error', 'Periode keputusan admin belum ditentukan.');
+                ->with('error', 'Periode penyetujuan admin untuk proposal ini belum ditentukan atau sudah tidak aktif.');
         }
         
         if ($currentDate < $timeline->admin_decision_start_date || $currentDate > $timeline->admin_decision_end_date) {
@@ -151,8 +162,6 @@ class PengabdianController extends Controller
             'admin_comment.required' => 'Komentar admin wajib diisi.',
         ]);
 
-        $proposal = Pengabdian::findOrFail($id);
-        
         // Pastikan proposal sudah direview lengkap
         $reviewCount = Review::where('pengabdian_id', $id)->count();
         if ($reviewCount < 2) {
