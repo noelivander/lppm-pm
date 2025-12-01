@@ -133,12 +133,10 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @php($inWindow = $timeline && $currentDate >= $timeline->review_start_date && $currentDate <= $timeline->review_end_date)
                                             <div class="d-flex gap-2">
                                                 @if (in_array($proposal->id, $reviews))
                                                     <a href="{{ route('penelitian-rev.editReview', $proposal->id) }}" 
-                                                       class="modern-btn modern-btn-warning modern-btn-sm @if(!$inWindow) disabled @endif"
-                                                       @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif>
+                                                       class="modern-btn modern-btn-warning modern-btn-sm">
                                                         <i class="fa fa-edit me-1"></i> Edit
                                                     </a>
                                                     <a href="{{ route('penelitian-rev.view_pdf', $proposal->id) }}" 
@@ -152,8 +150,7 @@
                                                         </button>
                                                     @else
                                                         <a href="{{ route('penelitian-rev.review', $proposal->id) }}" 
-                                                           class="modern-btn modern-btn-primary modern-btn-sm @if(!$inWindow) disabled @endif"
-                                                           @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif>
+                                                           class="modern-btn modern-btn-primary modern-btn-sm">
                                                             <i class="fa fa-file me-1"></i> Review
                                                         </a>
                                                     @endif

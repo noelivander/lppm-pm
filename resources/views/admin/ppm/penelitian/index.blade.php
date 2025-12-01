@@ -24,6 +24,28 @@
                         </div>
                     @endif
 
+                    @if (!$timeline)
+                        <div class="modern-alert modern-alert-danger">
+                            <i class="fa fa-exclamation-circle me-2"></i>Tidak ada jadwal penyetujuan admin.
+                        </div>
+                    @elseif (!$timeline->admin_decision_start_date || !$timeline->admin_decision_end_date)
+                        <div class="modern-alert modern-alert-warning">
+                            <i class="fa fa-exclamation-triangle me-2"></i>Periode penyetujuan admin belum ditentukan.
+                        </div>
+                    @elseif ($currentDate < $timeline->admin_decision_start_date)
+                        <div class="modern-alert modern-alert-warning">
+                            <i class="fa fa-clock me-2"></i>Periode penyetujuan admin akan dimulai pada <strong>{{ $timeline->admin_decision_start_date->format('d F Y H:i') }}</strong>.
+                        </div>
+                    @elseif ($currentDate > $timeline->admin_decision_end_date)
+                        <div class="modern-alert modern-alert-danger">
+                            <i class="fa fa-times-circle me-2"></i>Periode penyetujuan admin telah berakhir pada <strong>{{ $timeline->admin_decision_end_date->format('d F Y H:i') }}</strong>.
+                        </div>
+                    @else
+                        <div class="modern-alert modern-alert-info">
+                            <i class="fa fa-info-circle me-2"></i>Periode penyetujuan admin sedang berlangsung. Akan berakhir pada <strong>{{ $timeline->admin_decision_end_date->format('d F Y H:i') }}</strong>.
+                        </div>
+                    @endif
+
                     <form method="GET" class="modern-card p-3 mb-3 filter-card">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-4">

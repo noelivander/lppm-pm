@@ -13,6 +13,22 @@
                     </a>
                 </div>
 
+                @if ($timeline && $timeline->review_start_date && $timeline->review_end_date)
+                    @if ($currentDate < $timeline->review_start_date)
+                        <div class="modern-alert modern-alert-warning mb-3">
+                            <i class="fa fa-clock me-2"></i>Periode review akan dimulai pada <strong>{{ $timeline->review_start_date->format('d F Y H:i') }}</strong>.
+                        </div>
+                    @elseif ($currentDate > $timeline->review_end_date)
+                        <div class="modern-alert modern-alert-danger mb-3">
+                            <i class="fa fa-times-circle me-2"></i>Periode review telah berakhir pada <strong>{{ $timeline->review_end_date->format('d F Y H:i') }}</strong>. Anda tidak dapat melakukan review.
+                        </div>
+                    @else
+                        <div class="modern-alert modern-alert-info mb-3">
+                            <i class="fa fa-info-circle me-2"></i>Periode review sedang berlangsung. Akan berakhir pada <strong>{{ $timeline->review_end_date->format('d F Y H:i') }}</strong>.
+                        </div>
+                    @endif
+                @endif
+
                 <div class="modern-card mb-4 fade-in-up">
                     <div class="modern-card-body">
                         <h3>Proposal Pengabdian</h3>
@@ -169,7 +185,7 @@
                                     <div class="col-md-6">
                                         <div class="modern-form-group">
                                             <label for="scopus" class="modern-form-label"><i class="fa fa-chart-line me-2"></i>H-Index (Scopus)</label>
-                                            <input type="text" id="scopus" name="scopus" class="modern-form-input" value="{{ $review->scopus }}">
+                                            <input type="text" id="scopus" name="scopus" class="modern-form-input" value="{{ $review->scopus }}" @if(!$canReview) disabled @endif>
                                         </div>
                                     </div>
                             
@@ -178,7 +194,7 @@
                             
                                         <div class="modern-form-group">
                                             <label for="disarankan" class="modern-form-label"><i class="fa fa-lightbulb me-2"></i>Disarankan</label>
-                                            <input type="text" id="disarankan" name="disarankan" class="modern-form-input" value="{{ $review->disarankan }}">
+                                            <input type="text" id="disarankan" name="disarankan" class="modern-form-input" value="{{ $review->disarankan }}" @if(!$canReview) disabled @endif>
                                         </div>
                                     </div>
                                 </div>
@@ -204,7 +220,7 @@
                                         <td style="text-align: left;">Penguasaan materi dan keterkaitan antara usulan penelitian dengan Topik Penelitian ITH</td>
                                         <td class="bobot">20</td>
                                         <td>
-                                            <input type="number" name="skor_1" class="modern-form-input skor" data-bobot="20" value="{{ $review->skor_1 }}" required>
+                                            <input type="number" name="skor_1" class="modern-form-input skor" data-bobot="20" value="{{ $review->skor_1 }}" @if(!$canReview) disabled @else required @endif>
                                         </td>
                                         <td>
                                             <input type="number" name="nilai_1" class="modern-form-input nilai" readonly value="{{ $review->skor_1 * 20 }}">
@@ -215,7 +231,7 @@
                                         <td style="text-align: left;">Kesesuaian latar belakang, permasalahan, dan tujuan serta kemutakhiran pustaka</td>
                                         <td class="bobot">20</td>
                                         <td>
-                                            <input type="number" name="skor_2" class="modern-form-input skor" data-bobot="20" value="{{ $review->skor_2 }}" required>
+                                            <input type="number" name="skor_2" class="modern-form-input skor" data-bobot="20" value="{{ $review->skor_2 }}" @if(!$canReview) disabled @else required @endif>
                                         </td>
                                         <td>
                                             <input type="number" name="nilai_2" class="modern-form-input nilai" readonly value="{{ $review->skor_2 * 20 }}">
@@ -233,7 +249,7 @@
                                         </td>
                                         <td class="bobot">20</td>
                                         <td>
-                                            <input type="number" name="skor_3" class="modern-form-input skor" data-bobot="20" value="{{ $review->skor_3 }}" required>
+                                            <input type="number" name="skor_3" class="modern-form-input skor" data-bobot="20" value="{{ $review->skor_3 }}" @if(!$canReview) disabled @else required @endif>
                                         </td>
                                         <td>
                                             <input type="number" name="nilai_3" class="modern-form-input nilai" readonly value="{{ $review->skor_3 * 20 }}">
@@ -244,7 +260,7 @@
                                         <td style="text-align: left;">Memiliki peta jalan (roadmap) penelitian</td>
                                         <td class="bobot">10</td>
                                         <td>
-                                            <input type="number" name="skor_4" class="modern-form-input skor" data-bobot="10" value="{{ $review->skor_4 }}" required>
+                                            <input type="number" name="skor_4" class="modern-form-input skor" data-bobot="10" value="{{ $review->skor_4 }}" @if(!$canReview) disabled @else required @endif>
                                         </td>
                                         <td>
                                             <input type="number" name="nilai_4" class="modern-form-input nilai" readonly value="{{ $review->skor_4 * 10 }}">
@@ -263,7 +279,7 @@
                                         </td>
                                         <td class="bobot">30</td>
                                         <td>
-                                            <input type="number" name="skor_5" class="modern-form-input skor" data-bobot="30" value="{{ $review->skor_5 }}" required>
+                                            <input type="number" name="skor_5" class="modern-form-input skor" data-bobot="30" value="{{ $review->skor_5 }}" @if(!$canReview) disabled @else required @endif>
                                         </td>
                                         <td>
                                             <input type="number" name="nilai_5" class="modern-form-input nilai" readonly value="{{ $review->skor_5 * 30 }}">
@@ -293,7 +309,7 @@
                             <div class="modern-form-group">
                                 <br>
                                 <label for="komentar" class="modern-form-label"><i class="fa fa-comment-dots me-2"></i>Komentar Penilai</label>
-                                <textarea id="komentar" name="komentar" class="modern-form-textarea" oninput="updateWordCount()">{{ old('komentar', $review->komentar) }}</textarea>
+                                <textarea id="komentar" name="komentar" class="modern-form-textarea" oninput="updateWordCount()" @if(!$canReview) disabled @endif>{{ old('komentar', $review->komentar) }}</textarea>
                                 <div id="wordCount" class="text-muted small">0/120 words</div> <!-- Word count will be displayed here -->
                             </div>
                             
@@ -327,7 +343,13 @@
                             </script>
                             
 
-                            <br><button type="submit" class="modern-btn modern-btn-primary mt-2" id="submitProposal"><i class="fa fa-save me-1"></i> Update Penilaian</button>
+                            @if($canReview)
+                                <br><button type="submit" class="modern-btn modern-btn-primary mt-2" id="submitProposal"><i class="fa fa-save me-1"></i> Update Penilaian</button>
+                            @else
+                                <br><button type="button" class="modern-btn modern-btn-secondary mt-2" disabled>
+                                    <i class="fa fa-lock me-1"></i> Periode Review Tidak Aktif
+                                </button>
+                            @endif
                         </form>
                     </div>
                 </div>

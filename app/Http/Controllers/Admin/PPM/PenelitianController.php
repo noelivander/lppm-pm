@@ -8,6 +8,7 @@ use App\Models\Penelitian;
 use App\Models\Review;
 use App\Models\Anggota;
 use App\Models\RabPenelitian;
+use App\Models\Timeline;
 use Illuminate\Support\Facades\Storage;
 
 class PenelitianController extends Controller
@@ -18,6 +19,9 @@ class PenelitianController extends Controller
      */
     public function index(Request $request)
     {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        
         // Query proposal yang sudah direview lengkap (minimal 2 reviewer)
         $baseQuery = Penelitian::where('is_draft', false)
             ->whereRaw('(SELECT COUNT(*) FROM reviews WHERE reviews.penelitian_id = penelitian.id) >= 2')
@@ -71,7 +75,9 @@ class PenelitianController extends Controller
             'filterSkemas',
             'filterYears',
             'adminStatuses',
-            'filters'
+            'filters',
+            'timeline',
+            'currentDate'
         ));
     }
 
@@ -81,6 +87,9 @@ class PenelitianController extends Controller
      */
     public function show($id)
     {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        
         $proposal = Penelitian::with(['anggota', 'rab', 'user', 'reviews.reviewer'])->findOrFail($id);
         
         // Pastikan proposal sudah direview minimal 2 reviewer
@@ -110,7 +119,9 @@ class PenelitianController extends Controller
             'rabItems',
             'ketuaTim',
             'anggotaTim',
-            'fileUrl'
+            'fileUrl',
+            'timeline',
+            'currentDate'
         ));
     }
 
@@ -119,6 +130,20 @@ class PenelitianController extends Controller
      */
     public function approveReject(Request $request, $id)
     {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        
+        // Validasi periode admin decision
+        if (!$timeline || !$timeline->admin_decision_start_date || !$timeline->admin_decision_end_date) {
+            return redirect()->back()
+                ->with('error', 'Periode keputusan admin belum ditentukan.');
+        }
+        
+        if ($currentDate < $timeline->admin_decision_start_date || $currentDate > $timeline->admin_decision_end_date) {
+            return redirect()->back()
+                ->with('error', 'Anda tidak dapat melakukan keputusan di luar periode yang ditentukan.');
+        }
+        
         $request->validate([
             'admin_status' => 'required|in:approved,rejected',
             'admin_comment' => 'required|string|max:1000',
@@ -151,5 +176,16 @@ class PenelitianController extends Controller
         
         return redirect()->route('penelitian-adm.index')
             ->with('success', "Proposal berhasil {$statusText}.");
+    }
+
+    /**
+     * Get active timeline
+     */
+    protected function getActiveTimeline()
+    {
+        return Timeline::active()
+            ->orderBy('period', 'desc')
+            ->ordered()
+            ->first();
     }
 }

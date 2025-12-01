@@ -130,10 +130,9 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @php($inWindow = $timeline && $currentDate >= $timeline->review_start_date && $currentDate <= $timeline->review_end_date)
                                             <div class="d-flex gap-2">
                                             @if (in_array($proposal->id, $reviews))
-                                                <a href="{{ route('pengabdian-rev.editReview', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm @if(!$inWindow) disabled @endif" @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif><i class="fa fa-edit me-1"></i> Edit</a>
+                                                <a href="{{ route('pengabdian-rev.editReview', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm"><i class="fa fa-edit me-1"></i> Edit</a>
                                                 <a href="{{ route('pengabdian-rev.view_pdf', $proposal->id) }}" class="modern-btn modern-btn-danger modern-btn-sm"><i class="fa fa-file-download me-1"></i> PDF</a>
                                             @else
                                                 @if($isFull)
@@ -141,7 +140,7 @@
                                                         <i class="fa fa-lock me-1"></i> Reviewed
                                                     </button>
                                                 @else
-                                                    <a href="{{ route('pengabdian-rev.review', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm @if(!$inWindow) disabled @endif" @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif><i class="fa fa-file me-1"></i> Review</a>
+                                                    <a href="{{ route('pengabdian-rev.review', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm"><i class="fa fa-file me-1"></i> Review</a>
                                                 @endif
                                             @endif
                                             </div>

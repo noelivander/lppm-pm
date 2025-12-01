@@ -91,9 +91,13 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
-            return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
-        }
+        
+        // Cek apakah bisa melakukan review (dalam periode review)
+        $canReview = $timeline && 
+                     $timeline->review_start_date && 
+                     $timeline->review_end_date &&
+                     $currentDate >= $timeline->review_start_date && 
+                     $currentDate <= $timeline->review_end_date;
 
         $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
         
@@ -148,7 +152,10 @@ class PenelitianController extends Controller
                 'biayaUsulan',
                 'sintaIndex',
                 'anggotaList',
-                'rabItems'
+                'rabItems',
+                'timeline',
+                'currentDate',
+                'canReview'
             ));
         } else {
             return view('reviewer.ppm.penelitian.review', compact(
@@ -162,7 +169,10 @@ class PenelitianController extends Controller
                 'biayaUsulan',
                 'sintaIndex',
                 'anggotaList',
-                'rabItems'
+                'rabItems',
+                'timeline',
+                'currentDate',
+                'canReview'
             ));
         }
     }
@@ -287,11 +297,16 @@ class PenelitianController extends Controller
 
     public function editReview($id)
     {
-        $timeline = $this->getActiveTimeline();
         $currentDate = now();
-        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
-            return redirect()->route('penelitian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
-        }
+        $timeline = $this->getActiveTimeline();
+        
+        // Cek apakah bisa melakukan review (dalam periode review)
+        $canReview = $timeline && 
+                     $timeline->review_start_date && 
+                     $timeline->review_end_date &&
+                     $currentDate >= $timeline->review_start_date && 
+                     $currentDate <= $timeline->review_end_date;
+        
         $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
@@ -333,7 +348,10 @@ class PenelitianController extends Controller
                 'biayaUsulan',
                 'sintaIndex',
                 'anggotaList',
-                'rabItems'
+                'rabItems',
+                'timeline',
+                'currentDate',
+                'canReview'
             ));
         } else {
             return redirect()->back()->with('error', 'Review not found.');

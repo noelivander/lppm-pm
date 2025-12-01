@@ -19,6 +19,22 @@
                     </div>
                 @endif
 
+                @if ($timeline && $timeline->admin_decision_start_date && $timeline->admin_decision_end_date)
+                    @if ($currentDate < $timeline->admin_decision_start_date)
+                        <div class="modern-alert modern-alert-warning mb-3">
+                            <i class="fa fa-clock me-2"></i>Periode penyetujuan admin akan dimulai pada <strong>{{ $timeline->admin_decision_start_date->format('d F Y H:i') }}</strong>.
+                        </div>
+                    @elseif ($currentDate > $timeline->admin_decision_end_date)
+                        <div class="modern-alert modern-alert-danger mb-3">
+                            <i class="fa fa-times-circle me-2"></i>Periode penyetujuan admin telah berakhir pada <strong>{{ $timeline->admin_decision_end_date->format('d F Y H:i') }}</strong>. Anda tidak dapat melakukan perubahan keputusan.
+                        </div>
+                    @else
+                        <div class="modern-alert modern-alert-info mb-3">
+                            <i class="fa fa-info-circle me-2"></i>Periode penyetujuan admin sedang berlangsung. Akan berakhir pada <strong>{{ $timeline->admin_decision_end_date->format('d F Y H:i') }}</strong>.
+                        </div>
+                    @endif
+                @endif
+
                 <!-- Informasi Proposal -->
                 <div class="modern-card mb-4 fade-in-up">
                     <div class="modern-card-body">
@@ -265,7 +281,7 @@
                 <!-- Form Acc/Tolak -->
                 <div class="modern-card mb-4 fade-in-up">
                     <div class="modern-card-body">
-                        <h3 class="mb-3"><i class="fa fa-check-circle me-2"></i>Keputusan Admin</h3>
+                        <h3 class="mb-3"><i class="fa fa-check-circle me-2"></i>Penyetujuan Admin</h3>
                         
                         @if($proposal->admin_status)
                             <div class="modern-alert {{ $proposal->admin_status === 'approved' ? 'modern-alert-success' : 'modern-alert-danger' }} mb-3">
@@ -277,6 +293,14 @@
                             </div>
                         @endif
 
+                        @php
+                            $canMakeDecision = $timeline && 
+                                $timeline->admin_decision_start_date && 
+                                $timeline->admin_decision_end_date &&
+                                $currentDate >= $timeline->admin_decision_start_date && 
+                                $currentDate <= $timeline->admin_decision_end_date;
+                        @endphp
+
                         <form action="{{ route('pengabdian-adm.approve-reject', $proposal->id) }}" method="POST">
                             @csrf
                             
@@ -285,13 +309,13 @@
                                     <label class="modern-form-label"><i class="fa fa-check-circle me-2"></i>Status Keputusan</label>
                                     <div class="d-flex gap-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="admin_status" id="approved" value="approved" {{ $proposal->admin_status === 'approved' ? 'checked' : '' }}>
+                                            <input class="form-check-input" type="radio" name="admin_status" id="approved" value="approved" {{ $proposal->admin_status === 'approved' ? 'checked' : '' }} @if(!$canMakeDecision) disabled @endif>
                                             <label class="form-check-label" for="approved">
                                                 <i class="fa fa-check text-success me-1"></i> Setujui
                                             </label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="admin_status" id="rejected" value="rejected" {{ $proposal->admin_status === 'rejected' ? 'checked' : '' }} required>
+                                            <input class="form-check-input" type="radio" name="admin_status" id="rejected" value="rejected" {{ $proposal->admin_status === 'rejected' ? 'checked' : '' }} @if(!$canMakeDecision) disabled @else required @endif>
                                             <label class="form-check-label" for="rejected">
                                                 <i class="fa fa-times text-danger me-1"></i> Tolak
                                             </label>
@@ -302,13 +326,19 @@
 
                             <div class="mb-3">
                                 <label for="admin_comment" class="modern-form-label"><i class="fa fa-comment-dots me-2"></i>Komentar Admin <span class="text-danger">*</span></label>
-                                <textarea id="admin_comment" class="modern-form-textarea" name="admin_comment" rows="4" placeholder="Masukkan komentar atau catatan untuk proposal ini..." required>{{ $proposal->admin_comment ?? '' }}</textarea>
+                                <textarea id="admin_comment" class="modern-form-textarea" name="admin_comment" rows="4" placeholder="Masukkan komentar atau catatan untuk proposal ini..." @if(!$canMakeDecision) disabled @else required @endif>{{ $proposal->admin_comment ?? '' }}</textarea>
                                 <small class="text-muted">Komentar ini akan ditampilkan kepada dosen pengusul. <span class="text-danger">Wajib diisi.</span></small>
                             </div>
 
-                            <button type="submit" class="modern-btn modern-btn-primary">
-                                <i class="fa fa-save me-1"></i> Simpan Keputusan
-                            </button>
+                            @if($canMakeDecision)
+                                <button type="submit" class="modern-btn modern-btn-primary">
+                                    <i class="fa fa-save me-1"></i> Simpan Keputusan
+                                </button>
+                            @else
+                                <button type="button" class="modern-btn modern-btn-secondary" disabled>
+                                    <i class="fa fa-lock me-1"></i> Periode Keputusan Tidak Aktif
+                                </button>
+                            @endif
                         </form>
                     </div>
                 </div>

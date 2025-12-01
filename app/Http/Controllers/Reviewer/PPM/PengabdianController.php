@@ -10,6 +10,7 @@ use App\Models\Anggota_pengabdian;
 use App\Models\Timeline;
 use App\Models\Review;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class PengabdianController extends Controller
 {
@@ -90,9 +91,13 @@ class PengabdianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
-            return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
-        }
+        
+        // Cek apakah bisa melakukan review (dalam periode review)
+        $canReview = $timeline && 
+                     $timeline->review_start_date && 
+                     $timeline->review_end_date &&
+                     $currentDate >= $timeline->review_start_date && 
+                     $currentDate <= $timeline->review_end_date;
         
         $proposal = Pengabdian::with(['anggota', 'rab'])->findOrFail($id);
         
@@ -131,6 +136,9 @@ class PengabdianController extends Controller
         $biayaUsulan = $proposal->biaya_diusulkan; 
         $sintaIndex = $proposal->sinta_index;
     
+        // Buat URL publik untuk file proposal
+        $fileUrl = Storage::url($proposal->dokumen_proposal);
+    
         if ($review) {
             return view('reviewer.ppm.pengabdian.edit_review', compact(
                 'proposal',
@@ -143,7 +151,11 @@ class PengabdianController extends Controller
                 'biayaUsulan',
                 'sintaIndex',
                 'anggotaList',
-                'rabItems'
+                'rabItems',
+                'fileUrl',
+                'timeline',
+                'currentDate',
+                'canReview'
             ));
         } else {
             return view('reviewer.ppm.pengabdian.review', compact(
@@ -156,7 +168,11 @@ class PengabdianController extends Controller
                 'biayaUsulan',
                 'sintaIndex',
                 'anggotaList',
-                'rabItems'
+                'rabItems',
+                'fileUrl',
+                'timeline',
+                'currentDate',
+                'canReview'
             ));
         }
     }
@@ -281,11 +297,16 @@ class PengabdianController extends Controller
 
     public function editReview($id)
     {
-        $timeline = $this->getActiveTimeline();
         $currentDate = now();
-        if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
-            return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
-        }
+        $timeline = $this->getActiveTimeline();
+        
+        // Cek apakah bisa melakukan review (dalam periode review)
+        $canReview = $timeline && 
+                     $timeline->review_start_date && 
+                     $timeline->review_end_date &&
+                     $currentDate >= $timeline->review_start_date && 
+                     $currentDate <= $timeline->review_end_date;
+        
         $proposal = Pengabdian::with(['anggota', 'rab'])->findOrFail($id);
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
@@ -311,6 +332,9 @@ class PengabdianController extends Controller
         $biayaUsulan = $proposal->biaya_diusulkan; 
         $sintaIndex = $proposal->sinta_index;
 
+        // Buat URL publik untuk file proposal
+        $fileUrl = Storage::url($proposal->dokumen_proposal);
+
         if ($review) {
             return view('reviewer.ppm.pengabdian.edit_review', compact(
                 'proposal',
@@ -323,7 +347,11 @@ class PengabdianController extends Controller
                 'biayaUsulan',
                 'sintaIndex',
                 'anggotaList',
-                'rabItems'
+                'rabItems',
+                'fileUrl',
+                'timeline',
+                'currentDate',
+                'canReview'
             ));
         } else {
             return redirect()->back()->with('error', 'Review not found.');
