@@ -24,5 +24,10 @@ class Review extends Model
     {
         return $this->belongsTo(Pengabdian::class);
     }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewer_id');
+    }
 }
 

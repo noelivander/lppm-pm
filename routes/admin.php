@@ -43,7 +43,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::resource('ppm/fokus-bidang', FokusBidangController::class);
     Route::resource('ppm/penelitian-adm', PenelitianController::class);
+    Route::post('ppm/penelitian-adm/{id}/approve-reject', [PenelitianController::class, 'approveReject'])->name('penelitian-adm.approve-reject');
     Route::resource('ppm/pengabdian-adm', PengabdianController::class);
+    Route::post('ppm/pengabdian-adm/{id}/approve-reject', [PengabdianController::class, 'approveReject'])->name('pengabdian-adm.approve-reject');
     
     // Skema routes
     Route::get('skema', [SkemaController::class, 'index'])->name('skema.index');
