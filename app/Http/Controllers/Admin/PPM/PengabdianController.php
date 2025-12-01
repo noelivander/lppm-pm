@@ -137,6 +137,14 @@ class PengabdianController extends Controller
 
         $proposal->admin_status = $request->admin_status;
         $proposal->admin_comment = $request->admin_comment;
+        
+        // Update status proposal berdasarkan keputusan admin
+        if ($request->admin_status === 'approved') {
+            $proposal->status = 'Disetujui';
+        } else {
+            $proposal->status = 'Ditolak';
+        }
+        
         $proposal->save();
 
         $statusText = $request->admin_status === 'approved' ? 'disetujui' : 'ditolak';

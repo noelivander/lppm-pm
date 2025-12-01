@@ -31,14 +31,23 @@ class PengabdianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        $statuses = ['Pending', 'Diproses', 'Selesai'];
+        $statuses = ['Pending', 'Selesai'];
 
         if ($search = $request->get('search')) {
             $baseQuery->where('judul', 'like', '%' . $search . '%');
         }
 
+        // Get reviews by current reviewer first
+        $reviews = Review::where('reviewer_id', auth()->id())->pluck('pengabdian_id')->toArray();
+
         if ($status = $request->get('status')) {
-            $baseQuery->where('status', $status);
+            if ($status === 'Selesai') {
+                // Filter proposal yang sudah direview oleh reviewer ini
+                $baseQuery->whereIn('id', $reviews);
+            } elseif ($status === 'Pending') {
+                // Filter proposal yang belum direview oleh reviewer ini
+                $baseQuery->whereNotIn('id', $reviews);
+            }
         }
 
         if ($skema = $request->get('skema')) {
@@ -52,7 +61,11 @@ class PengabdianController extends Controller
         $proposals = $baseQuery->orderByDesc('updated_at')
             ->paginate(10)
             ->withQueryString();
-        $reviews = Review::where('reviewer_id', auth()->id())->pluck('pengabdian_id')->toArray();
+        
+        // Get reviews for display (if not already set)
+        if (!isset($reviews)) {
+            $reviews = Review::where('reviewer_id', auth()->id())->pluck('pengabdian_id')->toArray();
+        }
         $existingReviews = Review::all();
 
         // Data sudah tidak dienkripsi, tidak perlu dekripsi
@@ -80,10 +93,23 @@ class PengabdianController extends Controller
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->back()->with('error', 'Anda tidak dapat melakukan review di luar periode yang ditentukan.');
         }
+        
         $proposal = Pengabdian::with(['anggota', 'rab'])->findOrFail($id);
+        
+        // Cek apakah reviewer saat ini sudah pernah review
+        $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();
+        
+        // Jika reviewer belum pernah review, cek apakah sudah ada 2 reviewer
+        if (!$review) {
+            $totalReviews = Review::where('pengabdian_id', $id)->count();
+            if ($totalReviews >= 2) {
+                return redirect()->route('pengabdian-rev.index')
+                    ->with('error', 'Proposal ini sudah direview lengkap oleh 2 reviewer. Anda tidak dapat melakukan review lagi.');
+            }
+        }
+        
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
-        $review = Review::where('pengabdian_id', $id)->where('reviewer_id', Auth::id())->first();
         
         $ketuaTim = Anggota_pengabdian::where('pengabdian_id', $id)
                             ->where('peran', 'ketua')
@@ -166,6 +192,23 @@ class PengabdianController extends Controller
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->route('pengabdian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
         }
+        
+        // Validasi: cek apakah sudah ada 2 reviewer
+        $totalReviews = Review::where('pengabdian_id', $request->pengabdian_id)->count();
+        if ($totalReviews >= 2) {
+            return redirect()->route('pengabdian-rev.index')
+                ->with('error', 'Proposal ini sudah direview lengkap oleh 2 reviewer. Anda tidak dapat melakukan review lagi.');
+        }
+        
+        // Validasi: cek apakah reviewer ini sudah pernah review proposal ini
+        $existingReview = Review::where('pengabdian_id', $request->pengabdian_id)
+            ->where('reviewer_id', auth()->id())
+            ->first();
+        if ($existingReview) {
+            return redirect()->route('pengabdian-rev.index')
+                ->with('error', 'Anda sudah melakukan review untuk proposal ini. Silakan edit review yang sudah ada.');
+        }
+        
         $review = new Review();
     
         $review->pengabdian_id = $request->pengabdian_id;
@@ -230,15 +273,8 @@ class PengabdianController extends Controller
 
         $review->update($validatedData);
 
-        $pengabdian = Pengabdian::findOrFail($request->pengabdian_id);
-        $totalReviews = Review::where('pengabdian_id', $pengabdian->id)->count();
-
-        if ($totalReviews == 1) {
-            $pengabdian->status = 'Diproses';
-        } elseif ($totalReviews >= 2) {
-            $pengabdian->status = 'Selesai';
-        }
-        $pengabdian->save();
+        $pengabdian = Pengabdian::findOrFail($review->pengabdian_id);
+        // Status tetap Diproses jika sudah ada review, tidak perlu diubah lagi
 
         return redirect()->route('pengabdian-rev.index')->with('success', 'Review berhasil diperbarui.');
     }

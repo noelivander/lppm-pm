@@ -105,7 +105,7 @@
                                                         <i class="fa fa-check-circle me-1"></i>Disetujui
                                                     </span>
                                                 @elseif($proposal->admin_status === 'rejected')
-                                                    <span class="status-badge pending">
+                                                    <span class="status-badge ditolak">
                                                         <i class="fa fa-times-circle me-1"></i>Ditolak
                                                     </span>
                                                 @else
@@ -116,9 +116,15 @@
                                             </td>
                                     
                                             <td>
-                                                <a href="{{ route('pengabdian-adm.show', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
-                                                    <i class="fa fa-eye me-1"></i> Lihat & Aksi
-                                                </a>
+                                                @if($proposal->admin_status)
+                                                    <a href="{{ route('pengabdian-adm.show', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                        <i class="fa fa-edit me-1"></i> Edit
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('pengabdian-adm.show', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
+                                                        <i class="fa fa-eye me-1"></i> Inspect
+                                                    </a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

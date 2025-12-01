@@ -33,14 +33,23 @@ class PenelitianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        $statuses = ['Pending', 'Diproses', 'Selesai'];
+        $statuses = ['Pending', 'Selesai'];
 
         if ($search = $request->get('search')) {
             $baseQuery->where('judul', 'like', '%' . $search . '%');
         }
 
+        // Get reviews by current reviewer first
+        $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
+
         if ($status = $request->get('status')) {
-            $baseQuery->where('status', $status);
+            if ($status === 'Selesai') {
+                // Filter proposal yang sudah direview oleh reviewer ini
+                $baseQuery->whereIn('id', $reviews);
+            } elseif ($status === 'Pending') {
+                // Filter proposal yang belum direview oleh reviewer ini
+                $baseQuery->whereNotIn('id', $reviews);
+            }
         }
 
         if ($skema = $request->get('skema')) {
@@ -54,7 +63,11 @@ class PenelitianController extends Controller
         $proposals = $baseQuery->orderByDesc('updated_at')
             ->paginate(10)
             ->withQueryString();
-        $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
+        
+        // Get reviews for display (if not already set)
+        if (!isset($reviews)) {
+            $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
+        }
         $existingReviews = Review::all(); 
 
         // Data sudah tidak dienkripsi, tidak perlu dekripsi
@@ -83,9 +96,21 @@ class PenelitianController extends Controller
         }
 
         $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
+        
+        // Cek apakah reviewer saat ini sudah pernah review
+        $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
+        
+        // Jika reviewer belum pernah review, cek apakah sudah ada 2 reviewer
+        if (!$review) {
+            $totalReviews = Review::where('penelitian_id', $id)->count();
+            if ($totalReviews >= 2) {
+                return redirect()->route('penelitian-rev.index')
+                    ->with('error', 'Proposal ini sudah direview lengkap oleh 2 reviewer. Anda tidak dapat melakukan review lagi.');
+            }
+        }
+        
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
-        $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
         
         $ketuaTim = Anggota::where('penelitian_id', $id)
                             ->where('peran', 'ketua')
@@ -174,6 +199,23 @@ class PenelitianController extends Controller
         if (!$timeline || $currentDate < $timeline->review_start_date || $currentDate > $timeline->review_end_date) {
             return redirect()->route('penelitian-rev.index')->with('error', 'Periode review telah berakhir atau belum dimulai.');
         }
+        
+        // Validasi: cek apakah sudah ada 2 reviewer
+        $totalReviews = Review::where('penelitian_id', $request->penelitian_id)->count();
+        if ($totalReviews >= 2) {
+            return redirect()->route('penelitian-rev.index')
+                ->with('error', 'Proposal ini sudah direview lengkap oleh 2 reviewer. Anda tidak dapat melakukan review lagi.');
+        }
+        
+        // Validasi: cek apakah reviewer ini sudah pernah review proposal ini
+        $existingReview = Review::where('penelitian_id', $request->penelitian_id)
+            ->where('reviewer_id', auth()->id())
+            ->first();
+        if ($existingReview) {
+            return redirect()->route('penelitian-rev.index')
+                ->with('error', 'Anda sudah melakukan review untuk proposal ini. Silakan edit review yang sudah ada.');
+        }
+        
         $review = new Review();
 
         $review->penelitian_id = $request->penelitian_id;
@@ -200,12 +242,11 @@ class PenelitianController extends Controller
         $penelitian = Penelitian::findOrFail($request->penelitian_id);
         $totalReviews = Review::where('penelitian_id', $penelitian->id)->count();
 
-        if ($totalReviews == 1) {
+        // Jika reviewer pertama mulai review, ubah status menjadi Diproses
+        if ($totalReviews == 1 && $penelitian->status === 'Pending') {
             $penelitian->status = 'Diproses';
-        } elseif ($totalReviews >= 2) {
-            $penelitian->status = 'Selesai';
+            $penelitian->save();
         }
-        $penelitian->save();
 
         return redirect()->route('penelitian-rev.index')->with('status', 'Review berhasil disubmit!');
     }
@@ -239,14 +280,7 @@ class PenelitianController extends Controller
         $review->update($validatedData);
 
         $penelitian = Penelitian::findOrFail($review->penelitian_id);
-        $totalReviews = Review::where('penelitian_id', $penelitian->id)->count();
-
-        if ($totalReviews == 1) {
-            $penelitian->status = 'Diproses';
-        } elseif ($totalReviews >= 2) {
-            $penelitian->status = 'Selesai';
-        }
-        $penelitian->save();
+        // Status tetap Diproses jika sudah ada review, tidak perlu diubah lagi
 
         return redirect()->route('penelitian-rev.index')->with('success', 'Review berhasil diperbarui.');
     }

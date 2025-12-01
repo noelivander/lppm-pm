@@ -98,6 +98,12 @@
                                     @php
                                         // Cek apakah proposal ini sudah direview oleh reviewer lain
                                         $isReviewedByAnother = $existingReviews->where('pengabdian_id', $proposal->id)->where('reviewer_id', '!=', auth()->id())->count() > 0;
+                                        // Cek jumlah total review untuk proposal ini
+                                        $totalReviews = $existingReviews->where('pengabdian_id', $proposal->id)->count();
+                                        // Cek apakah reviewer saat ini sudah review
+                                        $hasReviewed = in_array($proposal->id, $reviews);
+                                        // Cek apakah sudah penuh (2 reviewer) dan reviewer ini belum review
+                                        $isFull = $totalReviews >= 2 && !$hasReviewed;
                                     @endphp
                                     <tr>
                                         <td class="col-no text-center">{{ $proposals->firstItem() + $loop->index }}</td>
@@ -109,13 +115,19 @@
                                         </td>
                                         <td>{{ $proposal->created_at->year }}</td>
                                         <td>
-                                            <span class="status-badge
-                                                @if ($proposal->status === 'Pending') pending
-                                                @elseif ($proposal->status === 'Diproses') diproses
-                                                @elseif ($proposal->status === 'Selesai') selesai
-                                                @endif">
-                                                {{ $proposal->status }}
-                                            </span>
+                                            @if($hasReviewed)
+                                                <span class="status-badge selesai">
+                                                    Selesai
+                                                </span>
+                                            @elseif($isFull)
+                                                <span class="status-badge reviewed">
+                                                    Reviewed
+                                                </span>
+                                            @else
+                                                <span class="status-badge pending">
+                                                    Pending
+                                                </span>
+                                            @endif
                                         </td>
                                         <td>
                                             @php($inWindow = $timeline && $currentDate >= $timeline->review_start_date && $currentDate <= $timeline->review_end_date)
@@ -123,10 +135,14 @@
                                             @if (in_array($proposal->id, $reviews))
                                                 <a href="{{ route('pengabdian-rev.editReview', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm @if(!$inWindow) disabled @endif" @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif><i class="fa fa-edit me-1"></i> Edit</a>
                                                 <a href="{{ route('pengabdian-rev.view_pdf', $proposal->id) }}" class="modern-btn modern-btn-danger modern-btn-sm"><i class="fa fa-file-download me-1"></i> PDF</a>
-                                            {{-- @elseif ($isReviewedByAnother)
-                                                <button class="btn btn-secondary" disabled>Telah Ditinjau</button> --}}
                                             @else
-                                                <a href="{{ route('pengabdian-rev.review', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm @if(!$inWindow) disabled @endif" @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif><i class="fa fa-file me-1"></i> Review</a>
+                                                @if($isFull)
+                                                    <button class="modern-btn modern-btn-secondary modern-btn-sm" disabled title="Proposal ini sudah direview lengkap oleh 2 reviewer">
+                                                        <i class="fa fa-lock me-1"></i> Reviewed
+                                                    </button>
+                                                @else
+                                                    <a href="{{ route('pengabdian-rev.review', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm @if(!$inWindow) disabled @endif" @if(!$inWindow) aria-disabled="true" tabindex="-1" @endif><i class="fa fa-file me-1"></i> Review</a>
+                                                @endif
                                             @endif
                                             </div>
                                         </td>

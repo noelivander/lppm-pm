@@ -37,7 +37,7 @@ class PengabdianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        $statuses = ['Pending', 'Diproses', 'Selesai'];
+        $statuses = ['Pending', 'Diproses', 'Disetujui', 'Ditolak'];
 
         if ($search = $request->get('search')) {
             $baseQuery->where('judul', 'like', '%' . $search . '%');
