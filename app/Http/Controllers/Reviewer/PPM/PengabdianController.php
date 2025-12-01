@@ -106,8 +106,8 @@ class PengabdianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        // Untuk reviewer: hanya 3 status logis
-        $statuses = ['Pending', 'Disetujui', 'Ditolak'];
+        // Untuk reviewer: status filter hanya Pending dan Selesai
+        $statuses = ['Pending', 'Selesai'];
 
         $filters = [
             'search' => $request->get('search'),
@@ -136,10 +136,19 @@ class PengabdianController extends Controller
             }
         }
 
-        // Proposal revisi yang sudah pernah diberi keputusan revisi oleh reviewer yang login
-        $reviewedRevisionIds = Review::whereNotNull('revision_decision')
+        // Proposal revisi yang sudah pernah diberi komentar revisi oleh reviewer yang login
+        $reviewedRevisionIds = Review::whereNotNull('revision_comment')
             ->where('reviewer_id', auth()->id())
             ->whereNotNull('pengabdian_id')
+            ->pluck('pengabdian_id')
+            ->toArray();
+
+        // Proposal revisi yang sudah dikomentari oleh 2 reviewer (penuh)
+        $fullReviewedIds = Review::whereNotNull('revision_comment')
+            ->whereNotNull('pengabdian_id')
+            ->select('pengabdian_id')
+            ->groupBy('pengabdian_id')
+            ->havingRaw('COUNT(*) >= 2')
             ->pluck('pengabdian_id')
             ->toArray();
 
@@ -155,7 +164,8 @@ class PengabdianController extends Controller
             'filterYears',
             'statuses',
             'filters',
-            'reviewedRevisionIds'
+            'reviewedRevisionIds',
+            'fullReviewedIds'
         ));
     }
 
@@ -172,15 +182,18 @@ class PengabdianController extends Controller
             ->where('is_revised', true)
             ->findOrFail($id);
 
-        // Jika sudah ada reviewer lain yang sudah memberi keputusan revisi (disetujui/ditolak), blok akses reviewer lain
-        $finalRevisionReview = Review::where('pengabdian_id', $proposal->id)
-            ->whereNotNull('revision_decision')
-            ->first();
+        // Batasi maksimal 2 reviewer yang memberi komentar revisi
+        $existingRevisionReviews = Review::where('pengabdian_id', $proposal->id)
+            ->whereNotNull('revision_comment')
+            ->get();
 
-        if ($finalRevisionReview && $finalRevisionReview->reviewer_id !== Auth::id()) {
+        $currentReviewerReview = $existingRevisionReviews
+            ->firstWhere('reviewer_id', Auth::id());
+
+        if (!$currentReviewerReview && $existingRevisionReviews->count() >= 2) {
             return redirect()
                 ->route('pengabdian-rev.revisi.index')
-                ->with('error', 'Proposal revisi ini sudah diberikan keputusan oleh reviewer lain. Anda tidak dapat lagi melakukan peninjauan revisi.');
+                ->with('error', 'Proposal revisi ini sudah dikomentari oleh 2 reviewer. Anda tidak dapat lagi melakukan peninjauan revisi.');
         }
 
         // Gunakan proposal asli (sebelum revisi) untuk membaca review & komentar admin
@@ -251,7 +264,7 @@ class PengabdianController extends Controller
     }
 
     /**
-     * Simpan keputusan review revisi untuk pengabdian.
+     * Simpan komentar review revisi untuk pengabdian (tanpa ACC/Tolak).
      */
     public function revisiReviewStore(Request $request, $id)
     {
@@ -262,15 +275,18 @@ class PengabdianController extends Controller
             ->where('is_revised', true)
             ->findOrFail($id);
 
-        // Cegah submit jika sudah ada reviewer lain yang memberi keputusan revisi
-        $finalRevisionReview = Review::where('pengabdian_id', $proposal->id)
-            ->whereNotNull('revision_decision')
-            ->first();
+        // Batasi maksimal 2 reviewer yang memberi komentar revisi
+        $existingRevisionReviews = Review::where('pengabdian_id', $proposal->id)
+            ->whereNotNull('revision_comment')
+            ->get();
 
-        if ($finalRevisionReview && $finalRevisionReview->reviewer_id !== Auth::id()) {
+        $currentReviewerReview = $existingRevisionReviews
+            ->firstWhere('reviewer_id', Auth::id());
+
+        if (!$currentReviewerReview && $existingRevisionReviews->count() >= 2) {
             return redirect()
                 ->route('pengabdian-rev.revisi.index')
-                ->with('error', 'Proposal revisi ini sudah diberikan keputusan oleh reviewer lain. Anda tidak dapat lagi menyimpan peninjauan revisi.');
+                ->with('error', 'Proposal revisi ini sudah dikomentari oleh 2 reviewer. Anda tidak dapat lagi menyimpan peninjauan revisi.');
         }
 
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
@@ -292,7 +308,6 @@ class PengabdianController extends Controller
         }
 
         $validated = $request->validate([
-            'revision_decision' => 'required|in:approved,rejected',
             'revision_comment' => 'required|string|max:2000',
         ]);
 
@@ -313,21 +328,26 @@ class PengabdianController extends Controller
             ]
         );
 
-        $review->revision_decision = $validated['revision_decision'];
         $review->revision_comment = $validated['revision_comment'];
         $review->save();
 
-        // Update status proposal sesuai keputusan peninjauan revisi
-        if ($validated['revision_decision'] === 'approved') {
-            $proposal->status = 'Disetujui';
-        } elseif ($validated['revision_decision'] === 'rejected') {
-            $proposal->status = 'Ditolak';
+        // Hitung total reviewer yang sudah memberi komentar revisi
+        $totalRevisionComments = Review::where('pengabdian_id', $proposal->id)
+            ->whereNotNull('revision_comment')
+            ->count();
+
+        // Update status proposal revisi:
+        // 1 komentar -> Diproses, 2 komentar -> Selesai
+        if ($totalRevisionComments >= 2) {
+            $proposal->status = 'Selesai';
+        } elseif ($totalRevisionComments === 1 && $proposal->status === 'Pending') {
+            $proposal->status = 'Diproses';
         }
         $proposal->save();
 
         return redirect()
             ->route('pengabdian-rev.revisi.index')
-            ->with('success', 'Keputusan review revisi berhasil disimpan.');
+            ->with('success', 'Komentar peninjauan revisi berhasil disimpan.');
     }
 
     public function review($id)

@@ -112,10 +112,21 @@
                                             $displayStatus = $proposal->status;
                                             if (in_array($proposal->status, ['Pending', 'Diproses'])) {
                                                 $displayStatus = 'Pending';
+                                            } elseif ($proposal->status === 'Selesai') {
+                                                $displayStatus = 'Selesai';
                                             }
+
+                                            // Jika proposal revisi sudah penuh dikomentari 2 reviewer dan reviewer ini belum komentar,
+                                            // tunjukkan status "Reviewed" (badge abu-abu)
+                                            $hasRevisionReview = in_array($proposal->id, $reviewedRevisionIds ?? []);
+                                            $isFullyReviewed = in_array($proposal->id, $fullReviewedIds ?? []);
+                                            if ($isFullyReviewed && !$hasRevisionReview) {
+                                                $displayStatus = 'Reviewed';
+                                            }
+
                                             $statusClass = match($displayStatus) {
-                                                'Disetujui' => 'selesai',
-                                                'Ditolak' => 'ditolak',
+                                                'Selesai' => 'selesai',
+                                                'Reviewed' => 'reviewed', // gunakan style abu-abu
                                                 default => 'pending',
                                             };
                                         @endphp
@@ -137,13 +148,25 @@
                                             <td>
                                                 <div class="d-flex gap-2">
                                                     @php
-                                                        $hasRevisionReview = in_array($proposal->id, $reviewedRevisionIds ?? []);
-                                                        $btnClass = $hasRevisionReview ? 'modern-btn-warning' : 'modern-btn-primary';
-                                                        $iconClass = $hasRevisionReview ? 'fa-pen' : 'fa-file';
+                                                        $isFullyReviewed = in_array($proposal->id, $fullReviewedIds ?? []);
                                                     @endphp
-                                                    <a href="{{ route('penelitian-rev.revisi.review', $proposal->id) }}" class="modern-btn {{ $btnClass }} modern-btn-sm">
-                                                        <i class="fa {{ $iconClass }} me-1"></i> {{ $hasRevisionReview ? 'Edit' : 'Review' }}
-                                                    </a>
+
+                                                    @if ($hasRevisionReview)
+                                                        {{-- Reviewer ini sudah mengomentari revisi -> boleh edit --}}
+                                                        <a href="{{ route('penelitian-rev.revisi.review', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                            <i class="fa fa-pen me-1"></i> Edit
+                                                        </a>
+                                                    @elseif ($isFullyReviewed)
+                                                        {{-- Revisi sudah dikomentari 2 reviewer lain -> aksi disabled, hanya indikasi --}}
+                                                        <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm" disabled>
+                                                            <i class="fa fa-eye-slash me-1"></i> Reviewed
+                                                        </button>
+                                                    @else
+                                                        {{-- Belum ada komentar revisi dari reviewer ini dan slot masih tersedia --}}
+                                                        <a href="{{ route('penelitian-rev.revisi.review', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
+                                                            <i class="fa fa-file me-1"></i> Review
+                                                        </a>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
@@ -265,6 +288,11 @@
         }
         .modern-pagination .page-link:focus {
             box-shadow: none;
+        }
+        /* Badge abu-abu untuk status Reviewed */
+        .modern-table .status-badge.reviewed {
+            background: #e5e7eb;
+            color: #4b5563;
         }
     </style>
 </x-reviewer-layout>

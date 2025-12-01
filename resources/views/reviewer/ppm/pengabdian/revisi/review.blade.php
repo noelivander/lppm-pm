@@ -298,45 +298,6 @@
                         <form action="{{ route('pengabdian-rev.revisi.submit', $proposal->id) }}" method="POST">
                             @csrf
 
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <label class="modern-form-label"><i class="fa fa-check-circle me-2"></i>Keputusan Reviewer terhadap Revisi</label>
-                                    <div class="d-flex gap-3">
-                                        <div class="form-check">
-                                            <input
-                                                class="form-check-input"
-                                                type="radio"
-                                                name="revision_decision"
-                                                id="revision_approved"
-                                                value="approved"
-                                                {{ ($review->revision_decision ?? '') === 'approved' ? 'checked' : '' }}
-                                                @if (!$canReview) disabled @endif
-                                            >
-                                            <label class="form-check-label" for="revision_approved">
-                                                <i class="fa fa-check text-success me-1"></i> Setujui revisi
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input
-                                                class="form-check-input"
-                                                type="radio"
-                                                name="revision_decision"
-                                                id="revision_rejected"
-                                                value="rejected"
-                                                {{ ($review->revision_decision ?? '') === 'rejected' ? 'checked' : '' }}
-                                                @if (!$canReview) disabled @else required @endif
-                                            >
-                                            <label class="form-check-label" for="revision_rejected">
-                                                <i class="fa fa-times text-danger me-1"></i> Tolak revisi
-                                            </label>
-                                        </div>
-                                    </div>
-                                    @error('revision_decision')
-                                        <div class="text-danger small mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
                             <div class="mb-3">
                                 <label for="revision_comment" class="modern-form-label">
                                     <i class="fa fa-comment-dots me-2"></i>Komentar Reviewer atas Revisi
@@ -358,7 +319,7 @@
 
                             @if ($canReview)
                                 <button type="submit" class="modern-btn modern-btn-primary">
-                                    <i class="fa fa-save me-1"></i> Simpan Keputusan Revisi
+                                    <i class="fa fa-save me-1"></i> Simpan Komentar Revisi
                                 </button>
                             @else
                                 <button type="button" class="modern-btn modern-btn-secondary" disabled>

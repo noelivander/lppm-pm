@@ -111,11 +111,10 @@
 
                                             $statusClass = match($revisionState) {
                                                 'Diproses' => 'diproses',
-                                                'Disetujui' => 'selesai',
-                                                'Ditolak' => 'ditolak',
+                                                'Selesai' => 'selesai',
                                                 default => 'pending',
                                             };
-                                            $canEditRevision = $revisionState !== 'Disetujui' && $revisionState !== 'Ditolak';
+                                            $canEditRevision = $revisionState !== 'Selesai';
                                         @endphp
                                         <tr>
                                             <td class="text-center">{{ $proposals->firstItem() + $loop->index }}</td>
@@ -133,7 +132,22 @@
                                             </td>
                                             <td class="text-center">
                                                 @if($revision && !$canEditRevision)
-                                                    <span class="text-muted small">Revisi {{ strtolower($revisionState) }}</span>
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                   
+                                                        @php
+                                                            $revisionReviews = \App\Models\Review::where('penelitian_id', $revision->id)
+                                                                ->whereNotNull('revision_comment')
+                                                                ->get();
+                                                        @endphp
+                                                        @if($revisionReviews->count())
+                                                            <button type="button"
+                                                                    class="modern-btn modern-btn-secondary modern-btn-sm"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#lihatKomentarRevisiPenelitian{{ $revision->id }}">
+                                                                <i class="fa fa-comment-dots me-1"></i> Lihat Komentar
+                                                            </button>
+                                                        @endif
+                                                    </div>
                                                 @else
                                                     <a href="{{ route('penelitian-dos.revisi.create', $proposal->id) }}" class="modern-btn modern-btn-sm {{ $revision ? 'modern-btn-primary' : 'modern-btn-warning' }}">
                                                         <i class="fa {{ $revision ? 'fa-pen' : 'fa-edit' }} me-1"></i>{{ $revision ? 'Edit' : 'Revisi' }}
@@ -141,6 +155,46 @@
                                                 @endif
                                             </td>
                                         </tr>
+                                            @if($revision && $revisionReviews->count())
+                                                <!-- Modal komentar revisi reviewer -->
+                                                <div class="modal fade" id="lihatKomentarRevisiPenelitian{{ $revision->id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content modern-card">
+                                                            <div class="modal-header modern-card-header">
+                                                                <h5 class="modal-title mb-0">
+                                                                    <i class="fa fa-comments me-2 text-primary"></i>
+                                                                    Komentar Reviewer terhadap Revisi
+                                                                </h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body modern-card-body">
+                                                                @foreach($revisionReviews as $rev)
+                                                                    <div class="mb-3">
+                                                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                            <span class="fw-semibold">
+                                                                                <i class="fa fa-user-circle me-1 text-secondary"></i>
+                                                                                {{ $rev->reviewer->name ?? $rev->reviewer_name ?? 'Reviewer' }}
+                                                                            </span>
+                                                                            <span class="text-muted small">
+                                                                                {{ optional($rev->updated_at ?? $rev->created_at)->format('d M Y H:i') }}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="modern-alert modern-alert-info">
+                                                                            <i class="fa fa-comment-dots me-2"></i>
+                                                                            {{ $rev->revision_comment }}
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                            <div class="modal-footer modern-card-footer">
+                                                                <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-dismiss="modal">
+                                                                    <i class="fa fa-times me-1"></i> Tutup
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
                                     @endforeach
                                 </tbody>
                             </table>

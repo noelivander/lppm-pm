@@ -24,7 +24,8 @@ class PengabdianController extends Controller
         $timeline = $this->getActiveTimeline();
 
         $baseQuery = Pengabdian::where('user_id', Auth::id())
-            ->where('is_draft', false);
+            ->where('is_draft', false)
+            ->where('is_revised', false);
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -104,7 +105,8 @@ class PengabdianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        $statuses = ['Pending', 'Diproses', 'Disetujui', 'Ditolak'];
+        // Status khusus tampilan revisi: Pending (belum/masih diproses) dan Selesai
+        $statuses = ['Pending', 'Selesai'];
 
         $filters = [
             'search' => $request->get('search'),

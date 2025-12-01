@@ -25,7 +25,8 @@ class PenelitianController extends Controller
         $timeline = $this->getActiveTimeline();
 
         $baseQuery = Penelitian::where('user_id', Auth::id())
-            ->where('is_draft', false);
+            ->where('is_draft', false)
+            ->where('is_revised', false);
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -105,7 +106,8 @@ class PenelitianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        $statuses = ['Pending', 'Diproses', 'Disetujui', 'Ditolak'];
+        // Status khusus tampilan revisi: Pending (belum/masih diproses) dan Selesai
+        $statuses = ['Pending', 'Selesai'];
 
         $filters = [
             'search' => $request->get('search'),
