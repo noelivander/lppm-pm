@@ -80,6 +80,65 @@ class PengabdianController extends Controller
         ));
     }
 
+    public function revisiIndex(Request $request)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $baseQuery = Pengabdian::where('user_id', Auth::id())
+            ->where('is_draft', false);
+
+        $filterSkemas = (clone $baseQuery)->select('skema')
+            ->whereNotNull('skema')
+            ->distinct()
+            ->orderBy('skema')
+            ->pluck('skema');
+
+        $filterYears = (clone $baseQuery)->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        $statuses = ['Pending', 'Diproses', 'Disetujui', 'Ditolak'];
+
+        $filters = [
+            'search' => $request->get('search'),
+            'skema' => $request->get('skema'),
+            'year' => $request->get('year'),
+            'status' => $request->get('status', 'Disetujui'),
+        ];
+
+        if ($filters['search']) {
+            $baseQuery->where('judul', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if ($filters['skema']) {
+            $baseQuery->where('skema', $filters['skema']);
+        }
+
+        if ($filters['year']) {
+            $baseQuery->whereYear('created_at', $filters['year']);
+        }
+
+        if ($filters['status']) {
+            $baseQuery->where('status', $filters['status']);
+        }
+
+        $proposals = $baseQuery->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('dosen.ppm.pengabdian.revisi.index', [
+            'proposals' => $proposals,
+            'timeline' => $timeline,
+            'currentDate' => $currentDate,
+            'filterSkemas' => $filterSkemas,
+            'filterYears' => $filterYears,
+            'statuses' => $statuses,
+            'filters' => $filters,
+        ]);
+    }
+
     public function create()
     {
         $currentDate = now();

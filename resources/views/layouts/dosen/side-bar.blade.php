@@ -85,8 +85,8 @@
     <!-- Nav Item - Dashboard -->
     @php
         $isDosenDashboard = request()->routeIs('dosen.dashboard');
-        $penelitianMenuActive = request()->routeIs('penelitian-dos.index');
-        $pengabdianMenuActive = request()->routeIs('pengabdian-dos.index');
+        $penelitianMenuActive = request()->routeIs('penelitian-dos.*');
+        $pengabdianMenuActive = request()->routeIs('pengabdian-dos.*');
     @endphp
     <li class="nav-item {{ $isDosenDashboard ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('dosen.dashboard') }}">
@@ -106,7 +106,7 @@
         <div id="collapsePenelitianDosen" class="collapse {{ $penelitianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('penelitian-dos.index')" href="{{ route('penelitian-dos.index') }}">Upload Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item @isroute('penelitian-dos.revisi.index')" href="{{ route('penelitian-dos.revisi.index') }}">Revisi Proposal</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
@@ -124,7 +124,7 @@
         <div id="collapsePengabdianDosen" class="collapse {{ $pengabdianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('pengabdian-dos.index')" href="{{ route('pengabdian-dos.index') }}">Upload Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item @isroute('pengabdian-dos.revisi.index')" href="{{ route('pengabdian-dos.revisi.index') }}">Revisi Proposal</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
