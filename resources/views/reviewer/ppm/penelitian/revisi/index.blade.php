@@ -12,7 +12,6 @@
                             <h3 class="mb-1">
                                 <i class="fa fa-sync-alt me-2"></i>Revisi Proposal Penelitian
                             </h3>
-                            <p class="text-muted mb-0">Daftar proposal revisi yang perlu atau sudah Anda tinjau.</p>
                         </div>
                     </div>
 
