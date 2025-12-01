@@ -85,6 +85,71 @@ class PengabdianController extends Controller
             'filters'
         ));
     }
+
+    public function revisiIndex(Request $request)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $baseQuery = Pengabdian::with(['user'])
+            ->where('is_draft', false)
+            ->where('is_revised', true);
+
+        $filterSkemas = (clone $baseQuery)->select('skema')
+            ->whereNotNull('skema')
+            ->distinct()
+            ->orderBy('skema')
+            ->pluck('skema');
+
+        $filterYears = (clone $baseQuery)->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        // Untuk reviewer: hanya 3 status logis
+        $statuses = ['Pending', 'Disetujui', 'Ditolak'];
+
+        $filters = [
+            'search' => $request->get('search'),
+            'skema' => $request->get('skema'),
+            'year' => $request->get('year'),
+            'status' => $request->get('status'),
+        ];
+
+        if ($filters['search']) {
+            $baseQuery->where('judul', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if ($filters['skema']) {
+            $baseQuery->where('skema', $filters['skema']);
+        }
+
+        if ($filters['year']) {
+            $baseQuery->whereYear('created_at', $filters['year']);
+        }
+
+        if ($filters['status']) {
+            if ($filters['status'] === 'Pending') {
+                $baseQuery->whereIn('status', ['Pending', 'Diproses']);
+            } else {
+                $baseQuery->where('status', $filters['status']);
+            }
+        }
+
+        $proposals = $baseQuery->orderByDesc('updated_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('reviewer.ppm.pengabdian.revisi.index', compact(
+            'proposals',
+            'timeline',
+            'currentDate',
+            'filterSkemas',
+            'filterYears',
+            'statuses',
+            'filters'
+        ));
+    }
     
 
     public function review($id)

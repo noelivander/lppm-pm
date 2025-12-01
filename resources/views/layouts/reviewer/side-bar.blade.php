@@ -85,8 +85,8 @@
     <!-- Nav Item - Dashboard -->
     @php
         $isReviewerDashboard = request()->routeIs('reviewer.dashboard');
-        $penelitianMenuActive = request()->routeIs('penelitian-rev.index');
-        $pengabdianMenuActive = request()->routeIs('pengabdian-rev.index');
+        $penelitianMenuActive = request()->routeIs('penelitian-rev.*');
+        $pengabdianMenuActive = request()->routeIs('pengabdian-rev.*');
     @endphp
     <li class="nav-item {{ $isReviewerDashboard ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('reviewer.dashboard') }}">
@@ -106,7 +106,7 @@
         <div id="collapsePenelitianReviewer" class="collapse {{ $penelitianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('penelitian-rev.index')" href="{{ route('penelitian-rev.index') }}">Daftar Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item @isroute('penelitian-rev.revisi.index')" href="{{ route('penelitian-rev.revisi.index') }}">Revisi Proposal</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
@@ -124,7 +124,7 @@
         <div id="collapsePengabdianReviewer" class="collapse {{ $pengabdianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('pengabdian-rev.index')" href="{{ route('pengabdian-rev.index') }}">Daftar Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item @isroute('pengabdian-rev.revisi.index')" href="{{ route('pengabdian-rev.revisi.index') }}">Revisi Proposal</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>

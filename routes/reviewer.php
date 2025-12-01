@@ -35,5 +35,8 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
     Route::post('/penelitian/store', [PenelitianController::class, 'store'])->name('penelitian.store');
     Route::post('/pengabdian/store', [PengabdianController::class, 'store'])->name('pengabdian.store');
 
-
+    Route::get('ppm/penelitian-rev/revisi/proposal', [PenelitianController::class, 'revisiIndex'])
+        ->name('penelitian-rev.revisi.index');
+    Route::get('ppm/pengabdian-rev/revisi/proposal', [PengabdianController::class, 'revisiIndex'])
+        ->name('pengabdian-rev.revisi.index');
 });
