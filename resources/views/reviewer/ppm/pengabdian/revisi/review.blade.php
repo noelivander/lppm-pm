@@ -293,42 +293,6 @@
                     </div>
                 </div>
 
-                <div class="modern-card mb-4 fade-in-up">
-                    <div class="modern-card-body">
-                        <form action="{{ route('pengabdian-rev.revisi.submit', $proposal->id) }}" method="POST">
-                            @csrf
-
-                            <div class="mb-3">
-                                <label for="revision_comment" class="modern-form-label">
-                                    <i class="fa fa-comment-dots me-2"></i>Komentar Reviewer atas Revisi
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <textarea
-                                    id="revision_comment"
-                                    name="revision_comment"
-                                    class="modern-form-textarea"
-                                    rows="4"
-                                    placeholder="Tuliskan komentar atau catatan untuk dosen terkait hasil revisi..."
-                                    @if (!$canReview) disabled @else required @endif
-                                >{{ old('revision_comment', $review->revision_comment ?? '') }}</textarea>
-                                <small class="text-muted">Komentar ini akan menjadi catatan Anda terhadap kualitas revisi proposal.</small>
-                                @error('revision_comment')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            @if ($canReview)
-                                <button type="submit" class="modern-btn modern-btn-primary">
-                                    <i class="fa fa-save me-1"></i> Simpan Komentar Revisi
-                                </button>
-                            @else
-                                <button type="button" class="modern-btn modern-btn-secondary" disabled>
-                                    <i class="fa fa-lock me-1"></i> Periode Peninjauan Revisi Tidak Aktif
-                                </button>
-                            @endif
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

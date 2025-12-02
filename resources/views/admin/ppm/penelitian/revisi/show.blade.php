@@ -43,12 +43,9 @@
                     <div class="modern-card-body">
                         <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
                             <div>
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="status-badge {{ $statusClass }}">{{ $proposal->status }}</span>
-                                    <span class="badge bg-light text-muted">
-                                        Revisi untuk periode {{ $proposal->created_at?->format('Y') ?? '-' }}
-                                    </span>
-                                </div>
+                                <span class="badge bg-light text-muted">
+                                    Revisi untuk periode {{ $proposal->created_at?->format('Y') ?? '-' }}
+                                </span>
                                 <h3 class="mt-3 mb-1">{{ $proposal->judul }}</h3>
                                 <p class="text-muted mb-0">
                                     Oleh <strong>{{ $proposal->user->name ?? '-' }}</strong>
@@ -231,13 +228,9 @@
                                 <i class="fa fa-user me-2 text-primary"></i>
                                 Pengusul: {{ $proposal->user->name ?? '-' }}
                             </li>
-                            <li class="mb-2">
-                                <i class="fa fa-tasks me-2 text-primary"></i>
-                                Status revisi: <strong>{{ $proposal->status }}</strong>
-                            </li>
                             <li class="mb-0">
-                                <i class="fa fa-comments me-2 text-primary"></i>
-                                Total komentar reviewer: <strong>{{ $revisionReviews->count() }}</strong>
+                                <i class="fa fa-calendar-check me-2 text-primary"></i>
+                                Tahun usulan revisi: <strong>{{ $proposal->created_at?->format('Y') ?? '-' }}</strong>
                             </li>
                         </ul>
                     </div>
@@ -261,31 +254,6 @@
                     </div>
                 </div>
 
-                <div class="modern-card mb-4 fade-in-up">
-                    <div class="modern-card-body">
-                        <h5 class="mb-3"><i class="fa fa-comments me-2"></i>Komentar Reviewer Revisi</h5>
-                        @if($revisionReviews->count())
-                            <div class="timeline">
-                                @foreach($revisionReviews as $rev)
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker"></div>
-                                        <div class="timeline-content">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="fw-semibold">{{ $rev->reviewer->name ?? $rev->reviewer_name ?? 'Reviewer' }}</span>
-                                                <span class="text-muted small">{{ optional($rev->updated_at ?? $rev->created_at)->format('d M Y H:i') }}</span>
-                                            </div>
-                                            <p class="mb-0 text-muted">{{ $rev->revision_comment }}</p>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="modern-alert modern-alert-warning mb-0">
-                                <i class="fa fa-info-circle me-2"></i>Belum ada komentar dari reviewer untuk revisi ini.
-                            </div>
-                        @endif
-                    </div>
-                </div>
             </div>
         </div>
     </div>

@@ -37,11 +37,11 @@
 
                     <form method="GET" class="modern-card p-3 mb-3 filter-card">
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Cari Judul</label>
                                 <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="modern-form-input" placeholder="Cari judul proposal...">
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Skema</label>
                                 <select name="skema" class="modern-form-select">
                                     <option value="">Semua Skema</option>
@@ -51,20 +51,11 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label class="modern-form-label text-uppercase small fw-semibold">Tahun</label>
+                                <label class="modern-form-label text-uppercase small fw-semibold">Tahun Usulan</label>
                                 <select name="year" class="modern-form-select">
                                     <option value="">Semua Tahun</option>
                                     @foreach($filterYears as $yearOption)
                                         <option value="{{ $yearOption }}" @selected(($filters['year'] ?? '') == $yearOption)>{{ $yearOption }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="modern-form-label text-uppercase small fw-semibold">Status</label>
-                                <select name="status" class="modern-form-select">
-                                    <option value="">Semua Status</option>
-                                    @foreach($statuses as $statusOption)
-                                        <option value="{{ $statusOption }}" @selected(($filters['status'] ?? '') === $statusOption)>{{ $statusOption }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -91,8 +82,8 @@
                                         <th class="col-no text-center">#</th>
                                         <th class="col-judul">Judul</th>
                                         <th class="col-skema">Skema</th>
-                                        <th>Periode</th>
-                                        <th>Status</th>
+                                        <th>Periode Usulan</th>
+                                        <th>Tgl Upload Revisi</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -126,9 +117,7 @@
                                             </td>
                                             <td>{{ optional($proposal->created_at)->format('Y') ?? '-' }}</td>
                                             <td>
-                                                <span class="status-badge {{ $statusClass }}">
-                                                    {{ $revisionState }}
-                                                </span>
+                                                {{ optional($revision?->created_at)->format('d M Y H:i') ?? '-' }}
                                             </td>
                                             <td class="text-center">
                                                 @if($revision && !$canEditRevision)
