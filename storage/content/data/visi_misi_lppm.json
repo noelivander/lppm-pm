@@ -1,0 +1,45 @@
+{
+    "hero_badge": "Arah & Tujuannn",
+    "hero_title": "Visi & Misiii",
+    "hero_description": "Arah dan tujuan LPPM-PM ITH dalam pengembangan ilmu pengetahuan, teknologi, dan penjaminan mutu pendidikan tinggi",
+    "hero_cards": [
+        {
+            "title": "Inovasiii",
+            "subtitle": "Kreativitas dalam penelitian",
+            "icon": "fas fa-lightbulb"
+        },
+        {
+            "title": "Kolaborasi",
+            "subtitle": "Kerjasama strategis",
+            "icon": "fas fa-users"
+        },
+        {
+            "title": "Kualitas",
+            "subtitle": "Standar tinggiii",
+            "icon": "fas fa-star"
+        }
+    ],
+    "value_cards": [
+        {
+            "title": "Inovasi",
+            "desc": "Mendorong inovasi dan kreativitas dalam penelitian dan pengabdian masyarakat",
+            "icon": "fas fa-lightbulb"
+        },
+        {
+            "title": "Kolaborasi",
+            "desc": "Membangun kerjasama strategis dengan berbagai pihak untuk kemajuan bersama",
+            "icon": "fas fa-users"
+        },
+        {
+            "title": "Kualitas",
+            "desc": "Menjaga standar kualitas tinggi dalam setiap kegiatan dan program",
+            "icon": "fas fa-star"
+        },
+        {
+            "title": "Integritas",
+            "desc": "Menjalankan tugas dengan penuh tanggung jawab dan kejujuran",
+            "icon": "fas fa-heart"
+        }
+    ],
+    "main_content": "<h3>Visi ITH<\/h3>\r\n\r\n<blockquote>\r\n<p>Menjadi institut yang unggul dalam ilmu pengetahuan dan teknologi berbasis inovasi benua maritim Indonesia.<\/p>\r\n<\/blockquote>\r\n\r\n<p>&nbsp;<\/p>\r\n\r\n<h3>Misi ITH<\/h3>\r\n\r\n<blockquote>\r\n<ol>\r\n\t<li>Menyelenggarakan pendidikan tinggi yang unggul berbasis kompetensi untuk menghasilkan lulusan yang memiliki nilai-nilai dasar ITH, jiwa kewirausahaan, dan berdaya saing global.<\/li>\r\n\t<li>Menyelenggarakan penelitian dan pengabdian kepada masyarakat yang unggul, inovatif, berkualitas tinggi, dan bermanfaat bagi masyarakat secara berkelanjutan dalam mendukung pembangunan daerah dan nasional.<\/li>\r\n\t<li>Mengembangkan infrastruktur sarana dan prasarana yang unggul dalam menunjang pelaksanaan tridharma perguruan tinggi.<\/li>\r\n\t<li>Mengembangkan jaringan kerja sama institusional yang unggul dalam rangka mengembangkan temuan ilmu pengetahuan dan teknologi yang berkelanjutan.<\/li>\r\n\t<li>Menyelenggarakan manajemen tata kelola pendidikan tinggi yang unggul.<\/li>\r\n<\/ol>\r\n<\/blockquote>"
+}

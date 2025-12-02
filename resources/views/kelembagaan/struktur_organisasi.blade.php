@@ -4,22 +4,116 @@
     </x-slot>
 
     <!-- Hero Section -->
-    <section class="position-relative overflow-hidden py-5" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);">
-        <div class="container py-5">
-            <div class="row align-items-center">
-                <div class="col-lg-8 mx-auto text-center text-white">
-                    <h1 class="display-4 fw-bold mb-3 animate-float">Struktur Organisasi</h1>
-                    <p class="lead mb-0">Susunan organisasi dan kepemimpinan LPPM-PM ITH</p>
+    <section class="position-relative overflow-hidden" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%); min-height: 70vh;">
+        <!-- Decorative Background Elements -->
+        <div class="position-absolute" style="top: -10%; right: -5%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+        <div class="position-absolute" style="bottom: -15%; left: -8%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%); border-radius: 50%;"></div>
+        
+        <div class="container position-relative" style="padding-top: 6rem; padding-bottom: 4rem;">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb" style="background: transparent;">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}" style="color: rgba(255,255,255,0.7); text-decoration: none;"><i class="fas fa-home me-1"></i>Beranda</a></li>
+                    <li class="breadcrumb-item"><span style="color: rgba(255,255,255,0.5);">Kelembagaan</span></li>
+                    <li class="breadcrumb-item active" aria-current="page" style="color: white;">Struktur Organisasi</li>
+                </ol>
+            </nav>
+            
+            <div class="row align-items-center g-5">
+                <!-- Left Content -->
+                <div class="col-lg-6" data-aos="fade-right">
+                    <div class="mb-4">
+                        <span class="badge px-4 py-2" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 50px; color: white; font-weight: 500; font-size: 0.9rem;">
+                            <i class="fas fa-sitemap me-2"></i>{{ $data['hero_badge'] ?? 'Tata Kelola & Kepemimpinan' }}
+                        </span>
+                    </div>
+                    
+                    <h1 class="display-3 fw-bold text-white mb-4" style="line-height: 1.2;">
+                        {{ $data['hero_title'] ?? 'Struktur Organisasi' }}<br>
+                        <span style="background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">LPPM-PM ITH</span>
+                    </h1>
+                    
+                    <p class="lead text-white mb-4" style="opacity: 0.9; line-height: 1.8; font-size: 1.1rem;">
+                        {{ $data['hero_description'] ?? 'Susunan hierarki dan alur koordinasi yang sinergis untuk mendukung visi dan misi lembaga dalam pengembangan riset dan pengabdian.' }}
+                    </p>
+                    
+                    <!-- CTA Buttons -->
+                    <div class="d-flex flex-wrap gap-3 mt-5">
+                        <a href="#chart" class="btn btn-lg px-4 py-3" style="background: white; color: #1e1b4b; border-radius: 50px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                            <i class="fas fa-arrow-down me-2"></i>Lihat Bagan
+                        </a>
+                        <a href="{{ route('kelembagaan_visi_misi') }}" class="btn btn-lg btn-outline-light px-4 py-3" style="border-radius: 50px; font-weight: 600; border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px); transition: all 0.3s ease;">
+                            <i class="fas fa-bullseye me-2"></i>Visi & Misi
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Right Illustration -->
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="position-relative">
+                        <!-- Main Illustration Card -->
+                        <div class="card border-0 shadow-lg" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 30px; overflow: hidden; transform: rotate(-2deg);">
+                            <div class="card-body p-5">
+                                <div class="text-center mb-4">
+                                    <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 30px; box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);">
+                                        <i class="fas fa-network-wired fa-3x text-white"></i>
+                                    </div>
+                                    <h4 class="fw-bold mb-2" style="color: #1e1b4b;">Hierarki & Koordinasi</h4>
+                                    <p class="text-muted mb-0">Fondasi tata kelola yang kuat</p>
+                                </div>
+                                
+                                <!-- Value List -->
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
+                                            <div class="flex-shrink-0 me-3">
+                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 12px;">
+                                                    <i class="fas fa-search text-white"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Transparansi</h6>
+                                                <small class="text-muted">Keterbukaan informasi publik</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
+                                            <div class="flex-shrink-0 me-3">
+                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px;">
+                                                    <i class="fas fa-check-circle text-white"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Akuntabilitas</h6>
+                                                <small class="text-muted">Tanggung jawab terukur</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
+                                            <div class="flex-shrink-0 me-3">
+                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px;">
+                                                    <i class="fas fa-handshake text-white"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Sinergitas</h6>
+                                                <small class="text-muted">Kerjasama lintas sektor</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- Floating Background Elements -->
-        <div class="position-absolute" style="top: 10%; left: 5%; width: 100px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 50%; animation: float 6s ease-in-out infinite;"></div>
-        <div class="position-absolute" style="top: 60%; right: 10%; width: 150px; height: 150px; background: rgba(255,255,255,0.03); border-radius: 50%; animation: float-delayed 8s ease-in-out infinite;"></div>
     </section>
 
     <!-- Content Section -->
-    <section class="py-5">
+    <section class="py-5" id="chart">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-12">
@@ -35,114 +129,15 @@
                                 <p class="text-muted">Struktur hierarki kepemimpinan LPPM-PM ITH</p>
                             </div>
                             
-                            <!-- Organization Chart -->
-                            <div class="org-chart-container" style="overflow-x: auto; padding: 2rem 0;">
-                                <div class="org-chart">
-                                    <!-- Level 1: Ketua -->
-                                    <div class="org-level">
-                                        <div class="org-card org-head">
-                                            <div class="org-card-icon">
-                                                <i class="fas fa-user-tie"></i>
-                                            </div>
-                                            <div class="org-card-content">
-                                                <h5>Ketua LPPM-PM</h5>
-                                                <p class="text-muted mb-0">Kepala Lembaga</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Connector Line -->
-                                    <div class="org-connector-vertical"></div>
-                                    
-                                    <!-- Level 2: Wakil & Sekretaris -->
-                                    <div class="org-level">
-                                        <div class="org-row">
-                                            <div class="org-card org-deputy">
-                                                <div class="org-card-icon">
-                                                    <i class="fas fa-user-shield"></i>
-                                                </div>
-                                                <div class="org-card-content">
-                                                    <h6>Wakil Ketua Bidang LPPM</h6>
-                                                    <p class="text-muted mb-0 small">Penelitian & Pengabdian</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="org-card org-deputy">
-                                                <div class="org-card-icon">
-                                                    <i class="fas fa-user-shield"></i>
-                                                </div>
-                                                <div class="org-card-content">
-                                                    <h6>Wakil Ketua Bidang PM</h6>
-                                                    <p class="text-muted mb-0 small">Penjaminan Mutu</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="org-card org-secretary">
-                                                <div class="org-card-icon">
-                                                    <i class="fas fa-user-edit"></i>
-                                                </div>
-                                                <div class="org-card-content">
-                                                    <h6>Sekretaris</h6>
-                                                    <p class="text-muted mb-0 small">Administrasi</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Connector Lines -->
-                                    <div class="org-connector-horizontal"></div>
-                                    <div class="org-connector-vertical-group">
-                                        <div class="org-connector-vertical-small"></div>
-                                        <div class="org-connector-vertical-small"></div>
-                                        <div class="org-connector-vertical-small"></div>
-                                    </div>
-                                    
-                                    <!-- Level 3: Divisi/Unit -->
-                                    <div class="org-level">
-                                        <div class="org-row">
-                                            <div class="org-card org-division">
-                                                <div class="org-card-icon">
-                                                    <i class="fas fa-flask"></i>
-                                                </div>
-                                                <div class="org-card-content">
-                                                    <h6>Divisi Penelitian</h6>
-                                                    <p class="text-muted mb-0 small">Koordinator Penelitian</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="org-card org-division">
-                                                <div class="org-card-icon">
-                                                    <i class="fas fa-hands-helping"></i>
-                                                </div>
-                                                <div class="org-card-content">
-                                                    <h6>Divisi Pengabdian</h6>
-                                                    <p class="text-muted mb-0 small">Koordinator Pengabdian</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="org-card org-division">
-                                                <div class="org-card-icon">
-                                                    <i class="fas fa-award"></i>
-                                                </div>
-                                                <div class="org-card-content">
-                                                    <h6>Divisi Penjaminan Mutu</h6>
-                                                    <p class="text-muted mb-0 small">Koordinator Mutu</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="org-card org-division">
-                                                <div class="org-card-icon">
-                                                    <i class="fas fa-file-alt"></i>
-                                                </div>
-                                                <div class="org-card-content">
-                                                    <h6>Divisi Administrasi</h6>
-                                                    <p class="text-muted mb-0 small">Staff Administrasi</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            @if(!empty($data['chart_image']))
+                            <div class="text-center">
+                                <img src="{{ asset($data['chart_image']) }}" alt="Bagan Organisasi" class="img-fluid rounded shadow-sm">
                             </div>
+                            @else
+                            <div class="alert alert-info text-center">
+                                Belum ada bagan organisasi yang diunggah.
+                            </div>
+                            @endif
                         </div>
                     </div>
                     
@@ -158,65 +153,30 @@
                             
                             <!-- Content -->
                             <div class="prose" style="max-width: 100%; line-height: 1.8; color: #374151;">
-                                {!! $text_stucture !!}
+                                {!! $data['main_content'] ?? '' !!}
                             </div>
                         </div>
                     </div>
                     
                     <!-- Organization Info Cards -->
                     <div class="row g-4">
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card border-0 shadow-sm h-100 text-center hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="mb-3">
-                                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px;">
-                                            <i class="fas fa-user-tie fa-2x" style="color: #4f46e5;"></i>
+                        @if(isset($data['info_cards']) && is_array($data['info_cards']))
+                            @foreach($data['info_cards'] as $card)
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card border-0 shadow-sm h-100 text-center hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
+                                    <div class="card-body p-4">
+                                        <div class="mb-3">
+                                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px;">
+                                                <i class="{{ $card['icon'] }} fa-2x" style="color: #4f46e5;"></i>
+                                            </div>
                                         </div>
+                                        <h5 style="color: #1e1b4b; font-weight: 600; margin-bottom: 0.5rem;">{{ $card['title'] }}</h5>
+                                        <p class="text-muted mb-0">{{ $card['desc'] }}</p>
                                     </div>
-                                    <h5 style="color: #1e1b4b; font-weight: 600; margin-bottom: 0.5rem;">Kepemimpinan</h5>
-                                    <p class="text-muted mb-0">Struktur kepemimpinan yang solid dan berpengalaman</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card border-0 shadow-sm h-100 text-center hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="mb-3">
-                                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px;">
-                                            <i class="fas fa-users fa-2x" style="color: #4f46e5;"></i>
-                                        </div>
-                                    </div>
-                                    <h5 style="color: #1e1b4b; font-weight: 600; margin-bottom: 0.5rem;">Tim Profesional</h5>
-                                    <p class="text-muted mb-0">SDM yang berkompeten dan berdedikasi tinggi</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card border-0 shadow-sm h-100 text-center hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="mb-3">
-                                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px;">
-                                            <i class="fas fa-tasks fa-2x" style="color: #4f46e5;"></i>
-                                        </div>
-                                    </div>
-                                    <h5 style="color: #1e1b4b; font-weight: 600; margin-bottom: 0.5rem;">Koordinasi</h5>
-                                    <p class="text-muted mb-0">Sistem kerja yang terorganisir dengan baik</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="card border-0 shadow-sm h-100 text-center hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="mb-3">
-                                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 15px;">
-                                            <i class="fas fa-chart-line fa-2x" style="color: #4f46e5;"></i>
-                                        </div>
-                                    </div>
-                                    <h5 style="color: #1e1b4b; font-weight: 600; margin-bottom: 0.5rem;">Pengembangan</h5>
-                                    <p class="text-muted mb-0">Peningkatan kualitas berkelanjutan</p>
-                                </div>
-                            </div>
-                        </div>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </div>
@@ -247,168 +207,6 @@
             height: auto;
             border-radius: 10px;
             margin: 1.5rem 0;
-        }
-        
-        /* Organization Chart Styles */
-        .org-chart {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 900px;
-        }
-        
-        .org-level {
-            display: flex;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-        
-        .org-row {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .org-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            min-width: 200px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        
-        .org-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .org-card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-        
-        .org-head .org-card-icon {
-            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-            color: white;
-        }
-        
-        .org-deputy .org-card-icon {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-        }
-        
-        .org-secretary .org-card-icon {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-        }
-        
-        .org-division .org-card-icon {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-        }
-        
-        .org-card-content h5 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #1e1b4b;
-            margin-bottom: 0.5rem;
-        }
-        
-        .org-card-content h6 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #1e1b4b;
-            margin-bottom: 0.5rem;
-        }
-        
-        .org-card-content p {
-            font-size: 0.85rem;
-            margin: 0;
-        }
-        
-        /* Connector Lines */
-        .org-connector-vertical {
-            width: 2px;
-            height: 40px;
-            background: linear-gradient(180deg, #7c3aed 0%, #c7d2fe 100%);
-            margin: 0 auto;
-        }
-        
-        .org-connector-horizontal {
-            width: 80%;
-            height: 2px;
-            background: linear-gradient(90deg, #c7d2fe 0%, #7c3aed 50%, #c7d2fe 100%);
-            margin: 0 auto;
-        }
-        
-        .org-connector-vertical-group {
-            display: flex;
-            justify-content: space-around;
-            width: 80%;
-            margin: 0 auto;
-        }
-        
-        .org-connector-vertical-small {
-            width: 2px;
-            height: 40px;
-            background: linear-gradient(180deg, #7c3aed 0%, #c7d2fe 100%);
-        }
-        
-        /* Responsive */
-        @media (max-width: 991px) {
-            .org-chart {
-                min-width: 700px;
-            }
-            
-            .org-row {
-                gap: 1rem;
-            }
-            
-            .org-card {
-                min-width: 160px;
-                padding: 1rem;
-            }
-            
-            .org-card-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.25rem;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .org-chart {
-                min-width: 600px;
-            }
-            
-            .org-card {
-                min-width: 140px;
-                padding: 0.875rem;
-            }
-            
-            .org-card-content h5 {
-                font-size: 0.95rem;
-            }
-            
-            .org-card-content h6 {
-                font-size: 0.85rem;
-            }
-            
-            .org-card-content p {
-                font-size: 0.75rem;
-            }
         }
     </style>
     @endpush

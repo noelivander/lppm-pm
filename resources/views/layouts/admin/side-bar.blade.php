@@ -101,7 +101,7 @@
     @php
         $isKelembagaanMenu = request()->routeIs('tentang-satker.index', 'visi-misi.index', 'struktur-organisasi.index');
         $isLayananMenu = request()->routeIs('agenda.index', 'berita.index', 'dokumen_penting.index', 'pengumuman.index');
-        $isPengaturanUmumMenu = request()->routeIs('jurusan.index', 'program_studi.index', 'pegawai.index', 'related_link.index', 'admin.landing-page.index');
+        $isPengaturanUmumMenu = request()->routeIs('jurusan.index', 'program_studi.index', 'pegawai.index', 'related_link.index');
         $isPengaturanLppmMenu = request()->routeIs('skema.index', 'luaran.index', 'rab.index');
     @endphp
 
@@ -156,8 +156,8 @@
                 <a class="collapse-item @isroute('program_studi.index')" href="{{ route('program_studi.index') }}">Program Studi</a>
                 <a class="collapse-item @isroute('pegawai.index')" href="{{ route('pegawai.index') }}">Pegawai</a>
                 <a class="collapse-item @isroute('related_link.index')" href="{{ route('related_link.index') }}">Tautan</a>
-                <a class="collapse-item @isroute('admin.landing-page.index')"
-                href="{{ route('admin.landing-page.index') }}">Landing Page</a>
+                <a class="collapse-item @isroute('admin.landing-page.index')" href="{{ route('admin.landing-page.index') }}">Kelola Landing Page</a>
+
             </div>
         </div>
     </li>

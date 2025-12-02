@@ -24,17 +24,17 @@
                 <div class="col-lg-6" data-aos="fade-right">
                     <div class="mb-4">
                         <span class="badge px-4 py-2" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 50px; color: white; font-weight: 500; font-size: 0.9rem;">
-                            <i class="fas fa-bullseye me-2"></i>Arah & Tujuan
+                            <i class="fas fa-bullseye me-2"></i>{{ $data['hero_badge'] ?? 'Arah & Tujuan' }}
                         </span>
                     </div>
                     
                     <h1 class="display-3 fw-bold text-white mb-4" style="line-height: 1.2;">
-                        Visi & Misi<br>
+                        {{ $data['hero_title'] ?? 'Visi & Misi' }}<br>
                         <span style="background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">LPPM-PM ITH</span>
                     </h1>
                     
                     <p class="lead text-white mb-4" style="opacity: 0.9; line-height: 1.8; font-size: 1.1rem;">
-                        Arah dan tujuan <strong>LPPM-PM ITH</strong> dalam pengembangan ilmu pengetahuan, teknologi, dan penjaminan mutu pendidikan tinggi
+                        {{ $data['hero_description'] ?? 'Arah dan tujuan LPPM-PM ITH dalam pengembangan ilmu pengetahuan, teknologi, dan penjaminan mutu pendidikan tinggi' }}
                     </p>
                     
                     <!-- CTA Buttons -->
@@ -64,45 +64,23 @@
                                 
                                 <!-- Value List -->
                                 <div class="row g-3">
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 12px;">
-                                                    <i class="fas fa-lightbulb text-white"></i>
+                                    @if(isset($data['hero_cards']) && is_array($data['hero_cards']))
+                                        @foreach($data['hero_cards'] as $card)
+                                        <div class="col-12">
+                                            <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
+                                                <div class="flex-shrink-0 me-3">
+                                                    <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 12px;">
+                                                        <i class="{{ $card['icon'] }} text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">{{ $card['title'] }}</h6>
+                                                    <small class="text-muted">{{ $card['subtitle'] }}</small>
                                                 </div>
                                             </div>
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Inovasi</h6>
-                                                <small class="text-muted">Kreativitas dalam penelitian</small>
-                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px;">
-                                                    <i class="fas fa-users text-white"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Kolaborasi</h6>
-                                                <small class="text-muted">Kerjasama strategis</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px;">
-                                                    <i class="fas fa-star text-white"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Kualitas</h6>
-                                                <small class="text-muted">Standar tinggi</small>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -114,7 +92,7 @@
     </section>
 
     <!-- Content Section -->
-    <section class="py-5">
+    <section class="py-5" id="content">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xl-10">
@@ -129,81 +107,34 @@
                             
                             <!-- Content -->
                             <div class="prose" style="max-width: 100%; line-height: 1.8; color: #374151;">
-                                {!! $text_visi_misi !!}
+                                {!! $data['main_content'] ?? '' !!}
                             </div>
                         </div>
                     </div>
                     
                     <!-- Value Cards -->
                     <div class="row g-4 mt-4">
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0 me-3">
-                                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 12px;">
-                                                <i class="fas fa-lightbulb" style="color: #4f46e5;"></i>
+                        @if(isset($data['value_cards']) && is_array($data['value_cards']))
+                            @foreach($data['value_cards'] as $card)
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-start">
+                                            <div class="flex-shrink-0 me-3">
+                                                <div class="d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 12px;">
+                                                    <i class="{{ $card['icon'] }}" style="color: #4f46e5;"></i>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <h5 style="color: #1e1b4b; font-weight: 600;">Inovasi</h5>
-                                            <p class="text-muted mb-0" style="font-size: 0.9rem;">Mendorong inovasi dan kreativitas dalam penelitian dan pengabdian masyarakat</p>
+                                            <div>
+                                                <h5 style="color: #1e1b4b; font-weight: 600;">{{ $card['title'] }}</h5>
+                                                <p class="text-muted mb-0" style="font-size: 0.9rem;">{{ $card['desc'] }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0 me-3">
-                                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 12px;">
-                                                <i class="fas fa-users" style="color: #4f46e5;"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h5 style="color: #1e1b4b; font-weight: 600;">Kolaborasi</h5>
-                                            <p class="text-muted mb-0" style="font-size: 0.9rem;">Membangun kerjasama strategis dengan berbagai pihak untuk kemajuan bersama</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0 me-3">
-                                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 12px;">
-                                                <i class="fas fa-star" style="color: #4f46e5;"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h5 style="color: #1e1b4b; font-weight: 600;">Kualitas</h5>
-                                            <p class="text-muted mb-0" style="font-size: 0.9rem;">Menjaga standar kualitas tinggi dalam setiap kegiatan dan program</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 15px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0 me-3">
-                                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 12px;">
-                                                <i class="fas fa-heart" style="color: #4f46e5;"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h5 style="color: #1e1b4b; font-weight: 600;">Integritas</h5>
-                                            <p class="text-muted mb-0" style="font-size: 0.9rem;">Menjalankan tugas dengan penuh tanggung jawab dan kejujuran</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </div>

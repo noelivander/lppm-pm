@@ -1,0 +1,41 @@
+{
+    "hero_badge": "Profil LPPM",
+    "hero_title": "Tentang",
+    "hero_description": "Mengenal lebih dekat Lembaga Penelitian, Pengabdian Masyarakat, dan Penjaminan Mutu Institut Teknologi Bacharuddin Jusuf Habibiee",
+    "founded_year": "2022",
+    "stats": [
+        {
+            "icon": "fas fa-flask",
+            "value": "Penelitiann",
+            "color": "#a78bfa"
+        },
+        {
+            "icon": "fas fa-hands-helping",
+            "value": "Pengabdian",
+            "color": "#60a5fa"
+        },
+        {
+            "icon": "fas fa-award",
+            "value": "Penjaminan Mutu",
+            "color": "#34d399"
+        }
+    ],
+    "features": [
+        {
+            "title": "Riset Berkualitas",
+            "desc": "Penelitian inovatif dan berdampak",
+            "icon": "fas fa-check"
+        },
+        {
+            "title": "Pengabdian Nyataa",
+            "desc": "Kontribusi untuk masyarakat",
+            "icon": "fas fa-check"
+        },
+        {
+            "title": "Standar Mutu Tinggi",
+            "desc": "Penjaminan kualitas pendidikann",
+            "icon": "fas fa-check"
+        }
+    ],
+    "main_content": "<p>Profil LPPM-PM ITH<\/p>\r\n\r\n<p><strong>Lembaga Penelitian, Pengabdian kepada Masyarakat, dan Penjaminan Mutu (LPPM-PM)<\/strong> merupakan unit pelaksana akademik di Institut Teknologi Bacharuddin Jusuf Habibie (ITH) yang memiliki mandat strategis dalam mengelola kegiatan <em>penelitian<\/em>, <em>pengabdian kepada masyarakat (PkM)<\/em>, dan <em>penjaminan mutu akademik<\/em>. LPPM-PM berperan aktif dalam merancang kebijakan, menyusun pedoman, serta memfasilitasi program-program riset dan pengabdian yang mendukung pencapaian <strong>visi, misi, tujuan, dan sasaran (VMTS) ITH<\/strong>.<\/p>\r\n\r\n<p>Sejak tahun 2023, LPPM-PM telah secara konsisten menyelenggarakan <strong>hibah penelitian internal<\/strong> melalui Skema Penelitian Dosen Pemula (PDP), dan pada tahun 2025 diperluas dengan <strong>Skema Penelitian Kolaborasi<\/strong>. Selain itu, LPPM-PM memfasilitasi dosen dalam mengakses hibah eksternal dari <strong>Kemdiktisaintek<\/strong> melalui platform <strong>BIMA<\/strong>.<\/p>\r\n\r\n<p>Capaian Hibah Penelitian<\/p>\r\n\r\n<ul>\r\n\t<li><strong>2023:<\/strong> 7 judul hibah internal dan 5 judul dari DRTPM<\/li>\r\n\t<li><strong>2024:<\/strong> 10 judul hibah internal dan 7 judul dari DRTPM<\/li>\r\n\t<li><strong>2025:<\/strong> 13 judul hibah internal (termasuk kolaborasi) dan 28 judul dari DRTPM dengan total pendanaan &gt; <strong>Rp 1,2 miliar<\/strong><\/li>\r\n<\/ul>\r\n\r\n<p>Selain pengelolaan hibah, LPPM-PM juga memfasilitasi <strong>bantuan publikasi ilmiah<\/strong>, <strong>pelatihan proposal<\/strong>, <strong>klinik pendampingan<\/strong>, serta <strong>monitoring dan evaluasi<\/strong> kegiatan secara berkala. Semua proses ini diatur dalam Buku Pedoman Penelitian dan PkM tahun <strong>2023, 2024, dan 2025<\/strong>.<\/p>\r\n\r\n<p>Capaian Karya Ilmiah<\/p>\r\n\r\n<ul>\r\n\t<li><strong>2022\/2023:<\/strong> 8 publikasi jurnal, 6 seminar ilmiah, 1 jurnal internasional bereputasi<\/li>\r\n\t<li><strong>2023\/2024:<\/strong> 36 publikasi (25 jurnal nasional terakreditasi, 5 internasional bereputasi), 6 seminar<\/li>\r\n\t<li><strong>2024\/2025:<\/strong> 60 publikasi (34 jurnal nasional terakreditasi, 7 internasional bereputasi), 4 seminar internasional<\/li>\r\n<\/ul>\r\n\r\n<p>Untuk mendokumentasikan hasil tersebut, LPPM-PM menyusun <strong>booklet luaran penelitian dan PkM<\/strong> dengan format terstruktur yang mencantumkan ringkasan penelitian, metodologi, luaran wajib (dengan DOI), dan dampak pada masyarakat. Format ini telah menjadi standar dalam pelaporan hibah berdasarkan Buku Pedoman tahun 2024 dan 2025.<\/p>\r\n\r\n<p>LPPM-PM juga menginisiasi pembentukan <strong>kelompok riset resmi<\/strong> melalui <strong>Keputusan Rektor Nomor: 086.7\/IT13.A.SK\/SU.01.00\/2024<\/strong> yang berfungsi mengarahkan fokus riset lintas prodi, membina kolaborasi dosen, dan menghasilkan karya ilmiah strategis.<\/p>\r\n\r\n<p>Dengan pendekatan yang terstruktur dan berbasis mutu, LPPM-PM berkomitmen untuk memperkuat <strong>budaya riset dan pengabdian<\/strong>, memperluas jejaring nasional dan internasional, serta mendorong kontribusi nyata penelitian dosen terhadap <em>pemecahan persoalan masyarakat dan pengembangan ilmu pengetahuan<\/em>.<\/p>"
+}

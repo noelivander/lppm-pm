@@ -24,45 +24,33 @@
                 <div class="col-lg-6" data-aos="fade-right">
                     <div class="mb-4">
                         <span class="badge px-4 py-2" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 50px; color: white; font-weight: 500; font-size: 0.9rem;">
-                            <i class="fas fa-university me-2"></i>Profil Lembaga
+                            <i class="fas fa-bullseye me-2"></i>{{ $data['hero_badge'] ?? 'Tentang' }}
                         </span>
                     </div>
                     
                     <h1 class="display-3 fw-bold text-white mb-4" style="line-height: 1.2;">
-                        Tentang<br>
+                        {{ $data['hero_title'] ?? 'Visi & Misi' }}<br>
                         <span style="background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">LPPM-PM ITH</span>
                     </h1>
                     
-                    <p class="lead text-white mb-4" style="opacity: 0.9; line-height: 1.8; font-size: 1.1rem;">
-                        Mengenal lebih dekat <strong>Lembaga Penelitian, Pengabdian Masyarakat, dan Penjaminan Mutu</strong> Institut Teknologi Bacharuddin Jusuf Habibie
+                     <p class="lead text-white mb-4" style="opacity: 0.9; line-height: 1.8; font-size: 1.1rem;">
+                        {{ $data['hero_description'] ?? 'Arah dan tujuan LPPM-PM ITH dalam pengembangan ilmu pengetahuan, teknologi, dan penjaminan mutu pendidikan tinggi' }}
                     </p>
                     
                     <!-- Stats Row -->
                     <div class="row g-4 mt-4">
-                        <div class="col-6 col-md-4">
-                            <div class="text-center p-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
-                                <div class="display-6 fw-bold text-white mb-1">
-                                    <i class="fas fa-flask" style="font-size: 1.5rem; color: #a78bfa;"></i>
+                        @if(isset($data['stats']) && is_array($data['stats']))
+                            @foreach($data['stats'] as $stat)
+                            <div class="col-6 col-md-4">
+                                <div class="text-center p-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <div class="display-6 fw-bold text-white mb-1">
+                                        <i class="{{ $stat['icon'] }}" style="font-size: 1.5rem; color: {{ $stat['color'] }};"></i>
+                                    </div>
+                                    <div class="small text-white" style="opacity: 0.8;">{{ $stat['value'] }}</div>
                                 </div>
-                                <div class="small text-white" style="opacity: 0.8;">Penelitian</div>
                             </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <div class="text-center p-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
-                                <div class="display-6 fw-bold text-white mb-1">
-                                    <i class="fas fa-hands-helping" style="font-size: 1.5rem; color: #60a5fa;"></i>
-                                </div>
-                                <div class="small text-white" style="opacity: 0.8;">Pengabdian</div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <div class="text-center p-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
-                                <div class="display-6 fw-bold text-white mb-1">
-                                    <i class="fas fa-award" style="font-size: 1.5rem; color: #34d399;"></i>
-                                </div>
-                                <div class="small text-white" style="opacity: 0.8;">Penjaminan Mutu</div>
-                            </div>
-                        </div>
+                            @endforeach
+                        @endif
                     </div>
                     
                     <!-- CTA Buttons -->
@@ -92,45 +80,23 @@
                                 
                                 <!-- Feature List -->
                                 <div class="row g-3">
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 12px;">
-                                                    <i class="fas fa-check text-white"></i>
+                                    @if(isset($data['features']) && is_array($data['features']))
+                                        @foreach($data['features'] as $feature)
+                                        <div class="col-12">
+                                            <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
+                                                <div class="flex-shrink-0 me-3">
+                                                    <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 12px;">
+                                                        <i class="{{ $feature['icon'] }} text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">{{ $feature['title'] }}</h6>
+                                                    <small class="text-muted">{{ $feature['desc'] }}</small>
                                                 </div>
                                             </div>
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Riset Berkualitas</h6>
-                                                <small class="text-muted">Penelitian inovatif dan berdampak</small>
-                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px;">
-                                                    <i class="fas fa-check text-white"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Pengabdian Nyata</h6>
-                                                <small class="text-muted">Kontribusi untuk masyarakat</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center p-3" style="background: #f8fafc; border-radius: 15px;">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px;">
-                                                    <i class="fas fa-check text-white"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold" style="color: #1e1b4b;">Standar Mutu Tinggi</h6>
-                                                <small class="text-muted">Penjaminan kualitas pendidikan</small>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -138,7 +104,7 @@
                         <!-- Floating Badge -->
                         <div class="position-absolute" style="top: -20px; right: -20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 1rem 1.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4); transform: rotate(5deg);">
                             <div class="text-center text-white">
-                                <div class="fw-bold" style="font-size: 1.5rem;">2023</div>
+                                <div class="fw-bold" style="font-size: 1.5rem;">{{ $data['founded_year'] }}</div>
                                 <div class="small">Berdiri</div>
                             </div>
                         </div>
@@ -174,52 +140,35 @@
                             
                             <!-- Content -->
                             <div class="prose" style="max-width: 100%; line-height: 1.8; color: #374151;">
-                                {!! $text_about !!}
+                                {!! $data['main_content'] !!}
                             </div>
                         </div>
                     </div>
                     
                     <!-- Additional Info Cards -->
                     <div class="row g-4 mt-5">
-                        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 20px; transition: all 0.3s ease; background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);">
-                                <div class="card-body p-4 text-center">
-                                    <div class="mb-3">
-                                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 20px; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.25);">
-                                            <i class="fas fa-flask fa-lg text-white"></i>
+                        @if(isset($data['stats']) && is_array($data['stats']))
+                            @foreach($data['stats'] as $index => $stat)
+                            <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ 200 + ($index * 100) }}">
+                                <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 20px; transition: all 0.3s ease; background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);">
+                                    <div class="card-body p-4 text-center">
+                                        <div class="mb-3">
+                                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, {{ $stat['color'] }} 0%, {{ $stat['color'] }}dd 100%); border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0, 0.1);">
+                                                <i class="{{ $stat['icon'] }} fa-lg text-white"></i>
+                                            </div>
                                         </div>
+                                        <h5 style="color: #1e1b4b; font-weight: 700; margin-bottom: 0.75rem;">{{ $stat['value'] }}</h5>
+                                        <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">
+                                            @if($index == 0) Mendorong penelitian berkualitas dan inovatif yang berdampak
+                                            @elseif($index == 1) Berkontribusi nyata untuk kemajuan masyarakat
+                                            @else Menjaga standar kualitas pendidikan tinggi
+                                            @endif
+                                        </p>
                                     </div>
-                                    <h5 style="color: #1e1b4b; font-weight: 700; margin-bottom: 0.75rem;">Penelitian</h5>
-                                    <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">Mendorong penelitian berkualitas dan inovatif yang berdampak</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 20px; transition: all 0.3s ease; background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);">
-                                <div class="card-body p-4 text-center">
-                                    <div class="mb-3">
-                                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 20px; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25);">
-                                            <i class="fas fa-hands-helping fa-lg text-white"></i>
-                                        </div>
-                                    </div>
-                                    <h5 style="color: #1e1b4b; font-weight: 700; margin-bottom: 0.75rem;">Pengabdian</h5>
-                                    <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">Berkontribusi nyata untuk kemajuan masyarakat</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4" data-aos="fade-up" data-aos-delay="400">
-                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 20px; transition: all 0.3s ease; background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);">
-                                <div class="card-body p-4 text-center">
-                                    <div class="mb-3">
-                                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 20px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);">
-                                            <i class="fas fa-award fa-lg text-white"></i>
-                                        </div>
-                                    </div>
-                                    <h5 style="color: #1e1b4b; font-weight: 700; margin-bottom: 0.75rem;">Penjaminan Mutu</h5>
-                                    <p class="text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">Menjaga standar kualitas pendidikan tinggi</p>
-                                </div>
-                            </div>
-                        </div>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </div>
