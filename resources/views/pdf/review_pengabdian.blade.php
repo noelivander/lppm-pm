@@ -110,19 +110,23 @@
                 <td class="value">
                     <tr>
                         <td style="padding-left: 25px;">a. Usul Penelitian :</td>
-                        <td class="value">Rp. {{ number_format($review->biaya_usulan, 0, ',', '.') }}</td>
+                        <td class="value">
+                            @php
+                                $biayaUsulanDosen = optional($review->pengabdian)->biaya_diusulkan ?? 0;
+                            @endphp
+                            Rp. {{ number_format((float) $biayaUsulanDosen, 0, ',', '.') }}
+                        </td>
                     </tr>
                     <tr>
                         <td style="padding-left: 25px;">b. Direkomendasikan :</td>
                         <td class="value">
-                            @if($review->biaya_disarankan)
-                                Rp. {{ number_format($review->biaya_disarankan, 0, ',', '.') }}
+                            @if(!is_null($review->disarankan))
+                                Rp. {{ number_format((float) $review->disarankan, 0, ',', '.') }}
                             @else
                                 &nbsp; <!-- Menampilkan spasi kosong -->
                             @endif
                         </td>
                     </tr>
-                    
                 </td>
             </tr>
         </table><br>
