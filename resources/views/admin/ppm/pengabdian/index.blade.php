@@ -3,10 +3,9 @@
         {{ __('Pengabdian') }}
     </x-slot>
 
-    <div class="container-fluid pb-5">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="mb-3 fade-in-up">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="mb-3 fade-in-up">
                     <h3 class="mb-3">
                         <i class="fa fa-hands-helping me-2"></i>Daftar Proposal Pengabdian
                     </h3>
@@ -95,7 +94,7 @@
                             <i class="fa fa-info-circle me-2"></i>Tidak ada proposal pengabdian yang sudah direview lengkap.
                         </div>
                     @else
-                        <div class="modern-table-container mb-4">
+                        <div class="modern-table-container mb-3">
                             <table class="modern-table modern-table-fixed">
                                 <thead>
                                     <tr>
@@ -153,11 +152,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-end modern-pagination">
+                        <div class="d-flex justify-content-end modern-pagination mt-2">
                             {{ $proposals->links('pagination::bootstrap-5') }}
                         </div>
                     @endif
-                </div>
             </div>
         </div>
     </div>

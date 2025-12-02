@@ -5,25 +5,24 @@
     <x-slot name="header">
         {{ __('Tentang Satker LPPM-PM') }}
     </x-slot>
+    
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #10b981;">
+            <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
-    <div class="container-fluid pb-5">
-        <div class="row">
-            <div class="col-lg-12">
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #10b981;">
-                        <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="row">
+        <div class="col-lg-12">
+            <form class="form-horizontal" method="POST" action="{{ route('tentang-satker.store') }}">
+                {{ csrf_field() }}
+                
+                <div class="modern-card mb-4 fade-in-up">
+                    <div class="modern-card-header d-flex align-items-center justify-content-between">
+                        <h4 class="mb-0"><i class="fa fa-info-circle me-2"></i>Tentang Satker LPPM-PM</h4>
                     </div>
-                @endif
-
-                <form class="form-horizontal" method="POST" action="{{ route('tentang-satker.store') }}">
-                    {{ csrf_field() }}
-                    
-                    <div class="modern-card mb-4 fade-in-up">
-                        <div class="modern-card-header d-flex align-items-center justify-content-between">
-                            <h4 class="mb-0"><i class="fa fa-info-circle me-2"></i>Tentang Satker LPPM-PM</h4>
-                        </div>
-                        <div class="modern-card-body">
+                    <div class="modern-card-body">
                             <!-- Modern Tabs -->
                             <ul class="nav nav-tabs modern-nav-tabs mb-4" id="aboutTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
@@ -139,16 +138,15 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="modern-card-footer d-flex gap-2 justify-content-end">
-                            <button type="submit" class="modern-btn modern-btn-success">
-                                <i class="fa fa-save me-1"></i> Simpan Perubahan
-                            </button>
-                        </div>
                     </div>
-                </form>
-            </div>
+                    
+                    <div class="modern-card-footer d-flex gap-2 justify-content-end">
+                        <button type="submit" class="modern-btn modern-btn-success">
+                            <i class="fa fa-save me-1"></i> Simpan Perubahan
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
     <style>

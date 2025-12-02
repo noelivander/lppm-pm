@@ -3,24 +3,23 @@
         {{ __('Kelola Landing Page') }}
     </x-slot>
 
-    <div class="container-fluid pb-5">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #10b981;">
-                <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #10b981;">
+            <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="modern-card fade-in-up">
-                    <div class="modern-card-header d-flex align-items-center justify-content-between">
-                        <h4 class="mb-0"><i class="fa fa-globe me-2"></i>Konfigurasi Landing Page</h4>
-                    </div>
-                    <form id="landingPageForm" action="{{ route('admin.landing-page.update', 1) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                        <div class="modern-card-body">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="modern-card fade-in-up">
+                <div class="modern-card-header d-flex align-items-center justify-content-between">
+                    <h4 class="mb-0"><i class="fa fa-globe me-2"></i>Konfigurasi Landing Page</h4>
+                </div>
+                <form id="landingPageForm" action="{{ route('admin.landing-page.update', 1) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="modern-card-body">
                             <!-- Modern Tabs -->
                             <ul class="nav nav-tabs modern-nav-tabs mb-4" id="landingPageTab" role="tablist">
                                 <li class="nav-item" role="presentation">
@@ -309,8 +308,8 @@
                                 <i class="fa fa-save me-1"></i> Simpan Perubahan
                             </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
