@@ -46,7 +46,7 @@
 						<div class="card-body p-4">
 							<form method="get">
 								<div class="row g-3">
-									<div class="col-lg-5">
+									<div class="col-lg-7">
 										<div class="position-relative">
 											<i class="fas fa-search position-absolute text-muted"
 												style="left: 1.2rem; top: 50%; transform: translateY(-50%);"></i>
@@ -55,7 +55,7 @@
 												style="border-radius: 15px;" placeholder="Cari pengumuman...">
 										</div>
 									</div>
-									<div class="col-md-6 col-lg-3">
+									<div class="col-md-6 col-lg-4">
 										<select name="sort" class="form-select form-select-lg border-0 bg-light"
 											style="border-radius: 15px;">
 											<option value="latest" {{ ($sort ?? '') === 'latest' ? 'selected' : '' }}>Terbaru
@@ -66,14 +66,7 @@
 												Terpopuler</option>
 										</select>
 									</div>
-									<div class="col-md-6 col-lg-3">
-										<select name="per_page" class="form-select form-select-lg border-0 bg-light"
-											style="border-radius: 15px;">
-											@foreach([9, 12, 15, 18, 24] as $pp)
-												<option value="{{ $pp }}" {{ (isset($perPage) && $perPage == $pp) ? 'selected' : '' }}>{{ $pp }}/halaman</option>
-											@endforeach
-										</select>
-									</div>
+									
 									<div class="col-lg-1 d-none d-lg-block">
 										<button type="submit" class="btn btn-primary btn-lg w-100 h-100"
 											style="border-radius: 15px; background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); border: none;">
