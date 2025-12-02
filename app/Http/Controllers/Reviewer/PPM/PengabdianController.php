@@ -93,9 +93,18 @@ class PengabdianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
 
+        $reviewerId = Auth::id();
+
         $baseQuery = Pengabdian::with(['user'])
             ->where('is_draft', false)
-            ->where('is_revised', true);
+            ->where('is_revised', true)
+            ->where(function ($query) use ($reviewerId) {
+                $query->whereHas('revisionParent.reviews', function ($reviewQuery) use ($reviewerId) {
+                    $reviewQuery->where('reviewer_id', $reviewerId);
+                })->orWhereHas('reviews', function ($reviewQuery) use ($reviewerId) {
+                    $reviewQuery->where('reviewer_id', $reviewerId);
+                });
+            });
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -244,6 +253,7 @@ class PengabdianController extends Controller
 
         // Review awal dari kedua reviewer melekat pada proposal asli
         $allReviews = $originalProposal->reviews ?? collect();
+        $initialReview = $allReviews->firstWhere('reviewer_id', Auth::id());
 
         return view('reviewer.ppm.pengabdian.revisi.review', [
             'proposal' => $proposal,
@@ -262,6 +272,7 @@ class PengabdianController extends Controller
             'canReview' => $canReview,
             'review' => $review,
             'allReviews' => $allReviews,
+            'initialReview' => $initialReview,
         ]);
     }
 

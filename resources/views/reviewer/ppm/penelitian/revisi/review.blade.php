@@ -32,114 +32,80 @@
                     </div>
                 </div>
 
-                {{-- Komentar Admin dari proses seleksi awal --}}
-                <div class="modern-card mb-4 fade-in-up">
-                    <div class="modern-card-body">
-                        <h3 class="mb-3"><i class="fa fa-comment-dots me-2"></i>Komentar Admin</h3>
-                        @php
-                            $adminComment = $originalProposal->admin_comment ?? null;
-                        @endphp
-                        @if($adminComment)
-                            <p class="text-muted mb-0">{{ $adminComment }}</p>
-                        @else
-                            <div class="modern-alert modern-alert-info mb-0">
-                                <i class="fa fa-info-circle me-2"></i>Tidak ada komentar admin yang tercatat untuk proposal ini.
+                @if($initialReview)
+                    <div class="modern-card mb-4 fade-in-up">
+                        <div class="modern-card-body">
+                            <h3 class="mb-3"><i class="fa fa-user-check me-2"></i>Review Anda (Tahap Awal)</h3>
+                            <p class="text-muted mb-2">
+                                <strong>Tanggal Review:</strong> {{ optional($initialReview->created_at)->format('d M Y H:i') ?? '-' }}
+                            </p>
+
+                            <div class="modern-table-container mb-3">
+                                <table class="modern-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Kriteria</th>
+                                        <th>Bobot</th>
+                                        <th>Skor</th>
+                                        <th>Nilai</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>Penguasaan materi dan keterkaitan</td>
+                                        <td>20%</td>
+                                        <td>{{ $initialReview->skor_1 ?? '-' }}</td>
+                                        <td>{{ $initialReview->skor_1 ? ($initialReview->skor_1 * 20) : '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kesesuaian latar belakang dan tujuan</td>
+                                        <td>20%</td>
+                                        <td>{{ $initialReview->skor_2 ?? '-' }}</td>
+                                        <td>{{ $initialReview->skor_2 ? ($initialReview->skor_2 * 20) : '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Metode Penelitian</td>
+                                        <td>20%</td>
+                                        <td>{{ $initialReview->skor_3 ?? '-' }}</td>
+                                        <td>{{ $initialReview->skor_3 ? ($initialReview->skor_3 * 20) : '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Peta jalan penelitian</td>
+                                        <td>10%</td>
+                                        <td>{{ $initialReview->skor_4 ?? '-' }}</td>
+                                        <td>{{ $initialReview->skor_4 ? ($initialReview->skor_4 * 10) : '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Potensi tercapainya luaran</td>
+                                        <td>30%</td>
+                                        <td>{{ $initialReview->skor_5 ?? '-' }}</td>
+                                        <td>{{ $initialReview->skor_5 ? ($initialReview->skor_5 * 30) : '-' }}</td>
+                                    </tr>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <td class="fw-bold">Total</td>
+                                        <td class="fw-bold">100%</td>
+                                        <td class="fw-bold">
+                                            {{ ($initialReview->skor_1 ?? 0) + ($initialReview->skor_2 ?? 0) + ($initialReview->skor_3 ?? 0) + ($initialReview->skor_4 ?? 0) + ($initialReview->skor_5 ?? 0) }}
+                                        </td>
+                                        <td class="fw-bold">
+                                            {{ (($initialReview->skor_1 ?? 0) * 20) + (($initialReview->skor_2 ?? 0) * 20) + (($initialReview->skor_3 ?? 0) * 20) + (($initialReview->skor_4 ?? 0) * 10) + (($initialReview->skor_5 ?? 0) * 30) }}
+                                        </td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
                             </div>
-                        @endif
+
+                            @if($initialReview->komentar)
+                                <div class="mb-0">
+                                    <h6 class="mb-1">Komentar Anda</h6>
+                                    <p class="text-muted mb-0">{{ $initialReview->komentar }}</p>
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                </div>
-
-                {{-- Ringkasan hasil review dua reviewer sebelumnya --}}
-                <div class="modern-card mb-4 fade-in-up">
-                    <div class="modern-card-body">
-                        <h3 class="mb-3"><i class="fa fa-file-alt me-2"></i>Ringkasan Review Reviewer</h3>
-
-                        @if(($allReviews ?? collect())->count())
-                            <div class="row">
-                                @foreach($allReviews as $index => $rev)
-                                    <div class="col-md-6 mb-4">
-                                        <div class="modern-card h-100">
-                                            <div class="modern-card-body">
-                                                <h5 class="mb-3">Review {{ $index + 1 }}</h5>
-                                                <p class="text-muted mb-2">
-                                                    <strong>Reviewer:</strong> {{ $rev->reviewer->name ?? $rev->reviewer_name ?? 'Tidak diketahui' }}
-                                                </p>
-
-                                                <div class="modern-table-container mb-3">
-                                                    <table class="modern-table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>Kriteria</th>
-                                                            <th>Bobot</th>
-                                                            <th>Skor</th>
-                                                            <th>Nilai</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr>
-                                                            <td>Penguasaan materi dan keterkaitan</td>
-                                                            <td>20%</td>
-                                                            <td>{{ $rev->skor_1 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_1 ? ($rev->skor_1 * 20) : '-' }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Kesesuaian latar belakang dan tujuan</td>
-                                                            <td>20%</td>
-                                                            <td>{{ $rev->skor_2 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_2 ? ($rev->skor_2 * 20) : '-' }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Metode Penelitian</td>
-                                                            <td>20%</td>
-                                                            <td>{{ $rev->skor_3 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_3 ? ($rev->skor_3 * 20) : '-' }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Peta jalan penelitian</td>
-                                                            <td>10%</td>
-                                                            <td>{{ $rev->skor_4 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_4 ? ($rev->skor_4 * 10) : '-' }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Potensi tercapainya luaran</td>
-                                                            <td>30%</td>
-                                                            <td>{{ $rev->skor_5 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_5 ? ($rev->skor_5 * 30) : '-' }}</td>
-                                                        </tr>
-                                                        </tbody>
-                                                        <tfoot>
-                                                        <tr>
-                                                            <td class="fw-bold">Total</td>
-                                                            <td class="fw-bold">100%</td>
-                                                            <td class="fw-bold">
-                                                                {{ ($rev->skor_1 ?? 0) + ($rev->skor_2 ?? 0) + ($rev->skor_3 ?? 0) + ($rev->skor_4 ?? 0) + ($rev->skor_5 ?? 0) }}
-                                                            </td>
-                                                            <td class="fw-bold">
-                                                                {{ (($rev->skor_1 ?? 0) * 20) + (($rev->skor_2 ?? 0) * 20) + (($rev->skor_3 ?? 0) * 20) + (($rev->skor_4 ?? 0) * 10) + (($rev->skor_5 ?? 0) * 30) }}
-                                                            </td>
-                                                        </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-
-                                                @if($rev->komentar)
-                                                    <div class="mb-2">
-                                                        <h6 class="mb-1">Komentar Reviewer</h6>
-                                                        <p class="text-muted mb-0">{{ $rev->komentar }}</p>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="modern-alert modern-alert-info mb-3">
-                                <i class="fa fa-info-circle me-2"></i>Belum ada data review reviewer yang tersedia.
-                            </div>
-                        @endif
-                    </div>
-                </div>
+                @endif
 
                 <div class="modern-card mb-4 fade-in-up">
                     <div class="modern-card-body">

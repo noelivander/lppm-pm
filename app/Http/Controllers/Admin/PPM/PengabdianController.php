@@ -255,11 +255,13 @@ class PengabdianController extends Controller
                 'anggota',
                 'rab',
                 'revisionParent.user',
+                'revisionParent.reviews.reviewer',
             ])
             ->where('is_revised', true)
             ->findOrFail($id);
 
         $originalProposal = $proposal->revisionParent;
+        $initialReviews = $originalProposal?->reviews ?? collect();
 
         $revisionReviews = Review::with('reviewer')
             ->where('pengabdian_id', $proposal->id)
@@ -273,6 +275,7 @@ class PengabdianController extends Controller
             'proposal',
             'originalProposal',
             'revisionReviews',
+            'initialReviews',
             'fileUrl'
         ));
     }

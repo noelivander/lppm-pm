@@ -11,6 +11,7 @@
         };
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
+        $initialReviews = $initialReviews ?? collect();
     @endphp
 
     <div class="container-fluid pb-5">
@@ -21,6 +22,106 @@
                     <a href="{{ route('penelitian-adm.revisi.index') }}" class="modern-btn modern-btn-secondary">
                         <i class="fa fa-arrow-left me-1"></i> Kembali
                     </a>
+                </div>
+
+                <div class="modern-card mb-4 fade-in-up">
+                    <div class="modern-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0"><i class="fa fa-file-alt me-2"></i>Ringkasan Review Reviewer (Tahap Awal)</h4>
+                            <span class="text-muted small">{{ $initialReviews->count() }} review</span>
+                        </div>
+
+                        @if($initialReviews->count())
+                            <div class="row">
+                                @foreach($initialReviews as $index => $rev)
+                                    <div class="col-md-6 mb-4">
+                                        <div class="modern-card h-100">
+                                            <div class="modern-card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div>
+                                                        <div class="small text-muted">Reviewer {{ $index + 1 }}</div>
+                                                        <div class="fw-bold">{{ $rev->reviewer->name ?? $rev->reviewer_name ?? 'Reviewer' }}</div>
+                                                    </div>
+                                                    <span class="badge bg-light text-muted">
+                                                        {{ optional($rev->updated_at ?? $rev->created_at)->format('d M Y') ?? '-' }}
+                                                    </span>
+                                                </div>
+
+                                                <div class="modern-table-container mb-3">
+                                                    <table class="modern-table">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>Kriteria</th>
+                                                            <th>Bobot</th>
+                                                            <th>Skor</th>
+                                                            <th>Nilai</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>Penguasaan materi & keterkaitan</td>
+                                                            <td>20%</td>
+                                                            <td>{{ $rev->skor_1 ?? '-' }}</td>
+                                                            <td>{{ $rev->skor_1 ? ($rev->skor_1 * 20) : '-' }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Latar belakang & tujuan</td>
+                                                            <td>20%</td>
+                                                            <td>{{ $rev->skor_2 ?? '-' }}</td>
+                                                            <td>{{ $rev->skor_2 ? ($rev->skor_2 * 20) : '-' }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Metode penelitian</td>
+                                                            <td>20%</td>
+                                                            <td>{{ $rev->skor_3 ?? '-' }}</td>
+                                                            <td>{{ $rev->skor_3 ? ($rev->skor_3 * 20) : '-' }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Peta jalan penelitian</td>
+                                                            <td>10%</td>
+                                                            <td>{{ $rev->skor_4 ?? '-' }}</td>
+                                                            <td>{{ $rev->skor_4 ? ($rev->skor_4 * 10) : '-' }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Potensi luaran</td>
+                                                            <td>30%</td>
+                                                            <td>{{ $rev->skor_5 ?? '-' }}</td>
+                                                            <td>{{ $rev->skor_5 ? ($rev->skor_5 * 30) : '-' }}</td>
+                                                        </tr>
+                                                        </tbody>
+                                                        <tfoot>
+                                                        <tr>
+                                                            <td class="fw-bold">Total</td>
+                                                            <td class="fw-bold">100%</td>
+                                                            <td class="fw-bold">
+                                                                {{ ($rev->skor_1 ?? 0) + ($rev->skor_2 ?? 0) + ($rev->skor_3 ?? 0) + ($rev->skor_4 ?? 0) + ($rev->skor_5 ?? 0) }}
+                                                            </td>
+                                                            <td class="fw-bold">
+                                                                {{ (($rev->skor_1 ?? 0) * 20) + (($rev->skor_2 ?? 0) * 20) + (($rev->skor_3 ?? 0) * 20) + (($rev->skor_4 ?? 0) * 10) + (($rev->skor_5 ?? 0) * 30) }}
+                                                            </td>
+                                                        </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+
+
+                                                @if($rev->komentar)
+                                                    <div class="mb-0">
+                                                        <h6 class="mb-1">Komentar Reviewer</h6>
+                                                        <p class="text-muted mb-0">{{ $rev->komentar }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="modern-alert modern-alert-info mb-0">
+                                <i class="fa fa-info-circle me-2"></i>Belum ada data review awal dari reviewer.
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
                 @if (session('success'))
