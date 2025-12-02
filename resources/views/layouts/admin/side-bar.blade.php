@@ -133,10 +133,12 @@
         <div id="collapseLayanan" class="collapse {{ $isLayananMenu ? 'show' : '' }}" aria-labelledby="headingUtilities"
             data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item @isroute('admin.landing-page.index')" href="{{ route('admin.landing-page.index') }}">Landing Page</a>
                 <a class="collapse-item @isroute('agenda.index')" href="{{ route('agenda.index') }}">Agenda</a>
                 <a class="collapse-item @isroute('berita.index')" href="{{ route('berita.index') }}">Berita</a>
                 <a class="collapse-item @isroute('dokumen_penting.index')" href="{{ route('dokumen_penting.index') }}">Dokumen</a>
                 <a class="collapse-item @isroute('pengumuman.index')" href="{{ route('pengumuman.index') }}">Pengumuman</a>
+                <a class="collapse-item @isroute('related_link.index')" href="{{ route('related_link.index') }}">Tautan</a>
             </div>
         </div>
     </li>
@@ -155,9 +157,27 @@
                 <a class="collapse-item @isroute('jurusan.index')" href="{{ route('jurusan.index') }}">Jurusan</a>
                 <a class="collapse-item @isroute('program_studi.index')" href="{{ route('program_studi.index') }}">Program Studi</a>
                 <a class="collapse-item @isroute('pegawai.index')" href="{{ route('pegawai.index') }}">Pegawai</a>
-                <a class="collapse-item @isroute('related_link.index')" href="{{ route('related_link.index') }}">Tautan</a>
-                <a class="collapse-item @isroute('admin.landing-page.index')" href="{{ route('admin.landing-page.index') }}">Kelola Landing Page</a>
+                
 
+            </div>
+        </div>
+    </li>
+
+    <!-- Nav Item - Utilities Collapse Menu -->
+    <li class="nav-item {{ $isPengaturanLppmMenu ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUtilitiesLPPM"
+            aria-expanded="{{ $isPengaturanLppmMenu ? 'true' : 'false' }}" aria-controls="collapseUtilitiesLPPM">
+            <i class="fas fa-fw fa-pencil-ruler"></i>
+            <span>Kelola Form</span>
+            <i class="fas fa-angle-down ms-auto small"></i>
+        </a>
+        <div id="collapseUtilitiesLPPM" class="collapse {{ $isPengaturanLppmMenu ? 'show' : '' }}" aria-labelledby="headingUtilities"
+            data-bs-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <!-- <a class="collapse-item" href="{{ route('luaran.index') }}">Hibah</a> -->
+                <a class="collapse-item @isroute('skema.index')" href="{{ route('skema.index') }}">Skema</a>
+                <a class="collapse-item @isroute('luaran.index')" href="{{ route('luaran.index') }}">Luaran</a>
+                <a class="collapse-item @isroute('rab.index')" href="{{ route('rab.index') }}">RAB</a>
             </div>
         </div>
     </li>
@@ -231,24 +251,7 @@
         </div>
     </li>
 
-    <!-- Nav Item - Utilities Collapse Menu -->
-    <li class="nav-item {{ $isPengaturanLppmMenu ? 'active' : '' }}">
-        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUtilitiesLPPM"
-            aria-expanded="{{ $isPengaturanLppmMenu ? 'true' : 'false' }}" aria-controls="collapseUtilitiesLPPM">
-            <i class="fas fa-fw fa-wrench"></i>
-            <span>Pengaturan</span>
-            <i class="fas fa-angle-down ms-auto small"></i>
-        </a>
-        <div id="collapseUtilitiesLPPM" class="collapse {{ $isPengaturanLppmMenu ? 'show' : '' }}" aria-labelledby="headingUtilities"
-            data-bs-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <!-- <a class="collapse-item" href="{{ route('luaran.index') }}">Hibah</a> -->
-                <a class="collapse-item @isroute('skema.index')" href="{{ route('skema.index') }}">Skema</a>
-                <a class="collapse-item @isroute('luaran.index')" href="{{ route('luaran.index') }}">Luaran</a>
-                <a class="collapse-item @isroute('rab.index')" href="{{ route('rab.index') }}">Kelola RAB</a>
-            </div>
-        </div>
-    </li>
+    
 
 
     <!-- Heading -->

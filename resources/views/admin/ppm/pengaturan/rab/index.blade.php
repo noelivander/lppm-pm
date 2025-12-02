@@ -3,62 +3,63 @@
         {{ __('Penelitian & Pengabdian/Pengaturan/Kelola RAB') }}
     </x-slot>
 
-    <x-admin.heading name="Penelitian & Pengabdian/Pengaturan/Kelola RAB">
-    </x-admin.heading>
-
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #10b981;">
             <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
             <i class="fa fa-exclamation-circle me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
     @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
             <i class="fa fa-exclamation-circle me-2"></i>
             <ul class="mb-0">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <!-- Tabs Navigation -->
-    <div class="modern-card mb-4 fade-in-up">
-        <div class="modern-card-header">
-            <ul class="nav nav-tabs card-header-tabs" id="rabTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="kelompok-tab" data-bs-toggle="tab" data-bs-target="#kelompok" 
-                        type="button" role="tab" aria-controls="kelompok" aria-selected="true">
-                        <i class="fa fa-layer-group me-2"></i>Kelompok RAB
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="komponen-tab" data-bs-toggle="tab" data-bs-target="#komponen" 
-                        type="button" role="tab" aria-controls="komponen" aria-selected="false">
-                        <i class="fa fa-cubes me-2"></i>Komponen RAB
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="satuan-tab" data-bs-toggle="tab" data-bs-target="#satuan" 
-                        type="button" role="tab" aria-controls="satuan" aria-selected="false">
-                        <i class="fa fa-ruler me-2"></i>Satuan RAB
-                    </button>
-                </li>
-            </ul>
-        </div>
+    <div class="row">
+        <div class="col-12">
+            <!-- Tabs Navigation -->
+            <div class="modern-card fade-in-up">
+                <div class="modern-card-header d-flex align-items-center justify-content-between">
+                    <h4 class="mb-0"><i class="fa fa-file-invoice-dollar me-2"></i>Kelola RAB</h4>
+                </div>
 
-        <div class="modern-card-body">
-            <div class="tab-content" id="rabTabsContent">
+                <div class="modern-card-body">
+                    <ul class="nav nav-tabs modern-nav-tabs mb-4" id="rabTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="kelompok-tab" data-bs-toggle="tab" data-bs-target="#kelompok" 
+                                type="button" role="tab" aria-controls="kelompok" aria-selected="true">
+                                <i class="fa fa-layer-group me-2"></i>Kelompok RAB
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="komponen-tab" data-bs-toggle="tab" data-bs-target="#komponen" 
+                                type="button" role="tab" aria-controls="komponen" aria-selected="false">
+                                <i class="fa fa-cubes me-2"></i>Komponen RAB
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="satuan-tab" data-bs-toggle="tab" data-bs-target="#satuan" 
+                                type="button" role="tab" aria-controls="satuan" aria-selected="false">
+                                <i class="fa fa-ruler me-2"></i>Satuan RAB
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="rabTabsContent">
                 <!-- Tab Kelompok RAB -->
                 <div class="tab-pane fade show active" id="kelompok" role="tabpanel" aria-labelledby="kelompok-tab">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -298,6 +299,8 @@
                     </div>
                 </div>
             </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -532,5 +535,59 @@
             }
         </script>
     </x-slot>
+
+    <style>
+        .modern-nav-tabs {
+            border-bottom: 2px solid var(--border-color);
+            padding: 0;
+        }
+
+        .modern-nav-tabs .nav-item {
+            margin-bottom: -2px;
+        }
+
+        .modern-nav-tabs .nav-link {
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 0.875rem 1.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: transparent;
+            border-radius: 0;
+        }
+
+        .modern-nav-tabs .nav-link:hover {
+            color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.05);
+            border-bottom-color: rgba(79, 70, 229, 0.3);
+        }
+
+        .modern-nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.08);
+            border-bottom-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .modern-nav-tabs .nav-link i {
+            font-size: 0.875rem;
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </x-admin-layout>
 
