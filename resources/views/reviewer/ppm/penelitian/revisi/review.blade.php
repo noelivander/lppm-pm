@@ -22,27 +22,6 @@
                     <div class="modern-alert modern-alert-danger mb-3">
                         <i class="fa fa-exclamation-circle me-2"></i>Tidak ada jadwal peninjauan revisi yang aktif saat ini.
                     </div>
-                @elseif (!$hasRevisionWindow)
-                    <div class="modern-alert modern-alert-warning mb-3">
-                        <i class="fa fa-exclamation-triangle me-2"></i>Periode peninjauan revisi belum ditentukan oleh admin.
-                    </div>
-                @else
-                    @if ($currentDate < $timeline->revision_review_start_date)
-                        <div class="modern-alert modern-alert-warning mb-3">
-                            <i class="fa fa-clock me-2"></i>Periode peninjauan revisi akan dimulai pada
-                            <strong>{{ $timeline->revision_review_start_date->format('d M Y H:i') }}</strong>.
-                        </div>
-                    @elseif($isWithinRevisionReview)
-                        <div class="modern-alert modern-alert-info mb-3">
-                            <i class="fa fa-info-circle me-2"></i>Periode peninjauan revisi sedang berlangsung hingga
-                            <strong>{{ $timeline->revision_review_end_date->format('d M Y H:i') }}</strong>.
-                        </div>
-                    @else
-                        <div class="modern-alert modern-alert-danger mb-3">
-                            <i class="fa fa-times-circle me-2"></i>Periode peninjauan revisi telah berakhir pada
-                            <strong>{{ $timeline->revision_review_end_date->format('d M Y H:i') }}</strong>.
-                        </div>
-                    @endif
                 @endif
 
                 <div class="modern-card mb-4 fade-in-up">

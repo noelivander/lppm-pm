@@ -21,29 +21,7 @@
                         $isWithinRevisionReview = $hasRevisionWindow && $currentDate->between($timeline->revision_review_start_date, $timeline->revision_review_end_date);
                     @endphp
 
-                    @if (!$timeline)
-                        <div class="modern-alert modern-alert-danger">
-                            <i class="fa fa-exclamation-circle me-2"></i>Tidak ada jadwal review revisi.
-                        </div>
-                    @elseif (!$hasRevisionWindow)
-                        <div class="modern-alert modern-alert-warning">
-                            <i class="fa fa-exclamation-triangle me-2"></i>Periode review revisi belum ditentukan oleh admin.
-                        </div>
-                    @else
-                        @if ($currentDate < $timeline->revision_review_start_date)
-                            <div class="modern-alert modern-alert-warning">
-                                <i class="fa fa-clock me-2"></i>Periode review revisi akan dimulai pada <strong>{{ $timeline->revision_review_start_date->format('d M Y H:i') }}</strong>.
-                            </div>
-                        @elseif($isWithinRevisionReview)
-                            <div class="modern-alert modern-alert-info">
-                                <i class="fa fa-info-circle me-2"></i>Periode review revisi sedang berlangsung hingga <strong>{{ $timeline->revision_review_end_date->format('d M Y H:i') }}</strong>.
-                            </div>
-                        @else
-                            <div class="modern-alert modern-alert-danger">
-                                <i class="fa fa-times-circle me-2"></i>Periode review revisi telah berakhir pada <strong>{{ $timeline->revision_review_end_date->format('d M Y H:i') }}</strong>.
-                            </div>
-                        @endif
-                    @endif
+                    {{-- Periode tinjau revisi dihapus, reviewer hanya memantau revisi tanpa batas waktu khusus --}}
 
                     <form method="GET" class="modern-card p-3 mb-3 filter-card">
                         <div class="row g-3 align-items-end">

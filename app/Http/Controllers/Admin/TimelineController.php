@@ -28,12 +28,11 @@ class TimelineController extends Controller
             // Admin Decision
             'admin_decision_start_date' => 'required|date|after_or_equal:review_end_date',
             'admin_decision_end_date' => 'required|date|after_or_equal:admin_decision_start_date',
-            // Revision Proposal
+            // Revision Proposal (single period)
             'revision_start_date' => 'required|date|after_or_equal:admin_decision_end_date',
             'revision_end_date' => 'required|date|after_or_equal:revision_start_date',
-            'revision_review_start_date' => 'required|date|after_or_equal:revision_end_date',
-            'revision_review_end_date' => 'required|date|after_or_equal:revision_review_start_date',
-            'progress_submission_start_date' => 'required|date|after_or_equal:revision_review_end_date',
+            // Progress report now dimulai setelah akhir revisi
+            'progress_submission_start_date' => 'required|date|after_or_equal:revision_end_date',
             'progress_submission_end_date' => 'required|date|after_or_equal:progress_submission_start_date',
             'progress_review_start_date' => 'required|date|after_or_equal:progress_submission_end_date',
             'progress_review_end_date' => 'required|date|after_or_equal:progress_review_start_date',
@@ -51,9 +50,7 @@ class TimelineController extends Controller
             'admin_decision_end_date.after_or_equal' => 'Tanggal akhir Keputusan Admin harus sama atau setelah tanggal mulai Keputusan Admin.',
             'revision_start_date.after_or_equal' => 'Tanggal mulai Revisi harus sama atau setelah tanggal akhir Keputusan Admin.',
             'revision_end_date.after_or_equal' => 'Tanggal akhir Revisi harus sama atau setelah tanggal mulai Revisi.',
-            'revision_review_start_date.after_or_equal' => 'Tanggal mulai Peninjauan Revisi harus sama atau setelah tanggal akhir Revisi.',
-            'revision_review_end_date.after_or_equal' => 'Tanggal akhir Peninjauan Revisi harus sama atau setelah tanggal mulai Peninjauan Revisi.',
-            'progress_submission_start_date.after_or_equal' => 'Tanggal mulai Pengajuan Laporan Kemajuan harus sama atau setelah tanggal akhir Peninjauan Revisi.',
+            'progress_submission_start_date.after_or_equal' => 'Tanggal mulai Pengajuan Laporan Kemajuan harus sama atau setelah tanggal akhir Revisi.',
             'progress_submission_end_date.after_or_equal' => 'Tanggal akhir Pengajuan Laporan Kemajuan harus sama atau setelah tanggal mulai Pengajuan.',
             'progress_review_start_date.after_or_equal' => 'Tanggal mulai Peninjauan Laporan Kemajuan harus sama atau setelah tanggal akhir Pengajuan.',
             'progress_review_end_date.after_or_equal' => 'Tanggal akhir Peninjauan Laporan Kemajuan harus sama atau setelah tanggal mulai Peninjauan.',
@@ -98,12 +95,11 @@ class TimelineController extends Controller
             // Admin Decision
             'admin_decision_start_date' => 'required|date|after_or_equal:review_end_date',
             'admin_decision_end_date' => 'required|date|after_or_equal:admin_decision_start_date',
-            // Revision Proposal
+            // Revision Proposal (single period)
             'revision_start_date' => 'required|date|after_or_equal:admin_decision_end_date',
             'revision_end_date' => 'required|date|after_or_equal:revision_start_date',
-            'revision_review_start_date' => 'required|date|after_or_equal:revision_end_date',
-            'revision_review_end_date' => 'required|date|after_or_equal:revision_review_start_date',
-            'progress_submission_start_date' => 'required|date|after_or_equal:revision_review_end_date',
+            // Progress report now dimulai setelah akhir revisi
+            'progress_submission_start_date' => 'required|date|after_or_equal:revision_end_date',
             'progress_submission_end_date' => 'required|date|after_or_equal:progress_submission_start_date',
             'progress_review_start_date' => 'required|date|after_or_equal:progress_submission_end_date',
             'progress_review_end_date' => 'required|date|after_or_equal:progress_review_start_date',
@@ -121,9 +117,7 @@ class TimelineController extends Controller
             'admin_decision_end_date.after_or_equal' => 'Tanggal akhir Keputusan Admin harus sama atau setelah tanggal mulai Keputusan Admin.',
             'revision_start_date.after_or_equal' => 'Tanggal mulai Revisi harus sama atau setelah tanggal akhir Keputusan Admin.',
             'revision_end_date.after_or_equal' => 'Tanggal akhir Revisi harus sama atau setelah tanggal mulai Revisi.',
-            'revision_review_start_date.after_or_equal' => 'Tanggal mulai Peninjauan Revisi harus sama atau setelah tanggal akhir Revisi.',
-            'revision_review_end_date.after_or_equal' => 'Tanggal akhir Peninjauan Revisi harus sama atau setelah tanggal mulai Peninjauan Revisi.',
-            'progress_submission_start_date.after_or_equal' => 'Tanggal mulai Pengajuan Laporan Kemajuan harus sama atau setelah tanggal akhir Peninjauan Revisi.',
+            'progress_submission_start_date.after_or_equal' => 'Tanggal mulai Pengajuan Laporan Kemajuan harus sama atau setelah tanggal akhir Revisi.',
             'progress_submission_end_date.after_or_equal' => 'Tanggal akhir Pengajuan Laporan Kemajuan harus sama atau setelah tanggal mulai Pengajuan.',
             'progress_review_start_date.after_or_equal' => 'Tanggal mulai Peninjauan Laporan Kemajuan harus sama atau setelah tanggal akhir Pengajuan.',
             'progress_review_end_date.after_or_equal' => 'Tanggal akhir Peninjauan Laporan Kemajuan harus sama atau setelah tanggal mulai Peninjauan.',

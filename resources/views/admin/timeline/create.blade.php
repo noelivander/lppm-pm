@@ -117,7 +117,7 @@
                                 </div>
                             </div>
 
-                            <!-- 4. Periode Revisi Proposal -->
+                            <!-- 4. Periode Revisi Proposal (single) -->
                             <h5 class="mb-3 text-primary"><i class="fa fa-edit me-2"></i>4. Periode Revisi Proposal</h5>
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -140,27 +140,7 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
-                                
-                                <div class="col-md-6">
-                                    <div class="modern-form-group">
-                                        <label class="modern-form-label" for="revision_review_start_date"></i>Peninjauan Revisi Start Date & Time <span class="text-danger">*</span></label>
-                                        <input type="datetime-local" name="revision_review_start_date" id="revision_review_start_date" class="modern-form-input" value="{{ old('revision_review_start_date') }}" required>
-                                        @error('revision_review_start_date')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="modern-form-group">
-                                        <label class="modern-form-label" for="revision_review_end_date"></i>Peninjauan Revisi End Date & Time <span class="text-danger">*</span></label>
-                                        <input type="datetime-local" name="revision_review_end_date" id="revision_review_end_date" class="modern-form-input" value="{{ old('revision_review_end_date') }}" required>
-                                        @error('revision_review_end_date')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- periode tinjau revisi dihapus; revisi hanya satu periode (start–end) -->
 
                             <!-- 5. Periode Laporan Kemajuan -->
                             <h5 class="mb-3 text-primary"><i class="fa fa-chart-line me-2"></i>5. Periode Laporan Kemajuan</h5>
