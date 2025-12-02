@@ -35,6 +35,7 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
      Route::get('pengabdian/{pengabdian_id}/view-reviews/{review_number}', [PengabdianController::class, 'viewReviews'])
      ->name('pengabdian-dos.view-reviews');
     Route::get('/penelitian/{id}/download-proposal', [PenelitianController::class, 'downloadDokumenProposal'])->name('penelitian.downloadProposal');
+    Route::get('/pengabdian/{id}/download-proposal', [PengabdianController::class, 'downloadDokumenProposal'])->name('pengabdian.downloadProposal');
     
     // RAB Helper routes for dynamic satuan
     Route::get('rab/get-satuan-by-komponen', [\App\Http\Controllers\Dosen\PPM\RabHelperController::class, 'getSatuanByKomponenName'])

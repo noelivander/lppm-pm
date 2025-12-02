@@ -15,6 +15,7 @@ use App\Models\PPM\Luaran;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PenelitianController extends Controller
 {
@@ -787,7 +788,9 @@ class PenelitianController extends Controller
             abort(404, 'File tidak ditemukan');
         }
 
-        return Storage::download($filePath, 'proposal.pdf');
+        $defaultName = $penelitian->judul ? Str::slug($penelitian->judul, '-') : 'proposal';
+
+        return Storage::download($filePath, $defaultName . '.pdf');
     }
 
 

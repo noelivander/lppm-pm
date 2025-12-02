@@ -15,6 +15,7 @@ use App\Models\PPM\Luaran;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PengabdianController extends Controller
 {
@@ -771,5 +772,19 @@ class PengabdianController extends Controller
             ->orderBy('period', 'desc')
             ->ordered()
             ->first();
+    }
+
+    public function downloadDokumenProposal($id)
+    {
+        $pengabdian = Pengabdian::findOrFail($id);
+        $filePath = $pengabdian->dokumen_proposal;
+
+        if (!$filePath || !Storage::exists($filePath)) {
+            abort(404, 'File tidak ditemukan');
+        }
+
+        $defaultName = $pengabdian->judul ? Str::slug($pengabdian->judul, '-') : 'proposal';
+
+        return Storage::download($filePath, $defaultName . '.pdf');
     }
 }

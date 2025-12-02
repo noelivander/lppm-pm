@@ -132,7 +132,7 @@
                                             </td>
                                             <td>
                                                 @if ($item->dokumen_proposal)
-                                                    <a href="{{ Storage::url($item->dokumen_proposal) }}" class="modern-btn modern-btn-primary modern-btn-sm" target="_blank">
+                                                    <a href="{{ route('pengabdian.downloadProposal', $item->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
                                                         <i class="fas fa-file-download me-1"></i> Download PDF
                                                     </a>
                                                 @else
