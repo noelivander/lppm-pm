@@ -190,11 +190,21 @@
                                     </div>
                             
                                     <div class="col-md-6">
-                                        
-                            
                                         <div class="modern-form-group">
-                                            <label for="disarankan" class="modern-form-label"><i class="fa fa-lightbulb me-2"></i>Disarankan</label>
-                                            <input type="text" id="disarankan" name="disarankan" class="modern-form-input" value="{{ $review->disarankan }}" @if(!$canReview) disabled @endif>
+                                            <label for="disarankan" class="modern-form-label">
+                                                <i class="fa fa-lightbulb me-2"></i>Biaya Disarankan (Rp)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="disarankan"
+                                                name="disarankan"
+                                                class="modern-form-input"
+                                                inputmode="numeric"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                placeholder="Contoh: 12000000"
+                                                value="{{ $review->disarankan }}"
+                                                @if(!$canReview) disabled @endif
+                                            >
                                         </div>
                                     </div>
                                 </div>
