@@ -25,7 +25,7 @@
             <div class="mb-3 fade-in-up">
                 <form method="GET" action="{{ route('users.index') }}" class="modern-card modern-card-body mb-3">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="modern-form-label" for="q"><i class="fa fa-search me-2"></i>Cari</label>
                             <input type="text" name="q" id="q" value="{{ $q ?? '' }}" class="modern-form-input" placeholder="Nama, email, atau NIP...">
                         </div>
@@ -38,9 +38,9 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-5 ms-md-auto d-flex gap-2 justify-content-md-end">
-                            <button type="submit" class="modern-btn modern-btn-primary"><i class="fa fa-search me-1"></i>Terapkan</button>
-                            <a href="{{ route('users.index') }}" class="modern-btn modern-btn-secondary"><i class="fa fa-undo me-1"></i>Reset</a>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="modern-btn modern-btn-primary flex-fill"><i class="fa fa-search me-1"></i>Terapkan</button>
+                            <a href="{{ route('users.index') }}" class="modern-btn modern-btn-secondary flex-fill"><i class="fa fa-undo me-1"></i>Reset</a>
                         </div>
                     </div>
                 </form>
