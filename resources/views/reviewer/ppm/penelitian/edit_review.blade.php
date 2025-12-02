@@ -319,8 +319,17 @@
 
                             <div class="modern-form-group">
                                 <br>
-                                <label for="komentar" class="modern-form-label"><i class="fa fa-comment-dots me-2"></i>Komentar Penilai</label>
-                                <textarea id="komentar" name="komentar" class="modern-form-textarea" oninput="updateWordCount()" @if(!$canReview) disabled @endif>{{ old('komentar', $review->komentar) }}</textarea>
+                                <label for="komentar" class="modern-form-label">
+                                    <i class="fa fa-comment-dots me-2"></i>Komentar Penilai
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea
+                                    id="komentar"
+                                    name="komentar"
+                                    class="modern-form-textarea"
+                                    oninput="updateWordCount()"
+                                    @if($canReview) required @else disabled @endif
+                                >{{ old('komentar', $review->komentar) }}</textarea>
                                 <div id="wordCount" class="text-muted small">0/120 words</div> <!-- Word count will be displayed here -->
                             </div>
                             
