@@ -94,9 +94,32 @@
                                 </div>
                             </div>
 
-                            <!-- 3. Periode Revisi Proposal -->
-                            <h5 class="mb-3 text-primary"><i class="fa fa-edit me-2"></i>3. Periode Revisi Proposal</h5>
+                            <!-- 3. Periode Penyetujuan Admin -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-gavel me-2"></i>3. Periode Penyetujuan Admin</h5>
                             <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="admin_decision_start_date"></i>Penyetujuan Admin Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="admin_decision_start_date" id="admin_decision_start_date" class="modern-form-input" value="{{ old('admin_decision_start_date') }}" required>
+                                        @error('admin_decision_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="admin_decision_end_date"></i>Penyetujuan Admin End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="admin_decision_end_date" id="admin_decision_end_date" class="modern-form-input" value="{{ old('admin_decision_end_date') }}" required>
+                                        @error('admin_decision_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Periode Revisi Proposal -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-edit me-2"></i>4. Periode Revisi Proposal</h5>
+                            <div class="row mb-3">
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
                                         <label class="modern-form-label" for="revision_start_date"></i>Revisi Start Date & Time <span class="text-danger">*</span></label>
@@ -117,8 +140,30 @@
                                 </div>
                             </div>
 
-                            <!-- 4. Periode Laporan Kemajuan -->
-                            <h5 class="mb-3 text-primary"><i class="fa fa-chart-line me-2"></i>4. Periode Laporan Kemajuan</h5>
+                            <div class="row mb-3">
+                                
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="revision_review_start_date"></i>Peninjauan Revisi Start Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="revision_review_start_date" id="revision_review_start_date" class="modern-form-input" value="{{ old('revision_review_start_date') }}" required>
+                                        @error('revision_review_start_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="modern-form-group">
+                                        <label class="modern-form-label" for="revision_review_end_date"></i>Peninjauan Revisi End Date & Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" name="revision_review_end_date" id="revision_review_end_date" class="modern-form-input" value="{{ old('revision_review_end_date') }}" required>
+                                        @error('revision_review_end_date')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Periode Laporan Kemajuan -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-chart-line me-2"></i>5. Periode Laporan Kemajuan</h5>
                             <div class="row mb-3">
                                 <div class="col-12">
                     
@@ -164,8 +209,8 @@
                     </div>
                 </div>
 
-                            <!-- 5. Periode Laporan Akhir -->
-                            <h5 class="mb-3 text-primary"><i class="fa fa-flag-checkered me-2"></i>5. Periode Laporan Akhir</h5>
+                            <!-- 6. Periode Laporan Akhir -->
+                            <h5 class="mb-3 text-primary"><i class="fa fa-flag-checkered me-2"></i>6. Periode Laporan Akhir</h5>
                             <div class="row mb-3">
                                 
                                 <div class="col-md-6">
@@ -258,7 +303,9 @@
             const timelineFields = [
                 { start: 'upload_start_date', end: 'upload_end_date', name: 'Upload' },
                 { start: 'review_start_date', end: 'review_end_date', name: 'Review' },
-                { start: 'revision_start_date', end: 'revision_end_date', name: 'Revisi' },
+                { start: 'admin_decision_start_date', end: 'admin_decision_end_date', name: 'Penyetujuan Admin' },
+                { start: 'revision_start_date', end: 'revision_end_date', name: 'Revisi - Pengajuan' },
+                { start: 'revision_review_start_date', end: 'revision_review_end_date', name: 'Revisi - Peninjauan' },
                 { start: 'progress_submission_start_date', end: 'progress_submission_end_date', name: 'Laporan Kemajuan - Pengajuan' },
                 { start: 'progress_review_start_date', end: 'progress_review_end_date', name: 'Laporan Kemajuan - Peninjauan' },
                 { start: 'final_submission_start_date', end: 'final_submission_end_date', name: 'Laporan Akhir - Pengajuan' },
@@ -267,6 +314,7 @@
 
             document.addEventListener('DOMContentLoaded', () => {
                 const periodInput = document.getElementById('period');
+                const titleInput = document.getElementById('title');
                 const dateInputs = [...new Set(timelineFields.flatMap(field => [field.start, field.end]))]
                     .map(id => document.getElementById(id))
                     .filter(Boolean);
@@ -298,11 +346,12 @@
                     const bounds = getYearBounds();
                     let currentMin = bounds ? bounds.start : '';
 
-                    timelineFields.forEach(field => {
+                    timelineFields.forEach((field, index) => {
                         const startInput = document.getElementById(field.start);
                         const endInput = document.getElementById(field.end);
                         if (!startInput || !endInput) return;
 
+                        // Set min untuk start input berdasarkan periode sebelumnya
                         if (currentMin) {
                             startInput.min = currentMin;
                         } else {
@@ -314,6 +363,7 @@
                             startInput.removeAttribute('max');
                         }
 
+                        // Set min untuk end input berdasarkan start input
                         const startValue = startInput.value;
                         if (startValue) {
                             endInput.min = startValue;
@@ -328,11 +378,54 @@
                             endInput.removeAttribute('max');
                         }
 
+                        // Update currentMin untuk periode berikutnya
                         const endValue = endInput.value;
                         if (endValue) {
                             currentMin = endValue;
+                        } else if (startValue) {
+                            // Jika end belum diisi tapi start sudah, gunakan start sebagai min untuk periode berikutnya
+                            currentMin = startValue;
                         }
+
+                        // Validasi real-time dan tampilkan error jika ada
+                        validateFieldPair(startInput, endInput, field.name);
                     });
+                };
+
+                const validateFieldPair = (startInput, endInput, fieldName) => {
+                    const startValue = startInput.value;
+                    const endValue = endInput.value;
+                    
+                    // Hapus error message sebelumnya
+                    const existingError = startInput.parentElement.querySelector('.field-error');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+
+                    if (startValue && endValue) {
+                        const start = new Date(startValue);
+                        const end = new Date(endValue);
+                        
+                        if (end <= start) {
+                            showFieldError(startInput, `${fieldName}: End Date harus lebih besar dari Start Date.`);
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                };
+
+                const showFieldError = (input, message) => {
+                    const existingError = input.parentElement.querySelector('.field-error');
+                    if (existingError) {
+                        existingError.textContent = message;
+                    } else {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'text-danger small mt-1 field-error';
+                        errorDiv.textContent = message;
+                        input.parentElement.appendChild(errorDiv);
+                    }
+                    input.classList.add('is-invalid');
                 };
 
                 const handlePeriodChange = () => {
@@ -340,11 +433,69 @@
                     applySequentialConstraints();
                 };
 
-                periodInput && periodInput.addEventListener('input', handlePeriodChange);
+                // Validasi period input
+                if (periodInput) {
+                    periodInput.addEventListener('input', () => {
+                        const periodValue = periodInput.value.trim();
+                        const periodNumber = parseInt(periodValue, 10);
+                        const existingError = periodInput.parentElement.querySelector('.field-error');
+                        
+                        if (existingError) {
+                            existingError.remove();
+                        }
+                        periodInput.classList.remove('is-invalid');
+                        
+                        if (periodValue && (!/^\d{4}$/.test(periodValue) || periodNumber < 1900 || periodNumber > 2999)) {
+                            showFieldError(periodInput, 'Periode harus berupa 4 digit angka antara 1900 dan 2999.');
+                        } else {
+                            handlePeriodChange();
+                        }
+                    });
+                    periodInput.addEventListener('blur', () => {
+                        const periodValue = periodInput.value.trim();
+                        if (!periodValue) {
+                            showFieldError(periodInput, 'Periode wajib diisi.');
+                        }
+                    });
+                }
+
+                // Validasi title input
+                if (titleInput) {
+                    titleInput.addEventListener('input', () => {
+                        const existingError = titleInput.parentElement.querySelector('.field-error');
+                        if (existingError) {
+                            existingError.remove();
+                        }
+                        titleInput.classList.remove('is-invalid');
+                    });
+                    titleInput.addEventListener('blur', () => {
+                        if (!titleInput.value.trim()) {
+                            showFieldError(titleInput, 'Judul wajib diisi.');
+                        }
+                    });
+                }
+                
+                // Event listener untuk setiap input date
                 dateInputs.forEach(input => {
-                    input.addEventListener('input', applySequentialConstraints);
+                    input.addEventListener('input', () => {
+                        applySequentialConstraints();
+                        // Hapus error styling saat user mengubah nilai
+                        input.classList.remove('is-invalid');
+                        const errorDiv = input.parentElement.querySelector('.field-error');
+                        if (errorDiv) {
+                            errorDiv.remove();
+                        }
+                    });
+                    input.addEventListener('change', applySequentialConstraints);
+                    input.addEventListener('blur', () => {
+                        if (!input.value) {
+                            const fieldName = input.id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            showFieldError(input, `${fieldName} wajib diisi.`);
+                        }
+                    });
                 });
 
+                // Inisialisasi saat halaman dimuat
                 handlePeriodChange();
             });
 
@@ -357,12 +508,35 @@
             }
 
         function validateTimeline() {
+                // Validasi period
                 const periodInput = document.getElementById('period');
                 if (periodInput) {
                     const periodValue = periodInput.value.trim();
+                    if (!periodValue) {
+                        showValidationError('Periode wajib diisi.');
+                        periodInput.focus();
+                        return false;
+                    }
                     const periodNumber = parseInt(periodValue, 10);
                     if (!/^\d{4}$/.test(periodValue) || periodNumber < 1900 || periodNumber > 2999) {
                         showValidationError('Periode harus berupa 4 digit angka antara 1900 dan 2999.');
+                        periodInput.focus();
+                        return false;
+                    }
+                }
+
+                // Validasi title
+                const titleInput = document.getElementById('title');
+                if (titleInput) {
+                    const titleValue = titleInput.value.trim();
+                    if (!titleValue) {
+                        showValidationError('Judul wajib diisi.');
+                        titleInput.focus();
+                        return false;
+                    }
+                    if (titleValue.length > 255) {
+                        showValidationError('Judul tidak boleh lebih dari 255 karakter.');
+                        titleInput.focus();
                         return false;
                     }
                 }
@@ -381,6 +555,11 @@
 
                     if (!startValue || !endValue) {
                         showValidationError(`${field.name}: Start dan End harus diisi.`);
+                        if (!startValue) {
+                            startInput.focus();
+                        } else {
+                            endInput.focus();
+                        }
                         return false;
                     }
 
@@ -389,11 +568,13 @@
 
                     if (end <= start) {
                         showValidationError(`${field.name}: End Date & Time harus lebih besar dari Start Date & Time.`);
+                        endInput.focus();
                         return false;
                     }
 
                     if (prevEnd && start <= prevEnd) {
                         showValidationError(`${field.name}: Start Date & Time harus lebih besar dari periode sebelumnya.`);
+                        startInput.focus();
                         return false;
                     }
 

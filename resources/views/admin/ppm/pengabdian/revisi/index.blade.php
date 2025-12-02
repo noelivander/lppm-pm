@@ -1,6 +1,6 @@
 <x-admin-layout>
     <x-slot name="header">
-        {{ __('Pengabdian') }}
+        {{ __('Pengabdian - Revisi Proposal') }}
     </x-slot>
 
     <div class="container-fluid pb-5">
@@ -8,43 +8,9 @@
             <div class="col-md-12">
                 <div class="mb-3 fade-in-up">
                     <h3 class="mb-3">
-                        <i class="fa fa-hands-helping me-2"></i>Daftar Proposal Pengabdian
+                        <i class="fa fa-sync-alt me-2"></i>Revisi Proposal Pengabdian
                     </h3>
-                    <p class="text-muted mb-4">Proposal yang sudah direview lengkap oleh 2 reviewer</p>
-
-                    @if(session('success'))
-                        <div class="modern-alert modern-alert-success">
-                            <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
-                        </div>
-                    @endif
-
-                    @if(session('error'))
-                        <div class="modern-alert modern-alert-danger">
-                            <i class="fa fa-exclamation-circle me-2"></i>{{ session('error') }}
-                        </div>
-                    @endif
-
-                    @if (!$timeline)
-                        <div class="modern-alert modern-alert-danger">
-                            <i class="fa fa-exclamation-circle me-2"></i>Tidak ada jadwal penyetujuan admin.
-                        </div>
-                    @elseif (!$timeline->admin_decision_start_date || !$timeline->admin_decision_end_date)
-                        <div class="modern-alert modern-alert-warning">
-                            <i class="fa fa-exclamation-triangle me-2"></i>Periode penyetujuan admin belum ditentukan.
-                        </div>
-                    @elseif ($currentDate < $timeline->admin_decision_start_date)
-                        <div class="modern-alert modern-alert-warning">
-                            <i class="fa fa-clock me-2"></i>Periode penyetujuan admin akan dimulai pada <strong>{{ $timeline->admin_decision_start_date->format('d F Y H:i') }}</strong>.
-                        </div>
-                    @elseif ($currentDate > $timeline->admin_decision_end_date)
-                        <div class="modern-alert modern-alert-danger">
-                            <i class="fa fa-times-circle me-2"></i>Periode penyetujuan admin telah berakhir pada <strong>{{ $timeline->admin_decision_end_date->format('d F Y H:i') }}</strong>.
-                        </div>
-                    @else
-                        <div class="modern-alert modern-alert-info">
-                            <i class="fa fa-info-circle me-2"></i>Periode penyetujuan admin sedang berlangsung. Akan berakhir pada <strong>{{ $timeline->admin_decision_end_date->format('d F Y H:i') }}</strong>.
-                        </div>
-                    @endif
+                    <p class="text-muted mb-4">Proposal pengabdian yang telah diajukan ulang dan sedang/telah ditinjau ulang oleh reviewer.</p>
 
                     <form method="GET" class="modern-card p-3 mb-3 filter-card">
                         <div class="row g-3 align-items-end">
@@ -72,10 +38,10 @@
                             </div>
                             <div class="col-md-2">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Status</label>
-                                <select name="admin_status" class="modern-form-select">
+                                <select name="status" class="modern-form-select">
                                     <option value="">Semua Status</option>
-                                    @foreach($adminStatuses as $key => $label)
-                                        <option value="{{ $key }}" @selected(($filters['admin_status'] ?? '') === $key)>{{ $label }}</option>
+                                    @foreach($statuses as $statusOption)
+                                        <option value="{{ $statusOption }}" @selected(($filters['status'] ?? '') === $statusOption)>{{ $statusOption }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -83,7 +49,7 @@
                                 <button type="submit" class="modern-btn modern-btn-primary w-100">
                                     <i class="fa fa-filter me-1"></i> Terapkan
                                 </button>
-                                <a href="{{ route('pengabdian-adm.index') }}" class="modern-btn modern-btn-outline w-100">
+                                <a href="{{ route('pengabdian-adm.revisi.index') }}" class="modern-btn modern-btn-outline w-100">
                                     Reset
                                 </a>
                             </div>
@@ -92,7 +58,7 @@
 
                     @if ($proposals->count() === 0)
                         <div class="modern-alert modern-alert-info">
-                            <i class="fa fa-info-circle me-2"></i>Tidak ada proposal pengabdian yang sudah direview lengkap.
+                            <i class="fa fa-info-circle me-2"></i>Tidak ada proposal revisi yang memenuhi kriteria filter.
                         </div>
                     @else
                         <div class="modern-table-container mb-4">
@@ -103,14 +69,19 @@
                                         <th class="col-judul">Judul</th>
                                         <th class="col-skema">Skema</th>
                                         <th>Tahun</th>
-             
                                         <th>Status</th>
-                          
-                                        <th>Aksi</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($proposals as $proposal)
+                                        @php
+                                            $statusClass = match($proposal->status) {
+                                                'Selesai' => 'selesai',
+                                                'Diproses' => 'diproses',
+                                                default => 'pending',
+                                            };
+                                        @endphp
                                         <tr>
                                             <td class="col-no text-center">{{ $proposals->firstItem() + $loop->index }}</td>
                                             <td class="col-judul">
@@ -118,35 +89,18 @@
                                                 <small class="text-muted">Oleh: {{ $proposal->user->name ?? '-' }}</small>
                                             </td>
                                             <td class="col-skema">
-                                                <span class="status-badge skema">{{ $proposal->skema }}</span>
+                                                <span class="status-badge skema">{{ $proposal->skema ?? '-' }}</span>
                                             </td>
-                                            <td>{{ $proposal->created_at->year }}</td>
+                                            <td>{{ $proposal->created_at?->format('Y') ?? '-' }}</td>
                                             <td>
-                                                @if($proposal->admin_status === 'approved')
-                                                    <span class="status-badge selesai">
-                                                        <i class="fa fa-check-circle me-1"></i>Disetujui
-                                                    </span>
-                                                @elseif($proposal->admin_status === 'rejected')
-                                                    <span class="status-badge ditolak">
-                                                        <i class="fa fa-times-circle me-1"></i>Ditolak
-                                                    </span>
-                                                @else
-                                                    <span class="status-badge pending">
-                                                        <i class="fa fa-clock me-1"></i>Pending
-                                                    </span>
-                                                @endif
+                                                <span class="status-badge {{ $statusClass }}">
+                                                    {{ $proposal->status ?? 'Pending' }}
+                                                </span>
                                             </td>
-                                    
-                                            <td>
-                                                @if($proposal->admin_status)
-                                                    <a href="{{ route('pengabdian-adm.show', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
-                                                        <i class="fa fa-edit me-1"></i> Edit
-                                                    </a>
-                                                @else
-                                                    <a href="{{ route('pengabdian-adm.show', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
-                                                        <i class="fa fa-eye me-1"></i> Inspect
-                                                    </a>
-                                                @endif
+                                            <td class="text-center">
+                                                <a href="{{ route('pengabdian-adm.revisi.show', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
+                                                    <i class="fa fa-eye me-1"></i> Detail
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -270,3 +224,4 @@
         box-shadow: none;
     }
 </style>
+

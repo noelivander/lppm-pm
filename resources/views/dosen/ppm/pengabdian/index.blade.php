@@ -124,7 +124,8 @@
                                                 <span class="status-badge
                                                     @if ($item->status === 'Pending') pending
                                                     @elseif ($item->status === 'Diproses') diproses
-                                                    @elseif ($item->status === 'Selesai') selesai
+                                                    @elseif ($item->status === 'Disetujui') selesai
+                                                    @elseif ($item->status === 'Ditolak') ditolak
                                                     @endif">
                                                     {{ $item->status }}
                                                 </span>

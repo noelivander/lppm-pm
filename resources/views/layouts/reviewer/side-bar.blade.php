@@ -1,7 +1,7 @@
 <!-- Sidebar -->
 <style>
     :root { --sb-bg:#21163d; --sb-bg2:#352467; --sb-accent:#7c3aed; --sb-accent-2:#8b5cf6; --sb-text:#e5e7eb; --sb-text-dim:#9ca3af; --sb-active:#7c3aed; }
-    .sidebar.sidebar-modern { background: linear-gradient(180deg, var(--sb-bg) 0%, var(--sb-bg2) 100%); color: var(--sb-text); padding: 0.7rem 0.85rem 0.5rem; width: var(--sidebar-width-full, 280px); box-shadow: inset 0 0 0 1px rgba(124,58,237,0.15), 0 8px 30px rgba(2,6,23,.35); border-right: 1px solid rgba(124,58,237,0.18); position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; z-index: 1035; transition: transform .28s ease, box-shadow .28s ease, width .28s ease; }
+    .sidebar.sidebar-modern { background: linear-gradient(180deg, var(--sb-bg) 0%, var(--sb-bg2) 100%); color: var(--sb-text); padding: 0.7rem 0.85rem 0.5rem; width: var(--sidebar-width-full, 280px); box-shadow: inset 0 0 0 1px rgba(124,58,237,0.15); border-right: 1px solid rgba(124,58,237,0.18); border-top-right-radius: 16px; border-bottom-right-radius: 16px; position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; z-index: 1035; transition: transform .28s ease, box-shadow .28s ease, width .28s ease; }
     .sidebar.sidebar-modern::-webkit-scrollbar { width: 0; height: 0; }
     .sidebar.sidebar-modern .sidebar-brand { padding: .85rem .75rem; margin: .25rem .25rem 0.75rem; border-radius: 14px; background: radial-gradient(120% 120% at 0% 0%, rgba(124,58,237,.22) 0%, rgba(139,92,246,.18) 42%, rgba(255,255,255,0.04) 100%); color: var(--sb-text); box-shadow: 0 4px 16px rgba(2,6,23,.25) inset, 0 6px 22px rgba(2,6,23,.35); position: relative; }
     .sidebar.sidebar-modern .sidebar-brand-icon { flex-shrink: 0; }
@@ -85,8 +85,8 @@
     <!-- Nav Item - Dashboard -->
     @php
         $isReviewerDashboard = request()->routeIs('reviewer.dashboard');
-        $penelitianMenuActive = request()->routeIs('penelitian-rev.index');
-        $pengabdianMenuActive = request()->routeIs('pengabdian-rev.index');
+        $penelitianMenuActive = request()->routeIs('penelitian-rev.*');
+        $pengabdianMenuActive = request()->routeIs('pengabdian-rev.*');
     @endphp
     <li class="nav-item {{ $isReviewerDashboard ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('reviewer.dashboard') }}">
@@ -106,7 +106,7 @@
         <div id="collapsePenelitianReviewer" class="collapse {{ $penelitianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('penelitian-rev.index')" href="{{ route('penelitian-rev.index') }}">Daftar Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item @isroute('penelitian-rev.revisi.index')" href="{{ route('penelitian-rev.revisi.index') }}">Revisi Proposal</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
@@ -124,7 +124,7 @@
         <div id="collapsePengabdianReviewer" class="collapse {{ $pengabdianMenuActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('pengabdian-rev.index')" href="{{ route('pengabdian-rev.index') }}">Daftar Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Revisi Proposal</a>
+                <a class="collapse-item @isroute('pengabdian-rev.revisi.index')" href="{{ route('pengabdian-rev.revisi.index') }}">Revisi Proposal</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>

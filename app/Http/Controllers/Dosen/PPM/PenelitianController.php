@@ -25,7 +25,8 @@ class PenelitianController extends Controller
         $timeline = $this->getActiveTimeline();
 
         $baseQuery = Penelitian::where('user_id', Auth::id())
-            ->where('is_draft', false);
+            ->where('is_draft', false)
+            ->where('is_revised', false);
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -38,7 +39,7 @@ class PenelitianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        $statuses = ['Pending', 'Diproses', 'Selesai'];
+        $statuses = ['Pending', 'Diproses', 'Disetujui', 'Ditolak'];
 
         if ($search = $request->get('search')) {
             $baseQuery->where('judul', 'like', '%' . $search . '%');
@@ -81,6 +82,330 @@ class PenelitianController extends Controller
         ));
     }
 
+    public function revisiIndex(Request $request)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $baseQuery = Penelitian::with(['revisionChild' => function ($query) {
+                $query->where('user_id', Auth::id());
+            }])
+            ->where('user_id', Auth::id())
+            ->where('is_draft', false)
+            ->where('is_revised', false)
+            ->where('status', 'Disetujui');
+
+        $filterSkemas = (clone $baseQuery)->select('skema')
+            ->whereNotNull('skema')
+            ->distinct()
+            ->orderBy('skema')
+            ->pluck('skema');
+
+        $filterYears = (clone $baseQuery)->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        // Status khusus tampilan revisi: Pending (belum/masih diproses) dan Selesai
+        $statuses = ['Pending', 'Selesai'];
+
+        $filters = [
+            'search' => $request->get('search'),
+            'skema' => $request->get('skema'),
+            'year' => $request->get('year'),
+            'status' => $request->get('status'),
+        ];
+
+        if ($filters['search']) {
+            $baseQuery->where('judul', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if ($filters['skema']) {
+            $baseQuery->where('skema', $filters['skema']);
+        }
+
+        if ($filters['year']) {
+            $baseQuery->whereYear('created_at', $filters['year']);
+        }
+
+        if ($filters['status']) {
+            if ($filters['status'] === 'Pending') {
+                $baseQuery->whereDoesntHave('revisionChild');
+            } else {
+                $baseQuery->whereHas('revisionChild', function ($query) use ($filters) {
+                    $query->where('status', $filters['status']);
+                });
+            }
+        }
+
+        $proposals = $baseQuery->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('dosen.ppm.penelitian.revisi.index', [
+            'proposals' => $proposals,
+            'timeline' => $timeline,
+            'currentDate' => $currentDate,
+            'filterSkemas' => $filterSkemas,
+            'filterYears' => $filterYears,
+            'statuses' => $statuses,
+            'filters' => $filters,
+        ]);
+    }
+
+    public function revisiCreate($id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $originalProposal = Penelitian::with(['anggota', 'rab', 'reviews.reviewer'])
+            ->where('user_id', Auth::id())
+            ->where('is_draft', false)
+            ->where('is_revised', false)
+            ->where('status', 'Disetujui')
+            ->findOrFail($id);
+
+        $revisionOpen = $timeline
+            && $timeline->revision_start_date
+            && $timeline->revision_end_date
+            && $currentDate >= $timeline->revision_start_date
+            && $currentDate <= $timeline->revision_end_date;
+
+        $skemaPenelitian = Skema::where('jenis', 'penelitian')->where('is_shown', 1)->get();
+        $luaranWajibPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
+        $luaranTambahanPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+        $kelompokRab = \App\Models\KelompokRab::where('is_active', true)->orderBy('nama')->get();
+        $komponenRab = \App\Models\KomponenRab::with('satuan')->where('is_active', true)->orderBy('nama')->get();
+        $satuanRab = \App\Models\SatuanRab::where('is_active', true)->orderBy('nama')->get();
+
+        $existingRevision = Penelitian::with(['anggota', 'rab'])
+            ->where('user_id', Auth::id())
+            ->where('is_revised', true)
+            ->where('revised_from_id', $originalProposal->id)
+            ->first();
+
+        $proposal = $existingRevision ?? $originalProposal;
+        $reviews = $originalProposal->reviews;
+
+        return view('dosen.ppm.penelitian.revisi.form', [
+            'proposal' => $proposal,
+            'originalProposal' => $originalProposal,
+            'isEditingRevision' => (bool) $existingRevision,
+            'timeline' => $timeline,
+            'currentDate' => $currentDate,
+            'skemaPenelitian' => $skemaPenelitian,
+            'luaranWajibPenelitian' => $luaranWajibPenelitian,
+            'luaranTambahanPenelitian' => $luaranTambahanPenelitian,
+            'kelompokRab' => $kelompokRab,
+            'komponenRab' => $komponenRab,
+            'satuanRab' => $satuanRab,
+            'reviews' => $reviews,
+            'revisionOpen' => $revisionOpen,
+        ]);
+    }
+
+    public function revisiStore(Request $request, $id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        $proposal = Penelitian::where('user_id', Auth::id())
+            ->where('is_draft', false)
+            ->where('is_revised', false)
+            ->where('status', 'Disetujui')
+            ->findOrFail($id);
+
+        $existingRevision = Penelitian::where('user_id', Auth::id())
+            ->where('is_revised', true)
+            ->where('revised_from_id', $proposal->id)
+            ->first();
+
+        if (
+            !$timeline ||
+            !$timeline->revision_start_date ||
+            !$timeline->revision_end_date ||
+            $currentDate < $timeline->revision_start_date ||
+            $currentDate > $timeline->revision_end_date
+        ) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Periode revisi belum dibuka atau sudah ditutup.');
+        }
+
+        $validationRules = [
+            'judul' => 'required|string|max:255',
+            'luaran_wajib' => 'required|string',
+            'lama_penelitian' => 'required|string',
+            'biaya_diusulkan' => 'required|string',
+            'skema' => 'required|string',
+            'luaran_tambahan' => 'nullable|string',
+            'ringkasan_proposal' => 'required|string',
+            'dokumen_proposal' => ($existingRevision ? 'nullable' : 'required') . '|mimes:pdf|max:10000',
+            'sinta_index' => 'nullable|string',
+            'anggota_nama' => 'required|array|min:1',
+            'anggota_nama.*' => 'required|string',
+            'anggota_peran' => 'required|array|min:1',
+            'anggota_peran.*' => 'required|string|in:Ketua,Anggota',
+            'anggota_nidn' => 'required|array|min:1',
+            'anggota_nidn.*' => 'required|string',
+            'anggota_jabatan' => 'required|array|min:1',
+            'anggota_jabatan.*' => 'required|string|in:Dosen,Mahasiswa',
+            'anggota_email' => 'required|array|min:1',
+            'anggota_email.*' => 'required|email',
+            'anggota_telepon' => 'required|array|min:1',
+            'anggota_telepon.*' => 'required|string',
+            'rab_kelompok' => 'required|array|min:1',
+            'rab_kelompok.*' => 'required|string|in:Honorarium,Perjalanan,Operasional,Peralatan,Lainnya',
+            'rab_komponen' => 'required|array|min:1',
+            'rab_komponen.*' => 'required|string|in:SDM,Material,Jasa,Transportasi,Lainnya',
+            'rab_item' => 'required|array|min:1',
+            'rab_item.*' => 'required|string|max:255',
+            'rab_satuan' => 'required|array|min:1',
+            'rab_satuan.*' => 'required|string|max:50',
+            'rab_volume' => 'required|array|min:1',
+            'rab_volume.*' => 'required|integer|min:1',
+            'rab_harga_satuan' => 'required|array|min:1',
+            'rab_harga_satuan.*' => 'required|numeric|min:0',
+            'rab_total' => 'required|array|min:1',
+            'rab_total.*' => 'required|numeric|min:0',
+            'rab_total_anggaran' => 'nullable|numeric|min:0',
+        ];
+
+        $validatedData = $request->validate($validationRules, [
+            'rab_kelompok.required' => 'Minimal satu baris RAB harus diisi.',
+            'rab_kelompok.*.required' => 'Kelompok RAB harus dipilih.',
+            'rab_komponen.*.required' => 'Komponen RAB harus dipilih.',
+            'rab_item.*.required' => 'Item RAB harus diisi.',
+            'rab_volume.*.required' => 'Volume RAB harus diisi.',
+            'rab_volume.*.integer' => 'Volume harus berupa angka.',
+            'rab_volume.*.min' => 'Volume minimal 1.',
+            'rab_harga_satuan.*.required' => 'Harga satuan RAB harus diisi.',
+            'rab_harga_satuan.*.numeric' => 'Harga satuan harus berupa angka.',
+            'rab_harga_satuan.*.min' => 'Harga satuan minimal 0.',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $dokumenProposalPath = $existingRevision ? $existingRevision->dokumen_proposal : null;
+
+            if ($request->hasFile('dokumen_proposal')) {
+                $dokumenProposalPath = $request->file('dokumen_proposal')->store('public/proposals');
+                if ($existingRevision && $existingRevision->dokumen_proposal) {
+                    Storage::delete($existingRevision->dokumen_proposal);
+                }
+            } elseif (!$dokumenProposalPath) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Dokumen proposal revisi wajib diunggah.');
+            }
+
+            if ($existingRevision) {
+                $existingRevision->update([
+                    'judul' => $request->judul,
+                    'luaran_wajib' => $request->luaran_wajib,
+                    'sinta_index' => $request->sinta_index,
+                    'lama_penelitian' => $request->lama_penelitian,
+                    'biaya_diusulkan' => !empty($request->biaya_diusulkan) ? $request->biaya_diusulkan : null,
+                    'skema' => $request->skema,
+                    'luaran_tambahan' => $request->luaran_tambahan,
+                    'ringkasan_proposal' => $request->ringkasan_proposal,
+                    'dokumen_proposal' => $dokumenProposalPath,
+                    'status' => 'Diproses',
+                    'admin_status' => null,
+                    'admin_comment' => null,
+                ]);
+
+                Anggota::where('penelitian_id', $existingRevision->id)->delete();
+                RabPenelitian::where('penelitian_id', $existingRevision->id)->delete();
+                $targetPenelitian = $existingRevision;
+            } else {
+                $targetPenelitian = Penelitian::create([
+                    'judul' => $request->judul,
+                    'luaran_wajib' => $request->luaran_wajib,
+                    'sinta_index' => $request->sinta_index,
+                    'lama_penelitian' => $request->lama_penelitian,
+                    'biaya_diusulkan' => !empty($request->biaya_diusulkan) ? $request->biaya_diusulkan : null,
+                    'skema' => $request->skema,
+                    'luaran_tambahan' => $request->luaran_tambahan,
+                    'ringkasan_proposal' => $request->ringkasan_proposal,
+                    'dokumen_proposal' => $dokumenProposalPath,
+                    'is_draft' => false,
+                    'is_revised' => true,
+                    'revised_from_id' => $proposal->id,
+                    'status' => 'Diproses',
+                    'user_id' => Auth::id(),
+                    'admin_status' => null,
+                    'admin_comment' => null,
+                ]);
+            }
+
+            foreach ($request->anggota_nama as $key => $nama) {
+                if (empty($nama)) {
+                    continue;
+                }
+
+                Anggota::create([
+                    'penelitian_id' => $targetPenelitian->id,
+                    'nama' => $nama,
+                    'jabatan' => $request->anggota_jabatan[$key] ?? null,
+                    'peran' => $request->anggota_peran[$key] ?? 'Anggota',
+                    'nidn' => $request->anggota_nidn[$key] ?? null,
+                    'email' => $request->anggota_email[$key] ?? null,
+                    'telepon' => $request->anggota_telepon[$key] ?? null,
+                ]);
+            }
+
+            foreach ($request->rab_kelompok as $key => $kelompok) {
+                if (empty($kelompok)) {
+                    continue;
+                }
+
+                $volume = (int) ($request->rab_volume[$key] ?? 0);
+                $hargaSatuan = (float) ($request->rab_harga_satuan[$key] ?? 0);
+                $total = (float) ($request->rab_total[$key] ?? 0);
+
+                $calculatedTotal = $volume * $hargaSatuan;
+                if (abs($calculatedTotal - $total) > 0.01) {
+                    Log::warning('RAB total mismatch during revision', [
+                        'key' => $key,
+                        'calculated' => $calculatedTotal,
+                        'submitted' => $total,
+                        'penelitian_id' => $penelitianBaru->id,
+                    ]);
+                    $total = $calculatedTotal;
+                }
+
+                RabPenelitian::create([
+                    'penelitian_id' => $targetPenelitian->id,
+                    'kelompok' => $kelompok,
+                    'komponen' => $request->rab_komponen[$key] ?? null,
+                    'item' => $request->rab_item[$key] ?? null,
+                    'satuan' => $request->rab_satuan[$key] ?? null,
+                    'volume' => $volume > 0 ? $volume : null,
+                    'harga_satuan' => $hargaSatuan > 0 ? $hargaSatuan : null,
+                    'total' => $total > 0 ? $total : null,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('penelitian-dos.revisi.index')
+                ->with('success', $existingRevision ? 'Perubahan revisi berhasil disimpan.' : 'Revisi proposal berhasil dikirim. Proposal akan diproses kembali.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error storing penelitian revision', [
+                'message' => $e->getMessage(),
+                'user_id' => Auth::id(),
+                'original_id' => $proposal->id,
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan revisi. Silakan coba lagi.');
+        }
+    }
+
     public function create()
     {
         $currentDate = now();
@@ -112,6 +437,19 @@ class PenelitianController extends Controller
             'satuanRab',
             'draft'
         ));
+    }
+
+    public function show($id)
+    {
+        $penelitian = Penelitian::with(['anggota', 'rab'])
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
+
+        return view('dosen.ppm.penelitian.show', [
+            'penelitian' => $penelitian,
+            'timeline' => $this->getActiveTimeline(),
+            'currentDate' => now(),
+        ]);
     }
 
     public function viewReviews($penelitian_id, $review_number)
@@ -299,6 +637,7 @@ class PenelitianController extends Controller
                     'luaran_tambahan' => $request->luaran_tambahan ?? null,
                     'ringkasan_proposal' => $request->ringkasan_proposal ?? null,
                     'is_draft' => $isDraft,
+                    'is_revised' => false,
                     'user_id' => Auth::id(),
                 ];
                 
