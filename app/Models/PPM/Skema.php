@@ -14,7 +14,8 @@ class Skema extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'kode', 'nama', 'perihal', 'is_research', 'jenis_skema_id', 'jenis', 'is_shown'
+        'kode', 'nama', 'perihal', 'is_research', 'jenis_skema_id', 'jenis', 'is_shown',
+        'template_laporan_kemajuan', 'template_laporan_keuangan_tahap_1'
     ];
 
     public function jenis_skema() {

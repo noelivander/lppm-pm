@@ -130,7 +130,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form method="POST" action="{{ route('skema.store') }}">
+                <form method="POST" action="{{ route('skema.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body modern-card-body">
                         <div class="modern-form-group">
@@ -204,6 +204,24 @@
                                 </div>
                             </div>
                         </div>
+
+                        <hr class="my-3">
+
+                        <div class="modern-form-group">
+                            <label for="template_laporan_kemajuan" class="modern-form-label">
+                                <i class="fa fa-file-word me-2"></i>Template Laporan Kemajuan
+                            </label>
+                            <input type="file" name="template_laporan_kemajuan" id="template_laporan_kemajuan" class="modern-form-input" accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal 10MB</small>
+                        </div>
+
+                        <div class="modern-form-group">
+                            <label for="template_laporan_keuangan_tahap_1" class="modern-form-label">
+                                <i class="fa fa-file-pdf me-2"></i>Template Laporan Keuangan Tahap 1
+                            </label>
+                            <input type="file" name="template_laporan_keuangan_tahap_1" id="template_laporan_keuangan_tahap_1" class="modern-form-input" accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal 10MB</small>
+                        </div>
                     </div>
                     <div class="modal-footer modern-card-footer">
                         <button type="button" class="modern-btn modern-btn-secondary" data-bs-dismiss="modal">
@@ -228,7 +246,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="editSkemaForm" method="POST">
+                <form id="editSkemaForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="modal-body modern-card-body">
@@ -302,6 +320,26 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="modern-form-group">
+                            <label for="edit_template_laporan_kemajuan" class="modern-form-label">
+                                <i class="fa fa-file-word me-2"></i>Template Laporan Kemajuan
+                            </label>
+                            <input type="file" name="template_laporan_kemajuan" id="edit_template_laporan_kemajuan" class="modern-form-input" accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal 10MB</small>
+                            <div id="current_template_laporan_kemajuan" class="mt-2"></div>
+                        </div>
+
+                        <div class="modern-form-group">
+                            <label for="edit_template_laporan_keuangan_tahap_1" class="modern-form-label">
+                                <i class="fa fa-file-pdf me-2"></i>Template Laporan Keuangan Tahap 1
+                            </label>
+                            <input type="file" name="template_laporan_keuangan_tahap_1" id="edit_template_laporan_keuangan_tahap_1" class="modern-form-input" accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal 10MB</small>
+                            <div id="current_template_laporan_keuangan_tahap_1" class="mt-2"></div>
                         </div>
                     </div>
                     <div class="modal-footer modern-card-footer">
@@ -379,6 +417,45 @@
                         document.getElementById('edit_jenis_skema_id').value = data.skema.jenis_skema_id;
                         document.getElementById('edit_is_research').checked = data.skema.is_research == 1;
                         document.getElementById('edit_is_shown').checked = data.skema.is_shown == 1;
+                        
+                        // Show current template files if they exist
+                        const currentTemplateKemajuan = document.getElementById('current_template_laporan_kemajuan');
+                        const currentTemplateKeuangan = document.getElementById('current_template_laporan_keuangan_tahap_1');
+                        const storageUrl = '{{ asset("storage") }}';
+                        
+                        if (data.skema.template_laporan_kemajuan) {
+                            const fileName = data.skema.template_laporan_kemajuan.split('/').pop();
+                            const fileUrl = storageUrl + '/' + data.skema.template_laporan_kemajuan;
+                            currentTemplateKemajuan.innerHTML = `
+                                <div class="alert alert-info py-2 px-3 mb-0">
+                                    <i class="fa fa-file me-2"></i>
+                                    <strong>File saat ini:</strong> 
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none">
+                                        ${fileName}
+                                    </a>
+                                    <small class="d-block text-muted mt-1">Unggah file baru untuk mengganti</small>
+                                </div>
+                            `;
+                        } else {
+                            currentTemplateKemajuan.innerHTML = '';
+                        }
+                        
+                        if (data.skema.template_laporan_keuangan_tahap_1) {
+                            const fileName = data.skema.template_laporan_keuangan_tahap_1.split('/').pop();
+                            const fileUrl = storageUrl + '/' + data.skema.template_laporan_keuangan_tahap_1;
+                            currentTemplateKeuangan.innerHTML = `
+                                <div class="alert alert-info py-2 px-3 mb-0">
+                                    <i class="fa fa-file me-2"></i>
+                                    <strong>File saat ini:</strong> 
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none">
+                                        ${fileName}
+                                    </a>
+                                    <small class="d-block text-muted mt-1">Unggah file baru untuk mengganti</small>
+                                </div>
+                            `;
+                        } else {
+                            currentTemplateKeuangan.innerHTML = '';
+                        }
                         
                         // Set form action
                         document.getElementById('editSkemaForm').action = `{{ url('/administrator/skema') }}/${id}`;

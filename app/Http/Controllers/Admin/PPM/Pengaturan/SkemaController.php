@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\PPM\Pengaturan;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\PPM\Skema;
 use App\Models\PPM\JenisSkema;
@@ -47,10 +48,12 @@ class SkemaController extends Controller
             'jenis' => 'required|in:penelitian,pengabdian',
             'jenis_skema_id' => 'required|exists:ppm_jenis_skema,id',
             'is_research' => 'boolean',
-            'is_shown' => 'boolean'
+            'is_shown' => 'boolean',
+            'template_laporan_kemajuan' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
+            'template_laporan_keuangan_tahap_1' => 'nullable|file|mimes:doc,docx,pdf|max:10240'
         ]);
 
-        Skema::create([
+        $data = [
             'kode' => $request->kode,
             'nama' => $request->nama,
             'perihal' => $request->perihal,
@@ -58,7 +61,25 @@ class SkemaController extends Controller
             'jenis_skema_id' => $request->jenis_skema_id,
             'is_research' => $request->has('is_research') ? 1 : 0,
             'is_shown' => $request->has('is_shown') ? 1 : 0
-        ]);
+        ];
+
+        // Handle template laporan kemajuan upload
+        if ($request->hasFile('template_laporan_kemajuan')) {
+            $file = $request->file('template_laporan_kemajuan');
+            $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $path = $file->storeAs('templates/skema', $fileName, 'public');
+            $data['template_laporan_kemajuan'] = $path;
+        }
+
+        // Handle template laporan keuangan tahap 1 upload
+        if ($request->hasFile('template_laporan_keuangan_tahap_1')) {
+            $file = $request->file('template_laporan_keuangan_tahap_1');
+            $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $path = $file->storeAs('templates/skema', $fileName, 'public');
+            $data['template_laporan_keuangan_tahap_1'] = $path;
+        }
+
+        Skema::create($data);
 
         return redirect()->route('skema.index')->with('success', 'Skema berhasil ditambahkan!');
     }
@@ -115,11 +136,14 @@ class SkemaController extends Controller
                 'jenis' => 'required|in:penelitian,pengabdian',
                 'jenis_skema_id' => 'required|exists:ppm_jenis_skema,id',
                 'is_research' => 'boolean',
-                'is_shown' => 'boolean'
+                'is_shown' => 'boolean',
+                'template_laporan_kemajuan' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
+                'template_laporan_keuangan_tahap_1' => 'nullable|file|mimes:doc,docx,pdf|max:10240'
             ]);
 
             $skema = Skema::findOrFail($id);
-            $skema->update([
+            
+            $data = [
                 'kode' => $request->kode,
                 'nama' => $request->nama,
                 'perihal' => $request->perihal,
@@ -127,7 +151,35 @@ class SkemaController extends Controller
                 'jenis_skema_id' => $request->jenis_skema_id,
                 'is_research' => $request->has('is_research') ? 1 : 0,
                 'is_shown' => $request->has('is_shown') ? 1 : 0
-            ]);
+            ];
+
+            // Handle template laporan kemajuan upload
+            if ($request->hasFile('template_laporan_kemajuan')) {
+                // Delete old file if exists
+                if ($skema->template_laporan_kemajuan && Storage::disk('public')->exists($skema->template_laporan_kemajuan)) {
+                    Storage::disk('public')->delete($skema->template_laporan_kemajuan);
+                }
+                
+                $file = $request->file('template_laporan_kemajuan');
+                $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $path = $file->storeAs('templates/skema', $fileName, 'public');
+                $data['template_laporan_kemajuan'] = $path;
+            }
+
+            // Handle template laporan keuangan tahap 1 upload
+            if ($request->hasFile('template_laporan_keuangan_tahap_1')) {
+                // Delete old file if exists
+                if ($skema->template_laporan_keuangan_tahap_1 && Storage::disk('public')->exists($skema->template_laporan_keuangan_tahap_1)) {
+                    Storage::disk('public')->delete($skema->template_laporan_keuangan_tahap_1);
+                }
+                
+                $file = $request->file('template_laporan_keuangan_tahap_1');
+                $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $path = $file->storeAs('templates/skema', $fileName, 'public');
+                $data['template_laporan_keuangan_tahap_1'] = $path;
+            }
+
+            $skema->update($data);
 
             return redirect()->route('skema.index')->with('success', 'Skema berhasil diperbarui!');
         } catch (\Illuminate\Validation\ValidationException $e) {
