@@ -16,6 +16,7 @@ class FormPenilaianLaporanKemajuan extends Model
         'kategori',
         'komponen_penilaian',
         'urutan',
+        'is_active',
     ];
 
     public function subKomponen()

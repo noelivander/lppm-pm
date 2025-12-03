@@ -4,21 +4,21 @@
     </x-slot>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #10b981;">
+        <div class="modern-alert modern-alert-success alert-dismissible fade show" role="alert">
             <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
+        <div class="modern-alert modern-alert-danger alert-dismissible fade show" role="alert">
             <i class="fa fa-exclamation-circle me-2"></i>{{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
     @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show modern-card" role="alert" style="margin-bottom: 1.5rem; border-left: 4px solid #ef4444;">
+        <div class="modern-alert modern-alert-danger alert-dismissible fade show" role="alert">
             <i class="fa fa-exclamation-circle me-2"></i>
             <ul class="mb-0">
                 @foreach($errors->all() as $error)
@@ -68,6 +68,7 @@
                                         <tr>
                                             <th>No.</th>
                                             <th>Komponen Penilaian</th>
+                                            <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -76,6 +77,17 @@
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
                                                 <td><strong>{{ $form->komponen_penilaian }}</strong></td>
+                                                <td>
+                                                    @if($form->is_active)
+                                                        <span class="status-badge selesai">
+                                                            <i class="fa fa-check-circle me-1"></i>Aktif
+                                                        </span>
+                                                    @else
+                                                        <span class="status-badge pending">
+                                                            <i class="fa fa-times-circle me-1"></i>Nonaktif
+                                                        </span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <div class="d-flex gap-2">
                                                         <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" onclick="editForm({{ $form->id }})" title="Edit">
@@ -89,7 +101,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="3" class="text-center py-4">
+                                                <td colspan="4" class="text-center py-4">
                                                     <div class="text-muted">
                                                         <i class="fa fa-inbox fa-2x mb-2"></i>
                                                         <p>Belum ada komponen penilaian untuk penelitian</p>
@@ -119,6 +131,7 @@
                                             <th>Komponen Penilaian</th>
                                             <th>Sub Komponen</th>
                                             <th>Nilai</th>
+                                            <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -152,6 +165,17 @@
                                                                 <strong class="text-primary">{{ number_format($totalNilai, 2) }}</strong>
                                                             </td>
                                                             <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
+                                                                @if($form->is_active)
+                                                                    <span class="status-badge selesai">
+                                                                        <i class="fa fa-check-circle me-1"></i>Aktif
+                                                                    </span>
+                                                                @else
+                                                                    <span class="status-badge pending">
+                                                                        <i class="fa fa-times-circle me-1"></i>Nonaktif
+                                                                    </span>
+                                                                @endif
+                                                            </td>
+                                                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
                                                                 <div class="d-flex gap-2">
                                                                     <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" onclick="editForm({{ $form->id }})" title="Edit">
                                                                         <i class="fa fa-edit me-1"></i> Ubah
@@ -172,6 +196,17 @@
                                                     <td class="text-muted">-</td>
                                                     <td class="text-muted">-</td>
                                                     <td>
+                                                        @if($form->is_active)
+                                                            <span class="status-badge selesai">
+                                                                <i class="fa fa-check-circle me-1"></i>Aktif
+                                                            </span>
+                                                        @else
+                                                            <span class="status-badge pending">
+                                                                <i class="fa fa-times-circle me-1"></i>Nonaktif
+                                                            </span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
                                                         <div class="d-flex gap-2">
                                                             <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" onclick="editForm({{ $form->id }})" title="Edit">
                                                                 <i class="fa fa-edit me-1"></i> Ubah
@@ -185,7 +220,7 @@
                                             @endif
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="text-center py-4">
+                                                <td colspan="7" class="text-center py-4">
                                                     <div class="text-muted">
                                                         <i class="fa fa-inbox fa-2x mb-2"></i>
                                                         <p>Belum ada komponen penilaian untuk pengabdian</p>
@@ -240,6 +275,15 @@
                             <input type="number" name="urutan" id="urutan" class="modern-form-input" placeholder="Urutan (opsional)" min="0">
                         </div>
 
+                        <div class="modern-form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" checked>
+                                <label class="form-check-label" for="is_active">
+                                    <i class="fa fa-check-circle me-2"></i>Aktif
+                                </label>
+                            </div>
+                        </div>
+
                         <!-- Sub Komponen Section (only for pengabdian) -->
                         <div id="subKomponenSection" style="display: none;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -266,6 +310,39 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteFormModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content modern-card">
+                <div class="modal-header modern-card-header">
+                    <h5 class="modal-title mb-0">
+                        <i class="fa fa-exclamation-triangle me-2 text-warning"></i>Konfirmasi Hapus
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body modern-card-body">
+                    <div class="text-center">
+                        <i class="fa fa-trash fa-3x text-danger mb-3"></i>
+                        <h6>Apakah Anda yakin ingin menghapus komponen penilaian ini?</h6>
+                        <p class="text-muted">Tindakan ini tidak dapat dibatalkan dan akan menghapus komponen penilaian secara permanen.</p>
+                    </div>
+                </div>
+                <div class="modal-footer modern-card-footer">
+                    <button type="button" class="modern-btn modern-btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa fa-times me-1"></i> Batal
+                    </button>
+                    <form id="deleteFormForm" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" id="deleteFormBtn" class="modern-btn modern-btn-danger" onclick="confirmDeleteForm()">
+                            <i class="fa fa-trash me-1"></i> Hapus Komponen
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <x-slot name="scripts">
     <script>
         let currentJenis = 'penelitian';
@@ -281,6 +358,7 @@
             // Reset form
             document.getElementById('formPenilaianForm').reset();
             document.getElementById('subKomponenContainer').innerHTML = '';
+            document.getElementById('is_active').checked = true; // Default checked
             subKomponenIndex = 0;
             
             // Show/hide kategori and sub komponen section
@@ -340,20 +418,43 @@
         }
 
         function editForm(id) {
-            fetch(`{{ url('admin/form-penilaian-laporan-kemajuan') }}/${id}/edit`)
-                .then(response => response.json())
+            const editBtn = event.target.closest('button');
+            const originalText = editBtn.innerHTML;
+            editBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Loading...';
+            editBtn.disabled = true;
+            
+            fetch(`/administrator/form-penilaian-laporan-kemajuan/${id}/edit`)
+                .then(response => {
+                    if (!response.ok) {
+                        // Check if response is JSON
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.includes("application/json")) {
+                            return response.json().then(data => {
+                                throw new Error(data.error || 'Terjadi kesalahan saat mengambil data');
+                            });
+                        } else {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
                     const form = data.form;
                     currentJenis = form.jenis;
                     
                     document.getElementById('formJenis').value = form.jenis;
                     document.getElementById('formMethod').value = 'PUT';
-                    document.getElementById('formPenilaianForm').action = `{{ url('admin/form-penilaian-laporan-kemajuan') }}/${id}`;
+                    document.getElementById('formPenilaianForm').action = `/administrator/form-penilaian-laporan-kemajuan/${id}`;
                     document.getElementById('modalTitle').innerHTML = '<i class="fa fa-edit me-2"></i>Form Edit Komponen Penilaian';
                     
                     document.getElementById('kategori').value = form.kategori || '';
                     document.getElementById('komponen_penilaian').value = form.komponen_penilaian;
                     document.getElementById('urutan').value = form.urutan || '';
+                    document.getElementById('is_active').checked = form.is_active == 1;
                     
                     // Show/hide kategori and sub komponen section
                     if (form.jenis === 'pengabdian') {
@@ -394,31 +495,27 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan saat mengambil data');
+                    alert('Terjadi kesalahan saat mengambil data: ' + error.message);
+                })
+                .finally(() => {
+                    editBtn.innerHTML = originalText;
+                    editBtn.disabled = false;
                 });
         }
 
         function deleteForm(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus komponen penilaian ini?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `{{ url('admin/form-penilaian-laporan-kemajuan') }}/${id}`;
-                
-                const methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'DELETE';
-                form.appendChild(methodInput);
-                
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_token';
-                csrfInput.value = '{{ csrf_token() }}';
-                form.appendChild(csrfInput);
-                
-                document.body.appendChild(form);
-                form.submit();
-            }
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteFormModal'));
+            document.getElementById('deleteFormForm').action = `/administrator/form-penilaian-laporan-kemajuan/${id}`;
+            deleteModal.show();
+        }
+
+        function confirmDeleteForm() {
+            const form = document.getElementById('deleteFormForm');
+            const submitBtn = document.getElementById('deleteFormBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Menghapus...';
+            submitBtn.disabled = true;
+            form.submit();
         }
 
         // Handle form submission

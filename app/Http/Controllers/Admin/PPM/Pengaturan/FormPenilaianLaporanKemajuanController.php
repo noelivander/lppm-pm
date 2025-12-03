@@ -57,6 +57,7 @@ class FormPenilaianLaporanKemajuanController extends Controller
                 'kategori' => $request->kategori,
                 'komponen_penilaian' => $request->komponen_penilaian,
                 'urutan' => $request->urutan ?? ($maxUrutan + 1),
+                'is_active' => $request->has('is_active') ? true : false,
             ]);
 
             // If pengabdian, create sub komponen
@@ -94,17 +95,26 @@ class FormPenilaianLaporanKemajuanController extends Controller
             $form = FormPenilaianLaporanKemajuan::with('subKomponen')->findOrFail($id);
             
             // Format sub_komponen untuk response
-            $form->sub_komponen = $form->subKomponen->map(function($sub) {
+            $subKomponen = $form->subKomponen->map(function($sub) {
                 return [
                     'sub_komponen' => $sub->sub_komponen,
-                    'nilai' => $sub->nilai,
+                    'nilai' => (float) $sub->nilai,
                 ];
-            });
+            })->toArray();
             
             return response()->json([
-                'form' => $form,
+                'form' => [
+                    'id' => $form->id,
+                    'jenis' => $form->jenis,
+                    'kategori' => $form->kategori,
+                    'komponen_penilaian' => $form->komponen_penilaian,
+                    'urutan' => $form->urutan,
+                    'is_active' => $form->is_active ? 1 : 0,
+                    'sub_komponen' => $subKomponen,
+                ],
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error in FormPenilaianLaporanKemajuanController@edit: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Terjadi kesalahan saat mengambil data',
                 'message' => $e->getMessage()
@@ -138,6 +148,7 @@ class FormPenilaianLaporanKemajuanController extends Controller
                 'kategori' => $request->kategori,
                 'komponen_penilaian' => $request->komponen_penilaian,
                 'urutan' => $request->urutan ?? $form->urutan,
+                'is_active' => $request->has('is_active') ? true : false,
             ]);
 
             // If pengabdian, update sub komponen
