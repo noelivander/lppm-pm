@@ -102,7 +102,7 @@
         $isKelembagaanMenu = request()->routeIs('tentang-satker.index', 'visi-misi.index', 'struktur-organisasi.index');
         $isLayananMenu = request()->routeIs('agenda.index', 'berita.index', 'dokumen_penting.index', 'pengumuman.index');
         $isPengaturanUmumMenu = request()->routeIs('jurusan.index', 'program_studi.index', 'pegawai.index', 'related_link.index');
-        $isPengaturanLppmMenu = request()->routeIs('skema.index', 'luaran.index', 'rab.index');
+        $isPengaturanLppmMenu = request()->routeIs('skema.index', 'luaran.index', 'rab.index', 'form-penilaian-laporan-kemajuan.index');
     @endphp
 
     <!-- Nav Item - Pages Collapse Menu -->
@@ -178,6 +178,7 @@
                 <a class="collapse-item @isroute('skema.index')" href="{{ route('skema.index') }}">Skema</a>
                 <a class="collapse-item @isroute('luaran.index')" href="{{ route('luaran.index') }}">Luaran</a>
                 <a class="collapse-item @isroute('rab.index')" href="{{ route('rab.index') }}">RAB</a>
+                <a class="collapse-item @isroute('form-penilaian-laporan-kemajuan.index')" href="{{ route('form-penilaian-laporan-kemajuan.index') }}">Laporan Kemajuan</a>
             </div>
         </div>
     </li>
