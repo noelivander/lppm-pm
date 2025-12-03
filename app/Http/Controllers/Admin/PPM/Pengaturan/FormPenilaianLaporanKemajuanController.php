@@ -206,10 +206,20 @@ class FormPenilaianLaporanKemajuanController extends Controller
     {
         try {
             $form = FormPenilaianLaporanKemajuan::findOrFail($id);
+            $jenis = $form->jenis; // Store jenis before deletion
             $form->delete(); // Sub komponen akan terhapus otomatis karena cascade
 
-            return redirect()->route('form-penilaian-laporan-kemajuan.index')
+            $redirect = redirect()->route('form-penilaian-laporan-kemajuan.index')
                 ->with('success', 'Komponen penilaian berhasil dihapus!');
+            
+            // Redirect to appropriate tab based on jenis
+            if ($jenis === 'pengabdian') {
+                $redirect = $redirect->withFragment('pengabdian');
+            } else {
+                $redirect = $redirect->withFragment('penelitian');
+            }
+            
+            return $redirect;
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
