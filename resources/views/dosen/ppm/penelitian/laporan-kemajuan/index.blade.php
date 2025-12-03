@@ -36,11 +36,11 @@
 
                     <form method="GET" class="modern-card p-3 mb-3 filter-card">
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Cari Judul</label>
                                 <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="modern-form-input" placeholder="Cari judul proposal...">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Skema</label>
                                 <select name="skema" class="modern-form-select">
                                     <option value="">Semua Skema</option>
@@ -56,6 +56,15 @@
                                     @foreach($filterYears as $yearOption)
                                         <option value="{{ $yearOption }}" @selected(($filters['year'] ?? '') == $yearOption)>{{ $yearOption }}</option>
                                     @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="modern-form-label text-uppercase small fw-semibold">Status</label>
+                                <select name="status" class="modern-form-select">
+                                    <option value="">Semua Status</option>
+                                    <option value="belum_ada" @selected(($filters['status'] ?? '') === 'belum_ada')>Belum Ada Laporan</option>
+                                    <option value="Pending" @selected(($filters['status'] ?? '') === 'Pending')>Pending</option>
+                                    <option value="Selesai" @selected(($filters['status'] ?? '') === 'Selesai')>Selesai</option>
                                 </select>
                             </div>
                             <div class="col-md-2 d-flex gap-2">
@@ -97,11 +106,10 @@
                                             if ($hasLaporan) {
                                                 $statusClass = match($laporanKemajuan->status) {
                                                     'Pending' => 'pending',
-                                                    'Diproses' => 'diproses',
-                                                    'Disetujui' => 'selesai',
-                                                    'Ditolak' => 'danger',
+                                                    'Diproses', 'Disetujui', 'Ditolak', 'Selesai' => 'selesai',
                                                     default => 'pending',
                                                 };
+                                                $statusDisplay = in_array($laporanKemajuan->status, ['Diproses', 'Disetujui', 'Ditolak']) ? 'Selesai' : $laporanKemajuan->status;
                                             }
                                         @endphp
                                         <tr>
@@ -119,7 +127,7 @@
                                             <td>
                                                 @if($hasLaporan)
                                                     <span class="status-badge {{ $statusClass }}">
-                                                        {{ $laporanKemajuan->status }}
+                                                        {{ $statusDisplay ?? $laporanKemajuan->status }}
                                                     </span>
                                                 @else
                                                     <span class="text-muted">-</span>

@@ -201,6 +201,7 @@ class PenelitianController extends Controller
             'search' => $request->get('search'),
             'skema' => $request->get('skema'),
             'year' => $request->get('year'),
+            'status' => $request->get('status'),
         ];
 
         if ($filters['search']) {
@@ -217,6 +218,29 @@ class PenelitianController extends Controller
             $baseQuery->whereHas('revisionParent', function($query) use ($filters) {
                 $query->whereYear('created_at', $filters['year']);
             });
+        }
+
+        if ($filters['status']) {
+            if ($filters['status'] === 'belum_ada') {
+                // Filter proposal yang belum ada laporan kemajuan
+                $baseQuery->whereDoesntHave('laporanKemajuan', function($query) {
+                    $query->where('tahap', 1)->where('user_id', Auth::id());
+                });
+            } elseif ($filters['status'] === 'Selesai') {
+                // Filter proposal yang memiliki laporan kemajuan dengan status Selesai (Diproses, Disetujui, Ditolak, atau Selesai)
+                $baseQuery->whereHas('laporanKemajuan', function($query) {
+                    $query->where('tahap', 1)
+                          ->where('user_id', Auth::id())
+                          ->whereIn('status', ['Diproses', 'Disetujui', 'Ditolak', 'Selesai']);
+                });
+            } else {
+                // Filter proposal yang memiliki laporan kemajuan dengan status tertentu
+                $baseQuery->whereHas('laporanKemajuan', function($query) use ($filters) {
+                    $query->where('tahap', 1)
+                          ->where('user_id', Auth::id())
+                          ->where('status', $filters['status']);
+                });
+            }
         }
 
         $proposals = $baseQuery->orderByDesc('created_at')
