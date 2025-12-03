@@ -1,56 +1,46 @@
-<x-admin-layout>
+<x-dosen-layout>
     <x-slot name="header">
-        {{ __('Pengabdian') }}
+        {{ __('Laporan Kemajuan Penelitian') }}
     </x-slot>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="mb-3 fade-in-up">
-                    <h3 class="mb-4">
-                        <i class="fa fa-hands-helping me-2"></i>Daftar Proposal Pengabdian
-                    </h3>
-
-                    @if(session('success'))
-                        <div class="modern-alert modern-alert-success">
-                            <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
+    <div class="container-fluid pb-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3 fade-in-up">
+                    @php
+                        $hasProgressWindow = $timeline && $timeline->progress_submission_start_date && $timeline->progress_submission_end_date;
+                        $isWithinProgressWindow = $hasProgressWindow && $currentDate->between($timeline->progress_submission_start_date, $timeline->progress_submission_end_date);
+                    @endphp
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                        <div>
+                            <h3 class="mb-1">
+                                <i class="fa fa-chart-line me-2"></i>Laporan Kemajuan Penelitian
+                            </h3>
                         </div>
-                    @endif
-
-                    @if(session('error'))
-                        <div class="modern-alert modern-alert-danger">
-                            <i class="fa fa-exclamation-circle me-2"></i>{{ session('error') }}
-                        </div>
-                    @endif
+                    </div>
 
                     @if (!$timeline)
                         <div class="modern-alert modern-alert-danger">
-                            <i class="fa fa-exclamation-circle me-2"></i>Tidak ada jadwal penyetujuan admin.
-                        </div>
-                    @elseif (!$timeline->admin_decision_start_date || !$timeline->admin_decision_end_date)
-                        <div class="modern-alert modern-alert-warning">
-                            <i class="fa fa-exclamation-triangle me-2"></i>Periode penyetujuan admin belum ditentukan.
-                        </div>
-                    @elseif ($currentDate < $timeline->admin_decision_start_date)
-                        <div class="modern-alert modern-alert-warning">
-                            <i class="fa fa-clock me-2"></i>Periode penyetujuan admin akan dimulai pada <strong>{{ $timeline->admin_decision_start_date->format('d F Y H:i') }}</strong>.
-                        </div>
-                    @elseif ($currentDate > $timeline->admin_decision_end_date)
-                        <div class="modern-alert modern-alert-danger">
-                            <i class="fa fa-times-circle me-2"></i>Periode penyetujuan admin telah berakhir pada <strong>{{ $timeline->admin_decision_end_date->format('d F Y H:i') }}</strong>.
+                            <i class="fa fa-exclamation-circle me-2"></i>Belum ada timeline aktif untuk laporan kemajuan.
                         </div>
                     @else
-                        <div class="modern-alert modern-alert-info">
-                            <i class="fa fa-info-circle me-2"></i>Periode penyetujuan admin sedang berlangsung. Akan berakhir pada <strong>{{ $timeline->admin_decision_end_date->format('d F Y H:i') }}</strong>.
+                        <div class="modern-alert {{ $isWithinProgressWindow ? 'modern-alert-info' : 'modern-alert-warning' }}">
+                            <i class="fa fa-clock me-2"></i>
+                            Periode pengajuan laporan kemajuan: <strong>{{ $timeline->progress_submission_start_date?->format('d M Y H:i') ?? '-' }}</strong>
+                            s/d <strong>{{ $timeline->progress_submission_end_date?->format('d M Y H:i') ?? '-' }}</strong>.
+                            @unless($isWithinProgressWindow)
+                                <span class="ms-1">Periode pengajuan belum dimulai atau sudah berakhir.</span>
+                            @endunless
                         </div>
                     @endif
 
                     <form method="GET" class="modern-card p-3 mb-3 filter-card">
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Cari Judul</label>
                                 <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="modern-form-input" placeholder="Cari judul proposal...">
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Skema</label>
                                 <select name="skema" class="modern-form-select">
                                     <option value="">Semua Skema</option>
@@ -60,7 +50,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label class="modern-form-label text-uppercase small fw-semibold">Tahun</label>
+                                <label class="modern-form-label text-uppercase small fw-semibold">Tahun Usulan</label>
                                 <select name="year" class="modern-form-select">
                                     <option value="">Semua Tahun</option>
                                     @foreach($filterYears as $yearOption)
@@ -68,29 +58,20 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-2">
-                                <label class="modern-form-label text-uppercase small fw-semibold">Status</label>
-                                <select name="admin_status" class="modern-form-select">
-                                    <option value="">Semua Status</option>
-                                    @foreach($adminStatuses as $key => $label)
-                                        <option value="{{ $key }}" @selected(($filters['admin_status'] ?? '') === $key)>{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
                             <div class="col-md-2 d-flex gap-2">
                                 <button type="submit" class="modern-btn modern-btn-primary w-100">
                                     <i class="fa fa-filter me-1"></i> Terapkan
                                 </button>
-                                <a href="{{ route('pengabdian-adm.index') }}" class="modern-btn modern-btn-outline w-100">
+                                <a href="{{ route('penelitian-dos.laporan-kemajuan.index') }}" class="modern-btn modern-btn-outline w-100">
                                     Reset
                                 </a>
                             </div>
                         </div>
                     </form>
 
-                    @if ($proposals->count() === 0)
+                    @if ($proposals->isEmpty())
                         <div class="modern-alert modern-alert-info">
-                            <i class="fa fa-info-circle me-2"></i>Tidak ada proposal pengabdian yang sudah direview lengkap.
+                            <i class="fa fa-inbox me-2"></i>Belum ada proposal revisi yang dapat dibuat laporan kemajuan.
                         </div>
                     @else
                         <div class="modern-table-container mb-3">
@@ -100,49 +81,58 @@
                                         <th class="col-no text-center">#</th>
                                         <th class="col-judul">Judul</th>
                                         <th class="col-skema">Skema</th>
-                                        <th>Tahun</th>
-             
+                                        <th>Periode Usulan</th>
+                                        <th>Tgl Upload Revisi</th>
                                         <th>Status</th>
-                          
-                                        <th>Aksi</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($proposals as $proposal)
+                                        @php
+                                            $parentProposal = $proposal->revisionParent;
+                                            $laporanKemajuan = $proposal->laporanKemajuan->first();
+                                            $hasLaporan = $laporanKemajuan !== null;
+                                            
+                                            if ($hasLaporan) {
+                                                $statusClass = match($laporanKemajuan->status) {
+                                                    'Pending' => 'pending',
+                                                    'Diproses' => 'diproses',
+                                                    'Disetujui' => 'selesai',
+                                                    'Ditolak' => 'danger',
+                                                    default => 'pending',
+                                                };
+                                            }
+                                        @endphp
                                         <tr>
-                                            <td class="col-no text-center">{{ $proposals->firstItem() + $loop->index }}</td>
+                                            <td class="text-center">{{ $proposals->firstItem() + $loop->index }}</td>
                                             <td class="col-judul">
-                                                <div class="fw-bold proposal-title">{{ $proposal->judul }}</div>
-                                                <small class="text-muted">Oleh: {{ $proposal->user->name ?? '-' }}</small>
+                                                <div class="fw-bold proposal-title">{{ $proposal->judul ?? '-' }}</div>
                                             </td>
                                             <td class="col-skema">
-                                                <span class="status-badge skema">{{ $proposal->skema }}</span>
+                                                <span class="status-badge skema">{{ $parentProposal->skema ?? $proposal->skema ?? '-' }}</span>
                                             </td>
-                                            <td>{{ $proposal->created_at->year }}</td>
+                                            <td>{{ optional($parentProposal->created_at ?? $proposal->created_at)->format('Y') ?? '-' }}</td>
                                             <td>
-                                                @if($proposal->admin_status === 'approved')
-                                                    <span class="status-badge selesai">
-                                                        <i class="fa fa-check-circle me-1"></i>Disetujui
-                                                    </span>
-                                                @elseif($proposal->admin_status === 'rejected')
-                                                    <span class="status-badge ditolak">
-                                                        <i class="fa fa-times-circle me-1"></i>Ditolak
+                                                {{ optional($proposal->updated_at)->format('d M Y H:i') ?? '-' }}
+                                            </td>
+                                            <td>
+                                                @if($hasLaporan)
+                                                    <span class="status-badge {{ $statusClass }}">
+                                                        {{ $laporanKemajuan->status }}
                                                     </span>
                                                 @else
-                                                    <span class="status-badge pending">
-                                                        <i class="fa fa-clock me-1"></i>Pending
-                                                    </span>
+                                                    <span class="text-muted">-</span>
                                                 @endif
                                             </td>
-                                    
-                                            <td>
-                                                @if($proposal->admin_status)
-                                                    <a href="{{ route('pengabdian-adm.show', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
-                                                        <i class="fa fa-edit me-1"></i> Edit
+                                            <td class="text-center">
+                                                @if($hasLaporan)
+                                                    <a href="{{ route('penelitian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                        <i class="fa fa-edit me-1"></i>Edit
                                                     </a>
                                                 @else
-                                                    <a href="{{ route('pengabdian-adm.show', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
-                                                        <i class="fa fa-eye me-1"></i> Inspect
+                                                    <a href="{{ route('penelitian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
+                                                        <i class="fa fa-file-alt me-1"></i>Buat Laporan
                                                     </a>
                                                 @endif
                                             </td>
@@ -151,14 +141,17 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-end modern-pagination mt-2">
+
+                        <div class="d-flex justify-content-end modern-pagination">
                             {{ $proposals->links('pagination::bootstrap-5') }}
                         </div>
+
                     @endif
+                </div>
             </div>
         </div>
     </div>
-</x-admin-layout>
+</x-dosen-layout>
 
 <style>
     .filter-card {
@@ -219,6 +212,9 @@
         white-space: nowrap;
         max-width: 100%;
     }
+    .proposal-title {
+        font-weight: 600;
+    }
     .modern-btn.modern-btn-outline {
         border: 1px solid #d1d5db;
         background: #fff;
@@ -267,3 +263,4 @@
         box-shadow: none;
     }
 </style>
+

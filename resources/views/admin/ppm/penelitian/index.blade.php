@@ -6,10 +6,9 @@
     <div class="row">
         <div class="col-md-12">
             <div class="mb-3 fade-in-up">
-                    <h3 class="mb-3">
+                    <h3 class="mb-4">
                         <i class="fa fa-flask me-2"></i>Daftar Proposal Penelitian
                     </h3>
-                    <p class="text-muted mb-4">Proposal yang sudah direview lengkap oleh 2 reviewer</p>
 
                     @if(session('success'))
                         <div class="modern-alert modern-alert-success">

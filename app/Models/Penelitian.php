@@ -48,5 +48,10 @@ class Penelitian extends Model
         return $this->hasMany(RabPenelitian::class);
     }
 
+    public function laporanKemajuan()
+    {
+        return $this->hasMany(LaporanKemajuan::class);
+    }
+
 }
 

@@ -50,5 +50,10 @@ class Pengabdian extends Model
         return $this->hasMany(RabPengabdian::class);
     }
 
+    public function laporanKemajuan()
+    {
+        return $this->hasMany(LaporanKemajuan::class);
+    }
+
 }
 

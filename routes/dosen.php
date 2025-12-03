@@ -19,6 +19,18 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
         ->name('penelitian-dos.revisi.index');
     Route::get('ppm/pengabdian-dos/revisi/proposal', [PengabdianController::class, 'revisiIndex'])
         ->name('pengabdian-dos.revisi.index');
+    Route::get('ppm/penelitian-dos/laporan-kemajuan/proposal', [PenelitianController::class, 'laporanKemajuanIndex'])
+        ->name('penelitian-dos.laporan-kemajuan.index');
+    Route::get('ppm/pengabdian-dos/laporan-kemajuan/proposal', [PengabdianController::class, 'laporanKemajuanIndex'])
+        ->name('pengabdian-dos.laporan-kemajuan.index');
+    Route::get('ppm/penelitian-dos/{penelitian}/laporan-kemajuan/create', [PenelitianController::class, 'createLaporanKemajuan'])
+        ->name('penelitian-dos.laporan-kemajuan.create');
+    Route::post('ppm/penelitian-dos/{penelitian}/laporan-kemajuan/store', [PenelitianController::class, 'storeLaporanKemajuan'])
+        ->name('penelitian-dos.laporan-kemajuan.store');
+    Route::get('ppm/pengabdian-dos/{pengabdian}/laporan-kemajuan/create', [PengabdianController::class, 'createLaporanKemajuan'])
+        ->name('pengabdian-dos.laporan-kemajuan.create');
+    Route::post('ppm/pengabdian-dos/{pengabdian}/laporan-kemajuan/store', [PengabdianController::class, 'storeLaporanKemajuan'])
+        ->name('pengabdian-dos.laporan-kemajuan.store');
     Route::get('ppm/penelitian-dos/{penelitian}/revisi', [PenelitianController::class, 'revisiCreate'])
         ->name('penelitian-dos.revisi.create');
     Route::post('ppm/penelitian-dos/{penelitian}/revisi', [PenelitianController::class, 'revisiStore'])

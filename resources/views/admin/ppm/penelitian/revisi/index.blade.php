@@ -6,10 +6,9 @@
     <div class="row">
         <div class="col-md-12">
             <div class="mb-3 fade-in-up">
-                    <h3 class="mb-3">
+                    <h3 class="mb-4">
                         <i class="fa fa-sync-alt me-2"></i>Revisi Proposal Penelitian
                     </h3>
-                    <p class="text-muted mb-4">Proposal penelitian yang telah diajukan ulang oleh dosen dan sedang/telah ditinjau ulang oleh reviewer.</p>
 
                     <form method="GET" class="modern-card p-3 mb-3 filter-card">
                         <div class="row g-3 align-items-end">

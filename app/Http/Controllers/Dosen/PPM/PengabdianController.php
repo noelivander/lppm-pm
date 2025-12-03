@@ -12,6 +12,7 @@ use Mpdf\Mpdf;
 use App\Models\Timeline;
 use App\Models\PPM\Skema;
 use App\Models\PPM\Luaran;
+use App\Models\LaporanKemajuan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -151,6 +152,304 @@ class PengabdianController extends Controller
             'statuses' => $statuses,
             'filters' => $filters,
         ]);
+    }
+
+    public function laporanKemajuanIndex(Request $request)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        // Ambil proposal revisi yang sudah diupload oleh dosen (setelah upload revisi = sudah selesai)
+        $baseQuery = Pengabdian::with(['revisionParent', 'laporanKemajuan' => function($query) {
+                $query->where('tahap', 1)->where('user_id', Auth::id());
+            }])
+            ->where('user_id', Auth::id())
+            ->where('is_draft', false)
+            ->where('is_revised', true)
+            ->whereNotNull('revised_from_id');
+
+        // Filter skema dari parent proposal
+        $filterSkemas = Pengabdian::whereIn('id', function($query) {
+                $query->select('revised_from_id')
+                    ->from('pengabdian')
+                    ->where('user_id', Auth::id())
+                    ->where('is_draft', false)
+                    ->where('is_revised', true)
+                    ->whereNotNull('revised_from_id');
+            })
+            ->whereNotNull('skema')
+            ->distinct()
+            ->orderBy('skema')
+            ->pluck('skema');
+
+        // Filter tahun dari parent proposal
+        $filterYears = Pengabdian::whereIn('id', function($query) {
+                $query->select('revised_from_id')
+                    ->from('pengabdian')
+                    ->where('user_id', Auth::id())
+                    ->where('is_draft', false)
+                    ->where('is_revised', true)
+                    ->whereNotNull('revised_from_id');
+            })
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        $filters = [
+            'search' => $request->get('search'),
+            'skema' => $request->get('skema'),
+            'year' => $request->get('year'),
+        ];
+
+        if ($filters['search']) {
+            $baseQuery->where('judul', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if ($filters['skema']) {
+            $baseQuery->whereHas('revisionParent', function($query) use ($filters) {
+                $query->where('skema', $filters['skema']);
+            });
+        }
+
+        if ($filters['year']) {
+            $baseQuery->whereHas('revisionParent', function($query) use ($filters) {
+                $query->whereYear('created_at', $filters['year']);
+            });
+        }
+
+        $proposals = $baseQuery->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('dosen.ppm.pengabdian.laporan-kemajuan.index', [
+            'proposals' => $proposals,
+            'timeline' => $timeline,
+            'currentDate' => $currentDate,
+            'filterSkemas' => $filterSkemas,
+            'filterYears' => $filterYears,
+            'filters' => $filters,
+        ]);
+    }
+
+    public function createLaporanKemajuan($id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        // Ambil proposal revisi
+        $proposal = Pengabdian::with(['revisionParent'])
+            ->where('user_id', Auth::id())
+            ->where('is_draft', false)
+            ->where('is_revised', true)
+            ->whereNotNull('revised_from_id')
+            ->findOrFail($id);
+
+        // Ambil skema dari parent proposal atau dari proposal revisi
+        $skemaNama = $proposal->revisionParent->skema ?? $proposal->skema;
+        
+        // Cari skema di database berdasarkan nama
+        $skema = Skema::where('nama', $skemaNama)
+            ->orWhere('kode', $skemaNama)
+            ->where('jenis', 'pengabdian')
+            ->first();
+
+        // Cek apakah sudah ada laporan kemajuan untuk proposal ini (tahap 1)
+        $laporanKemajuan = LaporanKemajuan::where('pengabdian_id', $proposal->id)
+            ->where('tahap', 1)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        // Cek periode pengajuan laporan kemajuan
+        $hasProgressWindow = $timeline && $timeline->progress_submission_start_date && $timeline->progress_submission_end_date;
+        $isWithinProgressWindow = $hasProgressWindow && $currentDate->between($timeline->progress_submission_start_date, $timeline->progress_submission_end_date);
+
+        return view('dosen.ppm.pengabdian.laporan-kemajuan.create', [
+            'proposal' => $proposal,
+            'skema' => $skema,
+            'timeline' => $timeline,
+            'currentDate' => $currentDate,
+            'isWithinProgressWindow' => $isWithinProgressWindow,
+            'laporanKemajuan' => $laporanKemajuan,
+            'isEdit' => $laporanKemajuan !== null,
+        ]);
+    }
+
+    public function storeLaporanKemajuan(Request $request, $id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        // Validasi periode pengajuan laporan kemajuan
+        $hasProgressWindow = $timeline && $timeline->progress_submission_start_date && $timeline->progress_submission_end_date;
+        $isWithinProgressWindow = $hasProgressWindow && $currentDate->between($timeline->progress_submission_start_date, $timeline->progress_submission_end_date);
+
+        if (!$isWithinProgressWindow) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Periode pengajuan laporan kemajuan belum dibuka atau sudah ditutup.');
+        }
+
+        // Ambil proposal revisi
+        $proposal = Pengabdian::with(['revisionParent'])
+            ->where('user_id', Auth::id())
+            ->where('is_draft', false)
+            ->where('is_revised', true)
+            ->whereNotNull('revised_from_id')
+            ->findOrFail($id);
+
+        // Cek apakah sudah ada laporan kemajuan untuk proposal ini (tahap 1)
+        $existingLaporan = LaporanKemajuan::where('pengabdian_id', $proposal->id)
+            ->where('tahap', 1)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        // Validasi ukuran file sebelum validasi lainnya (hanya jika file diupload)
+        if ($request->hasFile('laporan_kemajuan')) {
+            $laporanKemajuanSize = $request->file('laporan_kemajuan')->getSize();
+            if ($laporanKemajuanSize > 10240 * 1024) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Ukuran file laporan kemajuan terlalu besar. Maksimal 10MB.');
+            }
+        }
+
+        if ($request->hasFile('laporan_keuangan_tahap_1')) {
+            $laporanKeuanganSize = $request->file('laporan_keuangan_tahap_1')->getSize();
+            if ($laporanKeuanganSize > 10240 * 1024) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Ukuran file laporan keuangan tahap 1 terlalu besar. Maksimal 10MB.');
+            }
+        }
+
+        // Validasi file upload (required jika belum ada laporan, optional jika edit)
+        $isEdit = $existingLaporan !== null;
+        
+        // Validasi: jika edit, file tidak wajib (bisa menggunakan file existing)
+        // Jika create, file wajib
+        $validationRules = [];
+        if (!$isEdit || ($isEdit && !$existingLaporan->laporan_kemajuan)) {
+            $validationRules['laporan_kemajuan'] = ['required', 'file', 'mimes:pdf', 'max:10240'];
+        } else {
+            $validationRules['laporan_kemajuan'] = ['nullable', 'file', 'mimes:pdf', 'max:10240'];
+        }
+        
+        if (!$isEdit || ($isEdit && !$existingLaporan->laporan_keuangan_tahap_1)) {
+            $validationRules['laporan_keuangan_tahap_1'] = ['required', 'file', 'mimes:pdf', 'max:10240'];
+        } else {
+            $validationRules['laporan_keuangan_tahap_1'] = ['nullable', 'file', 'mimes:pdf', 'max:10240'];
+        }
+        
+        try {
+            $request->validate($validationRules, [
+            'laporan_kemajuan.required' => 'File laporan kemajuan wajib diupload.',
+            'laporan_kemajuan.file' => 'Laporan kemajuan harus berupa file.',
+            'laporan_kemajuan.mimes' => 'Laporan kemajuan harus berformat PDF (.pdf) saja.',
+            'laporan_kemajuan.max' => 'Ukuran file laporan kemajuan maksimal 10MB. File yang Anda upload terlalu besar.',
+            'laporan_keuangan_tahap_1.required' => 'File laporan keuangan tahap 1 wajib diupload.',
+            'laporan_keuangan_tahap_1.file' => 'Laporan keuangan tahap 1 harus berupa file.',
+            'laporan_keuangan_tahap_1.mimes' => 'Laporan keuangan tahap 1 harus berformat PDF (.pdf) saja.',
+            'laporan_keuangan_tahap_1.max' => 'Ukuran file laporan keuangan tahap 1 maksimal 10MB. File yang Anda upload terlalu besar.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors($e->validator)
+                ->with('error', 'Terjadi kesalahan validasi. Silakan periksa kembali file yang diupload.');
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Upload file laporan kemajuan (jika ada file baru)
+            $laporanKemajuanPath = null;
+            if ($request->hasFile('laporan_kemajuan')) {
+                $laporanKemajuanFile = $request->file('laporan_kemajuan');
+                $laporanKemajuanFileName = time() . '_' . str_replace(' ', '_', $laporanKemajuanFile->getClientOriginalName());
+                $laporanKemajuanPath = $laporanKemajuanFile->storeAs('laporan_kemajuan/pengabdian', $laporanKemajuanFileName, 'public');
+            } elseif ($isEdit && $existingLaporan) {
+                // Jika edit dan tidak upload file baru, gunakan file yang sudah ada
+                $laporanKemajuanPath = $existingLaporan->laporan_kemajuan;
+            }
+
+            // Upload file laporan keuangan tahap 1 (jika ada file baru)
+            $laporanKeuanganPath = null;
+            if ($request->hasFile('laporan_keuangan_tahap_1')) {
+                $laporanKeuanganFile = $request->file('laporan_keuangan_tahap_1');
+                $laporanKeuanganFileName = time() . '_' . str_replace(' ', '_', $laporanKeuanganFile->getClientOriginalName());
+                $laporanKeuanganPath = $laporanKeuanganFile->storeAs('laporan_kemajuan/pengabdian', $laporanKeuanganFileName, 'public');
+            } elseif ($isEdit && $existingLaporan) {
+                // Jika edit dan tidak upload file baru, gunakan file yang sudah ada
+                $laporanKeuanganPath = $existingLaporan->laporan_keuangan_tahap_1;
+            }
+
+            // Validasi: file harus ada (baik dari upload baru atau existing)
+            if (!$laporanKemajuanPath) {
+                DB::rollBack();
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'File laporan kemajuan wajib diupload.');
+            }
+
+            if (!$laporanKeuanganPath) {
+                DB::rollBack();
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'File laporan keuangan tahap 1 wajib diupload.');
+            }
+
+            if ($existingLaporan) {
+                // Update laporan yang sudah ada
+                // Hapus file lama hanya jika ada file baru yang diupload
+                if ($request->hasFile('laporan_kemajuan') && $existingLaporan->laporan_kemajuan && Storage::disk('public')->exists($existingLaporan->laporan_kemajuan)) {
+                    Storage::disk('public')->delete($existingLaporan->laporan_kemajuan);
+                }
+                if ($request->hasFile('laporan_keuangan_tahap_1') && $existingLaporan->laporan_keuangan_tahap_1 && Storage::disk('public')->exists($existingLaporan->laporan_keuangan_tahap_1)) {
+                    Storage::disk('public')->delete($existingLaporan->laporan_keuangan_tahap_1);
+                }
+
+                $existingLaporan->update([
+                    'laporan_kemajuan' => $laporanKemajuanPath,
+                    'laporan_keuangan_tahap_1' => $laporanKeuanganPath,
+                    'status' => 'Pending',
+                ]);
+
+                $laporanKemajuan = $existingLaporan;
+            } else {
+                // Buat laporan baru
+                $laporanKemajuan = LaporanKemajuan::create([
+                    'penelitian_id' => null,
+                    'pengabdian_id' => $proposal->id,
+                    'laporan_kemajuan' => $laporanKemajuanPath,
+                    'laporan_keuangan_tahap_1' => $laporanKeuanganPath,
+                    'tahap' => 1,
+                    'status' => 'Pending',
+                    'user_id' => Auth::id(),
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('pengabdian-dos.laporan-kemajuan.index')
+                ->with('success', 'Laporan kemajuan berhasil disimpan!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error storing laporan kemajuan: ' . $e->getMessage());
+
+            // Hapus file yang sudah terupload jika ada error
+            if (isset($laporanKemajuanPath) && Storage::disk('public')->exists($laporanKemajuanPath)) {
+                Storage::disk('public')->delete($laporanKemajuanPath);
+            }
+            if (isset($laporanKeuanganPath) && Storage::disk('public')->exists($laporanKeuanganPath)) {
+                Storage::disk('public')->delete($laporanKeuanganPath);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan laporan kemajuan. Silakan coba lagi.');
+        }
     }
 
     public function revisiCreate($id)

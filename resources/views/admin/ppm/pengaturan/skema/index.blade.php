@@ -427,13 +427,13 @@
                             const fileName = data.skema.template_laporan_kemajuan.split('/').pop();
                             const fileUrl = storageUrl + '/' + data.skema.template_laporan_kemajuan;
                             currentTemplateKemajuan.innerHTML = `
-                                <div class="alert alert-info py-2 px-3 mb-0">
-                                    <i class="fa fa-file me-2"></i>
+                                <div class="modern-alert modern-alert-info mb-0">
+                                    <i class="fa fa-file-word me-2"></i>
                                     <strong>File saat ini:</strong> 
-                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none">
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none fw-semibold" style="color: #1e40af;">
                                         ${fileName}
                                     </a>
-                                    <small class="d-block text-muted mt-1">Unggah file baru untuk mengganti</small>
+                                    <small class="d-block mt-2" style="opacity: 0.8;">Unggah file baru untuk mengganti</small>
                                 </div>
                             `;
                         } else {
@@ -444,13 +444,13 @@
                             const fileName = data.skema.template_laporan_keuangan_tahap_1.split('/').pop();
                             const fileUrl = storageUrl + '/' + data.skema.template_laporan_keuangan_tahap_1;
                             currentTemplateKeuangan.innerHTML = `
-                                <div class="alert alert-info py-2 px-3 mb-0">
-                                    <i class="fa fa-file me-2"></i>
+                                <div class="modern-alert modern-alert-info mb-0">
+                                    <i class="fa fa-file-pdf me-2"></i>
                                     <strong>File saat ini:</strong> 
-                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none">
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none fw-semibold" style="color: #1e40af;">
                                         ${fileName}
                                     </a>
-                                    <small class="d-block text-muted mt-1">Unggah file baru untuk mengganti</small>
+                                    <small class="d-block mt-2" style="opacity: 0.8;">Unggah file baru untuk mengganti</small>
                                 </div>
                             `;
                         } else {
