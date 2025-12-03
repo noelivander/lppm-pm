@@ -158,11 +158,11 @@
                                                         @endif
                                                         <td>
                                                             <strong>{{ $sub->sub_komponen }}</strong>
-                                                            <span class="badge bg-primary ms-2">{{ number_format($sub->nilai, 2) }}</span>
+                                                            <strong class="text-primary ms-2">{{ $sub->nilai == floor($sub->nilai) ? number_format($sub->nilai, 0) : number_format($sub->nilai, 2) }}</strong>
                                                         </td>
                                                         @if($subIndex === 0)
                                                             <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
-                                                                <strong class="text-primary">{{ number_format($totalNilai, 2) }}</strong>
+                                                                <strong class="text-primary">{{ $totalNilai == floor($totalNilai) ? number_format($totalNilai, 0) : number_format($totalNilai, 2) }}</strong>
                                                             </td>
                                                             <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
                                                                 @if($form->is_active)
@@ -345,6 +345,20 @@
 
     <x-slot name="scripts">
     <script>
+        // Handle tab activation based on URL fragment
+        document.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash;
+            if (hash === '#pengabdian') {
+                // Activate pengabdian tab
+                const pengabdianTab = new bootstrap.Tab(document.getElementById('pengabdian-tab'));
+                pengabdianTab.show();
+            } else if (hash === '#penelitian') {
+                // Activate penelitian tab
+                const penelitianTab = new bootstrap.Tab(document.getElementById('penelitian-tab'));
+                penelitianTab.show();
+            }
+        });
+
         let currentJenis = 'penelitian';
         let subKomponenIndex = 0;
 

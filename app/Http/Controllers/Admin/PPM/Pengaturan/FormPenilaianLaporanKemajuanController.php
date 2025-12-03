@@ -73,8 +73,17 @@ class FormPenilaianLaporanKemajuanController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('form-penilaian-laporan-kemajuan.index')
+            $redirect = redirect()->route('form-penilaian-laporan-kemajuan.index')
                 ->with('success', 'Komponen penilaian berhasil ditambahkan!');
+            
+            // Redirect to appropriate tab based on jenis
+            if ($request->jenis === 'pengabdian') {
+                $redirect = $redirect->withFragment('pengabdian');
+            } else {
+                $redirect = $redirect->withFragment('penelitian');
+            }
+            
+            return $redirect;
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -168,8 +177,17 @@ class FormPenilaianLaporanKemajuanController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('form-penilaian-laporan-kemajuan.index')
+            $redirect = redirect()->route('form-penilaian-laporan-kemajuan.index')
                 ->with('success', 'Komponen penilaian berhasil diupdate!');
+            
+            // Redirect to appropriate tab based on jenis
+            if ($form->jenis === 'pengabdian') {
+                $redirect = $redirect->withFragment('pengabdian');
+            } else {
+                $redirect = $redirect->withFragment('penelitian');
+            }
+            
+            return $redirect;
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
