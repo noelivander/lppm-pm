@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\PPM\Pengaturan\LuaranController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\SkemaController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\RabController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\FormPenilaianLaporanKemajuanController;
+use App\Http\Controllers\Admin\PPM\Pengaturan\FormPenilaianReviewController;
 use App\Http\Controllers\Admin\PPM\FokusBidangController;
 use App\Http\Controllers\Admin\PPM\PenelitianController;
 use App\Http\Controllers\Admin\PPM\PengabdianController;
@@ -74,6 +75,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('form-penilaian-laporan-kemajuan/{id}/edit', [FormPenilaianLaporanKemajuanController::class, 'edit'])->name('form-penilaian-laporan-kemajuan.edit');
     Route::put('form-penilaian-laporan-kemajuan/{id}', [FormPenilaianLaporanKemajuanController::class, 'update'])->name('form-penilaian-laporan-kemajuan.update');
     Route::delete('form-penilaian-laporan-kemajuan/{id}', [FormPenilaianLaporanKemajuanController::class, 'destroy'])->name('form-penilaian-laporan-kemajuan.destroy');
+    
+    // Form Penilaian Review routes
+    Route::get('form-penilaian-review', [FormPenilaianReviewController::class, 'index'])->name('form-penilaian-review.index');
+    Route::post('form-penilaian-review', [FormPenilaianReviewController::class, 'store'])->name('form-penilaian-review.store');
+    Route::get('form-penilaian-review/{id}/edit', [FormPenilaianReviewController::class, 'edit'])->name('form-penilaian-review.edit');
+    Route::put('form-penilaian-review/{id}', [FormPenilaianReviewController::class, 'update'])->name('form-penilaian-review.update');
+    Route::delete('form-penilaian-review/{id}', [FormPenilaianReviewController::class, 'destroy'])->name('form-penilaian-review.destroy');
     
     // Kelompok RAB routes
     Route::post('rab/kelompok', [RabController::class, 'storeKelompok'])->name('rab.store.kelompok');

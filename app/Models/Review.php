@@ -46,5 +46,10 @@ class Review extends Model
     {
         return $this->belongsTo(User::class, 'reviewer_id');
     }
+
+    public function reviewKriteria()
+    {
+        return $this->hasMany(ReviewKriteria::class);
+    }
 }
 

@@ -230,81 +230,104 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td style="text-align: left;">Penguasaan materi dan keterkaitan antara usulan penelitian dengan Topik Penelitian ITH</td>
-                                        <td class="bobot">20</td>
-                                        <td>
-                                            <input type="number" name="skor_1" class="modern-form-input skor" data-bobot="20" @if(!$canReview) disabled @else required @endif>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="nilai_1" class="modern-form-input nilai" readonly>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td style="text-align: left;">Kesesuaian latar belakang, permasalahan, dan tujuan serta kemutakhiran pustaka</td>
-                                        <td class="bobot">20</td>
-                                        <td>
-                                            <input type="number" name="skor_2" class="modern-form-input skor" data-bobot="20" @if(!$canReview) disabled @else required @endif>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="nilai_2" class="modern-form-input nilai" readonly>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td style="text-align: left;">
-                                            Metode Penelitian:
-                                            <ul style="padding-left: 20px; margin: 0;">
-                                                <li>Makna Ilmiah</li>
-                                                <li>Orisinalitas</li>
-                                                <li>Pola pendekatan dan kesesuaian mode</li>
-                                            </ul>
-                                        </td>
-                                        <td class="bobot">20</td>
-                                        <td>
-                                            <input type="number" name="skor_3" class="modern-form-input skor" data-bobot="20" @if(!$canReview) disabled @else required @endif>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="nilai_3" class="modern-form-input nilai" readonly>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td style="text-align: left;">Memiliki peta jalan (roadmap) penelitian</td>
-                                        <td class="bobot">10</td>
-                                        <td>
-                                            <input type="number" name="skor_4" class="modern-form-input skor" data-bobot="10" @if(!$canReview) disabled @else required @endif>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="nilai_4" class="modern-form-input nilai" readonly>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td style="text-align: left;">
-                                            Potensi tercapainya luaran:
-                                            <ul style="padding-left: 20px; margin: 0;">
-                                                <li>Publikasi Jurnal Nasional</li>
-                                                <li>Produk/Proses teknologi</li>
-                                                <li>Publikasi, HKI, buku ajar, teknologi tepat guna, model/kebijakan, rekayasa sosial, dan lain-lain</li>
-                                                <li>Pengkajian, pengembangan, dan penerapan IPTEKS-SOSBUD</li>
-                                            </ul>
-                                        </td>
-                                        <td class="bobot">30</td>
-                                        <td>
-                                            <input type="number" name="skor_5" class="modern-form-input skor" data-bobot="30" @if(!$canReview) disabled @else required @endif>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="nilai_5" class="modern-form-input nilai" readonly>
-                                        </td>
-                                    </tr>
+                                    @if($formKriteria && $formKriteria->count() > 0)
+                                        @foreach($formKriteria as $index => $kriteria)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td style="text-align: left;">{!! nl2br(e($kriteria->kriteria_penilaian)) !!}</td>
+                                                <td class="bobot">{{ $kriteria->bobot == floor($kriteria->bobot) ? number_format($kriteria->bobot, 0) : number_format($kriteria->bobot, 2) }}</td>
+                                                <td>
+                                                    <input type="number" name="skor[{{ $kriteria->id }}]" class="modern-form-input skor" data-bobot="{{ $kriteria->bobot }}" data-kriteria-id="{{ $kriteria->id }}" min="1" max="7" @if(!$canReview) disabled @else required @endif>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="nilai[{{ $kriteria->id }}]" class="modern-form-input nilai" data-kriteria-id="{{ $kriteria->id }}" readonly>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        {{-- Fallback to hardcoded form if no active form review --}}
+                                        <tr>
+                                            <td>1</td>
+                                            <td style="text-align: left;">Penguasaan materi dan keterkaitan antara usulan penelitian dengan Topik Penelitian ITH</td>
+                                            <td class="bobot">20</td>
+                                            <td>
+                                                <input type="number" name="skor_1" class="modern-form-input skor" data-bobot="20" @if(!$canReview) disabled @else required @endif>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="nilai_1" class="modern-form-input nilai" readonly>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td style="text-align: left;">Kesesuaian latar belakang, permasalahan, dan tujuan serta kemutakhiran pustaka</td>
+                                            <td class="bobot">20</td>
+                                            <td>
+                                                <input type="number" name="skor_2" class="modern-form-input skor" data-bobot="20" @if(!$canReview) disabled @else required @endif>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="nilai_2" class="modern-form-input nilai" readonly>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>3</td>
+                                            <td style="text-align: left;">
+                                                Metode Penelitian:
+                                                <ul style="padding-left: 20px; margin: 0;">
+                                                    <li>Makna Ilmiah</li>
+                                                    <li>Orisinalitas</li>
+                                                    <li>Pola pendekatan dan kesesuaian mode</li>
+                                                </ul>
+                                            </td>
+                                            <td class="bobot">20</td>
+                                            <td>
+                                                <input type="number" name="skor_3" class="modern-form-input skor" data-bobot="20" @if(!$canReview) disabled @else required @endif>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="nilai_3" class="modern-form-input nilai" readonly>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td style="text-align: left;">Memiliki peta jalan (roadmap) penelitian</td>
+                                            <td class="bobot">10</td>
+                                            <td>
+                                                <input type="number" name="skor_4" class="modern-form-input skor" data-bobot="10" @if(!$canReview) disabled @else required @endif>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="nilai_4" class="modern-form-input nilai" readonly>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td>
+                                            <td style="text-align: left;">
+                                                Potensi tercapainya luaran:
+                                                <ul style="padding-left: 20px; margin: 0;">
+                                                    <li>Publikasi Jurnal Nasional</li>
+                                                    <li>Produk/Proses teknologi</li>
+                                                    <li>Publikasi, HKI, buku ajar, teknologi tepat guna, model/kebijakan, rekayasa sosial, dan lain-lain</li>
+                                                    <li>Pengkajian, pengembangan, dan penerapan IPTEKS-SOSBUD</li>
+                                                </ul>
+                                            </td>
+                                            <td class="bobot">30</td>
+                                            <td>
+                                                <input type="number" name="skor_5" class="modern-form-input skor" data-bobot="30" @if(!$canReview) disabled @else required @endif>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="nilai_5" class="modern-form-input nilai" readonly>
+                                            </td>
+                                        </tr>
+                                    @endif
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td colspan="2" style="text-align: left; font-weight: bold;">Jumlah:</td>
-                                        <td id="jumlah_bobot" class="text-center">100</td>
+                                        <td id="jumlah_bobot" class="text-center">
+                                            @if($formKriteria && $formKriteria->count() > 0)
+                                                {{ $formKriteria->sum('bobot') == floor($formKriteria->sum('bobot')) ? number_format($formKriteria->sum('bobot'), 0) : number_format($formKriteria->sum('bobot'), 2) }}
+                                            @else
+                                                100
+                                            @endif
+                                        </td>
                                         <td>
                                             <input type="number" id="total_skor" class="modern-form-input" readonly>
                                         </td>
@@ -379,7 +402,7 @@
     <script>
         document.querySelectorAll('.skor').forEach(input => {
             input.addEventListener('input', function () {
-                const bobot = parseInt(this.dataset.bobot);
+                const bobot = parseFloat(this.dataset.bobot);
                 const nilaiField = this.closest('tr').querySelector('.nilai');
                 const skor = parseInt(this.value);
 
@@ -389,7 +412,7 @@
                     nilaiField.value = '';
                 } else {
                     // Hitung nilai (Skor x Bobot)
-                    nilaiField.value = skor * bobot;
+                    nilaiField.value = (skor * bobot).toFixed(2);
                 }
 
                 // Update total
@@ -416,7 +439,7 @@
         // Validasi input skor secara real-time
         document.querySelectorAll('.skor').forEach(input => {
             input.addEventListener('input', function () {
-                const bobot = parseInt(this.dataset.bobot);
+                const bobot = parseFloat(this.dataset.bobot);
                 const nilaiField = this.closest('tr').querySelector('.nilai');
                 const skor = parseInt(this.value);
 
@@ -426,7 +449,7 @@
                     nilaiField.value = '';
                 } else {
                     this.classList.remove('is-invalid'); // Hapus highlight merah
-                    nilaiField.value = skor * bobot;
+                    nilaiField.value = (skor * bobot).toFixed(2);
                 }
 
                 updateTotals();
@@ -444,11 +467,11 @@
             });
 
             document.querySelectorAll('.nilai').forEach(nilai => {
-                totalNilai += parseInt(nilai.value) || 0;
+                totalNilai += parseFloat(nilai.value) || 0;
             });
 
             document.getElementById('total_skor').value = totalSkor;
-            document.getElementById('total_nilai').value = totalNilai;
+            document.getElementById('total_nilai').value = totalNilai.toFixed(2);
         }
 
         // Fungsi untuk validasi semua skor sebelum submit

@@ -142,57 +142,87 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Penguasaan materi dan keterkaitan antara usulan penelitian dengan Topik Penelitian ITH</td>
-                    <td>20</td>
-                    <td>{{ $review->skor_1 }}</td>
-                    <td>{{ $review->skor_1 * 20 }}</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Kesesuaian latar belakang, permasalahan, dan tujuan serta kemutakhiran pustaka</td>
-                    <td>20</td>
-                    <td>{{ $review->skor_2 }}</td>
-                    <td>{{ $review->skor_2 * 20 }}</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>
-                        <span>Metode Penelitian:</span><br>
-                        <span>a. Makna Ilmiah</span><br>
-                        <span>b. Orisinalitas</span><br>
-                        <span>c. Pola pendekatan dan Kesesuaian mode</span><br>
-                    </td>
-                    <td>20</td>
-                    <td>{{ $review->skor_3 }}</td>
-                    <td>{{ $review->skor_3 * 20 }}</td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>Memiliki peta jalan (roadmap) penelitian</td>
-                    <td>10</td>
-                    <td>{{ $review->skor_4 }}</td>
-                    <td>{{ $review->skor_4 * 10 }}</td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>
-                        <span>Potensi tercapainya luaran:</span><br>
-                        <span>a. Produk/Proses teknologi</span><br>
-                        <span>b. Publikasi, HAKI, Buku ajar, Teknologi tepat guna, Model/kebijakan, Rekayasa sosial, dan lain-lain</span><br>
-                        <span>c. Pengkajian, pengembangan dan penerapan IPTEKS-SOSBUD</span>
-                    </td>
-                    <td>30</td>
-                    <td>{{ $review->skor_5 }}</td>
-                    <td>{{ $review->skor_5 * 30 }}</td>
-                </tr>
-                <tr>
-                    <td colspan="2">Jumlah</td>
-                    <td>100</td>
-                    <td></td>
-                    <td></td>
-                </tr>
+                @if($formKriteria && $formKriteria->count() > 0)
+                    @php
+                        $totalSkor = 0;
+                        $totalNilai = 0;
+                    @endphp
+                    @foreach($formKriteria as $index => $kriteria)
+                        @php
+                            $existingKriteria = $reviewKriteria->get($kriteria->id);
+                            $skor = $existingKriteria ? $existingKriteria->skor : 0;
+                            $nilai = $existingKriteria ? $existingKriteria->nilai : 0;
+                            $totalSkor += $skor;
+                            $totalNilai += $nilai;
+                        @endphp
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{!! nl2br(e($kriteria->kriteria_penilaian)) !!}</td>
+                            <td>{{ $kriteria->bobot == floor($kriteria->bobot) ? number_format($kriteria->bobot, 0) : number_format($kriteria->bobot, 2) }}</td>
+                            <td>{{ $skor }}</td>
+                            <td>{{ $nilai == floor($nilai) ? number_format($nilai, 0) : number_format($nilai, 2) }}</td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <td colspan="2">Jumlah</td>
+                        <td>{{ $formKriteria->sum('bobot') == floor($formKriteria->sum('bobot')) ? number_format($formKriteria->sum('bobot'), 0) : number_format($formKriteria->sum('bobot'), 2) }}</td>
+                        <td>{{ $totalSkor }}</td>
+                        <td>{{ $totalNilai == floor($totalNilai) ? number_format($totalNilai, 0) : number_format($totalNilai, 2) }}</td>
+                    </tr>
+                @else
+                    {{-- Fallback to hardcoded form if no active form review --}}
+                    <tr>
+                        <td>1</td>
+                        <td>Penguasaan materi dan keterkaitan antara usulan penelitian dengan Topik Penelitian ITH</td>
+                        <td>20</td>
+                        <td>{{ $review->skor_1 ?? '' }}</td>
+                        <td>{{ $review->skor_1 ? $review->skor_1 * 20 : '' }}</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Kesesuaian latar belakang, permasalahan, dan tujuan serta kemutakhiran pustaka</td>
+                        <td>20</td>
+                        <td>{{ $review->skor_2 ?? '' }}</td>
+                        <td>{{ $review->skor_2 ? $review->skor_2 * 20 : '' }}</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>
+                            <span>Metode Penelitian:</span><br>
+                            <span>a. Makna Ilmiah</span><br>
+                            <span>b. Orisinalitas</span><br>
+                            <span>c. Pola pendekatan dan Kesesuaian mode</span><br>
+                        </td>
+                        <td>20</td>
+                        <td>{{ $review->skor_3 ?? '' }}</td>
+                        <td>{{ $review->skor_3 ? $review->skor_3 * 20 : '' }}</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Memiliki peta jalan (roadmap) penelitian</td>
+                        <td>10</td>
+                        <td>{{ $review->skor_4 ?? '' }}</td>
+                        <td>{{ $review->skor_4 ? $review->skor_4 * 10 : '' }}</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>
+                            <span>Potensi tercapainya luaran:</span><br>
+                            <span>a. Produk/Proses teknologi</span><br>
+                            <span>b. Publikasi, HAKI, Buku ajar, Teknologi tepat guna, Model/kebijakan, Rekayasa sosial, dan lain-lain</span><br>
+                            <span>c. Pengkajian, pengembangan dan penerapan IPTEKS-SOSBUD</span>
+                        </td>
+                        <td>30</td>
+                        <td>{{ $review->skor_5 ?? '' }}</td>
+                        <td>{{ $review->skor_5 ? $review->skor_5 * 30 : '' }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Jumlah</td>
+                        <td>100</td>
+                        <td>{{ ($review->skor_1 ?? 0) + ($review->skor_2 ?? 0) + ($review->skor_3 ?? 0) + ($review->skor_4 ?? 0) + ($review->skor_5 ?? 0) }}</td>
+                        <td>{{ ($review->skor_1 ?? 0) * 20 + ($review->skor_2 ?? 0) * 20 + ($review->skor_3 ?? 0) * 20 + ($review->skor_4 ?? 0) * 10 + ($review->skor_5 ?? 0) * 30 }}</td>
+                    </tr>
+                @endif
             </tbody>
         </table>
         <small>Keterangan :<br> Skor: 1, 2, 3, 4, 5, 6, 7 (1 = Buruk; 2 = Sangat Kurang; 3 = Kurang; 4 = Cukup; 5 = Baik; 6 = Sangat Baik; 7 = Sangat Baik);<br> Nilai = Bobot x Skor;</small>

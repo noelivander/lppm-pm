@@ -421,7 +421,19 @@ class PengabdianController extends Controller
         // Buat URL publik untuk file proposal
         $fileUrl = Storage::url($proposal->dokumen_proposal);
     
+        // Get active form review criteria
+        $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
+            ->where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
         if ($review) {
+            // Get existing review criteria scores
+            $reviewKriteria = \App\Models\ReviewKriteria::where('review_id', $review->id)
+                ->with('formPenilaianReview')
+                ->get()
+                ->keyBy('form_penilaian_review_id');
+
             return view('reviewer.ppm.pengabdian.edit_review', compact(
                 'proposal',
                 'review',
@@ -437,7 +449,9 @@ class PengabdianController extends Controller
                 'fileUrl',
                 'timeline',
                 'currentDate',
-                'canReview'
+                'canReview',
+                'formKriteria',
+                'reviewKriteria'
             ));
         } else {
             return view('reviewer.ppm.pengabdian.review', compact(
@@ -454,7 +468,8 @@ class PengabdianController extends Controller
                 'fileUrl',
                 'timeline',
                 'currentDate',
-                'canReview'
+                'canReview',
+                'formKriteria'
             ));
         }
     }
@@ -470,7 +485,19 @@ class PengabdianController extends Controller
             return redirect()->route('pengabdian-rev.index')->with('error', 'Review tidak ditemukan atau Anda tidak memiliki akses.');
         }
     
-        $html = view('pdf.review_pengabdian', compact('review'))->render();
+        // Get active form review criteria
+        $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
+            ->where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
+        // Get existing review criteria scores
+        $reviewKriteria = \App\Models\ReviewKriteria::where('review_id', $review->id)
+            ->with('formPenilaianReview')
+            ->get()
+            ->keyBy('form_penilaian_review_id');
+    
+        $html = view('pdf.review_pengabdian', compact('review', 'formKriteria', 'reviewKriteria'))->render();
     
         $mpdf = new \Mpdf\Mpdf([
             'format' => [215.9, 330.2],  
@@ -535,12 +562,33 @@ class PengabdianController extends Controller
         $review->biaya_usulan = $request->biaya_usulan;
         $review->disarankan = $request->disarankan;
     
-        $review->skor_1 = $request->skor_1;
-        $review->skor_2 = $request->skor_2;
-        $review->skor_3 = $request->skor_3;
-        $review->skor_4 = $request->skor_4;
-        $review->skor_5 = $request->skor_5;
-    
+        // Handle dynamic form review or fallback to hardcoded
+        if ($request->has('skor') && is_array($request->skor)) {
+            // Dynamic form review - save to review_kriteria
+            $review->save();
+            
+            foreach ($request->skor as $kriteriaId => $skor) {
+                $kriteria = \App\Models\FormPenilaianReview::find($kriteriaId);
+                if ($kriteria) {
+                    $nilai = $skor * $kriteria->bobot;
+                    \App\Models\ReviewKriteria::create([
+                        'review_id' => $review->id,
+                        'form_penilaian_review_id' => $kriteriaId,
+                        'skor' => $skor,
+                        'nilai' => $nilai,
+                    ]);
+                }
+            }
+        } else {
+            // Fallback to hardcoded form
+            $review->skor_1 = $request->skor_1;
+            $review->skor_2 = $request->skor_2;
+            $review->skor_3 = $request->skor_3;
+            $review->skor_4 = $request->skor_4;
+            $review->skor_5 = $request->skor_5;
+            $review->save();
+        }
+
         $review->komentar = $request->komentar;
         $review->save();
 
@@ -580,25 +628,61 @@ class PengabdianController extends Controller
                 ->with('error', 'Periode review untuk proposal ini telah berakhir atau belum dimulai.');
         }
         // Validasi hanya field yang benar-benar bisa diedit di form Edit Review
-        $validatedData = $request->validate([
+        $rules = [
             'scopus' => 'nullable|string|max:255',
             'disarankan' => 'nullable|string|max:255',
-            'skor_1' => 'required|integer|min:1|max:7',
-            'skor_2' => 'required|integer|min:1|max:7',
-            'skor_3' => 'required|integer|min:1|max:7',
-            'skor_4' => 'required|integer|min:1|max:7',
-            'skor_5' => 'required|integer|min:1|max:7',
             'komentar' => 'nullable|string',
-        ]);
+        ];
+        
+        // Dynamic validation based on form review or hardcoded
+        if ($request->has('skor') && is_array($request->skor)) {
+            // Dynamic form review
+            foreach ($request->skor as $kriteriaId => $skor) {
+                $rules["skor.{$kriteriaId}"] = 'required|integer|min:1|max:7';
+            }
+        } else {
+            // Fallback to hardcoded form
+            $rules['skor_1'] = 'required|integer|min:1|max:7';
+            $rules['skor_2'] = 'required|integer|min:1|max:7';
+            $rules['skor_3'] = 'required|integer|min:1|max:7';
+            $rules['skor_4'] = 'required|integer|min:1|max:7';
+            $rules['skor_5'] = 'required|integer|min:1|max:7';
+        }
+        
+        $validatedData = $request->validate($rules);
 
         // Update hanya field penilaian, jangan mengubah metadata judul/ketua/NIDN, dll.
         $review->scopus = $validatedData['scopus'] ?? $review->scopus;
         $review->disarankan = $validatedData['disarankan'] ?? $review->disarankan;
-        $review->skor_1 = $validatedData['skor_1'];
-        $review->skor_2 = $validatedData['skor_2'];
-        $review->skor_3 = $validatedData['skor_3'];
-        $review->skor_4 = $validatedData['skor_4'];
-        $review->skor_5 = $validatedData['skor_5'];
+        
+        // Handle dynamic form review or fallback to hardcoded
+        if ($request->has('skor') && is_array($request->skor)) {
+            // Dynamic form review - update review_kriteria
+            // Delete existing review_kriteria
+            \App\Models\ReviewKriteria::where('review_id', $review->id)->delete();
+            
+            // Create new review_kriteria
+            foreach ($request->skor as $kriteriaId => $skor) {
+                $kriteria = \App\Models\FormPenilaianReview::find($kriteriaId);
+                if ($kriteria) {
+                    $nilai = $skor * $kriteria->bobot;
+                    \App\Models\ReviewKriteria::create([
+                        'review_id' => $review->id,
+                        'form_penilaian_review_id' => $kriteriaId,
+                        'skor' => $skor,
+                        'nilai' => $nilai,
+                    ]);
+                }
+            }
+        } else {
+            // Fallback to hardcoded form
+            $review->skor_1 = $validatedData['skor_1'] ?? null;
+            $review->skor_2 = $validatedData['skor_2'] ?? null;
+            $review->skor_3 = $validatedData['skor_3'] ?? null;
+            $review->skor_4 = $validatedData['skor_4'] ?? null;
+            $review->skor_5 = $validatedData['skor_5'] ?? null;
+        }
+        
         $review->komentar = $validatedData['komentar'] ?? $review->komentar;
         $review->save();
 
@@ -654,6 +738,18 @@ class PengabdianController extends Controller
         $fileUrl = Storage::url($proposal->dokumen_proposal);
 
         if ($review) {
+            // Get active form review criteria
+            $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
+                ->where('is_active', true)
+                ->orderBy('urutan')
+                ->get();
+
+            // Get existing review criteria scores
+            $reviewKriteria = \App\Models\ReviewKriteria::where('review_id', $review->id)
+                ->with('formPenilaianReview')
+                ->get()
+                ->keyBy('form_penilaian_review_id');
+
             return view('reviewer.ppm.pengabdian.edit_review', compact(
                 'proposal',
                 'review',
@@ -669,7 +765,9 @@ class PengabdianController extends Controller
                 'fileUrl',
                 'timeline',
                 'currentDate',
-                'canReview'
+                'canReview',
+                'formKriteria',
+                'reviewKriteria'
             ));
         } else {
             return redirect()->back()->with('error', 'Review not found.');
