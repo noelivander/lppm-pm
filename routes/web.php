@@ -78,14 +78,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 Route::middleware(['auth', 'role:dosen'])->group(function () {
     Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
-    Route::resource('dosen/ppm/penelitian-dos', PenelitianController::class);
-    Route::resource('dosen/ppm/pengabdian-dos', PengabdianController::class);
 });
 
 Route::middleware(['auth', 'role:reviewer'])->group(function () {
     Route::get('/reviewer/dashboard', [ReviewerController::class, 'dashboard'])->name('reviewer.dashboard');
-    Route::resource('reviewer/ppm/penelitian-rev', PenelitianController::class);
-    Route::resource('reviewer/ppm/pengabdian-rev', PengabdianController::class);
 });
 
 Route::middleware(['auth', 'role:auditor'])->group(function () {

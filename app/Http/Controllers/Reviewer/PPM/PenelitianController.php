@@ -779,6 +779,128 @@ class PenelitianController extends Controller
             return redirect()->back()->with('error', 'Review not found.');
         }
     }
+
+    public function laporanKemajuanIndex(Request $request)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        $reviewerId = Auth::id();
+
+        $baseQuery = Penelitian::with([
+                'laporanKemajuan' => function ($query) {
+                    $query->orderByDesc('created_at');
+                },
+                'revisionParent',
+                'user',
+            ])
+            ->where('is_draft', false)
+            ->where('is_revised', true)
+            ->whereNotNull('revised_from_id')
+            ->whereHas('laporanKemajuan')
+            ->where(function ($query) use ($reviewerId) {
+                $query->whereHas('revisionParent.reviews', function ($reviewQuery) use ($reviewerId) {
+                    $reviewQuery->where('reviewer_id', $reviewerId);
+                })->orWhereHas('reviews', function ($reviewQuery) use ($reviewerId) {
+                    $reviewQuery->where('reviewer_id', $reviewerId);
+                });
+            });
+
+        $filterSkemas = (clone $baseQuery)->select('skema')
+            ->whereNotNull('skema')
+            ->distinct()
+            ->orderBy('skema')
+            ->pluck('skema');
+
+        $filterYears = (clone $baseQuery)->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        $statusOptions = ['Pending', 'Selesai'];
+
+        if ($search = $request->get('search')) {
+            $baseQuery->where('judul', 'like', '%' . $search . '%');
+        }
+
+        if ($skema = $request->get('skema')) {
+            $baseQuery->where('skema', $skema);
+        }
+
+        if ($year = $request->get('year')) {
+            $baseQuery->whereYear('created_at', $year);
+        }
+
+        if ($status = $request->get('status')) {
+            $baseQuery->whereHas('laporanKemajuan', function ($query) use ($status) {
+                if ($status === 'Pending') {
+                    $query->where('status', 'Pending');
+                } elseif ($status === 'Selesai') {
+                    $query->where('status', '!=', 'Pending');
+                }
+            });
+        }
+
+        $proposals = $baseQuery->orderByDesc('updated_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        $filters = $request->only(['search', 'skema', 'year', 'status']);
+
+        return view('reviewer.ppm.penelitian.laporan-kemajuan.index', compact(
+            'proposals',
+            'timeline',
+            'currentDate',
+            'filterSkemas',
+            'filterYears',
+            'statusOptions',
+            'filters'
+        ));
+    }
+
+    public function laporanKemajuanCreate($id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        $reviewerId = Auth::id();
+
+        $proposal = Penelitian::with([
+                'laporanKemajuan' => function ($query) {
+                    $query->orderByDesc('created_at');
+                },
+                'revisionParent.reviews',
+                'reviews',
+                'user',
+            ])
+            ->where('id', $id)
+            ->where('is_revised', true)
+            ->whereHas('laporanKemajuan')
+            ->firstOrFail();
+
+        $latestLaporan = $proposal->laporanKemajuan->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('penelitian-rev.laporan-kemajuan.index')
+                ->with('error', 'Tidak ada laporan kemajuan untuk proposal ini.');
+        }
+
+        $directAssignment = $proposal->reviews->where('reviewer_id', $reviewerId)->isNotEmpty();
+        $parentReviews = optional($proposal->revisionParent)->reviews;
+        $parentAssignment = $parentReviews ? $parentReviews->where('reviewer_id', $reviewerId)->isNotEmpty() : false;
+
+        $isAssigned = $directAssignment || $parentAssignment;
+
+        if (!$isAssigned) {
+            abort(403);
+        }
+
+        return view('reviewer.ppm.penelitian.laporan-kemajuan.create', compact(
+            'proposal',
+            'latestLaporan',
+            'timeline',
+            'currentDate'
+        ));
+    }
+
     protected function getReviewWindow(?Timeline $timeline, Penelitian $proposal): array
     {
         if (!$timeline) {

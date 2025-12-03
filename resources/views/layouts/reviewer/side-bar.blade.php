@@ -107,7 +107,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('penelitian-rev.index')" href="{{ route('penelitian-rev.index') }}">Daftar Proposal</a>
                 <a class="collapse-item @isroute('penelitian-rev.revisi.index')" href="{{ route('penelitian-rev.revisi.index') }}">Revisi Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
+                <a class="collapse-item @isroute('penelitian-rev.laporan-kemajuan.index')" href="{{ route('penelitian-rev.laporan-kemajuan.index') }}">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
         </div>
@@ -125,7 +125,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('pengabdian-rev.index')" href="{{ route('pengabdian-rev.index') }}">Daftar Proposal</a>
                 <a class="collapse-item @isroute('pengabdian-rev.revisi.index')" href="{{ route('pengabdian-rev.revisi.index') }}">Revisi Proposal</a>
-                <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Kemajuan</a>
+                <a class="collapse-item @isroute('pengabdian-rev.laporan-kemajuan.index')" href="{{ route('pengabdian-rev.laporan-kemajuan.index') }}">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
         </div>
