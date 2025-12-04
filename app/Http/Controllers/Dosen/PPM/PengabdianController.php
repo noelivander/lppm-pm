@@ -778,7 +778,35 @@ class PengabdianController extends Controller
                             ->with('error', 'Nomor review tidak valid.');
         }
 
-        $html = view('pdf.review_template', compact('pengabdian', 'review'))->render();
+        // Get existing review criteria scores
+        $reviewKriteria = \App\Models\ReviewKriteria::where('review_id', $review->id)
+            ->with('formPenilaianReview')
+            ->get()
+            ->keyBy('form_penilaian_review_id');
+        
+        // Get form criteria that were active when review was created
+        if ($reviewKriteria->count() > 0) {
+            // Get form IDs from review_kriteria
+            $formIds = $reviewKriteria->pluck('form_penilaian_review_id')->toArray();
+            
+            // Get forms that were active on review creation date
+            $allFormsForDate = \App\Models\FormPenilaianReview::getActiveFormsForDate('pengabdian', $review->created_at);
+            
+            // Filter to only include forms that were used in this review
+            $formKriteria = $allFormsForDate->filter(function($form) use ($formIds) {
+                return in_array($form->id, $formIds);
+            })->sortBy(function($form) use ($formIds) {
+                return array_search($form->id, $formIds);
+            })->values();
+        } else {
+            // Fallback: use active forms if no review_kriteria exists (backward compatibility)
+            $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
+                ->where('is_active', true)
+                ->orderBy('urutan')
+                ->get();
+        }
+        
+        $html = view('pdf.review_pengabdian', compact('pengabdian', 'review', 'formKriteria', 'reviewKriteria'))->render();
         
         $mpdf = new \Mpdf\Mpdf(['format' => [215.9, 330.2]]);  // Format F4
         $mpdf->WriteHTML($html);

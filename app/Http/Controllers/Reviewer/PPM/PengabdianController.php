@@ -421,18 +421,36 @@ class PengabdianController extends Controller
         // Buat URL publik untuk file proposal
         $fileUrl = Storage::url($proposal->dokumen_proposal);
     
-        // Get active form review criteria
-        $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
-            ->where('is_active', true)
-            ->orderBy('urutan')
-            ->get();
-
+        // Get active form review criteria for current review (if editing)
+        // If review exists, use forms that were active when review was created
         if ($review) {
-            // Get existing review criteria scores
+            // Get existing review criteria scores first
             $reviewKriteria = \App\Models\ReviewKriteria::where('review_id', $review->id)
                 ->with('formPenilaianReview')
                 ->get()
                 ->keyBy('form_penilaian_review_id');
+            
+            // Get form criteria that were active when review was created
+            if ($reviewKriteria->count() > 0) {
+                // Get form IDs from review_kriteria
+                $formIds = $reviewKriteria->pluck('form_penilaian_review_id')->toArray();
+                
+                // Get forms that were active on review creation date
+                $allFormsForDate = \App\Models\FormPenilaianReview::getActiveFormsForDate('pengabdian', $review->created_at);
+                
+                // Filter to only include forms that were used in this review
+                $formKriteria = $allFormsForDate->filter(function($form) use ($formIds) {
+                    return in_array($form->id, $formIds);
+                })->sortBy(function($form) use ($formIds) {
+                    return array_search($form->id, $formIds);
+                })->values();
+            } else {
+                // Fallback: use active forms if no review_kriteria exists
+                $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
+                    ->where('is_active', true)
+                    ->orderBy('urutan')
+                    ->get();
+            }
 
             return view('reviewer.ppm.pengabdian.edit_review', compact(
                 'proposal',
@@ -454,6 +472,12 @@ class PengabdianController extends Controller
                 'reviewKriteria'
             ));
         } else {
+            // For new review, use currently active forms
+            $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
+                ->where('is_active', true)
+                ->orderBy('urutan')
+                ->get();
+            
             return view('reviewer.ppm.pengabdian.review', compact(
                 'proposal',
                 'ketuaTimName',
@@ -485,17 +509,34 @@ class PengabdianController extends Controller
             return redirect()->route('pengabdian-rev.index')->with('error', 'Review tidak ditemukan atau Anda tidak memiliki akses.');
         }
     
-        // Get active form review criteria
-        $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
-            ->where('is_active', true)
-            ->orderBy('urutan')
-            ->get();
-
-        // Get existing review criteria scores
+        // Get existing review criteria scores first
         $reviewKriteria = \App\Models\ReviewKriteria::where('review_id', $review->id)
             ->with('formPenilaianReview')
             ->get()
             ->keyBy('form_penilaian_review_id');
+        
+        // Get form criteria that were active when review was created
+        // Use forms that exist in review_kriteria to ensure historical data integrity
+        if ($reviewKriteria->count() > 0) {
+            // Get form IDs from review_kriteria
+            $formIds = $reviewKriteria->pluck('form_penilaian_review_id')->toArray();
+            
+            // Get forms that were active on review creation date
+            $allFormsForDate = \App\Models\FormPenilaianReview::getActiveFormsForDate('pengabdian', $review->created_at);
+            
+            // Filter to only include forms that were used in this review
+            $formKriteria = $allFormsForDate->filter(function($form) use ($formIds) {
+                return in_array($form->id, $formIds);
+            })->sortBy(function($form) use ($formIds) {
+                return array_search($form->id, $formIds);
+            })->values();
+        } else {
+            // Fallback: use active forms if no review_kriteria exists (backward compatibility)
+            $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
+                ->where('is_active', true)
+                ->orderBy('urutan')
+                ->get();
+        }
     
         $html = view('pdf.review_pengabdian', compact('review', 'formKriteria', 'reviewKriteria'))->render();
     
@@ -738,17 +779,33 @@ class PengabdianController extends Controller
         $fileUrl = Storage::url($proposal->dokumen_proposal);
 
         if ($review) {
-            // Get active form review criteria
-            $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
-                ->where('is_active', true)
-                ->orderBy('urutan')
-                ->get();
-
-            // Get existing review criteria scores
+            // Get existing review criteria scores first
             $reviewKriteria = \App\Models\ReviewKriteria::where('review_id', $review->id)
                 ->with('formPenilaianReview')
                 ->get()
                 ->keyBy('form_penilaian_review_id');
+            
+            // Get form criteria that were active when review was created
+            if ($reviewKriteria->count() > 0) {
+                // Get form IDs from review_kriteria
+                $formIds = $reviewKriteria->pluck('form_penilaian_review_id')->toArray();
+                
+                // Get forms that were active on review creation date
+                $allFormsForDate = \App\Models\FormPenilaianReview::getActiveFormsForDate('pengabdian', $review->created_at);
+                
+                // Filter to only include forms that were used in this review
+                $formKriteria = $allFormsForDate->filter(function($form) use ($formIds) {
+                    return in_array($form->id, $formIds);
+                })->sortBy(function($form) use ($formIds) {
+                    return array_search($form->id, $formIds);
+                })->values();
+            } else {
+                // Fallback: use active forms if no review_kriteria exists
+                $formKriteria = \App\Models\FormPenilaianReview::where('jenis', 'pengabdian')
+                    ->where('is_active', true)
+                    ->orderBy('urutan')
+                    ->get();
+            }
 
             return view('reviewer.ppm.pengabdian.edit_review', compact(
                 'proposal',
