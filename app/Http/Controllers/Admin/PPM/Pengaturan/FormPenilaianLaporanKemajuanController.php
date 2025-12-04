@@ -17,12 +17,14 @@ class FormPenilaianLaporanKemajuanController extends Controller
      */
     public function index()
     {
+        // Get all forms (both active and inactive) for admin management
+        // Admin needs to see all forms including deactivated ones
         $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
             ->orderBy('urutan')
             ->get();
         
         // Group pengabdian by kategori, then by komponen
-        // Get all data ordered by urutan (global order)
+        // Get all data ordered by urutan (global order) - including inactive
         $formPengabdianRaw = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
             ->with('subKomponen')
             ->orderBy('urutan', 'asc')
@@ -166,6 +168,32 @@ class FormPenilaianLaporanKemajuanController extends Controller
     }
 
     /**
+     * Check if form has been used
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function checkUsage($id)
+    {
+        try {
+            $form = FormPenilaianLaporanKemajuan::findOrFail($id);
+            $used = $form->hasBeenUsed();
+            
+            return response()->json([
+                'used' => $used,
+                'message' => $used 
+                    ? 'Komponen penilaian ini sudah pernah digunakan dalam laporan kemajuan.' 
+                    : 'Komponen penilaian ini belum pernah digunakan dan dapat dihapus.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat memeriksa penggunaan',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -241,10 +269,23 @@ class FormPenilaianLaporanKemajuanController extends Controller
         try {
             $form = FormPenilaianLaporanKemajuan::findOrFail($id);
             $jenis = $form->jenis; // Store jenis before deletion
-            $form->delete(); // Sub komponen akan terhapus otomatis karena cascade
-
-            $redirect = redirect()->route('form-penilaian-laporan-kemajuan.index')
-                ->with('success', 'Komponen penilaian berhasil dihapus!');
+            
+            // Check if form has been used (for data integrity)
+            // Instead of hard delete, we'll just deactivate it
+            // This ensures historical data remains accessible
+            if ($form->hasBeenUsed()) {
+                // If form has been used, just deactivate it instead of deleting
+                $form->update(['is_active' => false]);
+                
+                $redirect = redirect()->route('form-penilaian-laporan-kemajuan.index')
+                    ->with('warning', 'Komponen penilaian dinonaktifkan karena sudah pernah digunakan. Data historis tetap aman.');
+            } else {
+                // If form hasn't been used, safe to delete
+                $form->delete(); // Sub komponen akan terhapus otomatis karena cascade
+                
+                $redirect = redirect()->route('form-penilaian-laporan-kemajuan.index')
+                    ->with('success', 'Komponen penilaian berhasil dihapus!');
+            }
             
             // Redirect to appropriate tab based on jenis
             if ($jenis === 'pengabdian') {

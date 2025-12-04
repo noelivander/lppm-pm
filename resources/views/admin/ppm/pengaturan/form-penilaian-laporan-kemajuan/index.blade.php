@@ -17,6 +17,13 @@
         </div>
     @endif
 
+    @if(session('warning'))
+        <div class="modern-alert modern-alert-warning alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-triangle me-2"></i>{{ session('warning') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     @if($errors->any())
         <div class="modern-alert modern-alert-danger alert-dismissible fade show" role="alert">
             <i class="fa fa-exclamation-circle me-2"></i>
@@ -130,7 +137,7 @@
                                             <th>Kategori</th>
                                             <th>Komponen Penilaian</th>
                                             <th>Sub Komponen</th>
-                                            <th>Nilai</th>
+                                        
                                             <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
@@ -179,9 +186,7 @@
                                                                 <strong class="text-primary ms-2">{{ $sub->nilai == floor($sub->nilai) ? number_format($sub->nilai, 0) : number_format($sub->nilai, 2) }}</strong>
                                                             </td>
                                                             @if($subIndex === 0)
-                                                                <td rowspan="{{ $komponenRowspan }}" style="vertical-align: middle;">
-                                                                    <strong class="text-primary">{{ $totalNilai == floor($totalNilai) ? number_format($totalNilai, 0) : number_format($totalNilai, 2) }}</strong>
-                                                                </td>
+                                                            
                                                                 <td rowspan="{{ $komponenRowspan }}" style="vertical-align: middle;">
                                                                     @if($form->is_active)
                                                                         <span class="status-badge selesai">
@@ -363,10 +368,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body modern-card-body">
-                    <div class="text-center">
-                        <i class="fa fa-trash fa-3x text-danger mb-3"></i>
-                        <h6>Apakah Anda yakin ingin menghapus komponen penilaian ini?</h6>
-                        <p class="text-muted">Tindakan ini tidak dapat dibatalkan dan akan menghapus komponen penilaian secara permanen.</p>
+                    <div class="text-center" id="deleteFormContent">
+                        <i class="fa fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+                        <h6>Memeriksa status komponen penilaian...</h6>
+                        <p class="text-muted">Mohon tunggu sebentar.</p>
                     </div>
                 </div>
                 <div class="modal-footer modern-card-footer">
@@ -620,6 +625,83 @@
         function deleteForm(id) {
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteFormModal'));
             document.getElementById('deleteFormForm').action = `/administrator/form-penilaian-laporan-kemajuan/${id}`;
+            
+            // Reset content to loading state
+            const contentDiv = document.getElementById('deleteFormContent');
+            contentDiv.innerHTML = `
+                <i class="fa fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+                <h6>Memeriksa status komponen penilaian...</h6>
+                <p class="text-muted">Mohon tunggu sebentar.</p>
+            `;
+            
+            // Check if form has been used
+            fetch(`{{ url('administrator/form-penilaian-laporan-kemajuan') }}/${id}/edit`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    // Check if form has been used
+                    fetch(`{{ url('administrator/form-penilaian-laporan-kemajuan') }}/${id}/check-usage`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to check usage');
+                            }
+                            return response.json();
+                        })
+                        .then(usageData => {
+                            const isUsed = usageData.used || false;
+                            
+                            if (isUsed) {
+                                // Form has been used - show warning
+                                contentDiv.innerHTML = `
+                                    <i class="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                    <h6 class="text-warning">Komponen penilaian sudah pernah digunakan!</h6>
+                                    <p class="text-muted mb-2">
+                                        Komponen penilaian ini sudah pernah digunakan dalam laporan kemajuan. 
+                                        Untuk menjaga integritas data historis, komponen ini akan <strong>dinonaktifkan</strong> 
+                                        bukan dihapus.
+                                    </p>
+                                    <p class="text-muted small">
+                                        <i class="fa fa-info-circle me-1"></i>
+                                        Data historis tetap aman dan dapat diakses.
+                                    </p>
+                                `;
+                                document.getElementById('deleteFormBtn').innerHTML = '<i class="fa fa-ban me-1"></i> Nonaktifkan Komponen';
+                            } else {
+                                // Form hasn't been used - can delete
+                                contentDiv.innerHTML = `
+                                    <i class="fa fa-trash fa-3x text-danger mb-3"></i>
+                                    <h6>Apakah Anda yakin ingin menghapus komponen penilaian ini?</h6>
+                                    <p class="text-muted">Tindakan ini tidak dapat dibatalkan dan akan menghapus komponen penilaian secara permanen.</p>
+                                `;
+                                document.getElementById('deleteFormBtn').innerHTML = '<i class="fa fa-trash me-1"></i> Hapus Komponen';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking usage:', error);
+                            // If check fails, show default delete message
+                            contentDiv.innerHTML = `
+                                <i class="fa fa-trash fa-3x text-danger mb-3"></i>
+                                <h6>Apakah Anda yakin ingin menghapus komponen penilaian ini?</h6>
+                                <p class="text-muted">Tindakan ini tidak dapat dibatalkan dan akan menghapus komponen penilaian secara permanen.</p>
+                            `;
+                            document.getElementById('deleteFormBtn').innerHTML = '<i class="fa fa-trash me-1"></i> Hapus Komponen';
+                        });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // If edit fails, show default delete message
+                    const contentDiv = document.getElementById('deleteFormContent');
+                    contentDiv.innerHTML = `
+                        <i class="fa fa-trash fa-3x text-danger mb-3"></i>
+                        <h6>Apakah Anda yakin ingin menghapus komponen penilaian ini?</h6>
+                        <p class="text-muted">Tindakan ini tidak dapat dibatalkan dan akan menghapus komponen penilaian secara permanen.</p>
+                    `;
+                    document.getElementById('deleteFormBtn').innerHTML = '<i class="fa fa-trash me-1"></i> Hapus Komponen';
+                });
+            
             deleteModal.show();
         }
 

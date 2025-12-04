@@ -73,6 +73,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('form-penilaian-laporan-kemajuan', [FormPenilaianLaporanKemajuanController::class, 'index'])->name('form-penilaian-laporan-kemajuan.index');
     Route::post('form-penilaian-laporan-kemajuan', [FormPenilaianLaporanKemajuanController::class, 'store'])->name('form-penilaian-laporan-kemajuan.store');
     Route::get('form-penilaian-laporan-kemajuan/{id}/edit', [FormPenilaianLaporanKemajuanController::class, 'edit'])->name('form-penilaian-laporan-kemajuan.edit');
+    Route::get('form-penilaian-laporan-kemajuan/{id}/check-usage', [FormPenilaianLaporanKemajuanController::class, 'checkUsage'])->name('form-penilaian-laporan-kemajuan.check-usage');
     Route::put('form-penilaian-laporan-kemajuan/{id}', [FormPenilaianLaporanKemajuanController::class, 'update'])->name('form-penilaian-laporan-kemajuan.update');
     Route::delete('form-penilaian-laporan-kemajuan/{id}', [FormPenilaianLaporanKemajuanController::class, 'destroy'])->name('form-penilaian-laporan-kemajuan.destroy');
     
@@ -80,6 +81,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('form-penilaian-review', [FormPenilaianReviewController::class, 'index'])->name('form-penilaian-review.index');
     Route::post('form-penilaian-review', [FormPenilaianReviewController::class, 'store'])->name('form-penilaian-review.store');
     Route::get('form-penilaian-review/{id}/edit', [FormPenilaianReviewController::class, 'edit'])->name('form-penilaian-review.edit');
+    Route::get('form-penilaian-review/{id}/check-usage', [FormPenilaianReviewController::class, 'checkUsage'])->name('form-penilaian-review.check-usage');
     Route::put('form-penilaian-review/{id}', [FormPenilaianReviewController::class, 'update'])->name('form-penilaian-review.update');
     Route::delete('form-penilaian-review/{id}', [FormPenilaianReviewController::class, 'destroy'])->name('form-penilaian-review.destroy');
     
