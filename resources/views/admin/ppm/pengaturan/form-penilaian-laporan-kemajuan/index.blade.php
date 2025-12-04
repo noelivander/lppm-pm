@@ -136,88 +136,115 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse($formPengabdian as $index => $form)
+                                        @php
+                                            $rowNumber = 1;
+                                        @endphp
+                                        @forelse($formPengabdian as $kategori => $komponenList)
                                             @php
-                                                $subKomponenCount = $form->subKomponen->count();
-                                                $rowspan = $subKomponenCount > 0 ? $subKomponenCount : 1;
-                                                $totalNilai = $form->subKomponen->sum('nilai');
+                                                // Calculate total rows for this kategori (sum of all sub komponen counts)
+                                                $kategoriRowspan = 0;
+                                                foreach ($komponenList as $komponen) {
+                                                    $subCount = $komponen->subKomponen->count();
+                                                    $kategoriRowspan += $subCount > 0 ? $subCount : 1;
+                                                }
+                                                $kategoriFirstRow = true;
                                             @endphp
-                                            @if($subKomponenCount > 0)
-                                                @foreach($form->subKomponen as $subIndex => $sub)
+                                            @foreach($komponenList as $komponenIndex => $form)
+                                                @php
+                                                    $subKomponenCount = $form->subKomponen->count();
+                                                    $komponenRowspan = $subKomponenCount > 0 ? $subKomponenCount : 1;
+                                                    $totalNilai = $form->subKomponen->sum('nilai');
+                                                    $komponenFirstRow = true;
+                                                @endphp
+                                                @if($subKomponenCount > 0)
+                                                    @foreach($form->subKomponen as $subIndex => $sub)
+                                                        <tr>
+                                                            @if($kategoriFirstRow && $komponenFirstRow)
+                                                                <td rowspan="{{ $kategoriRowspan }}">
+                                                                    {{ $rowNumber }}
+                                                                </td>
+                                                                <td rowspan="{{ $kategoriRowspan }}">
+                                                                    <strong>{{ $kategori ?? '-' }}</strong>
+                                                                </td>
+                                                                @php $kategoriFirstRow = false; @endphp
+                                                            @endif
+                                                            @if($komponenFirstRow)
+                                                                <td rowspan="{{ $komponenRowspan }}">
+                                                                    <strong>{{ $form->komponen_penilaian }}</strong>
+                                                                </td>
+                                                                @php $komponenFirstRow = false; @endphp
+                                                            @endif
+                                                            <td>
+                                                                <strong>{{ $sub->sub_komponen }}</strong>
+                                                                <strong class="text-primary ms-2">{{ $sub->nilai == floor($sub->nilai) ? number_format($sub->nilai, 0) : number_format($sub->nilai, 2) }}</strong>
+                                                            </td>
+                                                            @if($subIndex === 0)
+                                                                <td rowspan="{{ $komponenRowspan }}" style="vertical-align: middle;">
+                                                                    <strong class="text-primary">{{ $totalNilai == floor($totalNilai) ? number_format($totalNilai, 0) : number_format($totalNilai, 2) }}</strong>
+                                                                </td>
+                                                                <td rowspan="{{ $komponenRowspan }}" style="vertical-align: middle;">
+                                                                    @if($form->is_active)
+                                                                        <span class="status-badge selesai">
+                                                                            <i class="fa fa-check-circle me-1"></i>Aktif
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="status-badge pending">
+                                                                            <i class="fa fa-times-circle me-1"></i>Nonaktif
+                                                                        </span>
+                                                                    @endif
+                                                                </td>
+                                                                <td rowspan="{{ $komponenRowspan }}" style="vertical-align: middle;">
+                                                                    <div class="d-flex gap-2">
+                                                                        <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" onclick="editForm({{ $form->id }})" title="Edit">
+                                                                            <i class="fa fa-edit me-1"></i> Ubah
+                                                                        </button>
+                                                                        <button type="button" class="modern-btn modern-btn-danger modern-btn-sm" onclick="deleteForm({{ $form->id }})" title="Hapus">
+                                                                            <i class="fa fa-trash me-1"></i> Hapus
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            @endif
+                                                        </tr>
+                                                    @endforeach
+                                                @else
                                                     <tr>
-                                                        @if($subIndex === 0)
-                                                            <td rowspan="{{ $rowspan }}">
-                                                                {{ $index + 1 }}
+                                                        @if($kategoriFirstRow)
+                                                            <td rowspan="{{ $kategoriRowspan }}">
+                                                                {{ $rowNumber }}
                                                             </td>
-                                                            <td rowspan="{{ $rowspan }}">
-                                                                <strong>{{ $form->kategori ?? '-' }}</strong>
+                                                            <td rowspan="{{ $kategoriRowspan }}">
+                                                                <strong>{{ $kategori ?? '-' }}</strong>
                                                             </td>
-                                                            <td rowspan="{{ $rowspan }}">
-                                                                <strong>{{ $form->komponen_penilaian }}</strong>
-                                                            </td>
+                                                            @php $kategoriFirstRow = false; @endphp
                                                         @endif
+                                                        <td><strong>{{ $form->komponen_penilaian }}</strong></td>
+                                                        <td class="text-muted">-</td>
+                                                        <td class="text-muted">-</td>
                                                         <td>
-                                                            <strong>{{ $sub->sub_komponen }}</strong>
-                                                            <strong class="text-primary ms-2">{{ $sub->nilai == floor($sub->nilai) ? number_format($sub->nilai, 0) : number_format($sub->nilai, 2) }}</strong>
+                                                            @if($form->is_active)
+                                                                <span class="status-badge selesai">
+                                                                    <i class="fa fa-check-circle me-1"></i>Aktif
+                                                                </span>
+                                                            @else
+                                                                <span class="status-badge pending">
+                                                                    <i class="fa fa-times-circle me-1"></i>Nonaktif
+                                                                </span>
+                                                            @endif
                                                         </td>
-                                                        @if($subIndex === 0)
-                                                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
-                                                                <strong class="text-primary">{{ $totalNilai == floor($totalNilai) ? number_format($totalNilai, 0) : number_format($totalNilai, 2) }}</strong>
-                                                            </td>
-                                                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
-                                                                @if($form->is_active)
-                                                                    <span class="status-badge selesai">
-                                                                        <i class="fa fa-check-circle me-1"></i>Aktif
-                                                                    </span>
-                                                                @else
-                                                                    <span class="status-badge pending">
-                                                                        <i class="fa fa-times-circle me-1"></i>Nonaktif
-                                                                    </span>
-                                                                @endif
-                                                            </td>
-                                                            <td rowspan="{{ $rowspan }}" style="vertical-align: middle;">
-                                                                <div class="d-flex gap-2">
-                                                                    <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" onclick="editForm({{ $form->id }})" title="Edit">
-                                                                        <i class="fa fa-edit me-1"></i> Ubah
-                                                                    </button>
-                                                                    <button type="button" class="modern-btn modern-btn-danger modern-btn-sm" onclick="deleteForm({{ $form->id }})" title="Hapus">
-                                                                        <i class="fa fa-trash me-1"></i> Hapus
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                        @endif
+                                                        <td>
+                                                            <div class="d-flex gap-2">
+                                                                <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" onclick="editForm({{ $form->id }})" title="Edit">
+                                                                    <i class="fa fa-edit me-1"></i> Ubah
+                                                                </button>
+                                                                <button type="button" class="modern-btn modern-btn-danger modern-btn-sm" onclick="deleteForm({{ $form->id }})" title="Hapus">
+                                                                    <i class="fa fa-trash me-1"></i> Hapus
+                                                                </button>
+                                                            </div>
+                                                        </td>
                                                     </tr>
-                                                @endforeach
-                                            @else
-                                                <tr>
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td><strong>{{ $form->kategori ?? '-' }}</strong></td>
-                                                    <td><strong>{{ $form->komponen_penilaian }}</strong></td>
-                                                    <td class="text-muted">-</td>
-                                                    <td class="text-muted">-</td>
-                                                    <td>
-                                                        @if($form->is_active)
-                                                            <span class="status-badge selesai">
-                                                                <i class="fa fa-check-circle me-1"></i>Aktif
-                                                            </span>
-                                                        @else
-                                                            <span class="status-badge pending">
-                                                                <i class="fa fa-times-circle me-1"></i>Nonaktif
-                                                            </span>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex gap-2">
-                                                            <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" onclick="editForm({{ $form->id }})" title="Edit">
-                                                                <i class="fa fa-edit me-1"></i> Ubah
-                                                            </button>
-                                                            <button type="button" class="modern-btn modern-btn-danger modern-btn-sm" onclick="deleteForm({{ $form->id }})" title="Hapus">
-                                                                <i class="fa fa-trash me-1"></i> Hapus
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endif
+                                                @endif
+                                            @endforeach
+                                            @php $rowNumber++; @endphp
                                         @empty
                                             <tr>
                                                 <td colspan="7" class="text-center py-4">
@@ -258,7 +285,22 @@
                             <label for="kategori" class="modern-form-label">
                                 <i class="fa fa-tag me-2"></i>Kategori <span class="text-danger">*</span>
                             </label>
-                            <input type="text" name="kategori" id="kategori" class="modern-form-input" placeholder="Masukkan kategori">
+                            <div class="position-relative">
+                                <select id="kategoriSelect" class="modern-form-select" onchange="handleKategoriChange()">
+                                    <option value="">-- Pilih Kategori atau Ketik Baru --</option>
+                                    @foreach($kategoriList as $kat)
+                                        <option value="{{ $kat }}">{{ $kat }}</option>
+                                    @endforeach
+                                    <option value="__NEW__" style="font-weight: 600; color: #4f46e5;">+ Ketik Kategori Baru</option>
+                                </select>
+                                <input type="text" name="kategori" id="kategori" class="modern-form-input mt-2" 
+                                    style="display: none;" 
+                                    placeholder="Masukkan kategori baru" 
+                                    autocomplete="off">
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fa fa-info-circle me-1"></i>Pilih dari dropdown atau pilih "Ketik Kategori Baru" untuk menambah kategori baru
+                                </small>
+                            </div>
                         </div>
 
                         <div class="modern-form-group">
@@ -362,6 +404,29 @@
         let currentJenis = 'penelitian';
         let subKomponenIndex = 0;
 
+        function handleKategoriChange() {
+            const select = document.getElementById('kategoriSelect');
+            const input = document.getElementById('kategori');
+            
+            if (select.value === '__NEW__') {
+                // Show input for new kategori
+                input.style.display = 'block';
+                input.value = '';
+                input.required = true;
+                input.focus();
+            } else if (select.value) {
+                // Hide input and set value from select
+                input.style.display = 'none';
+                input.value = select.value;
+                input.required = false;
+            } else {
+                // Reset
+                input.style.display = 'none';
+                input.value = '';
+                input.required = false;
+            }
+        }
+
         function setJenis(jenis) {
             currentJenis = jenis;
             document.getElementById('formJenis').value = jenis;
@@ -374,6 +439,15 @@
             document.getElementById('subKomponenContainer').innerHTML = '';
             document.getElementById('is_active').checked = true; // Default checked
             subKomponenIndex = 0;
+            
+            // Reset kategori dropdown
+            const kategoriSelect = document.getElementById('kategoriSelect');
+            const kategoriInput = document.getElementById('kategori');
+            if (kategoriSelect) {
+                kategoriSelect.value = '';
+                kategoriInput.style.display = 'none';
+                kategoriInput.value = '';
+            }
             
             // Show/hide kategori and sub komponen section
             if (jenis === 'pengabdian') {
@@ -465,7 +539,6 @@
                     document.getElementById('formPenilaianForm').action = `/administrator/form-penilaian-laporan-kemajuan/${id}`;
                     document.getElementById('modalTitle').innerHTML = '<i class="fa fa-edit me-2"></i>Form Edit Komponen Penilaian';
                     
-                    document.getElementById('kategori').value = form.kategori || '';
                     document.getElementById('komponen_penilaian').value = form.komponen_penilaian;
                     document.getElementById('urutan').value = form.urutan || '';
                     document.getElementById('is_active').checked = form.is_active == 1;
@@ -473,8 +546,35 @@
                     // Show/hide kategori and sub komponen section
                     if (form.jenis === 'pengabdian') {
                         document.getElementById('kategoriGroup').style.display = 'block';
-                        document.getElementById('kategori').required = true;
                         document.getElementById('subKomponenSection').style.display = 'block';
+                        
+                        // Handle kategori dropdown
+                        const kategoriSelect = document.getElementById('kategoriSelect');
+                        const kategoriInput = document.getElementById('kategori');
+                        const kategoriValue = form.kategori || '';
+                        
+                        // Check if kategori exists in dropdown
+                        const optionExists = Array.from(kategoriSelect.options).some(opt => opt.value === kategoriValue);
+                        
+                        if (optionExists && kategoriValue) {
+                            // Set select value
+                            kategoriSelect.value = kategoriValue;
+                            kategoriInput.style.display = 'none';
+                            kategoriInput.value = kategoriValue;
+                            kategoriInput.required = false;
+                        } else if (kategoriValue) {
+                            // Kategori baru, show input
+                            kategoriSelect.value = '__NEW__';
+                            kategoriInput.style.display = 'block';
+                            kategoriInput.value = kategoriValue;
+                            kategoriInput.required = true;
+                        } else {
+                            // Reset
+                            kategoriSelect.value = '';
+                            kategoriInput.style.display = 'none';
+                            kategoriInput.value = '';
+                            kategoriInput.required = true;
+                        }
                         
                         // Clear and populate sub komponen
                         document.getElementById('subKomponenContainer').innerHTML = '';
@@ -535,6 +635,28 @@
         // Handle form submission
         document.getElementById('formPenilaianForm').addEventListener('submit', function(e) {
             if (currentJenis === 'pengabdian') {
+                // Ensure kategori value is set correctly
+                const kategoriSelect = document.getElementById('kategoriSelect');
+                const kategoriInput = document.getElementById('kategori');
+                
+                if (kategoriSelect.value === '__NEW__') {
+                    // Use input value for new kategori
+                    if (!kategoriInput.value.trim()) {
+                        e.preventDefault();
+                        alert('Mohon masukkan kategori baru');
+                        kategoriInput.focus();
+                        return false;
+                    }
+                } else if (kategoriSelect.value) {
+                    // Use select value
+                    kategoriInput.value = kategoriSelect.value;
+                } else {
+                    e.preventDefault();
+                    alert('Mohon pilih atau masukkan kategori');
+                    kategoriSelect.focus();
+                    return false;
+                }
+                
                 const subKomponenInputs = document.querySelectorAll('input[name^="sub_komponen"]');
                 if (subKomponenInputs.length === 0) {
                     e.preventDefault();
@@ -598,5 +720,7 @@
                 transform: translateY(0);
             }
         }
+
+        /* Kategori select styling - using modern-form-select class, no custom styling needed */
     </style>
 </x-admin-layout>

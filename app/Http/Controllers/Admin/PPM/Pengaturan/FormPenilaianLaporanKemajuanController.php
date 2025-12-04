@@ -21,12 +21,46 @@ class FormPenilaianLaporanKemajuanController extends Controller
             ->orderBy('urutan')
             ->get();
         
-        $formPengabdian = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
+        // Group pengabdian by kategori, then by komponen
+        // Get all data ordered by urutan (global order)
+        $formPengabdianRaw = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
             ->with('subKomponen')
-            ->orderBy('urutan')
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
             ->get();
+        
+        // Group by kategori while maintaining the order
+        // Use a custom collection to preserve order
+        $formPengabdian = collect();
+        $grouped = [];
+        
+        foreach ($formPengabdianRaw as $item) {
+            $kategori = $item->kategori ?? 'uncategorized';
+            if (!isset($grouped[$kategori])) {
+                $grouped[$kategori] = collect();
+            }
+            $grouped[$kategori]->push($item);
+        }
+        
+        // Rebuild collection maintaining order of first appearance
+        $seenCategories = [];
+        foreach ($formPengabdianRaw as $item) {
+            $kategori = $item->kategori ?? 'uncategorized';
+            if (!in_array($kategori, $seenCategories)) {
+                $seenCategories[] = $kategori;
+                $formPengabdian->put($kategori, $grouped[$kategori]);
+            }
+        }
+        
+        // Get unique categories for dropdown
+        $kategoriList = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
+            ->whereNotNull('kategori')
+            ->distinct()
+            ->pluck('kategori')
+            ->sort()
+            ->values();
 
-        return view('admin.ppm.pengaturan.form-penilaian-laporan-kemajuan.index', compact('formPenelitian', 'formPengabdian'));
+        return view('admin.ppm.pengaturan.form-penilaian-laporan-kemajuan.index', compact('formPenelitian', 'formPengabdian', 'kategoriList'));
     }
 
     /**
