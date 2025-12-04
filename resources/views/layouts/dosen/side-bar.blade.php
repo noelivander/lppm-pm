@@ -107,7 +107,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('penelitian-dos.index')" href="{{ route('penelitian-dos.index') }}">Upload Proposal</a>
                 <a class="collapse-item @isroute('penelitian-dos.revisi.index')" href="{{ route('penelitian-dos.revisi.index') }}">Revisi Proposal</a>
-                <a class="collapse-item {{ request()->routeIs('penelitian-dos.laporan-kemajuan.*') ? 'active' : '' }}" href="{{ route('penelitian-dos.laporan-kemajuan.index') }}">Laporan Kemajuan</a>
+                <a class="collapse-item" href="{{ route('penelitian-dos.laporan-kemajuan.index') }}">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
         </div>
@@ -125,7 +125,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item @isroute('pengabdian-dos.index')" href="{{ route('pengabdian-dos.index') }}">Upload Proposal</a>
                 <a class="collapse-item @isroute('pengabdian-dos.revisi.index')" href="{{ route('pengabdian-dos.revisi.index') }}">Revisi Proposal</a>
-                <a class="collapse-item {{ request()->routeIs('pengabdian-dos.laporan-kemajuan.*') ? 'active' : '' }}" href="{{ route('pengabdian-dos.laporan-kemajuan.index') }}">Laporan Kemajuan</a>
+                <a class="collapse-item" href="{{ route('pengabdian-dos.laporan-kemajuan.index') }}">Laporan Kemajuan</a>
                 <a class="collapse-item disabled-link" href="javascript:void(0)" aria-disabled="true">Laporan Akhir</a>
             </div>
         </div>
