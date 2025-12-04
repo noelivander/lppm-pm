@@ -11,6 +11,8 @@ use App\Models\Timeline;
 use App\Models\Review;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Models\FormPenilaianLaporanKemajuan;
+use App\Models\LaporanKemajuanReview;
 
 class PengabdianController extends Controller
 {
@@ -867,7 +869,7 @@ class PengabdianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        $statusOptions = ['Pending', 'Selesai'];
+        $statusOptions = ['Pending', 'Draft', 'Selesai'];
 
         if ($search = $request->get('search')) {
             $baseQuery->where('judul', 'like', '%' . $search . '%');
@@ -883,11 +885,7 @@ class PengabdianController extends Controller
 
         if ($status = $request->get('status')) {
             $baseQuery->whereHas('laporanKemajuan', function ($query) use ($status) {
-                if ($status === 'Pending') {
-                    $query->where('status', 'Pending');
-                } elseif ($status === 'Selesai') {
-                    $query->where('status', '!=', 'Pending');
-                }
+                $query->where('status', $status);
             });
         }
 
@@ -944,12 +942,156 @@ class PengabdianController extends Controller
             abort(403);
         }
 
+        // Ambil form penilaian laporan kemajuan (pengabdian) yang aktif
+        $formPengabdianRaw = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
+            ->with('subKomponen')
+            ->where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // Group by kategori seperti di admin (1 kategori -> banyak komponen -> banyak sub)
+        $formPengabdian = collect();
+        $grouped = [];
+
+        foreach ($formPengabdianRaw as $item) {
+            $kategori = $item->kategori ?? 'uncategorized';
+            if (!isset($grouped[$kategori])) {
+                $grouped[$kategori] = collect();
+            }
+            $grouped[$kategori]->push($item);
+        }
+
+        $seenCategories = [];
+        foreach ($formPengabdianRaw as $item) {
+            $kategori = $item->kategori ?? 'uncategorized';
+            if (!in_array($kategori, $seenCategories)) {
+                $seenCategories[] = $kategori;
+                $formPengabdian->put($kategori, $grouped[$kategori]);
+            }
+        }
+
+        $existingReview = LaporanKemajuanReview::with('items')
+            ->where('laporan_kemajuan_id', $latestLaporan->id)
+            ->where('reviewer_id', $reviewerId)
+            ->first();
+
+        $existingNilai = [];
+        if ($existingReview) {
+            foreach ($existingReview->items as $item) {
+                $componentId = $item->form_penilaian_laporan_kemajuan_id;
+                $subId = $item->form_penilaian_laporan_kemajuan_sub_id ?? 0;
+                $existingNilai[$componentId][$subId] = $item->nilai;
+            }
+        }
+
         return view('reviewer.ppm.pengabdian.laporan-kemajuan.create', compact(
             'proposal',
             'latestLaporan',
             'timeline',
-            'currentDate'
+            'currentDate',
+            'formPengabdian',
+            'existingReview',
+            'existingNilai'
         ));
+    }
+
+    public function laporanKemajuanStore(Request $request, $id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        $reviewerId = Auth::id();
+
+        $proposal = Pengabdian::with([
+                'laporanKemajuan' => function ($query) {
+                    $query->orderByDesc('created_at');
+                },
+                'revisionParent.reviews',
+                'reviews',
+                'user',
+            ])
+            ->where('id', $id)
+            ->where('is_revised', true)
+            ->whereHas('laporanKemajuan')
+            ->firstOrFail();
+
+        $latestLaporan = $proposal->laporanKemajuan->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('pengabdian-rev.laporan-kemajuan.index')
+                ->with('error', 'Tidak ada laporan kemajuan untuk proposal ini.');
+        }
+
+        $directAssignment = $proposal->reviews->where('reviewer_id', $reviewerId)->isNotEmpty();
+        $parentReviews = optional($proposal->revisionParent)->reviews;
+        $parentAssignment = $parentReviews ? $parentReviews->where('reviewer_id', $reviewerId)->isNotEmpty() : false;
+
+        $isAssigned = $directAssignment || $parentAssignment;
+
+        if (!$isAssigned) {
+            abort(403);
+        }
+
+        $formPengabdianRaw = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
+            ->with('subKomponen')
+            ->where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $action = $request->input('action', 'draft');
+        $targetStatus = $action === 'submit' ? 'selesai' : 'draft';
+
+        $rules = [
+            'nilai' => 'array',
+            'nilai.*.*' => $action === 'submit' ? 'required|numeric|min:0|max:100' : 'nullable|numeric|min:0|max:100',
+            'catatan_umum' => 'nullable|string',
+        ];
+
+        $validated = $request->validate($rules);
+        $nilaiInput = $validated['nilai'] ?? [];
+
+        $review = LaporanKemajuanReview::updateOrCreate(
+            [
+                'laporan_kemajuan_id' => $latestLaporan->id,
+                'reviewer_id' => $reviewerId,
+            ],
+            [
+                'jenis' => 'pengabdian',
+            ]
+        );
+
+        $review->status = $targetStatus;
+        $review->catatan_umum = $validated['catatan_umum'] ?? null;
+        $review->submitted_at = $targetStatus === 'selesai' ? now() : null;
+        $review->save();
+
+        $review->items()->delete();
+
+        foreach ($nilaiInput as $componentId => $subValues) {
+            foreach ($subValues as $subId => $value) {
+                if ($value === null || $value === '') {
+                    continue;
+                }
+
+                $review->items()->create([
+                    'form_penilaian_laporan_kemajuan_id' => $componentId,
+                    'form_penilaian_laporan_kemajuan_sub_id' => $subId == 0 ? null : $subId,
+                    'nilai' => $value,
+                ]);
+            }
+        }
+
+        $latestLaporan->status = $targetStatus === 'selesai' ? 'Selesai' : 'Draft';
+        $latestLaporan->save();
+
+        $message = $targetStatus === 'selesai'
+            ? 'Penilaian laporan kemajuan berhasil disimpan dan ditandai selesai.'
+            : 'Draft penilaian laporan kemajuan berhasil disimpan.';
+
+        return redirect()
+            ->route('pengabdian-rev.laporan-kemajuan.create', $proposal->id)
+            ->with('success', $message);
     }
 
     protected function getReviewWindow(?Timeline $timeline, Pengabdian $proposal): array

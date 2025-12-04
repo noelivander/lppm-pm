@@ -42,6 +42,11 @@ class LaporanKemajuan extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function reviewerEvaluations()
+    {
+        return $this->hasMany(LaporanKemajuanReview::class);
+    }
+
     // Helper method to get the proposal (either penelitian or pengabdian)
     public function proposal()
     {

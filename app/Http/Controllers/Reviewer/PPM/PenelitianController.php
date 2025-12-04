@@ -11,6 +11,8 @@ use App\Models\Review;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Timeline;
+use App\Models\FormPenilaianLaporanKemajuan;
+use App\Models\LaporanKemajuanReview;
 
 
 class PenelitianController extends Controller
@@ -873,7 +875,7 @@ class PenelitianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
-        $statusOptions = ['Pending', 'Selesai'];
+        $statusOptions = ['Pending', 'Draft', 'Selesai'];
 
         if ($search = $request->get('search')) {
             $baseQuery->where('judul', 'like', '%' . $search . '%');
@@ -889,11 +891,7 @@ class PenelitianController extends Controller
 
         if ($status = $request->get('status')) {
             $baseQuery->whereHas('laporanKemajuan', function ($query) use ($status) {
-                if ($status === 'Pending') {
-                    $query->where('status', 'Pending');
-                } elseif ($status === 'Selesai') {
-                    $query->where('status', '!=', 'Pending');
-                }
+                $query->where('status', $status);
             });
         }
 
@@ -950,12 +948,127 @@ class PenelitianController extends Controller
             abort(403);
         }
 
+        // Ambil form penilaian laporan kemajuan (penelitian) yang aktif
+        $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
+            ->where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
+        $existingReview = LaporanKemajuanReview::with('items')
+            ->where('laporan_kemajuan_id', $latestLaporan->id)
+            ->where('reviewer_id', $reviewerId)
+            ->first();
+
+        $existingKomentar = $existingReview
+            ? $existingReview->items
+                ->filter(function ($item) {
+                    return !$item->form_penilaian_laporan_kemajuan_sub_id;
+                })
+                ->pluck('komentar', 'form_penilaian_laporan_kemajuan_id')
+                ->toArray()
+            : [];
+
         return view('reviewer.ppm.penelitian.laporan-kemajuan.create', compact(
             'proposal',
             'latestLaporan',
             'timeline',
-            'currentDate'
+            'currentDate',
+            'formPenelitian',
+            'existingReview',
+            'existingKomentar'
         ));
+    }
+
+    public function laporanKemajuanStore(Request $request, $id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        $reviewerId = Auth::id();
+
+        $proposal = Penelitian::with([
+                'laporanKemajuan' => function ($query) {
+                    $query->orderByDesc('created_at');
+                },
+                'revisionParent.reviews',
+                'reviews',
+                'user',
+            ])
+            ->where('id', $id)
+            ->where('is_revised', true)
+            ->whereHas('laporanKemajuan')
+            ->firstOrFail();
+
+        $latestLaporan = $proposal->laporanKemajuan->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('penelitian-rev.laporan-kemajuan.index')
+                ->with('error', 'Tidak ada laporan kemajuan untuk proposal ini.');
+        }
+
+        $directAssignment = $proposal->reviews->where('reviewer_id', $reviewerId)->isNotEmpty();
+        $parentReviews = optional($proposal->revisionParent)->reviews;
+        $parentAssignment = $parentReviews ? $parentReviews->where('reviewer_id', $reviewerId)->isNotEmpty() : false;
+
+        $isAssigned = $directAssignment || $parentAssignment;
+
+        if (!$isAssigned) {
+            abort(403);
+        }
+
+        $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
+            ->where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
+        $action = $request->input('action', 'draft');
+        $targetStatus = $action === 'submit' ? 'selesai' : 'draft';
+
+        $rules = [
+            'komentar' => 'array',
+            'komentar.*' => $action === 'submit' ? 'required|string|min:3' : 'nullable|string',
+            'catatan_umum' => 'nullable|string',
+        ];
+
+        $validated = $request->validate($rules);
+        $komentarInput = $validated['komentar'] ?? [];
+
+        $review = LaporanKemajuanReview::updateOrCreate(
+            [
+                'laporan_kemajuan_id' => $latestLaporan->id,
+                'reviewer_id' => $reviewerId,
+            ],
+            [
+                'jenis' => 'penelitian',
+            ]
+        );
+
+        $review->status = $targetStatus;
+        $review->catatan_umum = $validated['catatan_umum'] ?? null;
+        $review->submitted_at = $targetStatus === 'selesai' ? now() : null;
+        $review->save();
+
+        $review->items()->delete();
+
+        foreach ($formPenelitian as $item) {
+            $comment = $komentarInput[$item->id] ?? null;
+            if ($comment !== null && $comment !== '') {
+                $review->items()->create([
+                    'form_penilaian_laporan_kemajuan_id' => $item->id,
+                    'komentar' => $comment,
+                ]);
+            }
+        }
+
+        $latestLaporan->status = $targetStatus === 'selesai' ? 'Selesai' : 'Draft';
+        $latestLaporan->save();
+
+        $message = $targetStatus === 'selesai'
+            ? 'Penilaian laporan kemajuan berhasil disimpan dan ditandai selesai.'
+            : 'Draft penilaian laporan kemajuan berhasil disimpan.';
+
+        return redirect()
+            ->route('penelitian-rev.laporan-kemajuan.create', $proposal->id)
+            ->with('success', $message);
     }
 
     protected function getReviewWindow(?Timeline $timeline, Penelitian $proposal): array

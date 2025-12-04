@@ -118,7 +118,7 @@
                                             $parentProposal = $proposal->revisionParent;
                                             $skemaDisplay = $parentProposal->skema ?? $proposal->skema ?? '-';
                                             $yearDisplay = optional($parentProposal->created_at ?? $proposal->created_at)->format('Y') ?? '-';
-                                            $statusDisplay = ($latestLaporan && $latestLaporan->status !== 'Pending') ? 'Selesai' : 'Pending';
+                                            $statusDisplay = $latestLaporan->status ?? 'Pending';
                                             $statusClass = $statusDisplay === 'Selesai' ? 'selesai' : 'pending';
                                         @endphp
                                         <tr>
