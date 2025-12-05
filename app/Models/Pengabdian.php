@@ -13,7 +13,7 @@ class Pengabdian extends Model
     protected $fillable = [
         'judul', 'luaran_wajib', 'lama_penelitian', 'biaya_diusulkan',  'sinta_index', 
         'skema', 'luaran_tambahan', 'ringkasan_proposal', 'dokumen_proposal', 
-        'status', 'user_id', 'is_draft', 'is_revised', 'revised_from_id', 'admin_status', 'admin_comment'
+        'status', 'user_id', 'is_draft', 'is_revised', 'revised_from_id', 'admin_status', 'admin_comment', 'biaya_disetujui'
     ];
 
     protected $casts = [

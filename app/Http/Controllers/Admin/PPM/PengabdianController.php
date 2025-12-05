@@ -158,8 +158,12 @@ class PengabdianController extends Controller
         $request->validate([
             'admin_status' => 'required|in:approved,rejected',
             'admin_comment' => 'required|string|max:1000',
+            'biaya_disetujui' => 'required|numeric|min:0',
         ], [
             'admin_comment.required' => 'Komentar admin wajib diisi.',
+            'biaya_disetujui.required' => 'Biaya yang disetujui wajib dipilih atau diisi.',
+            'biaya_disetujui.numeric' => 'Biaya harus berupa angka.',
+            'biaya_disetujui.min' => 'Biaya tidak boleh negatif.',
         ]);
 
         // Pastikan proposal sudah direview lengkap
@@ -169,8 +173,24 @@ class PengabdianController extends Controller
                 ->with('error', 'Proposal ini belum direview lengkap oleh 2 reviewer.');
         }
 
+        // Hitung biaya berdasarkan pilihan
+        $biayaDisetujui = 0;
+        if ($request->has('biaya_source')) {
+            if ($request->biaya_source === 'custom') {
+                // Ambil dari input custom
+                $biayaDisetujui = $request->biaya_custom ? (float) preg_replace('/[^0-9]/', '', $request->biaya_custom) : 0;
+            } else {
+                // Ambil dari biaya_disetujui yang sudah dihitung di frontend
+                $biayaDisetujui = (float) $request->biaya_disetujui;
+            }
+        } else {
+            // Fallback: ambil langsung dari biaya_disetujui
+            $biayaDisetujui = (float) $request->biaya_disetujui;
+        }
+
         $proposal->admin_status = $request->admin_status;
         $proposal->admin_comment = $request->admin_comment;
+        $proposal->biaya_disetujui = $biayaDisetujui;
         
         // Update status proposal berdasarkan keputusan admin
         if ($request->admin_status === 'approved') {

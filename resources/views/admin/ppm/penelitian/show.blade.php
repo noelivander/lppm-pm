@@ -361,6 +361,120 @@
                                 <small class="text-muted">Komentar ini akan ditampilkan kepada dosen pengusul. <span class="text-danger">Wajib diisi.</span></small>
                             </div>
 
+                            @php
+                                $biayaDiusulkan = $proposal->biaya_diusulkan ?? 0;
+                                $review1 = $reviews->first();
+                                $review2 = $reviews->skip(1)->first();
+                                $biayaReviewer1 = $review1 && $review1->disarankan ? preg_replace('/[^0-9]/', '', $review1->disarankan) : 0;
+                                $biayaReviewer2 = $review2 && $review2->disarankan ? preg_replace('/[^0-9]/', '', $review2->disarankan) : 0;
+                                $biayaDisetujui = $proposal->biaya_disetujui ?? null;
+                            @endphp
+
+                            <div class="mb-3">
+                                <label class="modern-form-label"><i class="fa fa-money-bill-wave me-2"></i>Biaya yang Disetujui <span class="text-danger">*</span></label>
+                                <div class="mb-2">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input biaya-option" type="radio" name="biaya_source" id="biaya_diusulkan" value="diusulkan" {{ old('biaya_source', $biayaDisetujui == $biayaDiusulkan ? 'diusulkan' : '') == 'diusulkan' ? 'checked' : '' }} @if(!$canMakeDecision) disabled @else required @endif>
+                                        <label class="form-check-label" for="biaya_diusulkan">
+                                            Biaya Diusulkan Dosen: <strong>Rp {{ number_format($biayaDiusulkan, 0, ',', '.') }}</strong>
+                                        </label>
+                                    </div>
+                                    @if($biayaReviewer1 > 0)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input biaya-option" type="radio" name="biaya_source" id="biaya_reviewer1" value="reviewer1" {{ old('biaya_source', $biayaDisetujui == $biayaReviewer1 ? 'reviewer1' : '') == 'reviewer1' ? 'checked' : '' }} @if(!$canMakeDecision) disabled @endif>
+                                        <label class="form-check-label" for="biaya_reviewer1">
+                                            Biaya Reviewer 1: <strong>Rp {{ number_format($biayaReviewer1, 0, ',', '.') }}</strong>
+                                        </label>
+                                    </div>
+                                    @endif
+                                    @if($biayaReviewer2 > 0)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input biaya-option" type="radio" name="biaya_source" id="biaya_reviewer2" value="reviewer2" {{ old('biaya_source', $biayaDisetujui == $biayaReviewer2 ? 'reviewer2' : '') == 'reviewer2' ? 'checked' : '' }} @if(!$canMakeDecision) disabled @endif>
+                                        <label class="form-check-label" for="biaya_reviewer2">
+                                            Biaya Reviewer 2: <strong>Rp {{ number_format($biayaReviewer2, 0, ',', '.') }}</strong>
+                                        </label>
+                                    </div>
+                                    @endif
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input biaya-option" type="radio" name="biaya_source" id="biaya_custom" value="custom" {{ old('biaya_source', ($biayaDisetujui && $biayaDisetujui != $biayaDiusulkan && $biayaDisetujui != $biayaReviewer1 && $biayaDisetujui != $biayaReviewer2) ? 'custom' : '') == 'custom' ? 'checked' : '' }} @if(!$canMakeDecision) disabled @endif>
+                                        <label class="form-check-label" for="biaya_custom">
+                                            Input Sendiri
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-2" id="custom_biaya_container" style="display: {{ old('biaya_source', ($biayaDisetujui && $biayaDisetujui != $biayaDiusulkan && $biayaDisetujui != $biayaReviewer1 && $biayaDisetujui != $biayaReviewer2) ? 'custom' : '') == 'custom' ? 'block' : 'none' }};">
+                                    <label for="biaya_custom_input" class="modern-form-label">Masukkan Biaya (Rp) <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        id="biaya_custom_input" 
+                                        name="biaya_custom" 
+                                        class="modern-form-input" 
+                                        inputmode="numeric"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        placeholder="Contoh: 12000000"
+                                        value="{{ old('biaya_custom', ($biayaDisetujui && $biayaDisetujui != $biayaDiusulkan && $biayaDisetujui != $biayaReviewer1 && $biayaDisetujui != $biayaReviewer2) ? number_format($biayaDisetujui, 0, '', '') : '') }}"
+                                        @if(!$canMakeDecision) disabled @endif
+                                    >
+                                    <small class="text-muted">Masukkan angka tanpa titik atau koma.</small>
+                                </div>
+                                <input type="hidden" id="biaya_disetujui" name="biaya_disetujui" value="{{ old('biaya_disetujui', $biayaDisetujui) }}">
+                                <small class="text-muted d-block"><span class="text-danger">Wajib dipilih.</span> Biaya yang dipilih akan menjadi biaya final yang disetujui untuk proposal ini.</small>
+                            </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const biayaOptions = document.querySelectorAll('.biaya-option');
+                                    const customContainer = document.getElementById('custom_biaya_container');
+                                    const customInput = document.getElementById('biaya_custom_input');
+                                    const biayaDisetujuiInput = document.getElementById('biaya_disetujui');
+                                    
+                                    const biayaDiusulkan = {{ $biayaDiusulkan }};
+                                    const biayaReviewer1 = {{ $biayaReviewer1 }};
+                                    const biayaReviewer2 = {{ $biayaReviewer2 }};
+
+                                    biayaOptions.forEach(option => {
+                                        option.addEventListener('change', function() {
+                                            if (this.value === 'custom') {
+                                                customContainer.style.display = 'block';
+                                                customInput.required = true;
+                                                // Update hidden input dengan nilai custom jika sudah ada
+                                                if (customInput.value) {
+                                                    biayaDisetujuiInput.value = customInput.value || 0;
+                                                }
+                                            } else {
+                                                customContainer.style.display = 'none';
+                                                customInput.required = false;
+                                                customInput.value = '';
+                                                
+                                                let selectedBiaya = 0;
+                                                if (this.value === 'diusulkan') {
+                                                    selectedBiaya = biayaDiusulkan;
+                                                } else if (this.value === 'reviewer1') {
+                                                    selectedBiaya = biayaReviewer1;
+                                                } else if (this.value === 'reviewer2') {
+                                                    selectedBiaya = biayaReviewer2;
+                                                }
+                                                biayaDisetujuiInput.value = selectedBiaya;
+                                            }
+                                        });
+                                    });
+
+                                    // Update hidden input when custom input changes
+                                    customInput.addEventListener('input', function() {
+                                        if (document.getElementById('biaya_custom').checked) {
+                                            biayaDisetujuiInput.value = this.value || 0;
+                                        }
+                                    });
+
+                                    // Initialize on page load
+                                    biayaOptions.forEach(option => {
+                                        if (option.checked) {
+                                            option.dispatchEvent(new Event('change'));
+                                        }
+                                    });
+                                });
+                            </script>
+
                             @if($canMakeDecision)
                                 <button type="submit" class="modern-btn modern-btn-primary">
                                     <i class="fa fa-save me-1"></i> Simpan Keputusan
