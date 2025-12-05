@@ -37,11 +37,11 @@
 
                     <form method="GET" class="modern-card p-3 mb-3 filter-card">
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Cari Judul</label>
                                 <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" class="modern-form-input" placeholder="Cari judul proposal...">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label class="modern-form-label text-uppercase small fw-semibold">Skema</label>
                                 <select name="skema" class="modern-form-select">
                                     <option value="">Semua Skema</option>
@@ -57,6 +57,14 @@
                                     @foreach($filterYears as $yearOption)
                                         <option value="{{ $yearOption }}" @selected(($filters['year'] ?? '') == $yearOption)>{{ $yearOption }}</option>
                                     @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="modern-form-label text-uppercase small fw-semibold">Status</label>
+                                <select name="status" class="modern-form-select">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending" @selected(($filters['status'] ?? '') === 'Pending')>Pending</option>
+                                    <option value="Selesai" @selected(($filters['status'] ?? '') === 'Selesai')>Selesai</option>
                                 </select>
                             </div>
                             <div class="col-md-2 d-flex gap-2">
@@ -84,6 +92,7 @@
                                         <th class="col-skema">Skema</th>
                                         <th>Periode Usulan</th>
                                         <th>Tgl Upload Revisi</th>
+                                        <th class="text-center">Status</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -118,6 +127,12 @@
                                             <td>{{ optional($proposal->created_at)->format('Y') ?? '-' }}</td>
                                             <td>
                                                 {{ optional($revision?->created_at)->format('d M Y H:i') ?? '-' }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="status-badge {{ $revision ? 'selesai' : 'pending' }}">
+                                                    <i class="fa {{ $revision ? 'fa-check-circle' : 'fa-clock' }} me-1"></i>
+                                                    {{ $revision ? 'Selesai' : 'Pending' }}
+                                                </span>
                                             </td>
                                             <td class="text-center">
                                                 @if($revision && !$canEditRevision)

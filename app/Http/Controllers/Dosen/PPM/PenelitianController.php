@@ -132,11 +132,11 @@ class PenelitianController extends Controller
 
         if ($filters['status']) {
             if ($filters['status'] === 'Pending') {
+                // Pending = belum ada revisi yang diupload
                 $baseQuery->whereDoesntHave('revisionChild');
-            } else {
-                $baseQuery->whereHas('revisionChild', function ($query) use ($filters) {
-                    $query->where('status', $filters['status']);
-                });
+            } elseif ($filters['status'] === 'Selesai') {
+                // Selesai = sudah ada revisi yang diupload
+                $baseQuery->whereHas('revisionChild');
             }
         }
 
