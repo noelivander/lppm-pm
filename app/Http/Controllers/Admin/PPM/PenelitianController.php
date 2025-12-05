@@ -90,7 +90,7 @@ class PenelitianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
         
-        $proposal = Penelitian::with(['anggota', 'rab', 'user', 'reviews.reviewer'])->findOrFail($id);
+        $proposal = Penelitian::with(['anggota', 'rab', 'user', 'reviews.reviewer', 'reviews.reviewKriteria.formPenilaianReview'])->findOrFail($id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
         
         // Pastikan proposal sudah direview minimal 2 reviewer

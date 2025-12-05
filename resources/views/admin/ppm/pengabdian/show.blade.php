@@ -217,46 +217,67 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr>
-                                                                <td>Penguasaan materi dan keterkaitan</td>
-                                                                <td>20%</td>
-                                                                <td>{{ $review->skor_1 ?? '-' }}</td>
-                                                                <td>{{ $review->skor_1 ? ($review->skor_1 * 20) : '-' }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Kesesuaian latar belakang dan tujuan</td>
-                                                                <td>20%</td>
-                                                                <td>{{ $review->skor_2 ?? '-' }}</td>
-                                                                <td>{{ $review->skor_2 ? ($review->skor_2 * 20) : '-' }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Metode Penelitian</td>
-                                                                <td>20%</td>
-                                                                <td>{{ $review->skor_3 ?? '-' }}</td>
-                                                                <td>{{ $review->skor_3 ? ($review->skor_3 * 20) : '-' }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Peta jalan penelitian</td>
-                                                                <td>10%</td>
-                                                                <td>{{ $review->skor_4 ?? '-' }}</td>
-                                                                <td>{{ $review->skor_4 ? ($review->skor_4 * 10) : '-' }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Potensi tercapainya luaran</td>
-                                                                <td>30%</td>
-                                                                <td>{{ $review->skor_5 ?? '-' }}</td>
-                                                                <td>{{ $review->skor_5 ? ($review->skor_5 * 30) : '-' }}</td>
-                                                            </tr>
+                                                            @if($review->reviewKriteria && $review->reviewKriteria->count() > 0)
+                                                                {{-- Dynamic form review - display from reviewKriteria --}}
+                                                                @foreach($review->reviewKriteria->filter(function($rk) { return $rk->formPenilaianReview !== null; })->sortBy('formPenilaianReview.urutan') as $reviewKriteria)
+                                                                    <tr>
+                                                                        <td>{!! nl2br(e($reviewKriteria->formPenilaianReview->kriteria_penilaian ?? '-')) !!}</td>
+                                                                        <td>{{ $reviewKriteria->formPenilaianReview->bobot == floor($reviewKriteria->formPenilaianReview->bobot) ? number_format($reviewKriteria->formPenilaianReview->bobot, 0) : number_format($reviewKriteria->formPenilaianReview->bobot, 2) }}%</td>
+                                                                        <td>{{ $reviewKriteria->skor ?? '-' }}</td>
+                                                                        <td>{{ $reviewKriteria->nilai ?? '-' }}</td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            @else
+                                                                {{-- Fallback to hardcoded form --}}
+                                                                <tr>
+                                                                    <td>Penguasaan materi dan keterkaitan</td>
+                                                                    <td>20%</td>
+                                                                    <td>{{ $review->skor_1 ?? '-' }}</td>
+                                                                    <td>{{ $review->skor_1 ? ($review->skor_1 * 20) : '-' }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Kesesuaian latar belakang dan tujuan</td>
+                                                                    <td>20%</td>
+                                                                    <td>{{ $review->skor_2 ?? '-' }}</td>
+                                                                    <td>{{ $review->skor_2 ? ($review->skor_2 * 20) : '-' }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Metode Penelitian</td>
+                                                                    <td>20%</td>
+                                                                    <td>{{ $review->skor_3 ?? '-' }}</td>
+                                                                    <td>{{ $review->skor_3 ? ($review->skor_3 * 20) : '-' }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Peta jalan penelitian</td>
+                                                                    <td>10%</td>
+                                                                    <td>{{ $review->skor_4 ?? '-' }}</td>
+                                                                    <td>{{ $review->skor_4 ? ($review->skor_4 * 10) : '-' }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Potensi tercapainya luaran</td>
+                                                                    <td>30%</td>
+                                                                    <td>{{ $review->skor_5 ?? '-' }}</td>
+                                                                    <td>{{ $review->skor_5 ? ($review->skor_5 * 30) : '-' }}</td>
+                                                                </tr>
+                                                            @endif
                                                         </tbody>
                                                         <tfoot>
                                                             <tr>
                                                                 <td class="fw-bold">Total</td>
                                                                 <td class="fw-bold">100%</td>
                                                                 <td class="fw-bold">
-                                                                    {{ ($review->skor_1 ?? 0) + ($review->skor_2 ?? 0) + ($review->skor_3 ?? 0) + ($review->skor_4 ?? 0) + ($review->skor_5 ?? 0) }}
+                                                                    @if($review->reviewKriteria && $review->reviewKriteria->count() > 0)
+                                                                        {{ $review->reviewKriteria->sum('skor') }}
+                                                                    @else
+                                                                        {{ ($review->skor_1 ?? 0) + ($review->skor_2 ?? 0) + ($review->skor_3 ?? 0) + ($review->skor_4 ?? 0) + ($review->skor_5 ?? 0) }}
+                                                                    @endif
                                                                 </td>
                                                                 <td class="fw-bold">
-                                                                    {{ (($review->skor_1 ?? 0) * 20) + (($review->skor_2 ?? 0) * 20) + (($review->skor_3 ?? 0) * 20) + (($review->skor_4 ?? 0) * 10) + (($review->skor_5 ?? 0) * 30) }}
+                                                                    @if($review->reviewKriteria && $review->reviewKriteria->count() > 0)
+                                                                        {{ number_format($review->reviewKriteria->sum('nilai'), 2) }}
+                                                                    @else
+                                                                        {{ (($review->skor_1 ?? 0) * 20) + (($review->skor_2 ?? 0) * 20) + (($review->skor_3 ?? 0) * 20) + (($review->skor_4 ?? 0) * 10) + (($review->skor_5 ?? 0) * 30) }}
+                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         </tfoot>
