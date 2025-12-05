@@ -758,17 +758,17 @@
             const hasMember = anggotaTableBody && anggotaTableBody.children.length > 0;
             const hasRabRow = rabTableBody && rabTableBody.children.length > 0;
             
-            // Validate anggota rows - check if at least one row is completely filled
+            // Validate anggota rows - check ALL rows
+            // If ANY field in a row is filled, ALL fields must be filled
+            // At least one row must be completely filled
             let anggotaValid = false;
+            let hasAtLeastOneCompleteRow = false;
             if (hasMember) {
                 const anggotaRows = anggotaTableBody.querySelectorAll('tr');
+                let allRowsValid = true;
+                
                 for (let row of anggotaRows) {
                     const nama = row.querySelector('input[name="anggota_nama[]"]');
-                    // Skip empty rows (rows with no nama filled)
-                    if (!nama || !nama.value.trim()) {
-                        continue;
-                    }
-                    
                     const peran = row.querySelector('select[name="anggota_peran[]"]');
                     const jabatan = row.querySelector('select[name="anggota_jabatan[]"]');
                     const jurusan = row.querySelector('select[name="anggota_jurusan[]"]');
@@ -777,9 +777,25 @@
                     const email = row.querySelector('input[name="anggota_email[]"]');
                     const telepon = row.querySelector('input[name="anggota_telepon[]"]');
                     
-                    // Check if this row is completely filled
+                    // Check if ANY field in this row has a value
+                    const hasAnyValue = 
+                        (nama && nama.value.trim()) ||
+                        (peran && peran.value) ||
+                        (jabatan && jabatan.value) ||
+                        (jurusan && jurusan.value) ||
+                        (prodi && prodi.value) ||
+                        (nidn && nidn.value.trim()) ||
+                        (email && email.value.trim()) ||
+                        (telepon && telepon.value.trim());
+                    
+                    // If row is completely empty, skip it
+                    if (!hasAnyValue) {
+                        continue;
+                    }
+                    
+                    // If ANY field is filled, ALL fields must be filled
                     const isRowComplete = 
-                        nama.value.trim() &&
+                        nama && nama.value.trim() &&
                         peran && peran.value &&
                         jabatan && jabatan.value &&
                         jurusan && jurusan.value &&
@@ -789,48 +805,72 @@
                         telepon && telepon.value.trim();
                     
                     if (isRowComplete) {
-                        anggotaValid = true;
-                        break; // At least one row is valid
+                        hasAtLeastOneCompleteRow = true;
+                    } else {
+                        // Row has some data but is incomplete
+                        allRowsValid = false;
                     }
                 }
+                
+                // Valid if all rows with data are complete AND at least one row is complete
+                anggotaValid = allRowsValid && hasAtLeastOneCompleteRow;
             } else {
                 // If no anggota rows exist, it's invalid for submit
                 anggotaValid = false;
             }
             
-            // Validate RAB rows - check if at least one row is completely filled
+            // Validate RAB rows - check ALL rows
+            // If ANY field in a row is filled, ALL fields must be filled
+            // At least one row must be completely filled
             let rabRowsValid = false;
+            let hasAtLeastOneCompleteRabRow = false;
             if (hasRabRow) {
                 const rabRows = rabTableBody.querySelectorAll('tr');
+                let allRabRowsValid = true;
+                
                 for (let row of rabRows) {
                     const kelompok = row.querySelector('select[name="rab_kelompok[]"]');
-                    // Skip empty rows (rows with no kelompok selected)
-                    if (!kelompok || !kelompok.value) {
-                        continue;
-                    }
-                    
                     const komponen = row.querySelector('select[name="rab_komponen[]"]');
                     const item = row.querySelector('input[name="rab_item[]"]');
                     const satuan = row.querySelector('select[name="rab_satuan[]"]');
                     const volume = row.querySelector('input[name="rab_volume[]"]');
                     const harga = row.querySelector('input[name="rab_harga_satuan[]"]');
                     
-                    // Check if this row is completely filled
+                    // Check if ANY field in this row has a value
                     const volumeValue = volume && volume.value ? parseInt(volume.value) : 0;
                     const hargaValue = harga && harga.value ? parseFloat(harga.value) : 0;
+                    const hasAnyValue = 
+                        (kelompok && kelompok.value) ||
+                        (komponen && komponen.value) ||
+                        (item && item.value.trim()) ||
+                        (satuan && satuan.value) ||
+                        volumeValue > 0 ||
+                        hargaValue > 0;
+                    
+                    // If row is completely empty, skip it
+                    if (!hasAnyValue) {
+                        continue;
+                    }
+                    
+                    // If ANY field is filled, ALL fields must be filled
                     const isRowComplete = 
-                        kelompok.value &&
+                        kelompok && kelompok.value &&
                         komponen && komponen.value &&
                         item && item.value.trim() &&
                         satuan && satuan.value &&
                         volumeValue > 0 &&
-                        hargaValue >= 0;
+                        hargaValue > 0;
                     
                     if (isRowComplete) {
-                        rabRowsValid = true;
-                        break; // At least one row is valid
+                        hasAtLeastOneCompleteRabRow = true;
+                    } else {
+                        // Row has some data but is incomplete
+                        allRabRowsValid = false;
                     }
                 }
+                
+                // Valid if all rows with data are complete AND at least one row is complete
+                rabRowsValid = allRabRowsValid && hasAtLeastOneCompleteRabRow;
             } else {
                 // If no RAB rows exist, it's invalid for submit
                 rabRowsValid = false;
