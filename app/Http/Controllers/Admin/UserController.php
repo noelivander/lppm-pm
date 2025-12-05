@@ -19,7 +19,7 @@ class UserController extends Controller
         $role = $request->get('role');
         $q = $request->get('q');
 
-        $usersQuery = User::query();
+        $usersQuery = User::with(['jurusan', 'programStudi']);
 
         if ($role && in_array($role, $roles)) {
             $usersQuery->where('role', $role);
@@ -44,7 +44,9 @@ class UserController extends Controller
     public function create()
     {
         $roles = ['admin', 'dosen', 'reviewer', 'kaprodi', 'auditor'];
-        return view('admin.users.create', compact('roles'));
+        $jurusans = \App\Models\Jurusan::orderBy('nama')->get();
+        $programStudis = \App\Models\ProgramStudi::orderBy('nama')->get();
+        return view('admin.users.create', compact('roles', 'jurusans', 'programStudis'));
     }
 
     /**
@@ -58,6 +60,8 @@ class UserController extends Controller
             'nip' => ['required', 'string', 'max:50', 'unique:users,nip'],
             'role' => ['required', Rule::in(['admin', 'dosen', 'reviewer', 'kaprodi', 'auditor'])],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'jurusan_id' => ['nullable', 'exists:jurusan,id'],
+            'program_studi_id' => ['nullable', 'exists:program_studi,id'],
         ]);
 
         $user = new User();
@@ -66,6 +70,13 @@ class UserController extends Controller
         $user->role = $validated['role'];
         $user->nip = $validated['nip'];
         $user->password = Hash::make($validated['password']);
+        
+        // Only save jurusan and program studi for dosen role
+        if ($validated['role'] === 'dosen') {
+            $user->jurusan_id = $validated['jurusan_id'] ?? null;
+            $user->program_studi_id = $validated['program_studi_id'] ?? null;
+        }
+        
         $user->save();
 
         return redirect()->route('users.index')->with('success', 'User berhasil dibuat.');
@@ -77,7 +88,9 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = ['admin', 'dosen', 'reviewer', 'kaprodi', 'auditor'];
-        return view('admin.users.edit', compact('user', 'roles'));
+        $jurusans = \App\Models\Jurusan::orderBy('nama')->get();
+        $programStudis = \App\Models\ProgramStudi::orderBy('nama')->get();
+        return view('admin.users.edit', compact('user', 'roles', 'jurusans', 'programStudis'));
     }
 
     /**
@@ -91,6 +104,8 @@ class UserController extends Controller
             'nip' => ['required', 'string', 'max:50', Rule::unique('users', 'nip')->ignore($user->id)],
             'role' => ['required', Rule::in(['admin', 'dosen', 'reviewer', 'kaprodi', 'auditor'])],
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'jurusan_id' => ['nullable', 'exists:jurusan,id'],
+            'program_studi_id' => ['nullable', 'exists:program_studi,id'],
         ]);
 
         $user->name = $validated['name'];
@@ -100,6 +115,17 @@ class UserController extends Controller
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
+        
+        // Only save jurusan and program studi for dosen role
+        if ($validated['role'] === 'dosen') {
+            $user->jurusan_id = $validated['jurusan_id'] ?? null;
+            $user->program_studi_id = $validated['program_studi_id'] ?? null;
+        } else {
+            // Clear jurusan and program studi if role is changed from dosen to something else
+            $user->jurusan_id = null;
+            $user->program_studi_id = null;
+        }
+        
         $user->save();
 
         return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');

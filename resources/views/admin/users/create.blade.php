@@ -53,6 +53,35 @@
                                 @enderror
                             </div>
 
+                            <!-- Jurusan and Program Studi fields (only for dosen) -->
+                            <div id="dosenFields" style="display: none;">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label" for="jurusan_id"><i class="fa fa-building me-2"></i>Jurusan</label>
+                                    <select name="jurusan_id" id="jurusan_id" class="modern-form-select">
+                                        <option value="">Pilih jurusan...</option>
+                                        @foreach ($jurusans as $jurusan)
+                                            <option value="{{ $jurusan->id }}" @if(old('jurusan_id')==$jurusan->id) selected @endif>{{ $jurusan->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('jurusan_id')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label" for="program_studi_id"><i class="fa fa-graduation-cap me-2"></i>Program Studi</label>
+                                    <select name="program_studi_id" id="program_studi_id" class="modern-form-select">
+                                        <option value="">Pilih program studi...</option>
+                                        @foreach ($programStudis as $prodi)
+                                            <option value="{{ $prodi->id }}" data-jurusan="{{ $prodi->jurusan_id }}" @if(old('program_studi_id')==$prodi->id) selected @endif>{{ $prodi->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('program_studi_id')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="modern-form-group">
@@ -80,6 +109,58 @@
             </div>
         </div>
     </div>
+
+    <x-slot name="scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const roleSelect = document.getElementById('role');
+                const dosenFields = document.getElementById('dosenFields');
+                const jurusanSelect = document.getElementById('jurusan_id');
+                const prodiSelect = document.getElementById('program_studi_id');
+                
+                // Store all prodi options
+                const allProdiOptions = Array.from(prodiSelect.options);
+                
+                // Toggle dosen fields based on role
+                function toggleDosenFields() {
+                    if (roleSelect.value === 'dosen') {
+                        dosenFields.style.display = 'block';
+                    } else {
+                        dosenFields.style.display = 'none';
+                        jurusanSelect.value = '';
+                        prodiSelect.value = '';
+                    }
+                }
+                
+                // Filter program studi based on selected jurusan
+                function filterProgramStudi() {
+                    const selectedJurusanId = jurusanSelect.value;
+                    
+                    // Clear current options
+                    prodiSelect.innerHTML = '<option value="">Pilih program studi...</option>';
+                    
+                    // Add filtered options
+                    allProdiOptions.forEach(option => {
+                        if (option.value === '') return; // Skip empty option
+                        
+                        if (!selectedJurusanId || option.dataset.jurusan === selectedJurusanId) {
+                            prodiSelect.appendChild(option.cloneNode(true));
+                        }
+                    });
+                }
+                
+                // Event listeners
+                roleSelect.addEventListener('change', toggleDosenFields);
+                jurusanSelect.addEventListener('change', filterProgramStudi);
+                
+                // Initialize on page load
+                toggleDosenFields();
+                if (roleSelect.value === 'dosen') {
+                    filterProgramStudi();
+                }
+            });
+        </script>
+    </x-slot>
 </x-admin-layout>
 
 

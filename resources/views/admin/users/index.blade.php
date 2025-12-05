@@ -54,6 +54,8 @@
                                 <th>Akun (Email)</th>
                                 <th>NIP</th>
                                 <th>Role</th>
+                                <th>Jurusan</th>
+                                <th>Program Studi</th>
                                 <th>Dibuat</th>
                                 <th>Aksi</th>
                             </tr>
@@ -68,6 +70,8 @@
                                     <td>
                                         <span class="status-badge {{ $user->role }}">{{ ucfirst($user->role) }}</span>
                                     </td>
+                                    <td>{{ $user->jurusan->nama ?? '-' }}</td>
+                                    <td>{{ $user->programStudi->nama ?? '-' }}</td>
                                     <td>{{ $user->created_at->format('d M Y') }}</td>
                                     <td>
                                         <div class="d-flex gap-2">
@@ -87,7 +91,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7">
+                                    <td colspan="9">
                                         <div class="modern-alert modern-alert-info mb-0">
                                             <i class="fa fa-info-circle me-2"></i>Belum ada user.
                                         </div>

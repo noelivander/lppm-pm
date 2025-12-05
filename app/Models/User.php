@@ -24,6 +24,8 @@ class User extends Authenticatable
         'password',
         'role',
         'avatar_path',
+        'jurusan_id',
+        'program_studi_id',
     ];
 
     /**
@@ -44,4 +46,20 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Get the jurusan that the user belongs to.
+     */
+    public function jurusan()
+    {
+        return $this->belongsTo(Jurusan::class, 'jurusan_id');
+    }
+
+    /**
+     * Get the program studi that the user belongs to.
+     */
+    public function programStudi()
+    {
+        return $this->belongsTo(ProgramStudi::class, 'program_studi_id');
+    }
 }
