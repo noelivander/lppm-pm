@@ -239,7 +239,7 @@
                                             </td>
                                             <td>
                                                 <button type="button" class="modern-btn modern-btn-danger modern-btn-sm remove-rab-row">
-                                                    <i class="fa fa-trash me-1"></i>Hapus
+                                                    <i class="fa fa-trash me-1"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -260,6 +260,8 @@
                                                         <th>Nama</th>
                                                         <th>Peran</th>
                                                         <th>Jabatan</th>
+                                                    <th>Jurusan</th>
+                                                    <th>Prodi</th>
                                                         <th>NIDN/NIM</th>
                                                         <th>Email</th>
                                                         <th>Telepon</th>
@@ -332,6 +334,8 @@
         const rabAddBtn = document.getElementById('addRabRow');
         const rabGrandTotalDisplay = document.getElementById('rabGrandTotal');
         const rabGrandTotalInput = document.getElementById('rabGrandTotalInput');
+        const jurusanOptions = @json($jurusanOptions);
+        const prodiByJurusan = @json($prodiByJurusan);
         
         // Handle save as draft button - remove all required attributes
         // Use mousedown to run before validation
@@ -530,6 +534,38 @@
             }
         }
 
+        function populateJurusanSelect(selectEl, selectedValue = '') {
+            if (!selectEl) return;
+            selectEl.innerHTML = `<option value="" disabled ${selectedValue ? '' : 'selected'}>Pilih jurusan...</option>`;
+            jurusanOptions.forEach(j => {
+                const opt = document.createElement('option');
+                opt.value = j.nama;
+                opt.textContent = j.nama;
+                opt.dataset.jurusanId = j.id;
+                if (selectedValue && selectedValue === j.nama) {
+                    opt.selected = true;
+                }
+                selectEl.appendChild(opt);
+            });
+        }
+
+        function populateProdiSelect(jurusanSelect, prodiSelect, selectedValue = '') {
+            if (!prodiSelect) return;
+            const jurusanOption = jurusanSelect ? jurusanSelect.options[jurusanSelect.selectedIndex] : null;
+            const jurusanId = jurusanOption ? jurusanOption.dataset.jurusanId : null;
+            const list = jurusanId && prodiByJurusan[jurusanId] ? prodiByJurusan[jurusanId] : [];
+            prodiSelect.innerHTML = `<option value="" disabled ${selectedValue ? '' : 'selected'}>Pilih prodi...</option>`;
+            list.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.nama;
+                opt.textContent = p.nama;
+                if (selectedValue && selectedValue === p.nama) {
+                    opt.selected = true;
+                }
+                prodiSelect.appendChild(opt);
+            });
+        }
+
         function addAnggotaRow() {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -548,6 +584,16 @@
                         <option value="Mahasiswa">Mahasiswa</option>
                     </select>
                 </td>
+                <td>
+                    <select name="anggota_jurusan[]" class="modern-form-select anggota-jurusan" required>
+                        <option value="" disabled selected>Pilih jurusan...</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="anggota_program_studi[]" class="modern-form-select anggota-prodi" required>
+                        <option value="" disabled selected>Pilih prodi...</option>
+                    </select>
+                </td>
                 <td><input type="text" name="anggota_nidn[]" class="modern-form-input" placeholder="NIDN/NIM" required></td>
                 <td><input type="email" name="anggota_email[]" class="modern-form-input" placeholder="Email" required></td>
                 <td>
@@ -555,12 +601,20 @@
                 </td>
                 <td>
                     <button type="button" class="modern-btn modern-btn-danger modern-btn-sm removeAnggota">
-                        <i class="fa fa-trash me-1"></i>Hapus
+                        <i class="fa fa-trash me-1"></i>
                     </button>
                 </td>
             `;
 
             row.querySelector('input[name="anggota_telepon[]"]').addEventListener('input', restrictNumberInput);
+            const jurusanSelect = row.querySelector('.anggota-jurusan');
+            const prodiSelect = row.querySelector('.anggota-prodi');
+            populateJurusanSelect(jurusanSelect);
+            populateProdiSelect(jurusanSelect, prodiSelect);
+            jurusanSelect.addEventListener('change', function() {
+                populateProdiSelect(jurusanSelect, prodiSelect);
+                validateForm();
+            });
             row.querySelector('.removeAnggota').addEventListener('click', function () {
                 row.remove();
                 validateForm();
@@ -595,6 +649,8 @@
                     
                     const peran = row.querySelector('select[name="anggota_peran[]"]');
                     const jabatan = row.querySelector('select[name="anggota_jabatan[]"]');
+                    const jurusan = row.querySelector('select[name="anggota_jurusan[]"]');
+                    const prodi = row.querySelector('select[name="anggota_program_studi[]"]');
                     const nidn = row.querySelector('input[name="anggota_nidn[]"]');
                     const email = row.querySelector('input[name="anggota_email[]"]');
                     const telepon = row.querySelector('input[name="anggota_telepon[]"]');
@@ -604,6 +660,8 @@
                         nama.value.trim() &&
                         peran && peran.value &&
                         jabatan && jabatan.value &&
+                        jurusan && jurusan.value &&
+                        prodi && prodi.value &&
                         nidn && nidn.value.trim() &&
                         email && email.value.trim() && (email.validity.valid || email.value.includes('@')) &&
                         telepon && telepon.value.trim();
@@ -780,6 +838,12 @@
                             lastRow.querySelector('input[name="anggota_telepon[]"]').value = '{{ $anggota->telepon }}';
                             lastRow.querySelector('select[name="anggota_peran[]"]').value = '{{ $anggota->peran }}';
                             lastRow.querySelector('select[name="anggota_jabatan[]"]').value = '{{ $anggota->jabatan }}';
+                            const jurusanSelect = lastRow.querySelector('select[name="anggota_jurusan[]"]');
+                            const prodiSelect = lastRow.querySelector('select[name="anggota_program_studi[]"]');
+                            populateJurusanSelect(jurusanSelect, '{{ $anggota->jurusan_nama }}');
+                            if (jurusanSelect) {
+                                populateProdiSelect(jurusanSelect, prodiSelect, '{{ $anggota->program_studi_nama }}');
+                            }
                         }
                     @endforeach
                 @else

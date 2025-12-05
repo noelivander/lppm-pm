@@ -18,7 +18,9 @@ class Anggota_pengabdian extends Model
         'email',
         'telepon',
         'jurusan_id',
-        'program_studi_id'
+        'program_studi_id',
+        'jurusan_nama',
+        'program_studi_nama'
     ];
 
     public function pengabdian()

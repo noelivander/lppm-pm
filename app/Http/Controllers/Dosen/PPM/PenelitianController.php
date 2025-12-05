@@ -13,6 +13,9 @@ use App\Models\Timeline;
 use App\Models\PPM\Skema;
 use App\Models\PPM\Luaran;
 use App\Models\LaporanKemajuan;
+use App\Models\Jurusan;
+use App\Models\ProgramStudi;
+use App\Models\PPM\BidangPenelitian;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -498,6 +501,17 @@ class PenelitianController extends Controller
         $skemaPenelitian = Skema::where('jenis', 'penelitian')->where('is_shown', 1)->get();
         $luaranWajibPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
         $luaranTambahanPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+        $bidangPenelitian = BidangPenelitian::where('is_active', true)->orderBy('urutan')->orderBy('nama')->get();
+        $jurusanList = Jurusan::orderBy('nama')->get();
+        $programStudiList = ProgramStudi::orderBy('nama')->get()->groupBy('jurusan_id');
+        $jurusanOptions = $jurusanList->map(function ($j) {
+            return ['id' => $j->id, 'nama' => $j->nama];
+        })->values();
+        $prodiByJurusan = $programStudiList->map(function ($list) {
+            return $list->map(function ($p) {
+                return ['id' => $p->id, 'nama' => $p->nama, 'jurusan_id' => $p->jurusan_id];
+            })->values();
+        });
         $kelompokRab = \App\Models\KelompokRab::where('is_active', true)->orderBy('nama')->get();
         $komponenRab = \App\Models\KomponenRab::with('satuan')->where('is_active', true)->orderBy('nama')->get();
         $satuanRab = \App\Models\SatuanRab::where('is_active', true)->orderBy('nama')->get();
@@ -523,6 +537,11 @@ class PenelitianController extends Controller
             'kelompokRab' => $kelompokRab,
             'komponenRab' => $komponenRab,
             'satuanRab' => $satuanRab,
+            'bidangPenelitian' => $bidangPenelitian,
+            'jurusanList' => $jurusanList,
+            'programStudiList' => $programStudiList,
+            'jurusanOptions' => $jurusanOptions,
+            'prodiByJurusan' => $prodiByJurusan,
             'reviews' => $reviews,
             'revisionOpen' => $revisionOpen,
         ]);
@@ -632,6 +651,7 @@ class PenelitianController extends Controller
                     'lama_penelitian' => $request->lama_penelitian,
                     'biaya_diusulkan' => !empty($request->biaya_diusulkan) ? $request->biaya_diusulkan : null,
                     'skema' => $request->skema,
+                    'bidang_penelitian_nama' => $request->bidang_penelitian ?? null,
                     'luaran_tambahan' => $request->luaran_tambahan,
                     'ringkasan_proposal' => $request->ringkasan_proposal,
                     'dokumen_proposal' => $dokumenProposalPath,
@@ -651,6 +671,7 @@ class PenelitianController extends Controller
                     'lama_penelitian' => $request->lama_penelitian,
                     'biaya_diusulkan' => !empty($request->biaya_diusulkan) ? $request->biaya_diusulkan : null,
                     'skema' => $request->skema,
+                    'bidang_penelitian_nama' => $request->bidang_penelitian ?? null,
                     'luaran_tambahan' => $request->luaran_tambahan,
                     'ringkasan_proposal' => $request->ringkasan_proposal,
                     'dokumen_proposal' => $dokumenProposalPath,
@@ -677,6 +698,8 @@ class PenelitianController extends Controller
                     'nidn' => $request->anggota_nidn[$key] ?? null,
                     'email' => $request->anggota_email[$key] ?? null,
                     'telepon' => $request->anggota_telepon[$key] ?? null,
+                    'jurusan_nama' => $request->anggota_jurusan[$key] ?? null,
+                    'program_studi_nama' => $request->anggota_program_studi[$key] ?? null,
                 ]);
             }
 
@@ -744,6 +767,17 @@ class PenelitianController extends Controller
         $skemaPenelitian = Skema::where('jenis', 'penelitian')->where('is_shown', 1)->get();
         $luaranWajibPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
         $luaranTambahanPenelitian = Luaran::where('jenis', 'penelitian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+        $bidangPenelitian = BidangPenelitian::where('is_active', true)->orderBy('urutan')->orderBy('nama')->get();
+        $jurusanList = Jurusan::orderBy('nama')->get();
+        $programStudiList = ProgramStudi::orderBy('nama')->get()->groupBy('jurusan_id');
+        $jurusanOptions = $jurusanList->map(function ($j) {
+            return ['id' => $j->id, 'nama' => $j->nama];
+        })->values();
+        $prodiByJurusan = $programStudiList->map(function ($list) {
+            return $list->map(function ($p) {
+                return ['id' => $p->id, 'nama' => $p->nama, 'jurusan_id' => $p->jurusan_id];
+            })->values();
+        });
 
         // Get RAB data from database
         $kelompokRab = \App\Models\KelompokRab::where('is_active', true)->orderBy('nama')->get();
@@ -759,7 +793,12 @@ class PenelitianController extends Controller
             'kelompokRab',
             'komponenRab',
             'satuanRab',
-            'draft'
+            'draft',
+            'bidangPenelitian',
+            'jurusanList',
+            'programStudiList',
+            'jurusanOptions',
+            'prodiByJurusan'
         ));
     }
 
@@ -865,6 +904,7 @@ class PenelitianController extends Controller
                 'lama_penelitian' => 'required|string',
                 'biaya_diusulkan' => 'required|string',
                 'skema' => 'required|string',
+                'bidang_penelitian' => 'required|string',
                 'luaran_tambahan' => 'nullable|string',
                 'ringkasan_proposal' => 'required|string',
                 'dokumen_proposal' => ($isDraft || $hasExistingDokumen) ? 'nullable|mimes:pdf|max:10000' : 'required|mimes:pdf|max:10000',
@@ -877,6 +917,10 @@ class PenelitianController extends Controller
                 'anggota_nidn.*' => 'required|string',
                 'anggota_jabatan' => 'required|array|min:1',
                 'anggota_jabatan.*' => 'required|string|in:Dosen,Mahasiswa',
+                'anggota_jurusan' => 'required|array|min:1',
+                'anggota_jurusan.*' => 'required|string',
+                'anggota_program_studi' => 'required|array|min:1',
+                'anggota_program_studi.*' => 'required|string',
                 'anggota_email' => 'required|array|min:1',
                 'anggota_email.*' => 'required|email',
                 'anggota_telepon' => 'required|array|min:1',
@@ -906,6 +950,7 @@ class PenelitianController extends Controller
                 $validationRules['lama_penelitian'] = 'nullable|string';
                 $validationRules['biaya_diusulkan'] = 'nullable|string';
                 $validationRules['skema'] = 'nullable|string';
+                $validationRules['bidang_penelitian'] = 'nullable|string';
                 $validationRules['ringkasan_proposal'] = 'nullable|string';
                 // Untuk draft, izinkan tabel anggota dikosongkan atau sebagian terisi
                 $validationRules['anggota_nama'] = 'nullable|array';
@@ -916,6 +961,10 @@ class PenelitianController extends Controller
                 $validationRules['anggota_nidn.*'] = 'nullable|string';
                 $validationRules['anggota_jabatan'] = 'nullable|array';
                 $validationRules['anggota_jabatan.*'] = 'nullable|string';
+                $validationRules['anggota_jurusan'] = 'nullable|array';
+                $validationRules['anggota_jurusan.*'] = 'nullable|string';
+                $validationRules['anggota_program_studi'] = 'nullable|array';
+                $validationRules['anggota_program_studi.*'] = 'nullable|string';
                 $validationRules['anggota_email'] = 'nullable|array';
                 $validationRules['anggota_email.*'] = 'nullable|string';
                 $validationRules['anggota_telepon'] = 'nullable|array';
@@ -988,6 +1037,7 @@ class PenelitianController extends Controller
                     'lama_penelitian' => $request->lama_penelitian ?? null,
                     'biaya_diusulkan' => !empty($request->biaya_diusulkan) ? $request->biaya_diusulkan : null,
                     'skema' => $request->skema ?? null,
+                    'bidang_penelitian_nama' => $request->bidang_penelitian ?? null,
                     'luaran_tambahan' => $request->luaran_tambahan ?? null,
                     'ringkasan_proposal' => $request->ringkasan_proposal ?? null,
                     'is_draft' => $isDraft,
@@ -1037,6 +1087,8 @@ class PenelitianController extends Controller
                 $anggotaNidn = $request->anggota_nidn ?? [];
                 $anggotaEmail = $request->anggota_email ?? [];
                 $anggotaTelepon = $request->anggota_telepon ?? [];
+                $anggotaJurusan = $request->anggota_jurusan ?? [];
+                $anggotaProgramStudi = $request->anggota_program_studi ?? [];
 
                 if (is_array($anggotaNama)) {
                     foreach ($anggotaNama as $key => $nama) {
@@ -1045,8 +1097,10 @@ class PenelitianController extends Controller
                         $nidnVal = $anggotaNidn[$key] ?? null;
                         $emailVal = $anggotaEmail[$key] ?? null;
                         $teleponVal = $anggotaTelepon[$key] ?? null;
+                        $jurusanVal = $anggotaJurusan[$key] ?? null;
+                        $prodiVal = $anggotaProgramStudi[$key] ?? null;
 
-                        $rowEmpty = empty($nama) && empty($peranVal) && empty($jabatanVal) && empty($nidnVal) && empty($emailVal) && empty($teleponVal);
+                        $rowEmpty = empty($nama) && empty($peranVal) && empty($jabatanVal) && empty($nidnVal) && empty($emailVal) && empty($teleponVal) && empty($jurusanVal) && empty($prodiVal);
                         if ($rowEmpty) {
                             // baris benar-benar kosong, skip
                             continue;
@@ -1060,6 +1114,8 @@ class PenelitianController extends Controller
                             'nidn' => $nidnVal ?? '',
                             'email' => $emailVal ?? '',
                             'telepon' => $teleponVal ?? '',
+                            'jurusan_nama' => $jurusanVal ?? '',
+                            'program_studi_nama' => $prodiVal ?? '',
                         ]);
                     }
                 }

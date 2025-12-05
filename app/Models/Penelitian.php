@@ -14,7 +14,7 @@ class Penelitian extends Model
         'judul', 'luaran_wajib', 'lama_penelitian', 'biaya_diusulkan', 'sinta_index', 
         'skema', 'luaran_tambahan', 'ringkasan_proposal', 'dokumen_proposal', 
         'status', 'user_id', 'is_draft', 'is_revised', 'revised_from_id', 'admin_status', 'admin_comment',
-        'bidang_penelitian_id'
+        'bidang_penelitian_id', 'bidang_penelitian_nama'
     ];
     
     protected $casts = [

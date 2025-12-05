@@ -13,6 +13,8 @@ use App\Models\Timeline;
 use App\Models\PPM\Skema;
 use App\Models\PPM\Luaran;
 use App\Models\LaporanKemajuan;
+use App\Models\Jurusan;
+use App\Models\ProgramStudi;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -500,6 +502,16 @@ class PengabdianController extends Controller
         $kelompokRab = \App\Models\KelompokRab::where('is_active', true)->orderBy('nama')->get();
         $komponenRab = \App\Models\KomponenRab::with('satuan')->where('is_active', true)->orderBy('nama')->get();
         $satuanRab = \App\Models\SatuanRab::where('is_active', true)->orderBy('nama')->get();
+        $jurusanList = Jurusan::orderBy('nama')->get();
+        $programStudiList = ProgramStudi::orderBy('nama')->get()->groupBy('jurusan_id');
+        $jurusanOptions = $jurusanList->map(function ($j) {
+            return ['id' => $j->id, 'nama' => $j->nama];
+        })->values();
+        $prodiByJurusan = $programStudiList->map(function ($list) {
+            return $list->map(function ($p) {
+                return ['id' => $p->id, 'nama' => $p->nama, 'jurusan_id' => $p->jurusan_id];
+            })->values();
+        });
 
         $existingRevision = Pengabdian::with(['anggota', 'rab'])
             ->where('user_id', Auth::id())
@@ -522,6 +534,10 @@ class PengabdianController extends Controller
             'kelompokRab' => $kelompokRab,
             'komponenRab' => $komponenRab,
             'satuanRab' => $satuanRab,
+            'jurusanList' => $jurusanList,
+            'programStudiList' => $programStudiList,
+            'jurusanOptions' => $jurusanOptions,
+            'prodiByJurusan' => $prodiByJurusan,
             'reviews' => $reviews,
             'revisionOpen' => $revisionOpen,
         ]);
@@ -573,6 +589,10 @@ class PengabdianController extends Controller
             'anggota_nidn.*' => 'required|string',
             'anggota_jabatan' => 'required|array|min:1',
             'anggota_jabatan.*' => 'required|string|in:Dosen,Mahasiswa',
+            'anggota_jurusan' => 'required|array|min:1',
+            'anggota_jurusan.*' => 'required|string',
+            'anggota_program_studi' => 'required|array|min:1',
+            'anggota_program_studi.*' => 'required|string',
             'anggota_email' => 'required|array|min:1',
             'anggota_email.*' => 'required|email',
             'anggota_telepon' => 'required|array|min:1',
@@ -676,6 +696,8 @@ class PengabdianController extends Controller
                     'nidn' => $request->anggota_nidn[$key] ?? null,
                     'email' => $request->anggota_email[$key] ?? null,
                     'telepon' => $request->anggota_telepon[$key] ?? null,
+                    'jurusan_nama' => $request->anggota_jurusan[$key] ?? null,
+                    'program_studi_nama' => $request->anggota_program_studi[$key] ?? null,
                 ]);
             }
 
@@ -744,6 +766,16 @@ class PengabdianController extends Controller
         $skemaPengabdian = Skema::where('jenis', 'pengabdian')->where('is_shown', 1)->get();
         $luaranWajibPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'wajib')->where('is_shown', 1)->get();
         $luaranTambahanPengabdian = Luaran::where('jenis', 'pengabdian')->where('kategori', 'tambahan')->where('is_shown', 1)->get();
+        $jurusanList = Jurusan::orderBy('nama')->get();
+        $programStudiList = ProgramStudi::orderBy('nama')->get()->groupBy('jurusan_id');
+        $jurusanOptions = $jurusanList->map(function ($j) {
+            return ['id' => $j->id, 'nama' => $j->nama];
+        })->values();
+        $prodiByJurusan = $programStudiList->map(function ($list) {
+            return $list->map(function ($p) {
+                return ['id' => $p->id, 'nama' => $p->nama, 'jurusan_id' => $p->jurusan_id];
+            })->values();
+        });
 
         // Get RAB data from database
         $kelompokRab = \App\Models\KelompokRab::where('is_active', true)->orderBy('nama')->get();
@@ -759,7 +791,11 @@ class PengabdianController extends Controller
             'kelompokRab',
             'komponenRab',
             'satuanRab',
-            'draft'
+            'draft',
+            'jurusanList',
+            'programStudiList',
+            'jurusanOptions',
+            'prodiByJurusan'
         ));
     }
 
@@ -864,6 +900,10 @@ class PengabdianController extends Controller
                 'anggota_nidn.*' => 'required|string',
                 'anggota_jabatan' => 'required|array|min:1',
                 'anggota_jabatan.*' => 'required|string|in:Dosen,Mahasiswa',
+                'anggota_jurusan' => 'required|array|min:1',
+                'anggota_jurusan.*' => 'required|string',
+                'anggota_program_studi' => 'required|array|min:1',
+                'anggota_program_studi.*' => 'required|string',
                 'anggota_email' => 'required|array|min:1',
                 'anggota_email.*' => 'required|email',
                 'anggota_telepon' => 'required|array|min:1',
@@ -903,6 +943,10 @@ class PengabdianController extends Controller
                 $validationRules['anggota_nidn.*'] = 'nullable|string';
                 $validationRules['anggota_jabatan'] = 'nullable|array';
                 $validationRules['anggota_jabatan.*'] = 'nullable|string';
+                $validationRules['anggota_jurusan'] = 'nullable|array';
+                $validationRules['anggota_jurusan.*'] = 'nullable|string';
+                $validationRules['anggota_program_studi'] = 'nullable|array';
+                $validationRules['anggota_program_studi.*'] = 'nullable|string';
                 $validationRules['anggota_email'] = 'nullable|array';
                 $validationRules['anggota_email.*'] = 'nullable|string';
                 $validationRules['anggota_telepon'] = 'nullable|array';
@@ -1024,6 +1068,8 @@ class PengabdianController extends Controller
                 $anggotaNidn = $request->anggota_nidn ?? [];
                 $anggotaEmail = $request->anggota_email ?? [];
                 $anggotaTelepon = $request->anggota_telepon ?? [];
+                $anggotaJurusan = $request->anggota_jurusan ?? [];
+                $anggotaProgramStudi = $request->anggota_program_studi ?? [];
 
                 if (is_array($anggotaNama)) {
                     foreach ($anggotaNama as $key => $nama) {
@@ -1032,8 +1078,10 @@ class PengabdianController extends Controller
                         $nidnVal = $anggotaNidn[$key] ?? null;
                         $emailVal = $anggotaEmail[$key] ?? null;
                         $teleponVal = $anggotaTelepon[$key] ?? null;
+                        $jurusanVal = $anggotaJurusan[$key] ?? null;
+                        $prodiVal = $anggotaProgramStudi[$key] ?? null;
 
-                        $rowEmpty = empty($nama) && empty($peranVal) && empty($jabatanVal) && empty($nidnVal) && empty($emailVal) && empty($teleponVal);
+                        $rowEmpty = empty($nama) && empty($peranVal) && empty($jabatanVal) && empty($nidnVal) && empty($emailVal) && empty($teleponVal) && empty($jurusanVal) && empty($prodiVal);
                         if ($rowEmpty) {
                             continue;
                         }
@@ -1046,6 +1094,8 @@ class PengabdianController extends Controller
                             'nidn' => $nidnVal ?? '',
                             'email' => $emailVal ?? '',
                             'telepon' => $teleponVal ?? '',
+                            'jurusan_nama' => $jurusanVal ?? '',
+                            'program_studi_nama' => $prodiVal ?? '',
                         ]);
                     }
                 }

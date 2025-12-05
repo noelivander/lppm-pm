@@ -97,6 +97,8 @@
                                                     <th>Nama</th>
                                                     <th>Peran</th>
                                                     <th>Jabatan</th>
+                                                    <th>Jurusan</th>
+                                                    <th>Prodi</th>
                                                     <th>NIDN/NIM</th>
                                                     <th>Email</th>
                                                     <th>Telepon</th>
@@ -108,6 +110,8 @@
                                                         <td>{{ $anggota->nama ?? '-' }}</td>
                                                         <td>{{ ucfirst($anggota->peran ?? '-') }}</td>
                                                         <td>{{ $anggota->jabatan ?? '-' }}</td>
+                                                    <td>{{ $anggota->jurusan_nama ?? '-' }}</td>
+                                                    <td>{{ $anggota->program_studi_nama ?? '-' }}</td>
                                                         <td>{{ $anggota->nidn ?? $anggota->nim ?? '-' }}</td>
                                                         <td>{{ $anggota->email ?? '-' }}</td>
                                                         <td>{{ $anggota->telepon ?? '-' }}</td>
