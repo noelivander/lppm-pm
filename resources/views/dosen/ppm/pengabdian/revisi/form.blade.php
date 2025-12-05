@@ -1063,7 +1063,7 @@
                                             
                                             if (itemInput) itemInput.value = '{{ $rab->item }}';
                                             if (volumeInput) volumeInput.value = '{{ $rab->volume }}';
-                                            if (hargaInput) hargaInput.value = '{{ $rab->harga_satuan }}';
+                                            if (hargaInput) hargaInput.value = '{{ number_format($rab->harga_satuan, 0, ',', '') }}';
                                             
                                             // Trigger change untuk update total
                                             if (volumeInput && hargaInput) {
