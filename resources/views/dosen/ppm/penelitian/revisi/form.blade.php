@@ -503,9 +503,23 @@
             satuanSelect.innerHTML = '<option value="">Memuat satuan...</option>';
             satuanSelect.disabled = true;
 
+            // Add timeout protection (10 seconds)
+            const timeoutId = setTimeout(() => {
+                console.error('Timeout loading satuan for komponen:', komponenName);
+                satuanSelect.innerHTML = '<option value="" disabled>Timeout memuat satuan</option>';
+                satuanSelect.disabled = false;
+                if (callback) callback();
+            }, 10000);
+
             // Fetch satuan for this komponen
             fetch(`{{ route('dosen.rab.get-satuan-by-komponen') }}?komponen=${encodeURIComponent(komponenName)}`)
-                .then(response => response.json())
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     satuanSelect.innerHTML = '<option value="" disabled selected>Pilih satuan...</option>';
                     
@@ -516,8 +530,10 @@
                             option.textContent = satuan.singkatan ? `${satuan.nama} (${satuan.singkatan})` : satuan.nama;
                             satuanSelect.appendChild(option);
                         });
+                        console.log(`Loaded ${data.satuan.length} satuan options for komponen: ${komponenName}`);
                     } else {
                         satuanSelect.innerHTML = '<option value="" disabled>Belum ada satuan untuk komponen ini</option>';
+                        console.warn('No satuan found for komponen:', komponenName);
                     }
                     satuanSelect.disabled = false;
                     
@@ -525,9 +541,11 @@
                     if (callback) callback();
                 })
                 .catch(error => {
-                    console.error('Error loading satuan:', error);
+                    clearTimeout(timeoutId);
+                    console.error('Error loading satuan for komponen:', komponenName, error);
                     satuanSelect.innerHTML = '<option value="" disabled>Error memuat satuan</option>';
                     satuanSelect.disabled = false;
+                    // Always call callback even on error to prevent hanging
                     if (callback) callback();
                 });
         }
@@ -542,11 +560,16 @@
             const hargaInput = clone.querySelector('.rab-harga');
             const removeBtn = clone.querySelector('.remove-rab-row');
             const komponenSelect = clone.querySelector('.rab-komponen-select');
+            const kelompokSelect = clone.querySelector('.rab-kelompok-select');
+            const satuanSelect = clone.querySelector('.rab-satuan-select');
+            const itemInput = clone.querySelector('input[name="rab_item[]"]');
 
+            // Add event listeners for validation
             if (volumeInput) {
                 volumeInput.addEventListener('input', (event) => {
                     restrictNumberInput(event);
                     updateRabRowTotal(clone);
+                    validateForm();
                 });
             }
 
@@ -554,7 +577,20 @@
                 hargaInput.addEventListener('input', (event) => {
                     restrictNumberInput(event);
                     updateRabRowTotal(clone);
+                    validateForm();
                 });
+            }
+            
+            if (kelompokSelect) {
+                kelompokSelect.addEventListener('change', validateForm);
+            }
+            
+            if (itemInput) {
+                itemInput.addEventListener('input', validateForm);
+            }
+            
+            if (satuanSelect) {
+                satuanSelect.addEventListener('change', validateForm);
             }
 
             // Add event listener for komponen change to update satuan
@@ -667,15 +703,40 @@
                 </td>
             `;
 
-            row.querySelector('input[name="anggota_telepon[]"]').addEventListener('input', restrictNumberInput);
+            // Add event listeners for validation
+            const namaInput = row.querySelector('input[name="anggota_nama[]"]');
+            const nidnInput = row.querySelector('input[name="anggota_nidn[]"]');
+            const emailInput = row.querySelector('input[name="anggota_email[]"]');
+            const teleponInput = row.querySelector('input[name="anggota_telepon[]"]');
+            const peranSelect = row.querySelector('select[name="anggota_peran[]"]');
+            const jabatanSelect = row.querySelector('select[name="anggota_jabatan[]"]');
             const jurusanSelect = row.querySelector('.anggota-jurusan');
             const prodiSelect = row.querySelector('.anggota-prodi');
+            
+            // Add input/change listeners for validation
+            if (namaInput) namaInput.addEventListener('input', validateForm);
+            if (nidnInput) nidnInput.addEventListener('input', validateForm);
+            if (emailInput) emailInput.addEventListener('input', validateForm);
+            if (teleponInput) {
+                teleponInput.addEventListener('input', function(e) {
+                    restrictNumberInput(e);
+                    validateForm();
+                });
+            }
+            if (peranSelect) peranSelect.addEventListener('change', validateForm);
+            if (jabatanSelect) jabatanSelect.addEventListener('change', validateForm);
+            
             populateJurusanSelect(jurusanSelect);
             populateProdiSelect(jurusanSelect, prodiSelect);
-            jurusanSelect.addEventListener('change', function() {
-                populateProdiSelect(jurusanSelect, prodiSelect);
-                validateForm();
-            });
+            
+            if (jurusanSelect) {
+                jurusanSelect.addEventListener('change', function() {
+                    populateProdiSelect(jurusanSelect, prodiSelect);
+                    validateForm();
+                });
+            }
+            if (prodiSelect) prodiSelect.addEventListener('change', validateForm);
+            
             row.querySelector('.removeAnggota').addEventListener('click', function () {
                 row.remove();
                 validateForm();
@@ -867,25 +928,49 @@
             @if(isset($draft) && $draft)
                 // Pre-fill anggota dari draft
                 @if($draft->anggota && $draft->anggota->count() > 0)
-                    @foreach($draft->anggota as $anggota)
-                        addAnggotaRow();
-                        const anggotaRows = document.querySelectorAll('#anggotaTable tbody tr');
-                        const lastRow = anggotaRows[anggotaRows.length - 1];
-                        if (lastRow) {
-                            lastRow.querySelector('input[name="anggota_nama[]"]').value = '{{ $anggota->nama }}';
-                            lastRow.querySelector('input[name="anggota_nidn[]"]').value = '{{ $anggota->nidn }}';
-                            lastRow.querySelector('input[name="anggota_email[]"]').value = '{{ $anggota->email }}';
-                            lastRow.querySelector('input[name="anggota_telepon[]"]').value = '{{ $anggota->telepon }}';
-                            lastRow.querySelector('select[name="anggota_peran[]"]').value = '{{ $anggota->peran }}';
-                            lastRow.querySelector('select[name="anggota_jabatan[]"]').value = '{{ $anggota->jabatan }}';
-                            const jurusanSelect = lastRow.querySelector('select[name="anggota_jurusan[]"]');
-                            const prodiSelect = lastRow.querySelector('select[name="anggota_program_studi[]"]');
-                            populateJurusanSelect(jurusanSelect, '{{ $anggota->jurusan_nama }}');
-                            if (jurusanSelect) {
-                                populateProdiSelect(jurusanSelect, prodiSelect, '{{ $anggota->program_studi_nama }}');
+                    console.log('Loading {{ $draft->anggota->count() }} Anggota rows from draft...');
+                    @foreach($draft->anggota as $index => $anggota)
+                        (function(rowIndex) {
+                            try {
+                                addAnggotaRow();
+                                const anggotaRows = document.querySelectorAll('#anggotaTable tbody tr');
+                                const lastRow = anggotaRows[anggotaRows.length - 1];
+                                
+                                if (!lastRow) {
+                                    console.error('Failed to create Anggota row', rowIndex);
+                                    return;
+                                }
+                                
+                                const namaInput = lastRow.querySelector('input[name="anggota_nama[]"]');
+                                const nidnInput = lastRow.querySelector('input[name="anggota_nidn[]"]');
+                                const emailInput = lastRow.querySelector('input[name="anggota_email[]"]');
+                                const teleponInput = lastRow.querySelector('input[name="anggota_telepon[]"]');
+                                const peranSelect = lastRow.querySelector('select[name="anggota_peran[]"]');
+                                const jabatanSelect = lastRow.querySelector('select[name="anggota_jabatan[]"]');
+                                const jurusanSelect = lastRow.querySelector('select[name="anggota_jurusan[]"]');
+                                const prodiSelect = lastRow.querySelector('select[name="anggota_program_studi[]"]');
+                                
+                                if (namaInput) namaInput.value = '{{ $anggota->nama }}';
+                                if (nidnInput) nidnInput.value = '{{ $anggota->nidn }}';
+                                if (emailInput) emailInput.value = '{{ $anggota->email }}';
+                                if (teleponInput) teleponInput.value = '{{ $anggota->telepon }}';
+                                if (peranSelect) peranSelect.value = '{{ $anggota->peran }}';
+                                if (jabatanSelect) jabatanSelect.value = '{{ $anggota->jabatan }}';
+                                
+                                if (jurusanSelect) {
+                                    populateJurusanSelect(jurusanSelect, '{{ $anggota->jurusan_nama }}');
+                                }
+                                if (jurusanSelect && prodiSelect) {
+                                    populateProdiSelect(jurusanSelect, prodiSelect, '{{ $anggota->program_studi_nama }}');
+                                }
+                                
+                                console.log(`Anggota row ${rowIndex} loaded successfully`);
+                            } catch (error) {
+                                console.error('Error loading Anggota row', rowIndex, error);
                             }
-                        }
+                        })({{ $index }});
                     @endforeach
+                    console.log('All Anggota rows loaded');
                 @else
                     addAnggotaRow();
                 @endif
@@ -894,61 +979,99 @@
                 @if($draft->rab && $draft->rab->count() > 0)
                     let rabPopulateCount = 0;
                     const totalRabRows = {{ $draft->rab->count() }};
+                    console.log('Loading', totalRabRows, 'RAB rows from draft...');
                     
-                    @foreach($draft->rab as $rab)
-                        addRabRow();
-                        const rabRows = document.querySelectorAll('#rabTable tbody tr');
-                        const lastRabRow = rabRows[rabRows.length - 1];
-                        if (lastRabRow) {
-                            lastRabRow.querySelector('select[name="rab_kelompok[]"]').value = '{{ $rab->kelompok }}';
-                            
-                            // Set komponen dan load satuan dengan callback
-                            const komponenSelect = lastRabRow.querySelector('select[name="rab_komponen[]"]');
-                            const satuanSelect = lastRabRow.querySelector('select[name="rab_satuan[]"]');
-                            const satuanValue = '{{ $rab->satuan }}';
-                            
-                            if (komponenSelect && '{{ $rab->komponen }}') {
-                                komponenSelect.value = '{{ $rab->komponen }}';
-                                
-                                // Load satuan with callback to set value after loading
-                                updateSatuanByKomponen(komponenSelect, lastRabRow, function() {
-                                    // Set satuan value after options are loaded
-                                    if (satuanValue && satuanSelect) {
-                                        satuanSelect.value = satuanValue;
-                                    }
-                                    
-                                    // Set other fields
-                                    lastRabRow.querySelector('input[name="rab_item[]"]').value = '{{ $rab->item }}';
-                                    lastRabRow.querySelector('input[name="rab_volume[]"]').value = '{{ $rab->volume }}';
-                                    lastRabRow.querySelector('input[name="rab_harga_satuan[]"]').value = '{{ $rab->harga_satuan }}';
-                                    
-                                    // Trigger change untuk update total
-                                    const volumeInput = lastRabRow.querySelector('input[name="rab_volume[]"]');
-                                    const hargaInput = lastRabRow.querySelector('input[name="rab_harga_satuan[]"]');
-                                    if (volumeInput && hargaInput) {
-                                        volumeInput.dispatchEvent(new Event('input'));
-                                        hargaInput.dispatchEvent(new Event('input'));
-                                    }
-                                    
-                                    // Increment counter and validate when all rows are done
-                                    rabPopulateCount++;
-                                    if (rabPopulateCount === totalRabRows) {
-                                        setTimeout(validateForm, 200);
-                                    }
-                                });
-                            } else {
-                                // If no komponen, set other fields directly
-                                lastRabRow.querySelector('input[name="rab_item[]"]').value = '{{ $rab->item }}';
-                                lastRabRow.querySelector('input[name="rab_volume[]"]').value = '{{ $rab->volume }}';
-                                lastRabRow.querySelector('input[name="rab_harga_satuan[]"]').value = '{{ $rab->harga_satuan }}';
-                                
-                                // Increment counter and validate when all rows are done
-                                rabPopulateCount++;
-                                if (rabPopulateCount === totalRabRows) {
-                                    setTimeout(validateForm, 200);
-                                }
-                            }
+                    // Function to check if all rows are loaded and trigger validation
+                    function checkRabLoadComplete() {
+                        rabPopulateCount++;
+                        console.log(`RAB row loaded: ${rabPopulateCount}/${totalRabRows}`);
+                        if (rabPopulateCount === totalRabRows) {
+                            console.log('All RAB rows loaded successfully');
+                            setTimeout(validateForm, 300);
                         }
+                    }
+                    
+                    @foreach($draft->rab as $index => $rab)
+                        (function(rowIndex) {
+                            try {
+                                addRabRow();
+                                const rabRows = document.querySelectorAll('#rabTable tbody tr');
+                                const lastRabRow = rabRows[rabRows.length - 1];
+                                
+                                if (!lastRabRow) {
+                                    console.error('Failed to create RAB row', rowIndex);
+                                    checkRabLoadComplete();
+                                    return;
+                                }
+                                
+                                // Set kelompok
+                                const kelompokSelect = lastRabRow.querySelector('select[name="rab_kelompok[]"]');
+                                if (kelompokSelect) {
+                                    kelompokSelect.value = '{{ $rab->kelompok }}';
+                                }
+                                
+                                // Set komponen dan load satuan dengan callback
+                                const komponenSelect = lastRabRow.querySelector('select[name="rab_komponen[]"]');
+                                const satuanSelect = lastRabRow.querySelector('select[name="rab_satuan[]"]');
+                                const satuanValue = '{{ $rab->satuan }}';
+                                
+                                if (komponenSelect && '{{ $rab->komponen }}') {
+                                    komponenSelect.value = '{{ $rab->komponen }}';
+                                    
+                                    // Load satuan with callback to set value after loading
+                                    updateSatuanByKomponen(komponenSelect, lastRabRow, function() {
+                                        try {
+                                            // Set satuan value after options are loaded
+                                            if (satuanValue && satuanSelect) {
+                                                satuanSelect.value = satuanValue;
+                                                if (satuanSelect.value !== satuanValue) {
+                                                    console.warn(`Could not set satuan value "${satuanValue}" for row ${rowIndex}`);
+                                                }
+                                            }
+                                            
+                                            // Set other fields
+                                            const itemInput = lastRabRow.querySelector('input[name="rab_item[]"]');
+                                            const volumeInput = lastRabRow.querySelector('input[name="rab_volume[]"]');
+                                            const hargaInput = lastRabRow.querySelector('input[name="rab_harga_satuan[]"]');
+                                            
+                                            if (itemInput) itemInput.value = '{{ $rab->item }}';
+                                            if (volumeInput) volumeInput.value = '{{ $rab->volume }}';
+                                            if (hargaInput) hargaInput.value = '{{ $rab->harga_satuan }}';
+                                            
+                                            // Trigger change untuk update total
+                                            if (volumeInput && hargaInput) {
+                                                volumeInput.dispatchEvent(new Event('input'));
+                                                hargaInput.dispatchEvent(new Event('input'));
+                                            }
+                                            
+                                            checkRabLoadComplete();
+                                        } catch (error) {
+                                            console.error('Error setting RAB row data for row', rowIndex, error);
+                                            checkRabLoadComplete();
+                                        }
+                                    });
+                                } else {
+                                    // If no komponen, set other fields directly
+                                    try {
+                                        const itemInput = lastRabRow.querySelector('input[name="rab_item[]"]');
+                                        const volumeInput = lastRabRow.querySelector('input[name="rab_volume[]"]');
+                                        const hargaInput = lastRabRow.querySelector('input[name="rab_harga_satuan[]"]');
+                                        
+                                        if (itemInput) itemInput.value = '{{ $rab->item }}';
+                                        if (volumeInput) volumeInput.value = '{{ $rab->volume }}';
+                                        if (hargaInput) hargaInput.value = '{{ $rab->harga_satuan }}';
+                                        
+                                        checkRabLoadComplete();
+                                    } catch (error) {
+                                        console.error('Error setting RAB row data for row', rowIndex, error);
+                                        checkRabLoadComplete();
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error creating RAB row', rowIndex, error);
+                                checkRabLoadComplete();
+                            }
+                        })({{ $index }});
                     @endforeach
                 @else
                     addRabRow();
