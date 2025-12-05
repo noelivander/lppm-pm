@@ -84,6 +84,15 @@
                                     {{ $feedbackSource->admin_comment ? $feedbackSource->admin_comment : 'Belum ada komentar dari admin.' }}
                                 </p>
                             </div>
+                            @if($feedbackSource->biaya_disetujui)
+                            <div class="mb-4">
+                                <div class="text-uppercase small text-muted fw-semibold mb-1">Biaya yang Disetujui</div>
+                                <p class="mb-0">
+                                    <strong class="text-success">Rp {{ number_format($feedbackSource->biaya_disetujui, 0, ',', '.') }}</strong>
+                                </p>
+                                <small class="text-muted">Biaya ini telah ditetapkan oleh admin dan harus digunakan sebagai acuan dalam revisi proposal.</small>
+                            </div>
+                            @endif
                             <div>
                                 <div class="text-uppercase small text-muted fw-semibold mb-2">Komentar Reviewer</div>
                                 @if(isset($reviews) && $reviews->count() > 0)
