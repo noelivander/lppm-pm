@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PPM\Pengaturan\SkemaController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\RabController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\FormPenilaianLaporanKemajuanController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\FormPenilaianReviewController;
+use App\Http\Controllers\Admin\PPM\Pengaturan\BidangPenelitianController;
 use App\Http\Controllers\Admin\PPM\FokusBidangController;
 use App\Http\Controllers\Admin\PPM\PenelitianController;
 use App\Http\Controllers\Admin\PPM\PengabdianController;
@@ -67,6 +68,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('luaran/{luaran}/edit', [LuaranController::class, 'edit'])->name('luaran.edit');
     Route::put('luaran/{luaran}', [LuaranController::class, 'update'])->name('luaran.update');
     Route::delete('luaran/{luaran}', [LuaranController::class, 'destroy'])->name('luaran.destroy');
+    
+    // Bidang Penelitian routes
+    Route::get('bidang-penelitian', [BidangPenelitianController::class, 'index'])->name('bidang-penelitian.index');
+    Route::post('bidang-penelitian', [BidangPenelitianController::class, 'store'])->name('bidang-penelitian.store');
+    Route::get('bidang-penelitian/{bidangPenelitian}/edit', [BidangPenelitianController::class, 'edit'])->name('bidang-penelitian.edit');
+    Route::put('bidang-penelitian/{bidangPenelitian}', [BidangPenelitianController::class, 'update'])->name('bidang-penelitian.update');
+    Route::delete('bidang-penelitian/{bidangPenelitian}', [BidangPenelitianController::class, 'destroy'])->name('bidang-penelitian.destroy');
     
     // RAB routes
     Route::get('rab', [RabController::class, 'index'])->name('rab.index');
