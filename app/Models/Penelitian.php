@@ -13,7 +13,8 @@ class Penelitian extends Model
     protected $fillable = [
         'judul', 'luaran_wajib', 'lama_penelitian', 'biaya_diusulkan', 'sinta_index', 
         'skema', 'luaran_tambahan', 'ringkasan_proposal', 'dokumen_proposal', 
-        'status', 'user_id', 'is_draft', 'is_revised', 'revised_from_id', 'admin_status', 'admin_comment'
+        'status', 'user_id', 'is_draft', 'is_revised', 'revised_from_id', 'admin_status', 'admin_comment',
+        'bidang_penelitian_id'
     ];
     
     protected $casts = [
@@ -46,6 +47,11 @@ class Penelitian extends Model
     public function rab()
     {
         return $this->hasMany(RabPenelitian::class);
+    }
+
+    public function bidangPenelitian()
+    {
+        return $this->belongsTo(\App\Models\PPM\BidangPenelitian::class, 'bidang_penelitian_id');
     }
 
     public function laporanKemajuan()
