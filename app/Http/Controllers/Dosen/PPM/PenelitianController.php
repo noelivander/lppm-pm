@@ -907,32 +907,34 @@ class PenelitianController extends Controller
                 $validationRules['biaya_diusulkan'] = 'nullable|string';
                 $validationRules['skema'] = 'nullable|string';
                 $validationRules['ringkasan_proposal'] = 'nullable|string';
+                // Untuk draft, izinkan tabel anggota dikosongkan atau sebagian terisi
                 $validationRules['anggota_nama'] = 'nullable|array';
                 $validationRules['anggota_nama.*'] = 'nullable|string';
                 $validationRules['anggota_peran'] = 'nullable|array';
-                $validationRules['anggota_peran.*'] = 'nullable|string|in:Ketua,Anggota';
+                $validationRules['anggota_peran.*'] = 'nullable|string';
                 $validationRules['anggota_nidn'] = 'nullable|array';
                 $validationRules['anggota_nidn.*'] = 'nullable|string';
                 $validationRules['anggota_jabatan'] = 'nullable|array';
-                $validationRules['anggota_jabatan.*'] = 'nullable|string|in:Dosen,Mahasiswa';
+                $validationRules['anggota_jabatan.*'] = 'nullable|string';
                 $validationRules['anggota_email'] = 'nullable|array';
-                $validationRules['anggota_email.*'] = 'nullable|email';
+                $validationRules['anggota_email.*'] = 'nullable|string';
                 $validationRules['anggota_telepon'] = 'nullable|array';
                 $validationRules['anggota_telepon.*'] = 'nullable|string';
+                // Untuk draft, izinkan RAB kosong atau sebagian tanpa validasi angka/daftar
                 $validationRules['rab_kelompok'] = 'nullable|array';
-                $validationRules['rab_kelompok.*'] = 'nullable|string|in:Honorarium,Perjalanan,Operasional,Peralatan,Lainnya';
+                $validationRules['rab_kelompok.*'] = 'nullable|string';
                 $validationRules['rab_komponen'] = 'nullable|array';
-                $validationRules['rab_komponen.*'] = 'nullable|string|in:SDM,Material,Jasa,Transportasi,Lainnya';
+                $validationRules['rab_komponen.*'] = 'nullable|string';
                 $validationRules['rab_item'] = 'nullable|array';
                 $validationRules['rab_item.*'] = 'nullable|string|max:255';
                 $validationRules['rab_satuan'] = 'nullable|array';
                 $validationRules['rab_satuan.*'] = 'nullable|string|max:50';
                 $validationRules['rab_volume'] = 'nullable|array';
-                $validationRules['rab_volume.*'] = 'nullable|integer';
+                $validationRules['rab_volume.*'] = 'nullable';
                 $validationRules['rab_harga_satuan'] = 'nullable|array';
-                $validationRules['rab_harga_satuan.*'] = 'nullable|numeric|min:0';
+                $validationRules['rab_harga_satuan.*'] = 'nullable';
                 $validationRules['rab_total'] = 'nullable|array';
-                $validationRules['rab_total.*'] = 'nullable|numeric|min:0';
+                $validationRules['rab_total.*'] = 'nullable';
             }
             
             $validatedData = $request->validate($validationRules, [
@@ -1028,35 +1030,70 @@ class PenelitianController extends Controller
                     throw new \Exception('Gagal membuat penelitian.');
                 }
 
-                // Create anggota
-                if (isset($request->anggota_nama) && is_array($request->anggota_nama)) {
-                    foreach ($request->anggota_nama as $key => $nama) {
-                        if (empty($nama)) {
+                // Create anggota (aman untuk draft yang parsial)
+                $anggotaNama = $request->anggota_nama ?? [];
+                $anggotaPeran = $request->anggota_peran ?? [];
+                $anggotaJabatan = $request->anggota_jabatan ?? [];
+                $anggotaNidn = $request->anggota_nidn ?? [];
+                $anggotaEmail = $request->anggota_email ?? [];
+                $anggotaTelepon = $request->anggota_telepon ?? [];
+
+                if (is_array($anggotaNama)) {
+                    foreach ($anggotaNama as $key => $nama) {
+                        $peranVal = $anggotaPeran[$key] ?? null;
+                        $jabatanVal = $anggotaJabatan[$key] ?? null;
+                        $nidnVal = $anggotaNidn[$key] ?? null;
+                        $emailVal = $anggotaEmail[$key] ?? null;
+                        $teleponVal = $anggotaTelepon[$key] ?? null;
+
+                        $rowEmpty = empty($nama) && empty($peranVal) && empty($jabatanVal) && empty($nidnVal) && empty($emailVal) && empty($teleponVal);
+                        if ($rowEmpty) {
+                            // baris benar-benar kosong, skip
                             continue;
                         }
 
                         Anggota::create([
                             'penelitian_id' => $penelitian->id,
-                            'nama' => $nama,
-                            'jabatan' => !empty($request->anggota_jabatan[$key]) ? $request->anggota_jabatan[$key] : null,
-                            'peran' => !empty($request->anggota_peran[$key]) ? $request->anggota_peran[$key] : 'Anggota',
-                            'nidn' => !empty($request->anggota_nidn[$key]) ? $request->anggota_nidn[$key] : null,
-                            'email' => !empty($request->anggota_email[$key]) ? $request->anggota_email[$key] : null,
-                            'telepon' => !empty($request->anggota_telepon[$key]) ? $request->anggota_telepon[$key] : null,
+                            'nama' => $nama ?? '',
+                            'jabatan' => $jabatanVal ?? '',
+                            'peran' => $peranVal ?? '',
+                            'nidn' => $nidnVal ?? '',
+                            'email' => $emailVal ?? '',
+                            'telepon' => $teleponVal ?? '',
                         ]);
                     }
                 }
 
-                // Create RAB items
-                if (isset($request->rab_kelompok) && is_array($request->rab_kelompok)) {
-                    foreach ($request->rab_kelompok as $key => $kelompok) {
-                        if (empty($kelompok)) {
+                // Create RAB items (aman untuk draft yang parsial)
+                $rabKelompok = $request->rab_kelompok ?? [];
+                $rabKomponen = $request->rab_komponen ?? [];
+                $rabItem = $request->rab_item ?? [];
+                $rabSatuan = $request->rab_satuan ?? [];
+                $rabVolume = $request->rab_volume ?? [];
+                $rabHarga = $request->rab_harga_satuan ?? [];
+                $rabTotal = $request->rab_total ?? [];
+
+                if (is_array($rabKelompok)) {
+                    foreach ($rabKelompok as $key => $kelompok) {
+                        $komponenVal = $rabKomponen[$key] ?? null;
+                        $itemVal = $rabItem[$key] ?? null;
+                        $satuanVal = $rabSatuan[$key] ?? null;
+                        $volume = (int) ($rabVolume[$key] ?? 0);
+                        $hargaSatuan = (float) ($rabHarga[$key] ?? 0);
+                        $total = (float) ($rabTotal[$key] ?? 0);
+
+                        $allEmpty = empty($kelompok) && empty($komponenVal) && empty($itemVal) && empty($satuanVal) && $volume === 0 && $hargaSatuan === 0;
+                        if ($allEmpty) {
+                            // Baris benar-benar kosong, skip
                             continue;
                         }
 
-                        $volume = (int) ($request->rab_volume[$key] ?? 0);
-                        $hargaSatuan = (float) ($request->rab_harga_satuan[$key] ?? 0);
-                        $total = (float) ($request->rab_total[$key] ?? 0);
+                        // Untuk submit final: butuh data lengkap
+                        if (!$isDraft) {
+                            if (empty($kelompok) || empty($komponenVal) || empty($itemVal) || empty($satuanVal) || $volume <= 0) {
+                                throw new \Exception('Data RAB tidak lengkap. Lengkapi kelompok, komponen, item, satuan, dan volume.');
+                            }
+                        }
 
                         // Validate and calculate total
                         $calculatedTotal = $volume * $hargaSatuan;
@@ -1072,13 +1109,13 @@ class PenelitianController extends Controller
 
                         RabPenelitian::create([
                             'penelitian_id' => $penelitian->id,
-                            'kelompok' => $kelompok,
-                            'komponen' => !empty($request->rab_komponen[$key]) ? $request->rab_komponen[$key] : null,
-                            'item' => !empty($request->rab_item[$key]) ? $request->rab_item[$key] : null,
-                            'satuan' => !empty($request->rab_satuan[$key]) ? $request->rab_satuan[$key] : null,
-                            'volume' => $volume > 0 ? $volume : null,
-                            'harga_satuan' => $hargaSatuan > 0 ? $hargaSatuan : null,
-                            'total' => $total > 0 ? $total : null,
+                            'kelompok' => $kelompok ?: '',
+                            'komponen' => !empty($komponenVal) ? $komponenVal : '',
+                            'item' => !empty($itemVal) ? $itemVal : '',
+                            'satuan' => !empty($satuanVal) ? $satuanVal : '',
+                            'volume' => $volume > 0 ? $volume : 0,
+                            'harga_satuan' => $hargaSatuan > 0 ? $hargaSatuan : 0,
+                            'total' => $total > 0 ? $total : 0,
                         ]);
                     }
                 } elseif (!$isDraft) {
