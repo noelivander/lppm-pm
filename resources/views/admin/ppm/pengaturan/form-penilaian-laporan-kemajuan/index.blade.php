@@ -134,10 +134,8 @@
                                     <thead>
                                         <tr>
                                             <th>No.</th>
-                                            <th>Kategori</th>
                                             <th>Komponen Penilaian</th>
                                             <th>Sub Komponen</th>
-                                        
                                             <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
@@ -148,14 +146,20 @@
                                         @endphp
                                         @forelse($formPengabdian as $kategori => $komponenList)
                                             @php
-                                                // Calculate total rows for this kategori (sum of all sub komponen counts)
-                                                $kategoriRowspan = 0;
+                                                // Calculate total rows for this kategori (including kategori header)
+                                                $kategoriTotalRows = 1; // 1 for kategori header row
                                                 foreach ($komponenList as $komponen) {
                                                     $subCount = $komponen->subKomponen->count();
-                                                    $kategoriRowspan += $subCount > 0 ? $subCount : 1;
+                                                    $kategoriTotalRows += $subCount > 0 ? $subCount : 1;
                                                 }
-                                                $kategoriFirstRow = true;
                                             @endphp
+                                            {{-- Kategori Header Row --}}
+                                            <tr class="kategori-header-row">
+                                                <td rowspan="{{ $kategoriTotalRows }}">{{ $rowNumber }}</td>
+                                                <td colspan="4" class="kategori-header-cell" style="text-align: center;">
+                                                    <strong>{{ $kategori ?? '-' }}</strong>
+                                                </td>
+                                            </tr>
                                             @foreach($komponenList as $komponenIndex => $form)
                                                 @php
                                                     $subKomponenCount = $form->subKomponen->count();
@@ -166,15 +170,6 @@
                                                 @if($subKomponenCount > 0)
                                                     @foreach($form->subKomponen as $subIndex => $sub)
                                                         <tr>
-                                                            @if($kategoriFirstRow && $komponenFirstRow)
-                                                                <td rowspan="{{ $kategoriRowspan }}">
-                                                                    {{ $rowNumber }}
-                                                                </td>
-                                                                <td rowspan="{{ $kategoriRowspan }}">
-                                                                    <strong>{{ $kategori ?? '-' }}</strong>
-                                                                </td>
-                                                                @php $kategoriFirstRow = false; @endphp
-                                                            @endif
                                                             @if($komponenFirstRow)
                                                                 <td rowspan="{{ $komponenRowspan }}">
                                                                     <strong>{{ $form->komponen_penilaian }}</strong>
@@ -186,7 +181,6 @@
                                                                 <strong class="text-primary ms-2">{{ $sub->nilai == floor($sub->nilai) ? number_format($sub->nilai, 0) : number_format($sub->nilai, 2) }}</strong>
                                                             </td>
                                                             @if($subIndex === 0)
-                                                            
                                                                 <td rowspan="{{ $komponenRowspan }}" style="vertical-align: middle;">
                                                                     @if($form->is_active)
                                                                         <span class="status-badge selesai">
@@ -213,17 +207,7 @@
                                                     @endforeach
                                                 @else
                                                     <tr>
-                                                        @if($kategoriFirstRow)
-                                                            <td rowspan="{{ $kategoriRowspan }}">
-                                                                {{ $rowNumber }}
-                                                            </td>
-                                                            <td rowspan="{{ $kategoriRowspan }}">
-                                                                <strong>{{ $kategori ?? '-' }}</strong>
-                                                            </td>
-                                                            @php $kategoriFirstRow = false; @endphp
-                                                        @endif
                                                         <td><strong>{{ $form->komponen_penilaian }}</strong></td>
-                                                        <td class="text-muted">-</td>
                                                         <td class="text-muted">-</td>
                                                         <td>
                                                             @if($form->is_active)
@@ -252,7 +236,7 @@
                                             @php $rowNumber++; @endphp
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center py-4">
+                                                <td colspan="5" class="text-center py-4">
                                                     <div class="text-muted">
                                                         <i class="fa fa-inbox fa-2x mb-2"></i>
                                                         <p>Belum ada komponen penilaian untuk pengabdian</p>
@@ -804,5 +788,36 @@
         }
 
         /* Kategori select styling - using modern-form-select class, no custom styling needed */
+        
+        /* Kategori header styling */
+        .kategori-header-cell {
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .kategori-header-row td:first-child {
+            border-right: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        /* Border vertikal untuk semua kolom */
+        .modern-table thead th:not(:last-child),
+        .modern-table tbody td:not(:last-child) {
+            border-right: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        /* Border horizontal untuk semua baris */
+        .modern-table tbody tr {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+        }
+        .modern-table tbody td {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+        }
+        /* Pastikan baris terakhir kategori tidak memiliki border bottom */
+        .modern-table tbody tr:last-child {
+            border-bottom: none !important;
+        }
+        .modern-table tbody tr:last-child td {
+            border-bottom: none !important;
+        }
     </style>
 </x-admin-layout>

@@ -113,79 +113,75 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Kategori</th>
                                                 <th>Komponen</th>
                                                 <th>Sub Komponen</th>
-                                                <th style="width: 120px;">Nilai</th>
+                                                <th style="width: 120px; text-align: center;">Nilai</th>
+                                                <th style="width: 100px; text-align: center;">Pilih</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @php $rowNumber = 1; @endphp
                                             @foreach($formPengabdian as $kategori => $komponenList)
                                                 @php
-                                                    $kategoriRowspan = 0;
+                                                    // Calculate total rows for this kategori (including kategori header)
+                                                    $kategoriTotalRows = 1; // 1 for kategori header row
                                                     foreach ($komponenList as $komponen) {
                                                         $subCount = $komponen->subKomponen->count();
-                                                        $kategoriRowspan += $subCount > 0 ? $subCount : 1;
+                                                        $kategoriTotalRows += $subCount > 0 ? $subCount : 1;
                                                     }
-                                                    $kategoriFirstRow = true;
                                                 @endphp
+                                                {{-- Kategori Header Row --}}
+                                                <tr class="kategori-header-row">
+                                                    <td rowspan="{{ $kategoriTotalRows }}">{{ $rowNumber }}</td>
+                                                    <td colspan="4" class="kategori-header-cell" style="text-align: center;">
+                                                        <strong>{{ $kategori ?? '-' }}</strong>
+                                                    </td>
+                                                </tr>
                                                 @foreach($komponenList as $komponen)
                                                     @php
                                                         $subKomponenCount = $komponen->subKomponen->count();
                                                         $komponenRowspan = $subKomponenCount > 0 ? $subKomponenCount : 1;
                                                         $komponenFirstRow = true;
+                                                        // Check which sub-component is selected for this component
+                                                        $selectedSubId = null;
+                                                        if (isset($existingSelectedSub[$komponen->id])) {
+                                                            $selectedSubId = $existingSelectedSub[$komponen->id];
+                                                        }
                                                     @endphp
                                                     @if($subKomponenCount > 0)
                                                         @foreach($komponen->subKomponen as $sub)
                                                             <tr>
-                                                                @if($kategoriFirstRow && $komponenFirstRow)
-                                                                    <td rowspan="{{ $kategoriRowspan }}">{{ $rowNumber }}</td>
-                                                                    <td rowspan="{{ $kategoriRowspan }}"><strong>{{ $kategori ?? '-' }}</strong></td>
-                                                                    @php $kategoriFirstRow = false; @endphp
-                                                                @endif
                                                                 @if($komponenFirstRow)
                                                                     <td rowspan="{{ $komponenRowspan }}"><strong>{{ $komponen->komponen_penilaian }}</strong></td>
                                                                     @php $komponenFirstRow = false; @endphp
                                                                 @endif
                                                                 <td>{{ $sub->sub_komponen }}</td>
-                                                                <td>
-                                                                    <input
-                                                                        type="number"
-                                                                        name="nilai[{{ $komponen->id }}][{{ $sub->id }}]"
-                                                                        class="modern-form-input @error('nilai.' . $komponen->id . '.' . $sub->id) is-invalid @enderror"
-                                                                        min="0" max="100" step="1"
-                                                                        placeholder="0-100"
-                                                                        value="{{ old('nilai.' . $komponen->id . '.' . $sub->id, $existingNilai[$komponen->id][$sub->id] ?? '') }}"
-                                                                    >
-                                                                    @error('nilai.' . $komponen->id . '.' . $sub->id)
-                                                                        <small class="text-danger">{{ $message }}</small>
-                                                                    @enderror
+                                                                <td style="text-align: center;">
+                                                                    <span class="status-badge nilai">{{ number_format($sub->nilai, 2) }}</span>
+                                                                </td>
+                                                                <td style="text-align: center;">
+                                                                    <label class="d-flex align-items-center justify-content-center mb-0 cursor-pointer" style="cursor: pointer;">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            name="sub_komponen[{{ $komponen->id }}]"
+                                                                            value="{{ $sub->id }}"
+                                                                            class="sub-komponen-checkbox"
+                                                                            data-komponen-id="{{ $komponen->id }}"
+                                                                            @php
+                                                                                $oldValue = old('sub_komponen.' . $komponen->id, $selectedSubId ?? null);
+                                                                            @endphp
+                                                                            {{ $oldValue == $sub->id ? 'checked' : '' }}
+                                                                        >
+                                                                    </label>
                                                                 </td>
                                                             </tr>
                                                         @endforeach
                                                     @else
                                                         <tr>
-                                                            @if($kategoriFirstRow)
-                                                                <td rowspan="{{ $kategoriRowspan }}">{{ $rowNumber }}</td>
-                                                                <td rowspan="{{ $kategoriRowspan }}"><strong>{{ $kategori ?? '-' }}</strong></td>
-                                                                @php $kategoriFirstRow = false; @endphp
-                                                            @endif
                                                             <td><strong>{{ $komponen->komponen_penilaian }}</strong></td>
                                                             <td class="text-muted">-</td>
-                                                            <td>
-                                                                <input
-                                                                    type="number"
-                                                                    name="nilai[{{ $komponen->id }}][0]"
-                                                                    class="modern-form-input @error('nilai.' . $komponen->id . '.0') is-invalid @enderror"
-                                                                    min="0" max="100" step="1"
-                                                                    placeholder="0-100"
-                                                                    value="{{ old('nilai.' . $komponen->id . '.0', $existingNilai[$komponen->id][0] ?? '') }}"
-                                                                >
-                                                                @error('nilai.' . $komponen->id . '.0')
-                                                                    <small class="text-danger">{{ $message }}</small>
-                                                                @enderror
-                                                            </td>
+                                                            <td class="text-muted" style="text-align: center;">-</td>
+                                                            <td class="text-muted" style="text-align: center;">-</td>
                                                         </tr>
                                                     @endif
                                                 @endforeach
@@ -252,6 +248,72 @@
             padding-top: 1.5rem;
             gap: 0.75rem;
         }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .sub-komponen-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--modern-primary, #0061f2);
+        }
+        .status-badge.nilai {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .kategori-header-cell {
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .kategori-header-row td:first-child {
+            border-right: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        /* Border vertikal untuk semua kolom */
+        .modern-table thead th:not(:last-child),
+        .modern-table tbody td:not(:last-child) {
+            border-right: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        /* Border horizontal untuk semua baris termasuk komponen dan sub komponen */
+        .modern-table tbody tr {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+        }
+        .modern-table tbody td {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+        }
+        /* Pastikan baris terakhir kategori tidak memiliki border bottom */
+        .modern-table tbody tr:last-child {
+            border-bottom: none !important;
+        }
+        .modern-table tbody tr:last-child td {
+            border-bottom: none !important;
+        }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all checkboxes grouped by komponen
+            const checkboxes = document.querySelectorAll('.sub-komponen-checkbox');
+            
+            checkboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    const komponenId = this.getAttribute('data-komponen-id');
+                    
+                    // If this checkbox is checked, uncheck all other checkboxes in the same komponen
+                    if (this.checked) {
+                        checkboxes.forEach(function(otherCheckbox) {
+                            if (otherCheckbox.getAttribute('data-komponen-id') === komponenId && otherCheckbox !== checkbox) {
+                                otherCheckbox.checked = false;
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </x-reviewer-layout>
 

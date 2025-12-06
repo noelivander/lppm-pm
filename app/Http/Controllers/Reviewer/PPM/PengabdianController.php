@@ -12,6 +12,7 @@ use App\Models\Review;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\FormPenilaianLaporanKemajuan;
+use App\Models\FormPenilaianLaporanKemajuanSub;
 use App\Models\LaporanKemajuanReview;
 
 class PengabdianController extends Controller
@@ -976,12 +977,13 @@ class PengabdianController extends Controller
             ->where('reviewer_id', $reviewerId)
             ->first();
 
-        $existingNilai = [];
+        // Track which sub-component is selected for each component
+        $existingSelectedSub = [];
         if ($existingReview) {
             foreach ($existingReview->items as $item) {
-                $componentId = $item->form_penilaian_laporan_kemajuan_id;
-                $subId = $item->form_penilaian_laporan_kemajuan_sub_id ?? 0;
-                $existingNilai[$componentId][$subId] = $item->nilai;
+                if ($item->form_penilaian_laporan_kemajuan_sub_id) {
+                    $existingSelectedSub[$item->form_penilaian_laporan_kemajuan_id] = $item->form_penilaian_laporan_kemajuan_sub_id;
+                }
             }
         }
 
@@ -992,7 +994,7 @@ class PengabdianController extends Controller
             'currentDate',
             'formPengabdian',
             'existingReview',
-            'existingNilai'
+            'existingSelectedSub'
         ));
     }
 
@@ -1043,13 +1045,53 @@ class PengabdianController extends Controller
         $targetStatus = $action === 'submit' ? 'selesai' : 'draft';
 
         $rules = [
-            'nilai' => 'array',
-            'nilai.*.*' => $action === 'submit' ? 'required|numeric|min:0|max:100' : 'nullable|numeric|min:0|max:100',
+            'sub_komponen' => 'array',
+            'sub_komponen.*' => 'nullable|exists:form_penilaian_laporan_kemajuan_sub,id',
             'catatan_umum' => 'nullable|string',
         ];
 
         $validated = $request->validate($rules);
-        $nilaiInput = $validated['nilai'] ?? [];
+        $selectedSubKomponen = $validated['sub_komponen'] ?? [];
+
+        // Validate that selected sub-components belong to their components
+        // and if submitting, ensure all components with sub-components have one selected
+        if ($action === 'submit') {
+            foreach ($formPengabdianRaw as $komponen) {
+                $subKomponenCount = $komponen->subKomponen->count();
+                if ($subKomponenCount > 0) {
+                    $componentId = $komponen->id;
+                    if (!isset($selectedSubKomponen[$componentId]) || empty($selectedSubKomponen[$componentId])) {
+                        return redirect()
+                            ->route('pengabdian-rev.laporan-kemajuan.create', $proposal->id)
+                            ->with('error', 'Silakan pilih sub komponen untuk semua komponen yang memiliki sub komponen.')
+                            ->withInput();
+                    }
+                    
+                    // Verify the selected sub belongs to this component
+                    $selectedSubId = $selectedSubKomponen[$componentId];
+                    $subKomponen = FormPenilaianLaporanKemajuanSub::find($selectedSubId);
+                    if (!$subKomponen || $subKomponen->form_penilaian_id != $componentId) {
+                        return redirect()
+                            ->route('pengabdian-rev.laporan-kemajuan.create', $proposal->id)
+                            ->with('error', 'Sub komponen yang dipilih tidak valid untuk komponen tersebut.')
+                            ->withInput();
+                    }
+                }
+            }
+        } else {
+            // For draft, just validate that selected subs belong to their components
+            foreach ($selectedSubKomponen as $componentId => $subId) {
+                if ($subId) {
+                    $subKomponen = FormPenilaianLaporanKemajuanSub::find($subId);
+                    if (!$subKomponen || $subKomponen->form_penilaian_id != $componentId) {
+                        return redirect()
+                            ->route('pengabdian-rev.laporan-kemajuan.create', $proposal->id)
+                            ->with('error', 'Sub komponen yang dipilih tidak valid untuk komponen tersebut.')
+                            ->withInput();
+                    }
+                }
+            }
+        }
 
         $review = LaporanKemajuanReview::updateOrCreate(
             [
@@ -1068,17 +1110,17 @@ class PengabdianController extends Controller
 
         $review->items()->delete();
 
-        foreach ($nilaiInput as $componentId => $subValues) {
-            foreach ($subValues as $subId => $value) {
-                if ($value === null || $value === '') {
-                    continue;
+        // Save selected sub-components with their configured values
+        foreach ($selectedSubKomponen as $componentId => $subId) {
+            if ($subId) {
+                $subKomponen = FormPenilaianLaporanKemajuanSub::find($subId);
+                if ($subKomponen && $subKomponen->form_penilaian_id == $componentId) {
+                    $review->items()->create([
+                        'form_penilaian_laporan_kemajuan_id' => $componentId,
+                        'form_penilaian_laporan_kemajuan_sub_id' => $subId,
+                        'nilai' => $subKomponen->nilai, // Use the configured value
+                    ]);
                 }
-
-                $review->items()->create([
-                    'form_penilaian_laporan_kemajuan_id' => $componentId,
-                    'form_penilaian_laporan_kemajuan_sub_id' => $subId == 0 ? null : $subId,
-                    'nilai' => $value,
-                ]);
             }
         }
 
