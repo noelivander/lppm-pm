@@ -14,8 +14,28 @@ class DokumenController extends Controller
         $query = DokumenPenting::where('is_shown', 1);
 
         // Search
-        if ($request->has('q')) {
+        if ($request->has('q') && $request->q != '') {
             $query->where('judul', 'like', '%' . $request->q . '%');
+        }
+
+        // Filter by Type (Extension) - Optional, if we want server side
+        // Note: The view currently does client-side type filtering. 
+        // We can keep it client-side for the current page, or move it server-side.
+        // For now, let's focus on Category Pagination.
+
+        // Filter by Category (Label)
+        $category = $request->get('category', 'all');
+        if ($category !== 'all') {
+            $labelMap = [
+                'umum' => 0,
+                'ppm' => 1,
+                'pm' => 2,
+                'lain' => 3
+            ];
+            
+            if (isset($labelMap[$category])) {
+                $query->where('label', $labelMap[$category]);
+            }
         }
 
         // Sort
@@ -41,14 +61,29 @@ class DokumenController extends Controller
             $query->orderBy('urutan', 'asc');
         }
 
-        $documents = $query->get();
+        // Pagination
+        $perPage = 9;
+        $documents = $query->paginate($perPage)->withQueryString();
 
-        $dokumen_umum = $documents->where('label', 0);
-        $dokumen_ppm = $documents->where('label', 1);
-        $dokumen_pm = $documents->where('label', 2);
-        $dokumen_lain = $documents->where('label', 3);
+        // Counts for Tabs
+        // We need to run separate queries or a grouped query to get counts for all categories
+        // regardless of the current filter.
+        $counts = DokumenPenting::where('is_shown', 1)
+            ->selectRaw('label, count(*) as total')
+            ->groupBy('label')
+            ->pluck('total', 'label')
+            ->toArray();
 
-        return view('user.dokumen.index', compact('dokumen_umum', 'dokumen_ppm', 'dokumen_pm', 'dokumen_lain'));
+        // Map counts to category names
+        $categoryCounts = [
+            'umum' => $counts[0] ?? 0,
+            'ppm' => $counts[1] ?? 0,
+            'pm' => $counts[2] ?? 0,
+            'lain' => $counts[3] ?? 0,
+            'all' => array_sum($counts)
+        ];
+
+        return view('user.dokumen.index', compact('documents', 'categoryCounts'));
     }
 
     /**

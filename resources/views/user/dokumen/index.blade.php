@@ -86,139 +86,155 @@
             <!-- Category Tabs -->
             <div class="d-flex justify-content-center mb-5 overflow-auto pb-2">
                 <div class="btn-group bg-white rounded-pill p-1 shadow-sm" role="group">
-                    <button class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 active fw-bold" style="color: #1e1b4b;" data-filter="all">
+                    <a href="{{ route('dokumen.index', array_merge(request()->query(), ['category' => 'all', 'page' => 1])) }}" 
+                       class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 {{ request('category', 'all') == 'all' ? 'active fw-bold' : 'text-muted' }}" 
+                       style="{{ request('category', 'all') == 'all' ? 'color: #1e1b4b;' : '' }}">
                         Semua
-                    </button>
-                    @if($dokumen_ppm->count()>0)
-                    <button class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 text-muted" data-filter="ppm">
+                    </a>
+                    
+                    @if($categoryCounts['ppm'] > 0)
+                    <a href="{{ route('dokumen.index', array_merge(request()->query(), ['category' => 'ppm', 'page' => 1])) }}" 
+                       class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 {{ request('category') == 'ppm' ? 'active fw-bold' : 'text-muted' }}"
+                       style="{{ request('category') == 'ppm' ? 'color: #1e1b4b;' : '' }}">
                         PPM
-                    </button>
+                    </a>
                     @endif
-                    @if($dokumen_pm->count()>0)
-                    <button class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 text-muted" data-filter="pm">
+                    
+                    @if($categoryCounts['pm'] > 0)
+                    <a href="{{ route('dokumen.index', array_merge(request()->query(), ['category' => 'pm', 'page' => 1])) }}" 
+                       class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 {{ request('category') == 'pm' ? 'active fw-bold' : 'text-muted' }}"
+                       style="{{ request('category') == 'pm' ? 'color: #1e1b4b;' : '' }}">
                         PM
-                    </button>
+                    </a>
                     @endif
-                    @if($dokumen_umum->count()>0)
-                    <button class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 text-muted" data-filter="umum">
+                    
+                    @if($categoryCounts['umum'] > 0)
+                    <a href="{{ route('dokumen.index', array_merge(request()->query(), ['category' => 'umum', 'page' => 1])) }}" 
+                       class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 {{ request('category') == 'umum' ? 'active fw-bold' : 'text-muted' }}"
+                       style="{{ request('category') == 'umum' ? 'color: #1e1b4b;' : '' }}">
                         Umum
-                    </button>
+                    </a>
                     @endif
-                    @if($dokumen_lain->count()>0)
-                    <button class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 text-muted" data-filter="lain">
+                    
+                    @if($categoryCounts['lain'] > 0)
+                    <a href="{{ route('dokumen.index', array_merge(request()->query(), ['category' => 'lain', 'page' => 1])) }}" 
+                       class="filter-btn btn btn-link text-decoration-none rounded-pill px-4 py-2 {{ request('category') == 'lain' ? 'active fw-bold' : 'text-muted' }}"
+                       style="{{ request('category') == 'lain' ? 'color: #1e1b4b;' : '' }}">
                         Lainnya
-                    </button>
+                    </a>
                     @endif
                 </div>
             </div>
 
-            <!-- Documents Grid -->
-            <div class="row g-4" id="documentsGrid">
-                @php
-                    $all_documents = collect([
-                        ['docs' => $dokumen_ppm, 'category' => 'ppm', 'color' => 'primary', 'icon' => 'flask', 'label' => 'Penelitian'],
-                        ['docs' => $dokumen_pm, 'category' => 'pm', 'color' => 'success', 'icon' => 'hand-holding-heart', 'label' => 'Pengabdian'],
-                        ['docs' => $dokumen_umum, 'category' => 'umum', 'color' => 'info', 'icon' => 'globe', 'label' => 'Umum'],
-                        ['docs' => $dokumen_lain, 'category' => 'lain', 'color' => 'warning', 'icon' => 'folder-open', 'label' => 'Lainnya'],
-                    ]);
-                @endphp
+            @if($documents->count() === 0)
+                <!-- Empty State -->
+                <div id="noResults" class="text-center py-5">
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 50%;">
+                            <i class="fas fa-search fa-3x" style="color: #4f46e5;"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold mb-2" style="color: #1e1b4b;">Dokumen tidak ditemukan</h4>
+                    <p class="text-muted mb-4">Coba ubah kata kunci pencarian atau filter kategori Anda.</p>
+                    <a href="{{ route('dokumen.index') }}" class="btn btn-primary rounded-pill px-4 py-2" style="background: #4f46e5; border-color: #4f46e5;">
+                        Reset Filter
+                    </a>
+                </div>
+            @else
+                <!-- Documents Grid -->
+                <div class="row g-4" id="documentsGrid">
+                    @foreach($documents as $index => $value)
+                        @php 
+                            $extItem = pathinfo($value->file ?? '', PATHINFO_EXTENSION);
+                            $iconClass = match(strtolower($extItem)) {
+                                'pdf' => 'fa-file-pdf text-danger',
+                                'doc', 'docx' => 'fa-file-word text-primary',
+                                'xls', 'xlsx' => 'fa-file-excel text-success',
+                                'zip', 'rar' => 'fa-file-archive text-warning',
+                                default => 'fa-file-alt text-secondary'
+                            };
 
-                @foreach($all_documents as $doc_group)
-                    @if($doc_group['docs']->count() > 0)
-                        @foreach($doc_group['docs'] as $value)
-                            @php 
-                                $extItem = pathinfo($value->file ?? '', PATHINFO_EXTENSION);
-                                $iconClass = match(strtolower($extItem)) {
-                                    'pdf' => 'fa-file-pdf text-danger',
-                                    'doc', 'docx' => 'fa-file-word text-primary',
-                                    'xls', 'xlsx' => 'fa-file-excel text-success',
-                                    'zip', 'rar' => 'fa-file-archive text-warning',
-                                    default => 'fa-file-alt text-secondary'
-                                };
-                            @endphp
-                            <div class="col-xl-3 col-lg-4 col-md-6 dokumen-item fade-in-up" 
-                                 data-category="{{ $doc_group['category'] }}" 
-                                 data-ext="{{ strtolower($extItem) }}">
-                                
-                                <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 20px; transition: all 0.3s ease; overflow: hidden;">
-                                    <!-- Card Header / Preview -->
-                                    <div class="position-relative bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
-                                        @if($value->cover)
-                                            <img src="{{ asset('storage/'.$value->cover) }}" alt="{{ $value->judul }}" class="w-100 h-100 object-fit-cover">
-                                            <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-10"></div>
-                                        @else
-                                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 20px;">
-                                                <i class="fas {{ $iconClass }} fa-3x"></i>
-                                            </div>
-                                        @endif
-                                        
-                                        <!-- Category Badge -->
-                                        <div class="position-absolute top-0 end-0 m-3">
-                                            <span class="badge shadow-sm rounded-pill px-3 py-2" style="background: rgba(255,255,255,0.9); color: #1e1b4b; backdrop-filter: blur(5px);">
-                                                <i class="fas fa-{{ $doc_group['icon'] }} me-1"></i> {{ $doc_group['label'] }}
-                                            </span>
+                            // Map label to display info
+                            $labelInfo = match($value->label) {
+                                1 => ['label' => 'Penelitian', 'icon' => 'flask', 'category' => 'ppm'],
+                                2 => ['label' => 'Pengabdian', 'icon' => 'hand-holding-heart', 'category' => 'pm'],
+                                3 => ['label' => 'Lainnya', 'icon' => 'folder-open', 'category' => 'lain'],
+                                default => ['label' => 'Umum', 'icon' => 'globe', 'category' => 'umum']
+                            };
+                        @endphp
+                        <div class="col-xl-3 col-lg-4 col-md-6 dokumen-item fade-in-up" 
+                             style="animation-delay: {{ $index * 0.05 }}s"
+                             data-ext="{{ strtolower($extItem) }}">
+                            
+                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 20px; transition: all 0.3s ease; overflow: hidden;">
+                                <!-- Card Header / Preview -->
+                                <div class="position-relative bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                                    @if($value->cover)
+                                        <img src="{{ asset('storage/'.$value->cover) }}" alt="{{ $value->judul }}" class="w-100 h-100 object-fit-cover">
+                                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-10"></div>
+                                    @else
+                                        <div class="d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 20px;">
+                                            <i class="fas {{ $iconClass }} fa-3x"></i>
                                         </div>
-
-                                        <!-- Lock Badge -->
-                                        @if($value->is_lock)
-                                        <div class="position-absolute top-0 start-0 m-3">
-                                            <span class="badge bg-danger shadow-sm rounded-circle p-2" data-bs-toggle="tooltip" title="Dokumen Terkunci">
-                                                <i class="fas fa-lock"></i>
-                                            </span>
-                                        </div>
-                                        @endif
+                                    @endif
+                                    
+                                    <!-- Category Badge -->
+                                    <div class="position-absolute top-0 end-0 m-3">
+                                        <span class="badge shadow-sm rounded-pill px-3 py-2" style="background: rgba(255,255,255,0.9); color: #1e1b4b; backdrop-filter: blur(5px);">
+                                            <i class="fas fa-{{ $labelInfo['icon'] }} me-1"></i> {{ $labelInfo['label'] }}
+                                        </span>
                                     </div>
 
-                                    <!-- Card Body -->
-                                    <div class="card-body p-4 d-flex flex-column">
-                                        <div class="mb-3 d-flex align-items-center text-muted small">
-                                            <i class="far fa-calendar-alt me-2"></i>
-                                            {{ $value->created_at->format('d M Y') }}
-                                            <span class="mx-2">•</span>
-                                            <span class="text-uppercase fw-bold" style="color: #4f46e5;">{{ $extItem ?: 'FILE' }}</span>
-                                        </div>
-                                        
-                                        <h6 class="card-title fw-bold mb-3 line-clamp-2" style="color: #1e1b4b; min-height: 2.5rem; line-height: 1.5;">
-                                            {{ $value->judul }}
-                                        </h6>
+                                    <!-- Lock Badge -->
+                                    @if($value->is_lock)
+                                    <div class="position-absolute top-0 start-0 m-3">
+                                        <span class="badge bg-danger shadow-sm rounded-circle p-2" data-bs-toggle="tooltip" title="Dokumen Terkunci">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                    </div>
+                                    @endif
+                                </div>
 
-                                        <div class="mt-auto d-flex gap-2">
-                                            @if($value->is_lock)
-                                                <button class="btn w-100 rounded-pill text-muted" style="background: #f1f5f9;" disabled>
-                                                    <i class="fas fa-lock me-2"></i>Akses Terbatas
-                                                </button>
-                                            @else
-                                                <a href="{{ route('dokumen.show',['slug'=>$value->slug]) }}" class="btn btn-outline-primary flex-grow-1 rounded-pill" style="border-color: #4f46e5; color: #4f46e5;">
-                                                    <i class="fas fa-eye me-1"></i> Detail
-                                                </a>
-                                                @if(!empty($value->file))
-                                                <a href="{{ asset('storage/'.$value->file) }}" download class="btn btn-primary rounded-pill px-3" style="background: #4f46e5; border-color: #4f46e5;" data-bs-toggle="tooltip" title="Unduh File">
-                                                    <i class="fas fa-download"></i>
-                                                </a>
-                                                @endif
+                                <!-- Card Body -->
+                                <div class="card-body p-4 d-flex flex-column">
+                                    <div class="mb-3 d-flex align-items-center text-muted small">
+                                        <i class="far fa-calendar-alt me-2"></i>
+                                        {{ $value->created_at->format('d M Y') }}
+                                        <span class="mx-2">•</span>
+                                        <span class="text-uppercase fw-bold" style="color: #4f46e5;">{{ $extItem ?: 'FILE' }}</span>
+                                    </div>
+                                    
+                                    <h6 class="card-title fw-bold mb-3 line-clamp-2" style="color: #1e1b4b; min-height: 2.5rem; line-height: 1.5;">
+                                        {{ $value->judul }}
+                                    </h6>
+
+                                    <div class="mt-auto d-flex gap-2">
+                                        @if($value->is_lock)
+                                            <button class="btn w-100 rounded-pill text-muted" style="background: #f1f5f9;" disabled>
+                                                <i class="fas fa-lock me-2"></i>Akses Terbatas
+                                            </button>
+                                        @else
+                                            <a href="{{ route('dokumen.show',['slug'=>$value->slug]) }}" class="btn btn-outline-primary flex-grow-1 rounded-pill" style="border-color: #4f46e5; color: #4f46e5;">
+                                                <i class="fas fa-eye me-1"></i> Detail
+                                            </a>
+                                            @if(!empty($value->file))
+                                            <a href="{{ asset('storage/'.$value->file) }}" download class="btn btn-primary rounded-pill px-3" style="background: #4f46e5; border-color: #4f46e5;" data-bs-toggle="tooltip" title="Unduh File">
+                                                <i class="fas fa-download"></i>
+                                            </a>
                                             @endif
-                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    @endif
-                @endforeach
-            </div>
-
-            <!-- Empty State -->
-            <div id="noResults" class="text-center py-5 d-none">
-                <div class="mb-4">
-                    <div class="d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px; background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 50%;">
-                        <i class="fas fa-search fa-3x" style="color: #4f46e5;"></i>
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
-                <h4 class="fw-bold mb-2" style="color: #1e1b4b;">Dokumen tidak ditemukan</h4>
-                <p class="text-muted mb-4">Coba ubah kata kunci pencarian atau filter kategori Anda.</p>
-                <a href="{{ route('dokumen.index') }}" class="btn btn-primary rounded-pill px-4 py-2" style="background: #4f46e5; border-color: #4f46e5;">
-                    Reset Filter
-                </a>
-            </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center mt-5">
+                    {{ $documents->links() }}
+                </div>
+            @endif
         </div>
     </section>
 
@@ -264,6 +280,31 @@
             border-color: #4f46e5;
             background-color: white;
         }
+
+        /* Pagination Customization */
+        .pagination {
+            --bs-pagination-active-bg: #4f46e5;
+            --bs-pagination-active-border-color: #4f46e5;
+            --bs-pagination-color: #1e1b4b;
+            --bs-pagination-hover-color: #4f46e5;
+            --bs-pagination-focus-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+        }
+
+        .page-link {
+            border-radius: 50%;
+            margin: 0 3px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            font-weight: 600;
+        }
+
+        .page-item.active .page-link {
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
     </style>
     @endpush
 
@@ -276,89 +317,43 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
 
-            const filterBtns = document.querySelectorAll('.filter-btn');
             const dokumenItems = document.querySelectorAll('.dokumen-item');
             const typeFilter = document.getElementById('typeFilter');
-            const noResults = document.getElementById('noResults');
             
-            // Get URL params
-            const urlParams = new URLSearchParams(window.location.search);
-            let currentFilter = urlParams.get('category') || 'all';
-            
-            // Set initial active filter
-            filterBtns.forEach(btn => {
-                if(btn.dataset.filter === currentFilter) {
-                    setActiveFilter(btn);
-                }
-                
-                btn.addEventListener('click', function() {
-                    setActiveFilter(this);
-                    currentFilter = this.dataset.filter;
-                    
-                    // Update URL without reload
+            // Type Filter Logic (Client Side - only for visible items)
+            if(typeFilter) {
+                typeFilter.addEventListener('change', () => {
+                    // Update URL for type filter
                     const url = new URL(window.location);
-                    url.searchParams.set('category', currentFilter);
+                    url.searchParams.set('type', typeFilter.value);
                     window.history.pushState({}, '', url);
                     
                     filterDocuments();
                 });
-            });
-
-            function setActiveFilter(btn) {
-                filterBtns.forEach(b => {
-                    b.classList.remove('active', 'fw-bold');
-                    b.classList.add('text-muted');
-                });
-                btn.classList.remove('text-muted');
-                btn.classList.add('active', 'fw-bold');
             }
             
-            // Type Filter Logic (Client Side)
-            typeFilter.addEventListener('change', () => {
-                // Update URL for type filter too
-                const url = new URL(window.location);
-                url.searchParams.set('type', typeFilter.value);
-                window.history.pushState({}, '', url);
-                
-                filterDocuments();
-            });
-            
             function filterDocuments() {
-                const selectedType = typeFilter.value;
-                let visibleCount = 0;
+                const selectedType = typeFilter ? typeFilter.value : 'all';
                 
                 dokumenItems.forEach(item => {
-                    const category = item.dataset.category;
                     const ext = item.dataset.ext;
                     
-                    const matchesFilter = currentFilter === 'all' || category === currentFilter;
                     const matchesType = selectedType === 'all' ||
                         (selectedType === 'pdf' && ext === 'pdf') ||
                         (selectedType === 'doc' && (ext === 'doc' || ext === 'docx')) ||
                         (selectedType === 'xls' && (ext === 'xls' || ext === 'xlsx')) ||
                         (selectedType === 'zip' && (ext === 'zip' || ext === 'rar'));
                     
-                    if (matchesFilter && matchesType) {
+                    if (matchesType) {
                         item.classList.remove('d-none');
                         item.style.animation = 'none';
                         item.offsetHeight; /* trigger reflow */
                         item.style.animation = 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
-                        visibleCount++;
                     } else {
                         item.classList.add('d-none');
                     }
                 });
-                
-                noResults.classList.toggle('d-none', visibleCount > 0);
             }
-
-            // Initial Staggered Animation
-            dokumenItems.forEach((item, index) => {
-                item.style.animationDelay = `${index * 0.05}s`;
-            });
-            
-            // Initial Filter Run
-            filterDocuments();
             
             // Hide global spinner
             const spinner = document.getElementById('spinner');
