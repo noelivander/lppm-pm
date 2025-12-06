@@ -797,19 +797,18 @@
             border-top: 1px solid rgba(226, 232, 240, 0.8);
             border-bottom: 1px solid rgba(226, 232, 240, 0.8);
         }
-        .kategori-header-row td:first-child {
-            border-right: 1px solid rgba(226, 232, 240, 0.5);
+        /* Hapus semua border vertikal - hanya tampilkan garis horizontal */
+        .modern-table thead th,
+        .modern-table tbody td,
+        .kategori-header-row td {
+            border-right: none !important;
         }
-        /* Border vertikal untuk semua kolom */
-        .modern-table thead th:not(:last-child),
-        .modern-table tbody td:not(:last-child) {
-            border-right: 1px solid rgba(226, 232, 240, 0.5);
+        /* Pastikan semua td memiliki border bottom */
+        .modern-table tbody td {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
         }
         /* Border horizontal untuk semua baris */
         .modern-table tbody tr {
-            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
-        }
-        .modern-table tbody td {
             border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
         }
         /* Pastikan baris terakhir kategori tidak memiliki border bottom */
