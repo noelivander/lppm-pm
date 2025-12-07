@@ -28,72 +28,94 @@
                     </div>
                 @endif
 
-                <div class="row g-3 mb-4">
-                    <div class="col-lg-6">
-                        <div class="modern-card h-100 fade-in-up">
-                            <div class="modern-card-body">
-                                <div class="row g-3 align-items-start">
-                                    <div class="col-sm-8">
-                                        <p class="text-muted text-uppercase small fw-semibold mb-1">Judul Proposal</p>
-                                        <h4 class="fw-bold mb-1 text-break">{{ $proposal->judul ?? '-' }}</h4>
-                                        <p class="mb-0 text-muted">
-                                            oleh <strong>{{ $proposal->user->name ?? '-' }}</strong>
-                                        </p>
+                <!-- Informasi Penelitian -->
+                <div class="modern-card mb-4 fade-in-up">
+                    <div class="modern-card-header">
+                        <h5 class="mb-0"><i class="fa fa-info-circle me-2"></i>Informasi Penelitian</h5>
+                    </div>
+                    <div class="modern-card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-4">
+                                <p class="text-muted text-uppercase small fw-semibold mb-1">Judul Penelitian</p>
+                                <h6 class="fw-bold mb-0 text-break">{{ $proposal->judul ?? '-' }}</h6>
+                            </div>
+                            <div class="col-md-6 col-lg-2">
+                                <p class="text-muted text-uppercase small fw-semibold mb-1">Bidang Penelitian</p>
+                                <div class="fw-semibold">{{ $bidangPenelitian }}</div>
+                            </div>
+                            <div class="col-md-6 col-lg-2">
+                                <p class="text-muted text-uppercase small fw-semibold mb-1">Skema</p>
+                                <span class="status-badge skema">{{ $skema }}</span>
+                            </div>
+                            <div class="col-md-6 col-lg-2">
+                                <p class="text-muted text-uppercase small fw-semibold mb-1">Jurusan/Prodi</p>
+                                <div class="fw-semibold">{{ $jurusanProdi }}</div>
+                            </div>
+                            <div class="col-md-6 col-lg-2">
+                                <p class="text-muted text-uppercase small fw-semibold mb-1">Lama Penelitian</p>
+                                <div class="fw-semibold">{{ $lamaPenelitian }} {{ $lamaPenelitian != '-' ? 'tahun' : '' }}</div>
+                            </div>
+                            <div class="col-12">
+                                <hr class="my-3">
+                                <p class="text-muted text-uppercase small fw-semibold mb-2">Ketua Peneliti</p>
+                                @if($ketuaPeneliti)
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <span class="text-muted small">Nama Lengkap:</span>
+                                            <div class="fw-semibold">{{ $ketuaPeneliti->nama ?? '-' }}</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted small">NIDN:</span>
+                                            <div class="fw-semibold">{{ $ketuaPeneliti->nidn ?? '-' }}</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted small">Jabatan Fungsional:</span>
+                                            <div class="fw-semibold">{{ $ketuaPeneliti->jabatan ?? '-' }}</div>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-4 text-sm-end">
-                                        <p class="text-muted text-uppercase small fw-semibold mb-1">Skema</p>
-                                        <span class="status-badge skema">{{ $proposal->revisionParent->skema ?? $proposal->skema ?? '-' }}</span>
-                                    </div>
-                                </div>
-                                <hr class="text-muted my-4">
-                                <div class="row gy-3 gx-4">
-                                    <div class="col-sm-6">
-                                        <p class="text-muted text-uppercase small fw-semibold mb-1">Status Laporan</p>
-                                        @php
-                                            $statusDisplay = $latestLaporan->status ?? 'Pending';
-                                            $statusClass = $statusDisplay === 'Selesai' ? 'selesai' : 'pending';
-                                        @endphp
-                                        <span class="status-badge {{ $statusClass }}">{{ $statusDisplay }}</span>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <p class="text-muted text-uppercase small fw-semibold mb-1">Tanggal Upload</p>
-                                        <div class="fw-semibold">{{ optional($latestLaporan->created_at)->format('d M Y H:i') ?? '-' }}</div>
-                                    </div>
-                                </div>
+                                @else
+                                    <div class="fw-semibold">-</div>
+                                @endif
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="modern-card h-100 fade-in-up">
-                            <div class="modern-card-body">
-                                <h5 class="fw-semibold mb-3">Lampiran</h5>
-                                <div class="list-group list-group-flush">
-                                    <div class="list-group-item px-0 d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                        <div>
-                                            <p class="mb-0 fw-semibold">Laporan Kemajuan</p>
-                                            <small class="text-muted">File utama kemajuan kegiatan</small>
-                                        </div>
-                                        @if($latestLaporan->laporan_kemajuan)
-                                            <a href="{{ asset('storage/' . $latestLaporan->laporan_kemajuan) }}" target="_blank" class="modern-btn modern-btn-primary modern-btn-sm">
-                                                <i class="fa fa-file-pdf me-1"></i> Lihat Dokumen
-                                            </a>
-                                        @else
-                                            <span class="text-muted small">Belum tersedia</span>
-                                        @endif
+                </div>
+
+                <!-- Lampiran -->
+                <div class="modern-card mb-4 fade-in-up">
+                    <div class="modern-card-header">
+                        <h5 class="mb-0"><i class="fa fa-paperclip me-2"></i>Lampiran</h5>
+                    </div>
+                    <div class="modern-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-3 border rounded">
+                                    <div>
+                                        <p class="mb-1 fw-semibold">Laporan Kemajuan</p>
+                                        <small class="text-muted">File utama kemajuan kegiatan</small>
                                     </div>
-                                    <div class="list-group-item px-0 d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                        <div>
-                                            <p class="mb-0 fw-semibold">Laporan Keuangan Tahap 1</p>
-                                            <small class="text-muted">Dokumen realisasi penggunaan dana</small>
-                                        </div>
-                                        @if($latestLaporan->laporan_keuangan_tahap_1)
-                                            <a href="{{ asset('storage/' . $latestLaporan->laporan_keuangan_tahap_1) }}" target="_blank" class="modern-btn modern-btn-outline modern-btn-sm">
-                                                <i class="fa fa-file-invoice-dollar me-1"></i> Lihat Dokumen
-                                            </a>
-                                        @else
-                                            <span class="text-muted small">Belum tersedia</span>
-                                        @endif
+                                    @if($latestLaporan->laporan_kemajuan)
+                                        <a href="{{ asset('storage/' . $latestLaporan->laporan_kemajuan) }}" target="_blank" class="modern-btn modern-btn-primary modern-btn-sm">
+                                            <i class="fa fa-file-pdf me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">Belum tersedia</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-3 border rounded">
+                                    <div>
+                                        <p class="mb-1 fw-semibold">Laporan Keuangan Tahap 1</p>
+                                        <small class="text-muted">Dokumen realisasi penggunaan dana</small>
                                     </div>
+                                    @if($latestLaporan->laporan_keuangan_tahap_1)
+                                        <a href="{{ asset('storage/' . $latestLaporan->laporan_keuangan_tahap_1) }}" target="_blank" class="modern-btn modern-btn-outline modern-btn-sm">
+                                            <i class="fa fa-file-invoice-dollar me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">Belum tersedia</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>

@@ -925,6 +925,8 @@ class PenelitianController extends Controller
                 'revisionParent.reviews',
                 'reviews',
                 'user',
+                'anggota',
+                'bidangPenelitian',
             ])
             ->where('id', $id)
             ->where('is_revised', true)
@@ -968,6 +970,35 @@ class PenelitianController extends Controller
                 ->toArray()
             : [];
 
+        // Get ketua peneliti
+        $ketuaPeneliti = $proposal->anggota->where('peran', 'Ketua')->first() 
+            ?? $proposal->anggota->where('peran', 'ketua')->first();
+
+        // Get bidang penelitian
+        $bidangPenelitian = $proposal->bidangPenelitian 
+            ? $proposal->bidangPenelitian->nama 
+            : ($proposal->bidang_penelitian_nama ?? '-');
+
+        // Get skema
+        $skema = optional($proposal->revisionParent)->skema ?? $proposal->skema ?? '-';
+
+        // Get jurusan/prodi dari ketua
+        $jurusanProdi = '-';
+        if ($ketuaPeneliti) {
+            $jurusan = $ketuaPeneliti->jurusan_nama ?? null;
+            $prodi = $ketuaPeneliti->program_studi_nama ?? null;
+            if ($jurusan && $prodi) {
+                $jurusanProdi = $jurusan . ' / ' . $prodi;
+            } elseif ($jurusan) {
+                $jurusanProdi = $jurusan;
+            } elseif ($prodi) {
+                $jurusanProdi = $prodi;
+            }
+        }
+
+        // Get lama penelitian
+        $lamaPenelitian = $proposal->lama_penelitian ?? '-';
+
         return view('reviewer.ppm.penelitian.laporan-kemajuan.create', compact(
             'proposal',
             'latestLaporan',
@@ -975,7 +1006,12 @@ class PenelitianController extends Controller
             'currentDate',
             'formPenelitian',
             'existingReview',
-            'existingKomentar'
+            'existingKomentar',
+            'ketuaPeneliti',
+            'bidangPenelitian',
+            'skema',
+            'jurusanProdi',
+            'lamaPenelitian'
         ));
     }
 

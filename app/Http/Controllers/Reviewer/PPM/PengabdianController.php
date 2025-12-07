@@ -920,6 +920,7 @@ class PengabdianController extends Controller
                 'revisionParent.reviews',
                 'reviews',
                 'user',
+                'anggota',
             ])
             ->where('id', $id)
             ->where('is_revised', true)
@@ -987,6 +988,30 @@ class PengabdianController extends Controller
             }
         }
 
+        // Get ketua tim pelaksana
+        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first() 
+            ?? $proposal->anggota->where('peran', 'ketua')->first();
+
+        // Get jumlah anggota tim
+        $jumlahAnggotaTim = $proposal->anggota->count();
+
+        // Get dana disetujui
+        $danaDisetujui = $proposal->biaya_disetujui ?? '-';
+
+        // Get jurusan/prodi dari ketua
+        $jurusanProdi = '-';
+        if ($ketuaTim) {
+            $jurusan = $ketuaTim->jurusan_nama ?? null;
+            $prodi = $ketuaTim->program_studi_nama ?? null;
+            if ($jurusan && $prodi) {
+                $jurusanProdi = $jurusan . ' / ' . $prodi;
+            } elseif ($jurusan) {
+                $jurusanProdi = $jurusan;
+            } elseif ($prodi) {
+                $jurusanProdi = $prodi;
+            }
+        }
+
         return view('reviewer.ppm.pengabdian.laporan-kemajuan.create', compact(
             'proposal',
             'latestLaporan',
@@ -994,7 +1019,11 @@ class PengabdianController extends Controller
             'currentDate',
             'formPengabdian',
             'existingReview',
-            'existingSelectedSub'
+            'existingSelectedSub',
+            'ketuaTim',
+            'jumlahAnggotaTim',
+            'danaDisetujui',
+            'jurusanProdi'
         ));
     }
 
