@@ -78,10 +78,10 @@
         }
     </style>
 </head>
-<body>
+<body></body>
     <div class="header-title">
         BORANG PENILAIAN MONITORING DAN EVALUASI KEMAJUAN PENELITIAN<br>
-        HIBAH INTERNAL ITH TAHUN {{ date('Y') }}
+        HIBAH INTERNAL ITH TAHUN {{ $proposal->created_at ? $proposal->created_at->format('Y') : ($proposal->revisionParent && $proposal->revisionParent->created_at ? $proposal->revisionParent->created_at->format('Y') : date('Y')) }}
     </div>
 
     <hr class="header-line">
@@ -188,7 +188,7 @@
     <!-- Tanda Tangan -->
     <div class="signature-section">
         <div class="signature-box">
-            <p style="margin: 5px 0;">Parepare, {{ $existingReview->submitted_at ? $existingReview->submitted_at->format('d F Y') : '...................... ' . date('Y') }}</p>
+            <p style="margin: 5px 0;">Parepare, {{ $existingReview->submitted_at ? $existingReview->submitted_at->format('d F Y') : '...................... ' . ($proposal->created_at ? $proposal->created_at->format('Y') : date('Y')) }}</p>
             <p style="margin: 5px 0;">Reviewer,</p>
             <br><br><br>
             <p style="margin: 5px 0;">({{ Auth::user()->name }})</p>
