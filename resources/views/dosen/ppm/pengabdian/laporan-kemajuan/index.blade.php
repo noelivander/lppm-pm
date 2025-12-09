@@ -153,15 +153,9 @@
                                             </td>
                                             <td class="text-center">
                                                 @if($hasLaporan)
-                                                    @if($reviewCount >= 1)
-                                                        <a href="{{ route('pengabdian-dos.laporan-kemajuan.create', ['pengabdian' => $proposal->id, 'view' => 1]) }}" class="modern-btn modern-btn-outline modern-btn-sm">
-                                                            <i class="fa fa-eye me-1"></i>Lihat Form
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ route('pengabdian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
-                                                            <i class="fa fa-edit me-1"></i>Edit
-                                                        </a>
-                                                    @endif
+                                                    <a href="{{ route('pengabdian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                        <i class="fa fa-edit me-1"></i>Edit
+                                                    </a>
                                                 @else
                                                     <a href="{{ route('pengabdian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
                                                         <i class="fa fa-file-alt me-1"></i>Buat Laporan

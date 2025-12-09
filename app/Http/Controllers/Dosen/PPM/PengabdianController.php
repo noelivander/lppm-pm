@@ -274,7 +274,6 @@ class PengabdianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        $isReadOnly = request()->query('view') === '1';
 
         // Ambil proposal revisi
         $proposal = Pengabdian::with(['revisionParent'])
@@ -311,7 +310,6 @@ class PengabdianController extends Controller
             'isWithinProgressWindow' => $isWithinProgressWindow,
             'laporanKemajuan' => $laporanKemajuan,
             'isEdit' => $laporanKemajuan !== null,
-            'isReadOnly' => $isReadOnly,
         ]);
     }
 

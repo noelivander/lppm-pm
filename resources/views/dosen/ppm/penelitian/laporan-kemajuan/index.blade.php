@@ -154,15 +154,9 @@
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-2">
                                                 @if($hasLaporan)
-                                                    @if($reviewCount >= 1)
-                                                        <a href="{{ route('penelitian-dos.laporan-kemajuan.create', ['penelitian' => $proposal->id, 'view' => 1]) }}" class="modern-btn modern-btn-outline modern-btn-sm">
-                                                            <i class="fa fa-eye me-1"></i>Lihat Form
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ route('penelitian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
-                                                            <i class="fa fa-edit me-1"></i>Edit
-                                                        </a>
-                                                    @endif
+                                                    <a href="{{ route('penelitian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                        <i class="fa fa-edit me-1"></i>Edit
+                                                    </a>
                                                 @else
                                                     <a href="{{ route('penelitian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
                                                         <i class="fa fa-file-alt me-1"></i>Buat Laporan

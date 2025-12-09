@@ -276,7 +276,6 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        $isReadOnly = request()->query('view') === '1';
 
         // Ambil proposal revisi
         $proposal = Penelitian::with(['revisionParent'])
@@ -313,7 +312,6 @@ class PenelitianController extends Controller
             'isWithinProgressWindow' => $isWithinProgressWindow,
             'laporanKemajuan' => $laporanKemajuan,
             'isEdit' => $laporanKemajuan !== null,
-            'isReadOnly' => $isReadOnly,
         ]);
     }
 
