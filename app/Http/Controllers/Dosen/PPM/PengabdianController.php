@@ -248,6 +248,17 @@ class PengabdianController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        // Get review counts for each laporan kemajuan
+        $reviewCounts = [];
+        foreach ($proposals as $proposal) {
+            $laporanKemajuan = $proposal->laporanKemajuan->first();
+            if ($laporanKemajuan) {
+                $reviewCounts[$laporanKemajuan->id] = \App\Models\LaporanKemajuanReview::where('laporan_kemajuan_id', $laporanKemajuan->id)
+                    ->where('status', 'selesai')
+                    ->count();
+            }
+        }
+
         return view('dosen.ppm.pengabdian.laporan-kemajuan.index', [
             'proposals' => $proposals,
             'timeline' => $timeline,
@@ -255,6 +266,7 @@ class PengabdianController extends Controller
             'filterSkemas' => $filterSkemas,
             'filterYears' => $filterYears,
             'filters' => $filters,
+            'reviewCounts' => $reviewCounts,
         ]);
     }
 

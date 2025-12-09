@@ -104,12 +104,20 @@
                                             $hasLaporan = $laporanKemajuan !== null;
                                             
                                             if ($hasLaporan) {
-                                                $statusClass = match($laporanKemajuan->status) {
-                                                    'Pending' => 'pending',
-                                                    'Diproses', 'Disetujui', 'Ditolak', 'Selesai' => 'selesai',
-                                                    default => 'pending',
-                                                };
-                                                $statusDisplay = in_array($laporanKemajuan->status, ['Diproses', 'Disetujui', 'Ditolak']) ? 'Selesai' : $laporanKemajuan->status;
+                                                // Get review count
+                                                $reviewCount = $reviewCounts[$laporanKemajuan->id] ?? 0;
+                                                
+                                                // Determine status based on review count
+                                                if ($reviewCount == 0) {
+                                                    $statusDisplay = 'Pending';
+                                                    $statusClass = 'pending';
+                                                } elseif ($reviewCount == 1) {
+                                                    $statusDisplay = 'Diproses';
+                                                    $statusClass = 'diproses';
+                                                } else { // reviewCount >= 2
+                                                    $statusDisplay = 'Selesai';
+                                                    $statusClass = 'selesai';
+                                                }
                                             }
                                         @endphp
                                         <tr>
@@ -269,6 +277,31 @@
     }
     .modern-pagination .page-link:focus {
         box-shadow: none;
+    }
+    
+    /* Status Badge Styles */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+        white-space: nowrap;
+    }
+    .status-badge.pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    .status-badge.diproses {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    .status-badge.selesai {
+        background-color: #d1fae5;
+        color: #065f46;
     }
 </style>
 
