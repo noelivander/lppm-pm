@@ -192,7 +192,7 @@
             <p style="margin: 5px 0;">Parepare, {{ $existingReview->submitted_at ? $existingReview->submitted_at->format('d F Y') : '...................... ' . ($proposal->created_at ? $proposal->created_at->format('Y') : date('Y')) }}</p>
             <p style="margin: 5px 0;">Reviewer,</p>
             <br><br><br>
-            <p style="margin: 5px 0;">({{ Auth::user()->name }})</p>
+            <p style="margin: 5px 0;">({{ $reviewerName }})</p>
         </div>
     </div>
 </body>

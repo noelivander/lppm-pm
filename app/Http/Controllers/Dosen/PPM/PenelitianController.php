@@ -276,6 +276,7 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
+        $isReadOnly = request()->query('view') === '1';
 
         // Ambil proposal revisi
         $proposal = Penelitian::with(['revisionParent'])
@@ -312,6 +313,7 @@ class PenelitianController extends Controller
             'isWithinProgressWindow' => $isWithinProgressWindow,
             'laporanKemajuan' => $laporanKemajuan,
             'isEdit' => $laporanKemajuan !== null,
+            'isReadOnly' => $isReadOnly,
         ]);
     }
 
@@ -490,6 +492,119 @@ class PenelitianController extends Controller
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan saat menyimpan laporan kemajuan. Silakan coba lagi.');
         }
+    }
+
+    public function viewLaporanKemajuanReviews($penelitian_id, $review_number)
+    {
+        $proposal = Penelitian::with([
+                'laporanKemajuan' => function($query) {
+                    $query->where('tahap', 1)->orderByDesc('created_at');
+                },
+                'revisionParent.bidangPenelitian',
+                'bidangPenelitian',
+                'anggota'
+            ])
+            ->where('user_id', Auth::id())
+            ->where('is_revised', true)
+            ->findOrFail($penelitian_id);
+
+        $latestLaporan = $proposal->laporanKemajuan->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('penelitian-dos.laporan-kemajuan.index')
+                ->with('error', 'Laporan kemajuan tidak ditemukan.');
+        }
+
+        $reviews = \App\Models\LaporanKemajuanReview::with('reviewer', 'items.formPenilaian', 'items.subFormPenilaian')
+            ->where('laporan_kemajuan_id', $latestLaporan->id)
+            ->where('status', 'selesai')
+            ->get();
+
+        if ($review_number == 1) {
+            $review = $reviews->first();
+        } elseif ($review_number == 2) {
+            $review = $reviews->skip(1)->first();
+        } else {
+            return redirect()->route('penelitian-dos.laporan-kemajuan.index')
+                ->with('error', 'Nomor review tidak valid.');
+        }
+
+        if (!$review) {
+            return redirect()->route('penelitian-dos.laporan-kemajuan.index')
+                ->with('error', 'Review tidak ditemukan.');
+        }
+
+        // Get form penilaian
+        $formPenelitian = \App\Models\FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
+            ->with('subKomponen')
+            ->where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // Get ketua tim info
+        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first() 
+            ?? $proposal->anggota->where('peran', 'ketua')->first();
+        $ketuaPeneliti = $ketuaTim; // Alias for PDF template
+
+        $jurusanProdi = '-';
+        if ($ketuaTim) {
+            $jurusan = $ketuaTim->jurusan_nama ?? null;
+            $prodi = $ketuaTim->program_studi_nama ?? null;
+            if ($jurusan && $prodi) {
+                $jurusanProdi = $jurusan . ' / ' . $prodi;
+            } elseif ($jurusan) {
+                $jurusanProdi = $jurusan;
+            } elseif ($prodi) {
+                $jurusanProdi = $prodi;
+            }
+        }
+
+        // Get bidang penelitian, skema, and lama penelitian
+        // Try from current proposal first, then parent proposal
+        $bidangPenelitian = $proposal->bidang_penelitian_nama 
+            ?? optional($proposal->bidangPenelitian)->nama 
+            ?? optional($proposal->revisionParent)->bidang_penelitian_nama 
+            ?? optional($proposal->revisionParent->bidangPenelitian)->nama 
+            ?? '-';
+        
+        $skema = $proposal->skema 
+            ?? optional($proposal->revisionParent)->skema 
+            ?? '-';
+        
+        $lamaPenelitian = $proposal->lama_penelitian 
+            ?? optional($proposal->revisionParent)->lama_penelitian 
+            ?? '-';
+
+        $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : ($proposal->revisionParent && $proposal->revisionParent->created_at ? $proposal->revisionParent->created_at->format('Y') : date('Y'));
+
+        // Get reviewer name
+        $reviewerName = optional($review->reviewer)->name ?? '-';
+
+        $html = view('pdf.laporan-kemajuan-penelitian', [
+            'proposal' => $proposal,
+            'latestLaporan' => $latestLaporan,
+            'existingReview' => $review,
+            'formPenelitian' => $formPenelitian,
+            'ketuaTim' => $ketuaTim,
+            'ketuaPeneliti' => $ketuaPeneliti,
+            'jurusanProdi' => $jurusanProdi,
+            'bidangPenelitian' => $bidangPenelitian,
+            'skema' => $skema,
+            'lamaPenelitian' => $lamaPenelitian,
+            'proposalYear' => $proposalYear,
+            'reviewerName' => $reviewerName,
+        ])->render();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'margin_left' => 25,
+            'margin_right' => 25,
+            'margin_top' => 20,
+            'margin_bottom' => 20,
+        ]);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output("Hasil_Review_Laporan_Kemajuan_{$proposal->judul}_Review{$review_number}.pdf", 'I');
     }
 
     public function revisiCreate($id)

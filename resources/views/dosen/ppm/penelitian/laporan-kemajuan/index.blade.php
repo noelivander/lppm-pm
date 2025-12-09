@@ -93,6 +93,7 @@
                                         <th>Periode Usulan</th>
                                         <th>Tgl Upload Revisi</th>
                                         <th>Status</th>
+                                        <th class="text-center">Hasil Review</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -142,17 +143,88 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                @if($hasLaporan)
-                                                    <a href="{{ route('penelitian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
-                                                        <i class="fa fa-edit me-1"></i>Edit
+                                                @if($hasLaporan && $reviewCount >= 1)
+                                                    <a class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-toggle="modal" data-bs-target="#reviewLaporanModal{{ $proposal->id }}">
+                                                        <i class="fas fa-search me-1"></i> Hasil Review
                                                     </a>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                @if($hasLaporan)
+                                                    @if($reviewCount >= 1)
+                                                        <a href="{{ route('penelitian-dos.laporan-kemajuan.create', ['penelitian' => $proposal->id, 'view' => 1]) }}" class="modern-btn modern-btn-outline modern-btn-sm">
+                                                            <i class="fa fa-eye me-1"></i>Lihat Form
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ route('penelitian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                            <i class="fa fa-edit me-1"></i>Edit
+                                                        </a>
+                                                    @endif
                                                 @else
                                                     <a href="{{ route('penelitian-dos.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
                                                         <i class="fa fa-file-alt me-1"></i>Buat Laporan
                                                     </a>
                                                 @endif
-                                            </td>
+                                            </div>
+                                        </td>
                                         </tr>
+
+                                        <!-- Modal untuk Review Laporan Kemajuan -->
+                                        @if($hasLaporan && $reviewCount >= 1)
+                                            <div class="modal fade" id="reviewLaporanModal{{ $proposal->id }}" tabindex="-1">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content modern-card">
+                                                        <div class="modal-header modern-card-header">
+                                                            <h5 class="modal-title mb-0">
+                                                                <i class="fa fa-search me-2"></i>Hasil Review Laporan Kemajuan
+                                                            </h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body modern-card-body">
+                                                            @php
+                                                                $laporanReviews = \App\Models\LaporanKemajuanReview::where('laporan_kemajuan_id', $laporanKemajuan->id)
+                                                                    ->where('status', 'selesai')
+                                                                    ->get();
+                                                            @endphp
+
+                                                            @if ($laporanReviews->count() > 0)
+                                                                <div class="row">
+                                                                    @foreach ($laporanReviews as $index => $laporanReview)
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <div class="modern-card">
+                                                                                <div class="modern-card-body text-center">
+                                                                                    <i class="fa fa-file-alt fa-3x text-primary mb-3"></i>
+                                                                                    <h6 class="mb-2">Review {{ $index + 1 }}</h6>
+                                                                                    <p class="text-muted small mb-3">Klik untuk melihat detail review</p>
+                                                                                    <a href="{{ route('penelitian-dos.laporan-kemajuan.view-reviews', ['penelitian_id' => $proposal->id, 'review_number' => $index + 1]) }}" 
+                                                                                       class="modern-btn modern-btn-primary">
+                                                                                        <i class="fa fa-eye me-1"></i> Lihat Review
+                                                                                    </a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            @else
+                                                                <div class="text-center py-4">
+                                                                    <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+                                                                    <h6 class="text-muted">Review belum tersedia</h6>
+                                                                    <p class="text-muted">Review akan muncul setelah laporan kemajuan direview oleh reviewer</p>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="modern-btn modern-btn-secondary" data-bs-dismiss="modal">
+                                                                <i class="fa fa-times me-1"></i> Tutup
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                     @endforeach
                                 </tbody>
                             </table>

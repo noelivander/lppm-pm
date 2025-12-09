@@ -46,6 +46,8 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
      ->name('penelitian-dos.view-reviews');
      Route::get('pengabdian/{pengabdian_id}/view-reviews/{review_number}', [PengabdianController::class, 'viewReviews'])
      ->name('pengabdian-dos.view-reviews');
+    Route::get('penelitian/{penelitian_id}/laporan-kemajuan/view-reviews/{review_number}', [PenelitianController::class, 'viewLaporanKemajuanReviews'])
+     ->name('penelitian-dos.laporan-kemajuan.view-reviews');
     Route::get('/penelitian/{id}/download-proposal', [PenelitianController::class, 'downloadDokumenProposal'])->name('penelitian.downloadProposal');
     Route::get('/pengabdian/{id}/download-proposal', [PengabdianController::class, 'downloadDokumenProposal'])->name('pengabdian.downloadProposal');
     

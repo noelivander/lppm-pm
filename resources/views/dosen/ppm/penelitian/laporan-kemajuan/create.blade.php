@@ -8,13 +8,22 @@
             <div class="col-md-12">
                 <div class="mb-3 fade-in-up">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <h3 class="mb-0">
-                            <i class="fa fa-chart-line me-2"></i>{{ $isEdit ? 'Edit' : 'Buat' }} Laporan Kemajuan Penelitian
+                        <h3 class="mb-0 d-flex align-items-center gap-2">
+                            <i class="fa fa-chart-line me-2"></i>{{ $isEdit ? ($isReadOnly ? 'Lihat' : 'Edit') : 'Buat' }} Laporan Kemajuan Penelitian
+                            @if($isReadOnly)
+                                <span class="badge bg-secondary text-uppercase" style="letter-spacing: .05em;">Read Only</span>
+                            @endif
                         </h3>
                         <a href="{{ route('penelitian-dos.laporan-kemajuan.index') }}" class="modern-btn modern-btn-secondary">
                             <i class="fa fa-arrow-left me-2"></i>Kembali ke Daftar
                         </a>
                     </div>
+
+                    @if ($isReadOnly)
+                        <div class="modern-alert modern-alert-info">
+                            <i class="fa fa-eye me-2"></i>Form ini bersifat baca saja karena laporan sudah direview.
+                        </div>
+                    @endif
 
                     @if (!$timeline || !$timeline->progress_submission_start_date || !$timeline->progress_submission_end_date)
                         <div class="modern-alert modern-alert-danger">
@@ -31,9 +40,11 @@
                                 @endif
                             </div>
                         @else
-                            <div class="modern-alert modern-alert-info">
-                                <i class="fa fa-info-circle me-2"></i>Periode pengajuan laporan kemajuan sedang berlangsung. Akan berakhir pada <strong>{{ $timeline->progress_submission_end_date->format('d M Y H:i') }}</strong>.
-                            </div>
+                            @unless($isReadOnly)
+                                <div class="modern-alert modern-alert-info">
+                                    <i class="fa fa-info-circle me-2"></i>Periode pengajuan laporan kemajuan sedang berlangsung. Akan berakhir pada <strong>{{ $timeline->progress_submission_end_date->format('d M Y H:i') }}</strong>.
+                                </div>
+                            @endunless
                         @endif
                     @endif
 
@@ -154,6 +165,9 @@
                         <div class="modern-card-body">
                             <form method="POST" action="{{ route('penelitian-dos.laporan-kemajuan.store', $proposal->id) }}" enctype="multipart/form-data">
                                 @csrf
+                                @if($isReadOnly)
+                                    <fieldset disabled>
+                                @endif
                                 
                                 <div class="modern-form-group">
                                     <label for="laporan_kemajuan" class="modern-form-label">
@@ -233,14 +247,20 @@
 
                                 <div class="d-flex justify-content-end gap-2 mt-4">
                                     <a href="{{ route('penelitian-dos.laporan-kemajuan.index') }}" class="modern-btn modern-btn-secondary">
-                                        <i class="fa fa-times me-1"></i> Batal
+                                        <i class="fa fa-arrow-left me-1"></i> Kembali
                                     </a>
-                                    <button type="submit" 
-                                            class="modern-btn modern-btn-primary"
-                                            {{ !$isWithinProgressWindow ? 'disabled' : '' }}>
-                                        <i class="fa fa-save me-1"></i> {{ $isEdit ? 'Update' : 'Simpan' }} Laporan
-                                    </button>
+                                    @unless($isReadOnly)
+                                        <button type="submit" 
+                                                class="modern-btn modern-btn-primary"
+                                                {{ !$isWithinProgressWindow ? 'disabled' : '' }}>
+                                            <i class="fa fa-save me-1"></i> {{ $isEdit ? 'Update' : 'Simpan' }} Laporan
+                                        </button>
+                                    @endunless
                                 </div>
+
+                                @if($isReadOnly)
+                                    </fieldset>
+                                @endif
                             </form>
                         </div>
                     </div>
