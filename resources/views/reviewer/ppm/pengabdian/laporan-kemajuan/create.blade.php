@@ -187,6 +187,7 @@
                                                                             value="{{ $sub->id }}"
                                                                             class="sub-komponen-checkbox"
                                                                             data-komponen-id="{{ $komponen->id }}"
+                                                                            data-nilai="{{ $sub->nilai }}"
                                                                             @php
                                                                                 $oldValue = old('sub_komponen.' . $komponen->id, $selectedSubId ?? null);
                                                                             @endphp
@@ -207,6 +208,16 @@
                                                 @endforeach
                                                 @php $rowNumber++; @endphp
                                             @endforeach
+                                            {{-- Total Row --}}
+                                            <tr class="total-row" style="background-color: #f8f9fa; font-weight: bold;">
+                                                <td colspan="3" style="text-align: right; padding-right: 20px;">
+                                                    <strong>TOTAL NILAI:</strong>
+                                                </td>
+                                                <td style="text-align: center;">
+                                                    <span id="total-nilai" class="status-badge nilai" style="font-size: 1.1em; font-weight: bold;">0.00</span>
+                                                </td>
+                                                <td style="text-align: center;">-</td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -312,18 +323,42 @@
         .modern-table tbody td {
             border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
         }
-        /* Pastikan baris terakhir kategori tidak memiliki border bottom */
-        .modern-table tbody tr:last-child {
+        /* Pastikan baris terakhir kategori tidak memiliki border bottom (kecuali total-row) */
+        .modern-table tbody tr:last-child:not(.total-row) {
             border-bottom: none !important;
         }
-        .modern-table tbody tr:last-child td {
+        .modern-table tbody tr:last-child:not(.total-row) td {
             border-bottom: none !important;
+        }
+        .total-row {
+            background-color: #f8f9fa !important;
+            border-top: 2px solid #3b82f6 !important;
+            border-bottom: 2px solid #3b82f6 !important;
+        }
+        .total-row td {
+            padding: 1rem !important;
+            font-size: 1.05em;
         }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Get all checkboxes grouped by komponen
             const checkboxes = document.querySelectorAll('.sub-komponen-checkbox');
+            
+            // Function to calculate total nilai
+            function calculateTotal() {
+                let total = 0;
+                checkboxes.forEach(function(checkbox) {
+                    if (checkbox.checked) {
+                        const nilai = parseFloat(checkbox.getAttribute('data-nilai')) || 0;
+                        total += nilai;
+                    }
+                });
+                const totalElement = document.getElementById('total-nilai');
+                if (totalElement) {
+                    totalElement.textContent = total.toFixed(2);
+                }
+            }
             
             checkboxes.forEach(function(checkbox) {
                 checkbox.addEventListener('change', function() {
@@ -337,8 +372,14 @@
                             }
                         });
                     }
+                    
+                    // Recalculate total after checkbox change
+                    calculateTotal();
                 });
             });
+            
+            // Calculate total on page load
+            calculateTotal();
         });
     </script>
 </x-reviewer-layout>
