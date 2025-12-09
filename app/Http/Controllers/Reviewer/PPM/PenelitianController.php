@@ -1174,10 +1174,10 @@ class PenelitianController extends Controller
 
         $mpdf = new \Mpdf\Mpdf([
             'format' => 'A4',
-            'margin_left' => 15,
-            'margin_right' => 15,
-            'margin_top' => 15,
-            'margin_bottom' => 15,
+            'margin_left' => 25,
+            'margin_right' => 25,
+            'margin_top' => 20,
+            'margin_bottom' => 20,
         ]);
         $mpdf->WriteHTML($html);
         $mpdf->Output('Laporan_Kemajuan_Penelitian_' . $proposal->id . '.pdf', 'I');

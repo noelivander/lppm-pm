@@ -38,13 +38,40 @@
             text-align: center;
             font-weight: bold;
             font-size: 1.1rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .info-table td {
+            border: none;
+            padding: 3px 0;
+            vertical-align: top;
+        }
+
+        .catatan-section {
+            margin-top: 15px;
             margin-bottom: 15px;
         }
 
-        .section-title {
-            font-weight: bold;
-            margin-top: 10px;
-            margin-bottom: 5px;
+        .dotted-line {
+            border: none;
+            border-bottom: 1px dotted #000;
+            margin: 5px 0;
+        }
+
+        .signature-section {
+            margin-top: 30px;
+        }
+
+        .signature-box {
+            text-align: right;
+            margin-right: 50px;
+        }
+
+        .header-line {
+            border: none;
+            border-top: 2px solid #000;
+            margin: 5px 0 15px 0;
         }
 
         .kategori-header {
@@ -67,66 +94,75 @@
 </head>
 <body>
     <div class="header-title">
-        FORM PENILAIAN LAPORAN KEMAJUAN PENGABDIAN
+        BORANG PENILAIAN MONITORING DAN EVALUASI KEMAJUAN PENGABDIAN<br>
+        HIBAH INTERNAL ITH TAHUN {{ date('Y') }}
     </div>
 
-    <hr>
+    <hr class="header-line">
 
     <!-- Informasi Pengabdian -->
-    <table class="no-border-table">
+    <table class="info-table">
         <tr>
-            <td style="width: 30%;">Judul Kegiatan</td>
+            <td style="width: 30%;">Judul Penelitian</td>
             <td style="width: 2%;">:</td>
             <td>{{ $proposal->judul ?? '-' }}</td>
         </tr>
         <tr>
-            <td>Jumlah Anggota Tim</td>
+            <td>Bidang Penelitian</td>
             <td>:</td>
-            <td>{{ $jumlahAnggotaTim }} orang</td>
+            <td>-</td>
         </tr>
         <tr>
-            <td>Dana Disetujui</td>
+            <td>Skema</td>
             <td>:</td>
-            <td>
-                @if($danaDisetujui != '-')
-                    Rp {{ number_format($danaDisetujui, 0, ',', '.') }}
-                @else
-                    {{ $danaDisetujui }}
-                @endif
-            </td>
+            <td>-</td>
         </tr>
-    </table>
-
-    <div class="section-title">Identitas Ketua Tim Pelaksana:</div>
-    <table class="no-border-table">
+        <tr>
+            <td>Jurusan / Program Studi</td>
+            <td>:</td>
+            <td>{{ $jurusanProdi }}</td>
+        </tr>
+        <tr>
+            <td>Ketua Peneliti</td>
+            <td>:</td>
+            <td></td>
+        </tr>
         @if($ketuaTim)
         <tr>
-            <td style="width: 30%; padding-left: 20px;">Nama Ketua</td>
-            <td style="width: 2%;">:</td>
+            <td style="padding-left: 30px;">Nama Lengkap</td>
+            <td>:</td>
             <td>{{ $ketuaTim->nama ?? '-' }}</td>
         </tr>
         <tr>
-            <td style="padding-left: 20px;">NIDN/NIDK</td>
+            <td style="padding-left: 30px;">NIDN</td>
             <td>:</td>
             <td>{{ $ketuaTim->nidn ?? '-' }}</td>
         </tr>
         <tr>
-            <td style="padding-left: 20px;">Jurusan/Prodi</td>
+            <td style="padding-left: 30px;">Jabatan Fungsional</td>
             <td>:</td>
-            <td>{{ $jurusanProdi }}</td>
-        </tr>
-        @else
-        <tr>
-            <td colspan="3" style="padding-left: 20px;">-</td>
+            <td>-</td>
         </tr>
         @endif
+        <tr>
+            <td>Nama Mitra (jika ada)</td>
+            <td>:</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Institusi Mitra (jika ada)</td>
+            <td>:</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Lama Penelitian Keseluruhan</td>
+            <td>:</td>
+            <td>-</td>
+        </tr>
     </table>
 
-    <hr>
-
-    <!-- Penilaian -->
-    <div class="section-title">PENILAIAN LAPORAN KEMAJUAN</div>
-    <table class="bordered-table">
+    <!-- Tabel Penilaian -->
+    <table class="bordered-table" style="margin-top: 15px;">
         <thead>
             <tr>
                 <th style="width: 5%;">No</th>
@@ -202,28 +238,29 @@
         </tbody>
     </table>
 
-    <!-- Catatan Tambahan -->
-    @if($existingReview->catatan_umum)
-    <div class="section-title">Catatan Tambahan:</div>
-    <p style="text-align: justify; margin-top: 5px;">
-        {{ $existingReview->catatan_umum }}
-    </p>
-    @endif
-
-    <br><br>
+    <!-- Catatan -->
+    <div class="catatan-section">
+        <strong>Catatan:</strong>
+        <div style="margin-top: 5px;">
+            @if($existingReview->catatan_umum)
+                {{ $existingReview->catatan_umum }}
+            @else
+                <hr class="dotted-line">
+                <hr class="dotted-line">
+                <hr class="dotted-line">
+            @endif
+        </div>
+    </div>
 
     <!-- Tanda Tangan -->
-    <table class="no-border-table" style="margin-top: 20px;">
-        <tr>
-            <td style="width: 50%;"></td>
-            <td style="width: 50%; text-align: center;">
-                <p>Parepare, {{ $existingReview->submitted_at ? $existingReview->submitted_at->format('d F Y') : date('d F Y') }}</p>
-                <p>Reviewer,</p>
-                <br><br><br>
-                <p style="text-decoration: underline;">{{ Auth::user()->name }}</p>
-            </td>
-        </tr>
-    </table>
+    <div class="signature-section">
+        <div class="signature-box">
+            <p style="margin: 5px 0;">Parepare, {{ $existingReview->submitted_at ? $existingReview->submitted_at->format('d F Y') : '...................... ' . date('Y') }}</p>
+            <p style="margin: 5px 0;">Reviewer,</p>
+            <br><br><br>
+            <p style="margin: 5px 0;">({{ Auth::user()->name }})</p>
+        </div>
+    </div>
 </body>
 </html>
 
