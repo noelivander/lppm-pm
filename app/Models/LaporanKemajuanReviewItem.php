@@ -31,7 +31,17 @@ class LaporanKemajuanReviewItem extends Model
         return $this->belongsTo(FormPenilaianLaporanKemajuan::class, 'form_penilaian_laporan_kemajuan_id');
     }
 
+    public function formPenilaianLaporanKemajuan()
+    {
+        return $this->belongsTo(FormPenilaianLaporanKemajuan::class, 'form_penilaian_laporan_kemajuan_id');
+    }
+
     public function subFormPenilaian()
+    {
+        return $this->belongsTo(FormPenilaianLaporanKemajuanSub::class, 'form_penilaian_laporan_kemajuan_sub_id');
+    }
+
+    public function formPenilaianLaporanKemajuanSub()
     {
         return $this->belongsTo(FormPenilaianLaporanKemajuanSub::class, 'form_penilaian_laporan_kemajuan_sub_id');
     }

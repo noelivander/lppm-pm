@@ -26,8 +26,10 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
     Route::get('ppm/pengabdian-rev/laporan-kemajuan', [PengabdianController::class, 'laporanKemajuanIndex'])->name('pengabdian-rev.laporan-kemajuan.index');
     Route::get('ppm/penelitian-rev/{penelitian}/laporan-kemajuan/create', [PenelitianController::class, 'laporanKemajuanCreate'])->name('penelitian-rev.laporan-kemajuan.create');
     Route::post('ppm/penelitian-rev/{penelitian}/laporan-kemajuan', [PenelitianController::class, 'laporanKemajuanStore'])->name('penelitian-rev.laporan-kemajuan.store');
+    Route::get('ppm/penelitian-rev/{penelitian}/laporan-kemajuan/pdf', [PenelitianController::class, 'laporanKemajuanPdf'])->name('penelitian-rev.laporan-kemajuan.pdf');
     Route::get('ppm/pengabdian-rev/{pengabdian}/laporan-kemajuan/create', [PengabdianController::class, 'laporanKemajuanCreate'])->name('pengabdian-rev.laporan-kemajuan.create');
     Route::post('ppm/pengabdian-rev/{pengabdian}/laporan-kemajuan', [PengabdianController::class, 'laporanKemajuanStore'])->name('pengabdian-rev.laporan-kemajuan.store');
+    Route::get('ppm/pengabdian-rev/{pengabdian}/laporan-kemajuan/pdf', [PengabdianController::class, 'laporanKemajuanPdf'])->name('pengabdian-rev.laporan-kemajuan.pdf');
     Route::put('/penelitian/review/{id}', [PenelitianController::class, 'updateReview'])->name('penelitian-rev.updateReview');
     Route::put('/pengabdian/review/{id}', [PengabdianController::class, 'updateReview'])->name('pengabdian-rev.updateReview');
     Route::get('ppm/pengabdian-rev/{id}/editReview', [PengabdianController::class, 'editReview'])->name('pengabdian-rev.editReview');

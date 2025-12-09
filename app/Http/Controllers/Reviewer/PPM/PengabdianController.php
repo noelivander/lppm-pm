@@ -1165,6 +1165,120 @@ class PengabdianController extends Controller
             ->with('success', $message);
     }
 
+    public function laporanKemajuanPdf($id)
+    {
+        $reviewerId = Auth::id();
+
+        $proposal = Pengabdian::with([
+                'laporanKemajuan' => function ($query) {
+                    $query->orderByDesc('created_at');
+                },
+                'revisionParent.reviews',
+                'reviews',
+                'user',
+                'anggota',
+            ])
+            ->where('id', $id)
+            ->where('is_revised', true)
+            ->whereHas('laporanKemajuan')
+            ->firstOrFail();
+
+        $latestLaporan = $proposal->laporanKemajuan->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('pengabdian-rev.laporan-kemajuan.index')
+                ->with('error', 'Tidak ada laporan kemajuan untuk proposal ini.');
+        }
+
+        $existingReview = LaporanKemajuanReview::with('items.formPenilaianLaporanKemajuan', 'items.formPenilaianLaporanKemajuanSub')
+            ->where('laporan_kemajuan_id', $latestLaporan->id)
+            ->where('reviewer_id', $reviewerId)
+            ->where('status', 'selesai')
+            ->first();
+
+        if (!$existingReview) {
+            return redirect()->route('pengabdian-rev.laporan-kemajuan.index')
+                ->with('error', 'Review laporan kemajuan belum selesai atau tidak ditemukan.');
+        }
+
+        $formPengabdianRaw = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
+            ->with('subKomponen')
+            ->where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // Group by kategori
+        $formPengabdian = collect();
+        $grouped = [];
+
+        foreach ($formPengabdianRaw as $item) {
+            $kategori = $item->kategori ?? 'uncategorized';
+            if (!isset($grouped[$kategori])) {
+                $grouped[$kategori] = collect();
+            }
+            $grouped[$kategori]->push($item);
+        }
+
+        $seenCategories = [];
+        foreach ($formPengabdianRaw as $item) {
+            $kategori = $item->kategori ?? 'uncategorized';
+            if (!in_array($kategori, $seenCategories)) {
+                $seenCategories[] = $kategori;
+                $formPengabdian->put($kategori, $grouped[$kategori]);
+            }
+        }
+
+        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first() 
+            ?? $proposal->anggota->where('peran', 'ketua')->first();
+
+        $jumlahAnggotaTim = $proposal->anggota->count();
+        $danaDisetujui = $proposal->biaya_disetujui ?? '-';
+
+        $jurusanProdi = '-';
+        if ($ketuaTim) {
+            $jurusan = $ketuaTim->jurusan_nama ?? null;
+            $prodi = $ketuaTim->program_studi_nama ?? null;
+            if ($jurusan && $prodi) {
+                $jurusanProdi = $jurusan . ' / ' . $prodi;
+            } elseif ($jurusan) {
+                $jurusanProdi = $jurusan;
+            } elseif ($prodi) {
+                $jurusanProdi = $prodi;
+            }
+        }
+
+        // Calculate total nilai
+        $totalNilai = 0;
+        foreach ($existingReview->items as $item) {
+            if ($item->nilai) {
+                $totalNilai += $item->nilai;
+            }
+        }
+
+        $html = view('pdf.laporan-kemajuan-pengabdian', compact(
+            'proposal',
+            'latestLaporan',
+            'existingReview',
+            'formPengabdian',
+            'ketuaTim',
+            'jumlahAnggotaTim',
+            'danaDisetujui',
+            'jurusanProdi',
+            'totalNilai'
+        ))->render();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 15,
+            'margin_bottom' => 15,
+        ]);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('Laporan_Kemajuan_Pengabdian_' . $proposal->id . '.pdf', 'I');
+    }
+
     protected function getReviewWindow(?Timeline $timeline, Pengabdian $proposal): array
     {
         if (!$timeline) {

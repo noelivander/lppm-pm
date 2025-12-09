@@ -137,15 +137,20 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                @if($statusDisplay === 'Selesai')
-                                                    <a href="{{ route('pengabdian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
-                                                        <i class="fa fa-edit me-1"></i> Edit
-                                                    </a>
-                                                @else
-                                                    <a href="{{ route('pengabdian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
-                                                        <i class="fa fa-eye me-1"></i> Tinjau
-                                                    </a>
-                                                @endif
+                                                <div class="d-flex gap-2">
+                                                    @if($statusDisplay === 'Selesai')
+                                                        <a href="{{ route('pengabdian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                            <i class="fa fa-edit me-1"></i> Edit
+                                                        </a>
+                                                        <a href="{{ route('pengabdian-rev.laporan-kemajuan.pdf', $proposal->id) }}" class="modern-btn modern-btn-danger modern-btn-sm" target="_blank">
+                                                            <i class="fa fa-file-pdf me-1"></i> PDF
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ route('pengabdian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
+                                                            <i class="fa fa-eye me-1"></i> Tinjau
+                                                        </a>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach

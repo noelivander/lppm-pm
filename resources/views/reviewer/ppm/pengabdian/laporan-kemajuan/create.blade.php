@@ -213,10 +213,9 @@
                                                 <td colspan="3" style="text-align: right; padding-right: 20px;">
                                                     <strong>TOTAL NILAI:</strong>
                                                 </td>
-                                                <td style="text-align: center;">
+                                                <td colspan="2" style="text-align: center;">
                                                     <span id="total-nilai" class="status-badge nilai" style="font-size: 1.1em; font-weight: bold;">0.00</span>
                                                 </td>
-                                                <td style="text-align: center;">-</td>
                                             </tr>
                                         </tbody>
                                     </table>
