@@ -990,7 +990,7 @@ class PengabdianController extends Controller
         $jumlahAnggotaTim = $proposal->anggota->count();
 
         // Get dana disetujui
-        $danaDisetujui = $proposal->biaya_disetujui ?? '-';
+        $danaDisetujui = $proposal->biaya_disetujui ?? 0;
 
         // Get jurusan/prodi dari ketua
         $jurusanProdi = '-';
@@ -1220,7 +1220,7 @@ class PengabdianController extends Controller
             ?? $proposal->anggota->where('peran', 'ketua')->first();
 
         $jumlahAnggotaTim = $proposal->anggota->count();
-        $danaDisetujui = $proposal->biaya_disetujui ?? '-';
+        $danaDisetujui = $proposal->biaya_disetujui ?? 0;
 
         $jurusanProdi = '-';
         if ($ketuaTim) {

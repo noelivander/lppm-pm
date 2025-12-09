@@ -94,8 +94,8 @@
 </head>
 <body>
     <div class="header-title">
-        BORANG PENILAIAN MONITORING DAN EVALUASI KEMAJUAN PENGABDIAN<br>
-        HIBAH INTERNAL ITH TAHUN {{ $proposal->created_at ? $proposal->created_at->format('Y') : ($proposal->revisionParent && $proposal->revisionParent->created_at ? $proposal->revisionParent->created_at->format('Y') : date('Y')) }}
+        BORANG PENILAIAN MONITORING DAN EVALUASI KEMAJUAN<br>
+        PENGABDIAN KEPADA MASYARAKAT
     </div>
 
     <hr class="header-line">
@@ -103,61 +103,42 @@
     <!-- Informasi Pengabdian -->
     <table class="info-table">
         <tr>
-            <td style="width: 30%;">Judul Penelitian</td>
+            <td style="width: 30%;">Judul Kegiatan</td>
             <td style="width: 2%;">:</td>
             <td>{{ $proposal->judul ?? '-' }}</td>
         </tr>
         <tr>
-            <td>Bidang Penelitian</td>
-            <td>:</td>
-            <td>-</td>
+            <td colspan="3" style="height: 10px;"></td>
         </tr>
         <tr>
-            <td>Skema</td>
+            <td colspan="3"><strong>Identitas Ketua Tim Pelaksana</strong></td>
+        </tr>
+        @if($ketuaTim)
+        <tr>
+            <td>Nama Ketua</td>
             <td>:</td>
-            <td>-</td>
+            <td>{{ $ketuaTim->nama ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>NIDN / NIDK</td>
+            <td>:</td>
+            <td>{{ $ketuaTim->nidn ?? '-' }}</td>
         </tr>
         <tr>
             <td>Jurusan / Program Studi</td>
             <td>:</td>
             <td>{{ $jurusanProdi }}</td>
         </tr>
-        <tr>
-            <td>Ketua Peneliti</td>
-            <td>:</td>
-            <td></td>
-        </tr>
-        @if($ketuaTim)
-        <tr>
-            <td style="padding-left: 30px;">Nama Lengkap</td>
-            <td>:</td>
-            <td>{{ $ketuaTim->nama ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td style="padding-left: 30px;">NIDN</td>
-            <td>:</td>
-            <td>{{ $ketuaTim->nidn ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td style="padding-left: 30px;">Jabatan Fungsional</td>
-            <td>:</td>
-            <td>-</td>
-        </tr>
         @endif
         <tr>
-            <td>Nama Mitra (jika ada)</td>
+            <td>Jumlah Anggota Tim</td>
             <td>:</td>
-            <td>-</td>
+            <td>{{ $jumlahAnggotaTim ?? '-' }}</td>
         </tr>
         <tr>
-            <td>Institusi Mitra (jika ada)</td>
+            <td>Dana Disetujui</td>
             <td>:</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>Lama Penelitian Keseluruhan</td>
-            <td>:</td>
-            <td>-</td>
+            <td>Rp {{ number_format((float)$danaDisetujui, 0, ',', '.') }}</td>
         </tr>
     </table>
 
