@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
@@ -71,8 +72,8 @@ class UserController extends Controller
         $user->nip = $validated['nip'];
         $user->password = Hash::make($validated['password']);
         
-        // Only save jurusan and program studi for dosen role
-        if ($validated['role'] === 'dosen') {
+        // Only save jurusan and program studi for dosen role, and only if columns exist
+        if ($validated['role'] === 'dosen' && Schema::hasColumn('users', 'jurusan_id')) {
             $user->jurusan_id = $validated['jurusan_id'] ?? null;
             $user->program_studi_id = $validated['program_studi_id'] ?? null;
         }
@@ -116,14 +117,16 @@ class UserController extends Controller
             $user->password = Hash::make($validated['password']);
         }
         
-        // Only save jurusan and program studi for dosen role
-        if ($validated['role'] === 'dosen') {
-            $user->jurusan_id = $validated['jurusan_id'] ?? null;
-            $user->program_studi_id = $validated['program_studi_id'] ?? null;
-        } else {
-            // Clear jurusan and program studi if role is changed from dosen to something else
-            $user->jurusan_id = null;
-            $user->program_studi_id = null;
+        // Only save jurusan and program studi for dosen role, and only if columns exist
+        if (Schema::hasColumn('users', 'jurusan_id')) {
+            if ($validated['role'] === 'dosen') {
+                $user->jurusan_id = $validated['jurusan_id'] ?? null;
+                $user->program_studi_id = $validated['program_studi_id'] ?? null;
+            } else {
+                // Clear jurusan and program studi if role is changed from dosen to something else
+                $user->jurusan_id = null;
+                $user->program_studi_id = null;
+            }
         }
         
         $user->save();

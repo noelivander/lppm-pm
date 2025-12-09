@@ -339,6 +339,20 @@ class PengabdianController extends Controller
         $jumlahAnggotaTim = $proposal->anggota->count();
         $danaDisetujui = $proposal->biaya_disetujui ?? 0;
 
+        // Data penilai
+        $reviewer1Name = $review1 && $review1->reviewer ? $review1->reviewer->name : '............................................';
+        $reviewer2Name = $review2 && $review2->reviewer ? $review2->reviewer->name : '............................................';
+        $reviewer1Nidn = $review1 && $review1->reviewer
+            ? ($review1->reviewer->nip ?? '')
+            : '';
+        $reviewer2Nidn = $review2 && $review2->reviewer
+            ? ($review2->reviewer->nip ?? '')
+            : '';
+
+        $ttdDate = $latestLaporan && $latestLaporan->submitted_at
+            ? $latestLaporan->submitted_at->format('d F Y')
+            : date('d F Y');
+
         $html = view('pdf.laporan-kemajuan-pengabdian-dosen', [
             'proposal' => $proposal,
             'latestLaporan' => $latestLaporan,
@@ -349,6 +363,11 @@ class PengabdianController extends Controller
             'danaDisetujui' => $danaDisetujui,
             'review1' => $review1,
             'review2' => $review2,
+            'reviewer1Name' => $reviewer1Name,
+            'reviewer2Name' => $reviewer2Name,
+            'reviewer1Nidn' => $reviewer1Nidn,
+            'reviewer2Nidn' => $reviewer2Nidn,
+            'ttdDate' => $ttdDate,
         ])->render();
 
         $mpdf = new \Mpdf\Mpdf([

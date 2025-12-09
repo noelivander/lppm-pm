@@ -110,11 +110,15 @@
     <table class="bordered-table" style="margin-top: 15px;">
         <thead>
             <tr>
-                <th style="width: 5%;">No</th>
-                <th style="width: 30%;">Komponen</th>
-                <th style="width: 35%;">Sub Komponen</th>
-                <th style="width: 15%;">Penilai 1</th>
-                <th style="width: 15%;">Penilai 2</th>
+                <th style="width: 5%; text-align:center; vertical-align: middle;" rowspan="2">No</th>
+                <th style="width: 30%; text-align:center; vertical-align: middle;" rowspan="2">Komponen</th>
+                <th style="width: 30%; text-align:center; vertical-align: middle;" rowspan="2">Sub Komponen</th>
+                <th style="width: 10%; text-align:center; vertical-align: middle;" rowspan="2">Nilai</th>
+                <th style="width: 25%; text-align:center; vertical-align: middle;" colspan="2">Penilai</th>
+            </tr>
+            <tr>
+                <th style="width: 12.5%; text-align:center; vertical-align: middle;">Penilai 1</th>
+                <th style="width: 12.5%; text-align:center; vertical-align: middle;">Penilai 2</th>
             </tr>
         </thead>
         <tbody>
@@ -133,7 +137,7 @@
                 @endphp
                 <tr class="kategori-header">
                     <td rowspan="{{ $kategoriTotalRows }}">{{ $rowNumber }}</td>
-                    <td colspan="4" style="text-align: center;">
+                    <td colspan="5" style="text-align: center;">
                         <strong>{{ $kategori ?? '-' }}</strong>
                     </td>
                 </tr>
@@ -157,8 +161,9 @@
                                     @php $komponenFirstRow = false; @endphp
                                 @endif
                                 <td>{{ $sub->sub_komponen }}</td>
-                                <td style="text-align: center;">{{ $nilai1 !== null ? number_format($nilai1, 2) : '-' }}</td>
-                                <td style="text-align: center;">{{ $nilai2 !== null ? number_format($nilai2, 2) : '-' }}</td>
+                                <td style="text-align: center;">{{ number_format($sub->nilai, 2) }}</td>
+                                <td style="text-align: center;">{{ $nilai1 !== null ? number_format($nilai1, 2) : '' }}</td>
+                                <td style="text-align: center;">{{ $nilai2 !== null ? number_format($nilai2, 2) : '' }}</td>
                             </tr>
                         @endforeach
                     @else
@@ -171,15 +176,16 @@
                         <tr>
                             <td><strong>{{ $komponen->komponen_penilaian }}</strong></td>
                             <td>-</td>
-                            <td style="text-align: center;">{{ $nilai1 !== null ? number_format($nilai1, 2) : '-' }}</td>
-                            <td style="text-align: center;">{{ $nilai2 !== null ? number_format($nilai2, 2) : '-' }}</td>
+                            <td style="text-align: center;"></td>
+                            <td style="text-align: center;">{{ $nilai1 !== null ? number_format($nilai1, 2) : '' }}</td>
+                            <td style="text-align: center;">{{ $nilai2 !== null ? number_format($nilai2, 2) : '' }}</td>
                         </tr>
                     @endif
                 @endforeach
                 @php $rowNumber++; @endphp
             @endforeach
             <tr class="total-row">
-                <td colspan="3" style="text-align: right; padding-right: 10px;">
+                <td colspan="4" style="text-align: right; padding-right: 10px;">
                     <strong>TOTAL NILAI:</strong>
                 </td>
                 <td style="text-align: center;">
@@ -211,13 +217,37 @@
     </div>
 
     <!-- Tanda Tangan -->
-    <div class="signature-section">
-        <div class="signature-box">
-            <p style="margin: 5px 0;">Parepare, {{ $latestLaporan && $latestLaporan->submitted_at ? $latestLaporan->submitted_at->format('d F Y') : '...................... ' . date('Y') }}</p>
-            <p style="margin: 5px 0;">Dosen Pengusul,</p>
-            <br><br><br>
-            <p style="margin: 5px 0;">(...............................................)</p>
-        </div>
+    <table class="info-table" style="margin-top: 25px;">
+        <tr>
+            <td style="width: 45%;"></td>
+            <td style="width: 10%;"></td>
+            <td style="width: 45%; text-align: right; font-weight: bold;">
+                Parepare, {{ $ttdDate }}
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 45%; text-align: center; vertical-align: top;">
+                <div style="font-weight: bold; font-size: 0.9rem;">Penilai 1</div>
+                <br><br><br>
+                <div style="font-size: 0.95rem;">({{ $reviewer1Name }})</div>
+                <div style="margin-top: 4px;">NIDN. {{ $reviewer1Nidn }}</div>
+            </td>
+            <td style="width: 10%;"></td>
+            <td style="width: 45%; text-align: center; vertical-align: top;">
+                <div style="font-weight: bold; font-size: 0.9rem;">Penilai 2</div>
+                <br><br><br>
+                <div style="font-size: 0.95rem;">({{ $reviewer2Name }})</div>
+                <div style="margin-top: 4px;">NIDN. {{ $reviewer2Nidn }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="signature-section" style="margin-top: 30px; text-align: center;">
+        <div style="font-weight: bold;">Mengetahui</div>
+        <div style="font-weight: bold;">Kepala LPPM-PM ITH</div>
+        <br><br><br>
+        <div style="font-weight: bold;">Prof. Dr. Eng. Ir. Intan Sari Areni, S.T., M.T., IPU.</div>
+        <div style="font-weight: bold;">NIDN. 0003027508</div>
     </div>
 </body>
 </html>
