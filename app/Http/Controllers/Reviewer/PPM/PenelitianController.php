@@ -1158,7 +1158,7 @@ class PenelitianController extends Controller
                 ->with('error', 'Tidak ada laporan kemajuan untuk proposal ini.');
         }
 
-        $existingReview = LaporanKemajuanReview::with('items.formPenilaianLaporanKemajuan')
+        $existingReview = LaporanKemajuanReview::with(['items.formPenilaianLaporanKemajuan', 'reviewer'])
             ->where('laporan_kemajuan_id', $latestLaporan->id)
             ->where('reviewer_id', $reviewerId)
             ->where('status', 'selesai')
@@ -1198,6 +1198,8 @@ class PenelitianController extends Controller
 
         $lamaPenelitian = $proposal->lama_penelitian ?? '-';
 
+        $reviewerName = optional($existingReview->reviewer)->name ?? Auth::user()->name ?? '-';
+
         $html = view('pdf.laporan-kemajuan-penelitian', compact(
             'proposal',
             'latestLaporan',
@@ -1207,7 +1209,8 @@ class PenelitianController extends Controller
             'bidangPenelitian',
             'skema',
             'jurusanProdi',
-            'lamaPenelitian'
+            'lamaPenelitian',
+            'reviewerName'
         ))->render();
 
         $mpdf = new \Mpdf\Mpdf([
