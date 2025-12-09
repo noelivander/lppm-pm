@@ -118,8 +118,27 @@
                                             $parentProposal = $proposal->revisionParent;
                                             $skemaDisplay = $parentProposal->skema ?? $proposal->skema ?? '-';
                                             $yearDisplay = optional($parentProposal->created_at ?? $proposal->created_at)->format('Y') ?? '-';
-                                            $statusDisplay = $latestLaporan->status ?? 'Pending';
-                                            $statusClass = $statusDisplay === 'Selesai' ? 'selesai' : 'pending';
+                                            
+                                            // Check if current reviewer has reviewed this laporan
+                                            $hasReviewedByMe = $latestLaporan && in_array($latestLaporan->id, $reviewedLaporanIds ?? []);
+                                            
+                                            // Check if laporan is fully reviewed (2 reviewers)
+                                            $totalReviewers = $latestLaporan && isset($allLaporanReviews[$latestLaporan->id]) 
+                                                ? $allLaporanReviews[$latestLaporan->id]->count() 
+                                                : 0;
+                                            $isFullyReviewed = $totalReviewers >= 2 && !$hasReviewedByMe;
+                                            
+                                            // Status display based on current reviewer's review
+                                            if ($hasReviewedByMe) {
+                                                $statusDisplay = 'Selesai';
+                                                $statusClass = 'selesai';
+                                            } elseif ($isFullyReviewed) {
+                                                $statusDisplay = 'Reviewed';
+                                                $statusClass = 'reviewed';
+                                            } else {
+                                                $statusDisplay = 'Pending';
+                                                $statusClass = 'pending';
+                                            }
                                         @endphp
                                         <tr>
                                             <td class="text-center">{{ $proposals->firstItem() + $loop->index }}</td>
@@ -138,13 +157,17 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    @if($statusDisplay === 'Selesai')
+                                                    @if($hasReviewedByMe)
                                                         <a href="{{ route('penelitian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
                                                             <i class="fa fa-edit me-1"></i> Edit
                                                         </a>
                                                         <a href="{{ route('penelitian-rev.laporan-kemajuan.pdf', $proposal->id) }}" class="modern-btn modern-btn-danger modern-btn-sm" target="_blank">
                                                             <i class="fa fa-file-pdf me-1"></i> PDF
                                                         </a>
+                                                    @elseif($isFullyReviewed)
+                                                        <button class="modern-btn modern-btn-secondary modern-btn-sm" disabled title="Laporan kemajuan ini sudah direview lengkap oleh 2 reviewer">
+                                                            <i class="fa fa-lock me-1"></i> Reviewed
+                                                        </button>
                                                     @else
                                                         <a href="{{ route('penelitian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
                                                             <i class="fa fa-eye me-1"></i> Tinjau

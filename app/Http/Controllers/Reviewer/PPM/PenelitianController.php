@@ -98,16 +98,10 @@ class PenelitianController extends Controller
 
         $reviewerId = Auth::id();
 
+        // Semua reviewer dapat melihat semua proposal revisi
         $baseQuery = Penelitian::with(['user'])
             ->where('is_draft', false)
-            ->where('is_revised', true)
-            ->where(function ($query) use ($reviewerId) {
-                $query->whereHas('revisionParent.reviews', function ($reviewQuery) use ($reviewerId) {
-                    $reviewQuery->where('reviewer_id', $reviewerId);
-                })->orWhereHas('reviews', function ($reviewQuery) use ($reviewerId) {
-                    $reviewQuery->where('reviewer_id', $reviewerId);
-                });
-            });
+            ->where('is_revised', true);
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -845,6 +839,7 @@ class PenelitianController extends Controller
         $timeline = $this->getActiveTimeline();
         $reviewerId = Auth::id();
 
+        // Semua reviewer dapat melihat semua laporan kemajuan
         $baseQuery = Penelitian::with([
                 'laporanKemajuan' => function ($query) {
                     $query->orderByDesc('created_at');
@@ -855,14 +850,7 @@ class PenelitianController extends Controller
             ->where('is_draft', false)
             ->where('is_revised', true)
             ->whereNotNull('revised_from_id')
-            ->whereHas('laporanKemajuan')
-            ->where(function ($query) use ($reviewerId) {
-                $query->whereHas('revisionParent.reviews', function ($reviewQuery) use ($reviewerId) {
-                    $reviewQuery->where('reviewer_id', $reviewerId);
-                })->orWhereHas('reviews', function ($reviewQuery) use ($reviewerId) {
-                    $reviewQuery->where('reviewer_id', $reviewerId);
-                });
-            });
+            ->whereHas('laporanKemajuan');
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -901,6 +889,17 @@ class PenelitianController extends Controller
 
         $filters = $request->only(['search', 'skema', 'year', 'status']);
 
+        // Get all laporan kemajuan reviews to check which ones current reviewer has reviewed
+        $reviewedLaporanIds = LaporanKemajuanReview::where('reviewer_id', $reviewerId)
+            ->whereIn('status', ['draft', 'selesai'])
+            ->pluck('laporan_kemajuan_id')
+            ->toArray();
+
+        // Get all laporan kemajuan reviews to check which ones are fully reviewed (2 reviewers)
+        $allLaporanReviews = LaporanKemajuanReview::whereIn('status', ['draft', 'selesai'])
+            ->get()
+            ->groupBy('laporan_kemajuan_id');
+
         return view('reviewer.ppm.penelitian.laporan-kemajuan.index', compact(
             'proposals',
             'timeline',
@@ -908,7 +907,9 @@ class PenelitianController extends Controller
             'filterSkemas',
             'filterYears',
             'statusOptions',
-            'filters'
+            'filters',
+            'reviewedLaporanIds',
+            'allLaporanReviews'
         ));
     }
 
@@ -940,15 +941,8 @@ class PenelitianController extends Controller
                 ->with('error', 'Tidak ada laporan kemajuan untuk proposal ini.');
         }
 
-        $directAssignment = $proposal->reviews->where('reviewer_id', $reviewerId)->isNotEmpty();
-        $parentReviews = optional($proposal->revisionParent)->reviews;
-        $parentAssignment = $parentReviews ? $parentReviews->where('reviewer_id', $reviewerId)->isNotEmpty() : false;
-
-        $isAssigned = $directAssignment || $parentAssignment;
-
-        if (!$isAssigned) {
-            abort(403);
-        }
+        // Semua reviewer dapat mengakses laporan kemajuan
+        // Tidak perlu validasi assignment lagi
 
         // Ambil form penilaian laporan kemajuan (penelitian) yang aktif
         $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
@@ -1041,15 +1035,8 @@ class PenelitianController extends Controller
                 ->with('error', 'Tidak ada laporan kemajuan untuk proposal ini.');
         }
 
-        $directAssignment = $proposal->reviews->where('reviewer_id', $reviewerId)->isNotEmpty();
-        $parentReviews = optional($proposal->revisionParent)->reviews;
-        $parentAssignment = $parentReviews ? $parentReviews->where('reviewer_id', $reviewerId)->isNotEmpty() : false;
-
-        $isAssigned = $directAssignment || $parentAssignment;
-
-        if (!$isAssigned) {
-            abort(403);
-        }
+        // Semua reviewer dapat mengakses dan menyimpan review laporan kemajuan
+        // Tidak perlu validasi assignment lagi
 
         $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
             ->where('is_active', true)
