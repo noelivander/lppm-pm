@@ -1103,7 +1103,7 @@ class PenelitianController extends Controller
             : 'Draft penilaian laporan kemajuan berhasil disimpan.';
 
         return redirect()
-            ->route('penelitian-rev.laporan-kemajuan.create', $proposal->id)
+            ->route('penelitian-rev.laporan-kemajuan.index')
             ->with('success', $message);
     }
 

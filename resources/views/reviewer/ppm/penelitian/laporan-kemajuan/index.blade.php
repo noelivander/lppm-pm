@@ -137,9 +137,15 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="{{ route('penelitian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
-                                                    <i class="fa fa-eye me-1"></i> Tinjau
-                                                </a>
+                                                @if($statusDisplay === 'Selesai')
+                                                    <a href="{{ route('penelitian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                        <i class="fa fa-edit me-1"></i> Edit
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('penelitian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-primary modern-btn-sm">
+                                                        <i class="fa fa-eye me-1"></i> Tinjau
+                                                    </a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

@@ -226,12 +226,18 @@
                                     @enderror
                                 </div>
                                 <div class="action-footer d-flex flex-wrap justify-content-end">
-                                    <button type="submit" name="action" value="draft" class="modern-btn modern-btn-secondary">
-                                        <i class="fa fa-save me-1"></i> Simpan Draft
-                                    </button>
-                                    <button type="submit" name="action" value="submit" class="modern-btn modern-btn-primary">
-                                        <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
-                                    </button>
+                                    @if(optional($existingReview)->status === 'selesai')
+                                        <button type="submit" name="action" value="submit" class="modern-btn modern-btn-primary">
+                                            <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
+                                        </button>
+                                    @else
+                                        <button type="submit" name="action" value="draft" class="modern-btn modern-btn-secondary">
+                                            <i class="fa fa-save me-1"></i> Simpan Draft
+                                        </button>
+                                        <button type="submit" name="action" value="submit" class="modern-btn modern-btn-primary">
+                                            <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         </div>

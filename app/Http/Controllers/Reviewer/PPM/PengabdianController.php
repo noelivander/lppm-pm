@@ -1161,7 +1161,7 @@ class PengabdianController extends Controller
             : 'Draft penilaian laporan kemajuan berhasil disimpan.';
 
         return redirect()
-            ->route('pengabdian-rev.laporan-kemajuan.create', $proposal->id)
+            ->route('pengabdian-rev.laporan-kemajuan.index')
             ->with('success', $message);
     }
 
