@@ -143,8 +143,10 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                            @if($hasLaporan && $reviewCount >= 2)
-                                                    <a class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-toggle="modal" data-bs-target="#reviewLaporanModal{{ $proposal->id }}">
+                                                @if($hasLaporan && $reviewCount >= 2)
+                                                    <a href="{{ route('pengabdian-dos.laporan-kemajuan.view-reviews', $proposal->id) }}"
+                                                       target="_blank"
+                                                       class="modern-btn modern-btn-secondary modern-btn-sm">
                                                         <i class="fas fa-search me-1"></i> Hasil Review
                                                     </a>
                                                 @else

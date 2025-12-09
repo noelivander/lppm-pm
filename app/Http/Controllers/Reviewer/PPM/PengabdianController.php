@@ -873,9 +873,23 @@ class PengabdianController extends Controller
         }
 
         if ($status = $request->get('status')) {
-            $baseQuery->whereHas('laporanKemajuan', function ($query) use ($status) {
-                $query->where('status', $status);
-            });
+            $normalizedStatus = strtolower(trim($status));
+            if ($normalizedStatus === 'pending') {
+                // Belum ada review oleh reviewer ini
+                $baseQuery->whereDoesntHave('laporanKemajuan.reviews', function ($q) use ($reviewerId) {
+                    $q->where('reviewer_id', $reviewerId);
+                });
+            } elseif ($normalizedStatus === 'draft') {
+                $baseQuery->whereHas('laporanKemajuan.reviews', function ($q) use ($reviewerId) {
+                    $q->where('reviewer_id', $reviewerId)
+                        ->whereRaw("LOWER(TRIM(status)) = 'draft'");
+                });
+            } elseif ($normalizedStatus === 'selesai') {
+                $baseQuery->whereHas('laporanKemajuan.reviews', function ($q) use ($reviewerId) {
+                    $q->where('reviewer_id', $reviewerId)
+                        ->whereRaw("LOWER(TRIM(status)) = 'selesai'");
+                });
+            }
         }
 
         $proposals = $baseQuery->orderByDesc('updated_at')
@@ -884,14 +898,20 @@ class PengabdianController extends Controller
 
         $filters = $request->only(['search', 'skema', 'year', 'status']);
 
-        // Get all laporan kemajuan reviews to check which ones current reviewer has reviewed
-        $reviewedLaporanIds = LaporanKemajuanReview::where('reviewer_id', $reviewerId)
-            ->whereIn('status', ['draft', 'selesai'])
+        // Hanya hitung review yang benar-benar selesai (untuk status selesai/penguncian)
+        $myCompletedLaporanIds = LaporanKemajuanReview::where('reviewer_id', $reviewerId)
+            ->whereRaw("LOWER(TRIM(status)) = 'selesai'")
             ->pluck('laporan_kemajuan_id')
             ->toArray();
 
-        // Get all laporan kemajuan reviews to check which ones are fully reviewed (2 reviewers)
-        $allLaporanReviews = LaporanKemajuanReview::whereIn('status', ['draft', 'selesai'])
+        // Draft milik reviewer ini
+        $myDraftLaporanIds = LaporanKemajuanReview::where('reviewer_id', $reviewerId)
+            ->whereRaw("LOWER(TRIM(status)) = 'draft'")
+            ->pluck('laporan_kemajuan_id')
+            ->toArray();
+
+        // Hitung review selesai per laporan (untuk kunci setelah 2 review)
+        $allLaporanReviews = LaporanKemajuanReview::whereRaw("LOWER(TRIM(status)) = 'selesai'")
             ->get()
             ->groupBy('laporan_kemajuan_id');
 
@@ -903,7 +923,8 @@ class PengabdianController extends Controller
             'filterYears',
             'statusOptions',
             'filters',
-            'reviewedLaporanIds',
+            'myCompletedLaporanIds',
+            'myDraftLaporanIds',
             'allLaporanReviews'
         ));
     }
@@ -913,6 +934,10 @@ class PengabdianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
         $reviewerId = Auth::id();
+
+        $hasProgressReviewWindow = $timeline && $timeline->progress_review_start_date && $timeline->progress_review_end_date;
+        $isWithinProgressReviewWindow = $hasProgressReviewWindow
+            && $currentDate->between($timeline->progress_review_start_date, $timeline->progress_review_end_date);
 
         $proposal = Pengabdian::with([
                 'laporanKemajuan' => function ($query) {
@@ -1011,6 +1036,7 @@ class PengabdianController extends Controller
             'latestLaporan',
             'timeline',
             'currentDate',
+            'isWithinProgressReviewWindow',
             'formPengabdian',
             'existingReview',
             'existingSelectedSub',
@@ -1026,6 +1052,10 @@ class PengabdianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
         $reviewerId = Auth::id();
+
+        $hasProgressReviewWindow = $timeline && $timeline->progress_review_start_date && $timeline->progress_review_end_date;
+        $isWithinProgressReviewWindow = $hasProgressReviewWindow
+            && $currentDate->between($timeline->progress_review_start_date, $timeline->progress_review_end_date);
 
         $proposal = Pengabdian::with([
                 'laporanKemajuan' => function ($query) {
@@ -1047,8 +1077,10 @@ class PengabdianController extends Controller
                 ->with('error', 'Tidak ada laporan kemajuan untuk proposal ini.');
         }
 
-        // Semua reviewer dapat mengakses dan menyimpan review laporan kemajuan
-        // Tidak perlu validasi assignment lagi
+        if (!$isWithinProgressReviewWindow) {
+            return redirect()->route('pengabdian-rev.laporan-kemajuan.index')
+                ->with('error', 'Periode review laporan kemajuan belum dimulai atau sudah berakhir.');
+        }
 
         $formPengabdianRaw = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
             ->with('subKomponen')
@@ -1140,7 +1172,13 @@ class PengabdianController extends Controller
             }
         }
 
-        $latestLaporan->status = $targetStatus === 'selesai' ? 'Selesai' : 'Draft';
+        // Tentukan status laporan berdasarkan jumlah review selesai (2 -> Selesai, 1 -> Diproses, 0 -> Draft)
+        $completedCount = LaporanKemajuanReview::where('laporan_kemajuan_id', $latestLaporan->id)
+            ->where('jenis', 'pengabdian')
+            ->whereRaw("LOWER(TRIM(status)) = 'selesai'")
+            ->count();
+        $latestStatus = $completedCount >= 2 ? 'Selesai' : ($completedCount >= 1 ? 'Diproses' : 'Draft');
+        $latestLaporan->status = $latestStatus;
         $latestLaporan->save();
 
         $message = $targetStatus === 'selesai'

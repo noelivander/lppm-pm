@@ -119,19 +119,23 @@
                                             $skemaDisplay = $parentProposal->skema ?? $proposal->skema ?? '-';
                                             $yearDisplay = optional($parentProposal->created_at ?? $proposal->created_at)->format('Y') ?? '-';
                                             
-                                            // Check if current reviewer has reviewed this laporan
-                                            $hasReviewedByMe = $latestLaporan && in_array($latestLaporan->id, $reviewedLaporanIds ?? []);
+                                            // Status review milik reviewer ini
+                                            $isMyCompleted = $latestLaporan && in_array($latestLaporan->id, $myCompletedLaporanIds ?? []);
+                                            $isMyDraft = $latestLaporan && in_array($latestLaporan->id, $myDraftLaporanIds ?? []);
                                             
                                             // Check if laporan is fully reviewed (2 reviewers)
                                             $totalReviewers = $latestLaporan && isset($allLaporanReviews[$latestLaporan->id]) 
                                                 ? $allLaporanReviews[$latestLaporan->id]->count() 
                                                 : 0;
-                                            $isFullyReviewed = $totalReviewers >= 2 && !$hasReviewedByMe;
+                                            $isFullyReviewed = $totalReviewers >= 2 && !$isMyCompleted && !$isMyDraft;
                                             
                                             // Status display based on current reviewer's review
-                                            if ($hasReviewedByMe) {
+                                            if ($isMyCompleted) {
                                                 $statusDisplay = 'Selesai';
                                                 $statusClass = 'selesai';
+                                            } elseif ($isMyDraft) {
+                                                $statusDisplay = 'Draft';
+                                                $statusClass = 'pending'; // gunakan style pending (kuning)
                                             } elseif ($isFullyReviewed) {
                                                 $statusDisplay = 'Reviewed';
                                                 $statusClass = 'reviewed';
@@ -157,12 +161,16 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    @if($hasReviewedByMe)
+                                                    @if($isMyCompleted)
                                                         <a href="{{ route('pengabdian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
                                                             <i class="fa fa-edit me-1"></i> Edit
                                                         </a>
                                                         <a href="{{ route('pengabdian-rev.laporan-kemajuan.pdf', $proposal->id) }}" class="modern-btn modern-btn-danger modern-btn-sm" target="_blank">
                                                             <i class="fa fa-file-pdf me-1"></i> PDF
+                                                        </a>
+                                                    @elseif($isMyDraft)
+                                                        <a href="{{ route('pengabdian-rev.laporan-kemajuan.create', $proposal->id) }}" class="modern-btn modern-btn-warning modern-btn-sm">
+                                                            <i class="fa fa-edit me-1"></i> Edit Draft
                                                         </a>
                                                     @elseif($isFullyReviewed)
                                                         <button class="modern-btn modern-btn-secondary modern-btn-sm" disabled title="Laporan kemajuan ini sudah direview lengkap oleh 2 reviewer">

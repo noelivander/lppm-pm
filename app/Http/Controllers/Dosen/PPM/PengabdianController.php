@@ -270,6 +270,98 @@ class PengabdianController extends Controller
         ]);
     }
 
+    public function viewLaporanKemajuanReviews($pengabdian_id)
+    {
+        $proposal = Pengabdian::with([
+                'laporanKemajuan' => function($query) {
+                    $query->where('tahap', 1)->orderByDesc('created_at');
+                },
+                'revisionParent',
+                'anggota',
+            ])
+            ->where('user_id', Auth::id())
+            ->where('is_revised', true)
+            ->findOrFail($pengabdian_id);
+
+        $latestLaporan = $proposal->laporanKemajuan->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('pengabdian-dos.laporan-kemajuan.index')
+                ->with('error', 'Laporan kemajuan tidak ditemukan.');
+        }
+
+        // Ambil dua review selesai
+        $reviews = \App\Models\LaporanKemajuanReview::with(['reviewer', 'items'])
+            ->where('laporan_kemajuan_id', $latestLaporan->id)
+            ->where('status', 'selesai')
+            ->orderBy('submitted_at', 'asc')
+            ->get()
+            ->take(2);
+
+        if ($reviews->count() < 1) {
+            return redirect()->route('pengabdian-dos.laporan-kemajuan.index')
+                ->with('error', 'Review laporan kemajuan belum tersedia.');
+        }
+
+        $review1 = $reviews->get(0);
+        $review2 = $reviews->get(1) ?? null;
+
+        // Form penilaian pengabdian
+        $formPengabdianRaw = \App\Models\FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
+            ->with('subKomponen')
+            ->where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // Kelompokkan per kategori agar mudah dirender di view
+        $formPengabdian = $formPengabdianRaw->groupBy(function ($item) {
+            return $item->kategori ?? 'Lainnya';
+        });
+
+        // Get ketua tim info
+        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first() 
+            ?? $proposal->anggota->where('peran', 'ketua')->first();
+
+        $jurusanProdi = '-';
+        if ($ketuaTim) {
+            $jurusan = $ketuaTim->jurusan_nama ?? null;
+            $prodi = $ketuaTim->program_studi_nama ?? null;
+            if ($jurusan && $prodi) {
+                $jurusanProdi = $jurusan . ' / ' . $prodi;
+            } elseif ($jurusan) {
+                $jurusanProdi = $jurusan;
+            } elseif ($prodi) {
+                $jurusanProdi = $prodi;
+            }
+        }
+
+        $jumlahAnggotaTim = $proposal->anggota->count();
+        $danaDisetujui = $proposal->biaya_disetujui ?? 0;
+
+        $html = view('pdf.laporan-kemajuan-pengabdian-dosen', [
+            'proposal' => $proposal,
+            'latestLaporan' => $latestLaporan,
+            'formPengabdian' => $formPengabdian,
+            'ketuaTim' => $ketuaTim,
+            'jurusanProdi' => $jurusanProdi,
+            'jumlahAnggotaTim' => $jumlahAnggotaTim,
+            'danaDisetujui' => $danaDisetujui,
+            'review1' => $review1,
+            'review2' => $review2,
+        ])->render();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'margin_left' => 25,
+            'margin_right' => 25,
+            'margin_top' => 20,
+            'margin_bottom' => 20,
+        ]);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output("Hasil_Review_Laporan_Kemajuan_Pengabdian_{$proposal->judul}.pdf", 'I');
+    }
+
     public function createLaporanKemajuan($id)
     {
         $currentDate = now();

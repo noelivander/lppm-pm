@@ -28,6 +28,12 @@
                     </div>
                 @endif
 
+                @if(!$isWithinProgressReviewWindow)
+                    <div class="modern-alert modern-alert-warning mb-3">
+                        <i class="fa fa-lock me-2"></i>Periode review laporan kemajuan tidak aktif. Form tetap dapat dilihat, namun aksi simpan dinonaktifkan.
+                    </div>
+                @endif
+
                 <!-- Informasi Pengabdian -->
                 <div class="modern-card mb-4 fade-in-up">
                     <div class="modern-card-header">
@@ -236,17 +242,23 @@
                                     @enderror
                                 </div>
                                 <div class="action-footer d-flex flex-wrap justify-content-end">
-                                    @if(optional($existingReview)->status === 'selesai')
-                                        <button type="submit" name="action" value="submit" class="modern-btn modern-btn-primary">
-                                            <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
+                                    @if(!$isWithinProgressReviewWindow)
+                                        <button type="button" class="modern-btn modern-btn-secondary" disabled>
+                                            <i class="fa fa-lock me-1"></i> Periode review tidak aktif
                                         </button>
                                     @else
-                                        <button type="submit" name="action" value="draft" class="modern-btn modern-btn-secondary">
-                                            <i class="fa fa-save me-1"></i> Simpan Draft
-                                        </button>
-                                        <button type="submit" name="action" value="submit" class="modern-btn modern-btn-primary">
-                                            <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
-                                        </button>
+                                        @if(optional($existingReview)->status === 'selesai')
+                                            <button type="submit" name="action" value="submit" class="modern-btn modern-btn-primary">
+                                                <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
+                                            </button>
+                                        @else
+                                            <button type="submit" name="action" value="draft" class="modern-btn modern-btn-secondary">
+                                                <i class="fa fa-save me-1"></i> Simpan Draft
+                                            </button>
+                                            <button type="submit" name="action" value="submit" class="modern-btn modern-btn-primary">
+                                                <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
+                                            </button>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
