@@ -53,7 +53,7 @@
                             </div>
                             <div class="col-md-6 col-lg-2">
                                 <p class="text-muted text-uppercase small fw-semibold mb-1">Lama Penelitian</p>
-                                <div class="fw-semibold">{{ $lamaPenelitian }} {{ $lamaPenelitian != '-' ? 'tahun' : '' }}</div>
+                                <div class="fw-semibold">{{ $lamaPenelitian ?? '-'}}</div>
                             </div>
                             <div class="col-12">
                                 <hr class="my-3">
