@@ -78,7 +78,7 @@
         }
     </style>
 </head>
-<body></body>
+<body>
     <div class="header-title">
         BORANG PENILAIAN MONITORING DAN EVALUASI KEMAJUAN PENELITIAN<br>
         HIBAH INTERNAL ITH TAHUN {{ $proposal->created_at ? $proposal->created_at->format('Y') : ($proposal->revisionParent && $proposal->revisionParent->created_at ? $proposal->revisionParent->created_at->format('Y') : date('Y')) }}
@@ -151,19 +151,20 @@
     <table class="bordered-table">
         <thead>
             <tr>
-                <th style="width: 5%;">No</th>
-                <th style="width: 50%;">Komponen Penilaian</th>
-                <th style="width: 45%;">Komentar Reviewer</th>
+                <th style="width: 6%;">No</th>
+                <th style="width: 35%;">Komponen Penilaian</th>
+                <th style="width: 60%;">Komentar Reviewer</th>
             </tr>
         </thead>
         <tbody>
+            @php $no = 1; @endphp
             @foreach($formPenelitian as $index => $item)
                 @php
                     $reviewItem = $existingReview->items->firstWhere('form_penilaian_laporan_kemajuan_id', $item->id);
                     $komentar = $reviewItem ? $reviewItem->komentar : '';
                 @endphp
                 <tr>
-                    <td style="text-align: center;">{{ $index + 1 }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ $no++ }}</td>
                     <td>{{ $item->komponen_penilaian }}</td>
                     <td>{{ $komentar }}</td>
                 </tr>
