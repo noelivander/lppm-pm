@@ -79,6 +79,7 @@
                                     <th class="text-center">Skema</th>
                                     <th class="text-center">Tahun</th>
                                     <th class="text-center">Disubmit Pada</th>
+                                    <th class="text-center">Hasil Monev</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -104,12 +105,96 @@
                                             {{ $laporan->created_at->format('d M Y') }}
                                         </td>
                                         <td class="text-center">
+                                            @php
+                                                $reviewCount = $laporan->reviews()->where('status', 'selesai')->count();
+                                            @endphp
+                                            @if($jenis === 'Penelitian')
+                                                @if($reviewCount >= 1)
+                                                    <a class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-toggle="modal" data-bs-target="#monevLaporanModal{{ $laporan->id }}">
+                                                        <i class="fas fa-search me-1"></i> Hasil Monev
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            @else
+                                                @if($reviewCount >= 2)
+                                                    <a href="{{ route('admin.laporan-kemajuan.download-pdf', $laporan->id) }}"
+                                                        target="_blank"
+                                                        class="modern-btn modern-btn-secondary modern-btn-sm">
+                                                        <i class="fa fa-download me-1"></i> Download PDF
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
                                             <a href="{{ route('admin.laporan-kemajuan.show', $laporan->id) }}"
                                                 class="modern-btn modern-btn-primary modern-btn-sm">
                                                 <i class="fa fa-eye me-1"></i> Detail
                                             </a>
                                         </td>
                                     </tr>
+
+                                    <!-- Modal untuk Monev Laporan Kemajuan (Penelitian) -->
+                                    @if($jenis === 'Penelitian')
+                                        @php
+                                            $reviewCount = $laporan->reviews()->where('status', 'selesai')->count();
+                                        @endphp
+                                        @if($reviewCount >= 1)
+                                            <div class="modal fade" id="monevLaporanModal{{ $laporan->id }}" tabindex="-1">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content modern-card">
+                                                        <div class="modal-header modern-card-header">
+                                                            <h5 class="modal-title mb-0">
+                                                                <i class="fa fa-search me-2"></i>Hasil Monev Laporan Kemajuan
+                                                            </h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body modern-card-body">
+                                                            @php
+                                                                $laporanReviews = \App\Models\LaporanKemajuanReview::where('laporan_kemajuan_id', $laporan->id)
+                                                                    ->where('status', 'selesai')
+                                                                    ->get();
+                                                            @endphp
+
+                                                            @if ($laporanReviews->count() > 0)
+                                                                <div class="row">
+                                                                    @foreach ($laporanReviews as $index => $laporanReview)
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <div class="modern-card">
+                                                                                <div class="modern-card-body text-center">
+                                                                                    <i class="fa fa-file-alt fa-3x text-primary mb-3"></i>
+                                                                                    <h6 class="mb-2">Monev {{ $index + 1 }}</h6>
+                                                                                    <p class="text-muted small mb-3">Klik untuk melihat detail monev</p>
+                                                                                    <a href="{{ route('admin.laporan-kemajuan.download-pdf', $laporan->id) }}?review_number={{ $index + 1 }}" 
+                                                                                       target="_blank"
+                                                                                       class="modern-btn modern-btn-primary">
+                                                                                        <i class="fa fa-eye me-1"></i> Lihat Monev
+                                                                                    </a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            @else
+                                                                <div class="text-center py-4">
+                                                                    <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+                                                                    <h6 class="text-muted">Monev belum tersedia</h6>
+                                                                    <p class="text-muted">Monev akan muncul setelah laporan kemajuan dimonev oleh reviewer</p>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="modern-btn modern-btn-secondary" data-bs-dismiss="modal">
+                                                                <i class="fa fa-times me-1"></i> Tutup
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endif
                                 @endforeach
                             </tbody>
                         </table>

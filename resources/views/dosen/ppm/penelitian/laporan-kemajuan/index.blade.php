@@ -92,7 +92,7 @@
                                         <th>Periode Usulan</th>
                                         <th>Tgl Upload Revisi</th>
                                         <th>Status</th>
-                                        <th class="text-center">Hasil Review</th>
+                                        <th class="text-center">Hasil Monev</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -144,7 +144,7 @@
                                             <td class="text-center">
                                                 @if($hasLaporan && $reviewCount >= 1)
                                                     <a class="modern-btn modern-btn-secondary modern-btn-sm" data-bs-toggle="modal" data-bs-target="#reviewLaporanModal{{ $proposal->id }}">
-                                                        <i class="fas fa-search me-1"></i> Hasil Review
+                                                        <i class="fas fa-search me-1"></i> Hasil Monev
                                                     </a>
                                                 @else
                                                     <span class="text-muted">-</span>
@@ -172,7 +172,7 @@
                                                     <div class="modal-content modern-card">
                                                         <div class="modal-header modern-card-header">
                                                             <h5 class="modal-title mb-0">
-                                                                <i class="fa fa-search me-2"></i>Hasil Review Laporan Kemajuan
+                                                                <i class="fa fa-search me-2"></i>Hasil Monev Laporan Kemajuan
                                                             </h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         </div>
@@ -190,11 +190,11 @@
                                                                             <div class="modern-card">
                                                                                 <div class="modern-card-body text-center">
                                                                                     <i class="fa fa-file-alt fa-3x text-primary mb-3"></i>
-                                                                                    <h6 class="mb-2">Review {{ $index + 1 }}</h6>
-                                                                                    <p class="text-muted small mb-3">Klik untuk melihat detail review</p>
+                                                                                    <h6 class="mb-2">Monev {{ $index + 1 }}</h6>
+                                                                                    <p class="text-muted small mb-3">Klik untuk melihat detail monev</p>
                                                                                     <a href="{{ route('penelitian-dos.laporan-kemajuan.view-reviews', ['penelitian_id' => $proposal->id, 'review_number' => $index + 1]) }}" 
                                                                                        class="modern-btn modern-btn-primary">
-                                                                                        <i class="fa fa-eye me-1"></i> Lihat Review
+                                                                                        <i class="fa fa-eye me-1"></i> Lihat Monev
                                                                                     </a>
                                                                                 </div>
                                                                             </div>
@@ -204,8 +204,8 @@
                                                             @else
                                                                 <div class="text-center py-4">
                                                                     <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
-                                                                    <h6 class="text-muted">Review belum tersedia</h6>
-                                                                    <p class="text-muted">Review akan muncul setelah laporan kemajuan direview oleh reviewer</p>
+                                                                    <h6 class="text-muted">Monev belum tersedia</h6>
+                                                                    <p class="text-muted">Monev akan muncul setelah laporan kemajuan dimonev oleh reviewer</p>
                                                                 </div>
                                                             @endif
                                                         </div>

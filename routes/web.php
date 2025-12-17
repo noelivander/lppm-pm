@@ -74,6 +74,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('timeline', TimelineController::class)->except(['show']);
     Route::resource('landing-page', \App\Http\Controllers\Admin\LandingPageController::class)->only(['index', 'update']);
     Route::resource('laporan-kemajuan', \App\Http\Controllers\Admin\PPM\LaporanKemajuanController::class)->only(['index', 'show']);
+    Route::get('laporan-kemajuan/{id}/download-pdf', [\App\Http\Controllers\Admin\PPM\LaporanKemajuanController::class, 'downloadPdf'])->name('laporan-kemajuan.download-pdf');
 });
 
 

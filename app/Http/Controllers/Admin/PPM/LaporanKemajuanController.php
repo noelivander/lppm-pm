@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\LaporanKemajuan;
 use App\Models\Timeline;
 use App\Models\FormPenilaianLaporanKemajuan;
+use App\Models\LaporanKemajuanReview;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -157,6 +158,214 @@ class LaporanKemajuanController extends Controller
         }
 
         return view('admin.ppm.laporan-kemajuan.show', compact('laporan', 'proposal', 'jenis', 'formPengabdianPerReview'));
+    }
+
+    /**
+     * Download PDF hasil monev laporan kemajuan
+     */
+    public function downloadPdf(Request $request, $id)
+    {
+        $laporan = LaporanKemajuan::with([
+            'penelitian.anggota',
+            'penelitian.bidangPenelitian',
+            'penelitian.revisionParent',
+            'pengabdian.anggota',
+            'user',
+            'reviews.reviewer',
+            'reviews.items'
+        ])->findOrFail($id);
+
+        $proposal = $laporan->penelitian ?? $laporan->pengabdian;
+        $jenis = $laporan->penelitian ? 'Penelitian' : 'Pengabdian';
+        $reviewNumber = $request->get('review_number');
+
+        // Ambil review selesai
+        $reviews = LaporanKemajuanReview::with(['reviewer', 'items.formPenilaian', 'items.subFormPenilaian'])
+            ->where('laporan_kemajuan_id', $laporan->id)
+            ->where('status', 'selesai')
+            ->orderBy('submitted_at', 'asc')
+            ->get();
+
+        if ($reviews->count() < 1) {
+            return redirect()->route('admin.laporan-kemajuan.index')
+                ->with('error', 'Review laporan kemajuan belum tersedia.');
+        }
+
+        if ($jenis === 'Pengabdian') {
+            // Untuk pengabdian, selalu gabungan 2 review
+            $review1 = $reviews->get(0);
+            $review2 = $reviews->get(1) ?? null;
+
+            // Form penilaian pengabdian
+            $formPengabdianRaw = FormPenilaianLaporanKemajuan::where('jenis', 'pengabdian')
+                ->with('subKomponen')
+                ->where('is_active', true)
+                ->orderBy('urutan', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            // Kelompokkan per kategori
+            $formPengabdian = $formPengabdianRaw->groupBy(function ($item) {
+                return $item->kategori ?? 'Lainnya';
+            });
+
+            // Get ketua tim info
+            $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first()
+                ?? $proposal->anggota->where('peran', 'ketua')->first();
+
+            $jurusanProdi = '-';
+            if ($ketuaTim) {
+                $jurusan = $ketuaTim->jurusan_nama ?? null;
+                $prodi = $ketuaTim->program_studi_nama ?? null;
+                if ($jurusan && $prodi) {
+                    $jurusanProdi = $jurusan . ' / ' . $prodi;
+                } elseif ($jurusan) {
+                    $jurusanProdi = $jurusan;
+                } elseif ($prodi) {
+                    $jurusanProdi = $prodi;
+                }
+            }
+
+            $jumlahAnggotaTim = $proposal->anggota->count();
+            $danaDisetujui = $proposal->biaya_disetujui ?? 0;
+
+            // Data penilai
+            $reviewer1Name = $review1 && $review1->reviewer ? $review1->reviewer->name : '............................................';
+            $reviewer2Name = $review2 && $review2->reviewer ? $review2->reviewer->name : '............................................';
+            $reviewer1Nidn = $review1 && $review1->reviewer
+                ? ($review1->reviewer->nip ?? '')
+                : '';
+            $reviewer2Nidn = $review2 && $review2->reviewer
+                ? ($review2->reviewer->nip ?? '')
+                : '';
+
+            $ttdDate = $laporan && $laporan->submitted_at
+                ? $laporan->submitted_at->format('d F Y')
+                : date('d F Y');
+
+            $html = view('pdf.laporan-kemajuan-pengabdian-dosen', [
+                'proposal' => $proposal,
+                'latestLaporan' => $laporan,
+                'formPengabdian' => $formPengabdian,
+                'ketuaTim' => $ketuaTim,
+                'jurusanProdi' => $jurusanProdi,
+                'jumlahAnggotaTim' => $jumlahAnggotaTim,
+                'danaDisetujui' => $danaDisetujui,
+                'review1' => $review1,
+                'review2' => $review2,
+                'reviewer1Name' => $reviewer1Name,
+                'reviewer2Name' => $reviewer2Name,
+                'reviewer1Nidn' => $reviewer1Nidn,
+                'reviewer2Nidn' => $reviewer2Nidn,
+                'ttdDate' => $ttdDate,
+            ])->render();
+
+            $mpdf = new \Mpdf\Mpdf([
+                'format' => 'A4',
+                'margin_left' => 25,
+                'margin_right' => 25,
+                'margin_top' => 20,
+                'margin_bottom' => 20,
+            ]);
+            $mpdf->WriteHTML($html);
+            $mpdf->Output("Hasil_Monev_Laporan_Kemajuan_Pengabdian_{$proposal->judul}.pdf", 'I');
+        } else {
+            // Untuk penelitian, bisa download per review atau semua review
+            if ($reviewNumber) {
+                // Download per review
+                if ($reviewNumber == 1) {
+                    $review = $reviews->first();
+                } elseif ($reviewNumber == 2) {
+                    $review = $reviews->skip(1)->first();
+                } else {
+                    return redirect()->route('admin.laporan-kemajuan.index')
+                        ->with('error', 'Nomor review tidak valid.');
+                }
+
+                if (!$review) {
+                    return redirect()->route('admin.laporan-kemajuan.index')
+                        ->with('error', 'Review tidak ditemukan.');
+                }
+            } else {
+                // Jika tidak ada review_number, ambil review pertama
+                $review = $reviews->first();
+            }
+
+            // Get form penilaian
+            $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
+                ->with('subKomponen')
+                ->where('is_active', true)
+                ->orderBy('urutan', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            // Get ketua tim info
+            $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first()
+                ?? $proposal->anggota->where('peran', 'ketua')->first();
+            $ketuaPeneliti = $ketuaTim;
+
+            $jurusanProdi = '-';
+            if ($ketuaTim) {
+                $jurusan = $ketuaTim->jurusan_nama ?? null;
+                $prodi = $ketuaTim->program_studi_nama ?? null;
+                if ($jurusan && $prodi) {
+                    $jurusanProdi = $jurusan . ' / ' . $prodi;
+                } elseif ($jurusan) {
+                    $jurusanProdi = $jurusan;
+                } elseif ($prodi) {
+                    $jurusanProdi = $prodi;
+                }
+            }
+
+            // Get bidang penelitian, skema, and lama penelitian
+            $bidangPenelitian = $proposal->bidang_penelitian_nama
+                ?? optional($proposal->bidangPenelitian)->nama
+                ?? optional($proposal->revisionParent)->bidang_penelitian_nama
+                ?? optional(optional($proposal->revisionParent)->bidangPenelitian)->nama
+                ?? '-';
+
+            $skema = $proposal->skema
+                ?? optional($proposal->revisionParent)->skema
+                ?? '-';
+
+            $lamaPenelitian = $proposal->lama_penelitian
+                ?? optional($proposal->revisionParent)->lama_penelitian
+                ?? '-';
+
+            $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : (optional($proposal->revisionParent)->created_at ? optional($proposal->revisionParent)->created_at->format('Y') : date('Y'));
+
+            // Get reviewer name
+            $reviewerName = optional($review->reviewer)->name ?? '-';
+
+            $html = view('pdf.laporan-kemajuan-penelitian', [
+                'proposal' => $proposal,
+                'latestLaporan' => $laporan,
+                'existingReview' => $review,
+                'formPenelitian' => $formPenelitian,
+                'ketuaTim' => $ketuaTim,
+                'ketuaPeneliti' => $ketuaPeneliti,
+                'jurusanProdi' => $jurusanProdi,
+                'bidangPenelitian' => $bidangPenelitian,
+                'skema' => $skema,
+                'lamaPenelitian' => $lamaPenelitian,
+                'proposalYear' => $proposalYear,
+                'reviewerName' => $reviewerName,
+            ])->render();
+
+            $mpdf = new \Mpdf\Mpdf([
+                'format' => 'A4',
+                'margin_left' => 25,
+                'margin_right' => 25,
+                'margin_top' => 20,
+                'margin_bottom' => 20,
+            ]);
+            $mpdf->WriteHTML($html);
+            
+            $filename = $reviewNumber 
+                ? "Hasil_Monev_Laporan_Kemajuan_Penelitian_{$proposal->judul}_Monev{$reviewNumber}.pdf"
+                : "Hasil_Monev_Laporan_Kemajuan_Penelitian_{$proposal->judul}.pdf";
+            $mpdf->Output($filename, 'I');
+        }
     }
 
     protected function getActiveTimeline()

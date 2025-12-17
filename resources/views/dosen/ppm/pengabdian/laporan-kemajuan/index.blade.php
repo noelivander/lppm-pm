@@ -92,7 +92,7 @@
                                         <th>Periode Usulan</th>
                                         <th>Tgl Upload Revisi</th>
                                         <th>Status</th>
-                                        <th class="text-center">Hasil Review</th>
+                                        <th class="text-center">Hasil Monev</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -146,7 +146,7 @@
                                                     <a href="{{ route('pengabdian-dos.laporan-kemajuan.view-reviews', $proposal->id) }}"
                                                        target="_blank"
                                                        class="modern-btn modern-btn-secondary modern-btn-sm">
-                                                        <i class="fas fa-search me-1"></i> Hasil Review
+                                                        <i class="fas fa-search me-1"></i> Hasil Monev
                                                     </a>
                                                 @else
                                                     <span class="text-muted">-</span>
