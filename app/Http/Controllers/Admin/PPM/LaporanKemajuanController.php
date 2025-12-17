@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LaporanKemajuan;
 use App\Models\Timeline;
+use App\Models\FormPenilaianLaporanKemajuan;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -100,13 +101,62 @@ class LaporanKemajuanController extends Controller
             'pengabdian.anggota',
             'user',
             'reviews.reviewer',
-            'reviews.items.subKriteria' // Load review items and criteria
+            'reviews.items.subKriteria',
+            'reviews.items.formPenilaianLaporanKemajuan',
+            'reviews.items.formPenilaianLaporanKemajuanSub' // Load sub komponen
         ])->findOrFail($id);
 
         $proposal = $laporan->penelitian ?? $laporan->pengabdian;
         $jenis = $laporan->penelitian ? 'Penelitian' : 'Pengabdian';
 
-        return view('admin.ppm.laporan-kemajuan.show', compact('laporan', 'proposal', 'jenis'));
+        // Untuk pengabdian, ambil form penilaian per review
+        // Setiap review mungkin menggunakan form yang berbeda
+        $formPengabdianPerReview = [];
+        if ($jenis === 'Pengabdian') {
+            foreach ($laporan->reviews as $review) {
+                // Ambil form penilaian yang digunakan dalam review items ini
+                $formIds = [];
+                foreach ($review->items as $item) {
+                    if ($item->form_penilaian_laporan_kemajuan_id) {
+                        $formIds[] = $item->form_penilaian_laporan_kemajuan_id;
+                    }
+                }
+                
+                if (!empty($formIds)) {
+                    // Ambil form penilaian dengan sub komponen
+                    $formPengabdianRaw = FormPenilaianLaporanKemajuan::whereIn('id', $formIds)
+                        ->with('subKomponen')
+                        ->orderBy('urutan', 'asc')
+                        ->orderBy('id', 'asc')
+                        ->get();
+
+                    // Group by kategori seperti di reviewer
+                    $formPengabdian = collect();
+                    $grouped = [];
+
+                    foreach ($formPengabdianRaw as $item) {
+                        $kategori = $item->kategori ?? 'uncategorized';
+                        if (!isset($grouped[$kategori])) {
+                            $grouped[$kategori] = collect();
+                        }
+                        $grouped[$kategori]->push($item);
+                    }
+
+                    $seenCategories = [];
+                    foreach ($formPengabdianRaw as $item) {
+                        $kategori = $item->kategori ?? 'uncategorized';
+                        if (!in_array($kategori, $seenCategories)) {
+                            $seenCategories[] = $kategori;
+                            $formPengabdian->put($kategori, $grouped[$kategori]);
+                        }
+                    }
+                    
+                    $formPengabdianPerReview[$review->id] = $formPengabdian;
+                }
+            }
+        }
+
+        return view('admin.ppm.laporan-kemajuan.show', compact('laporan', 'proposal', 'jenis', 'formPengabdianPerReview'));
     }
 
     protected function getActiveTimeline()

@@ -102,32 +102,123 @@
                                                 @endforeach
                                             </tbody>
                                         @else
-                                            <thead>
-                                                <tr>
-                                                    <th>Kriteria</th>
-                                                    <th class="text-end" style="width: 80px;">Skor</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($review->items as $item)
+                                            {{-- Struktur tabel lengkap untuk pengabdian seperti di reviewer --}}
+                                            @php
+                                                $formPengabdian = $formPengabdianPerReview[$review->id] ?? null;
+                                            @endphp
+                                            @if(isset($formPengabdian) && $formPengabdian->count() > 0)
+                                                <thead>
                                                     <tr>
-                                                        <td>
-                                                            <div class="fw-bold small">
-                                                                {{ $item->formPenilaian->komponen_penilaian ?? '' }}</div>
-                                                            <div class="text-muted small">
-                                                                {{ $item->subKriteria->keterangan ?? 'Kriteria' }}</div>
-                                                        </td>
-                                                        <td class="text-end fw-bold">{{ $item->nilai }}</td>
+                                                        <th style="width: 50px;">No</th>
+                                                        <th>Komponen</th>
+                                                        <th>Sub Komponen</th>
+                                                        <th style="width: 120px; text-align: center;">Nilai</th>
                                                     </tr>
-                                                @endforeach
-                                            </tbody>
-                                            <tfoot>
-                                                <tr class="bg-white">
-                                                    <td class="fw-bold text-end">Total Skor</td>
-                                                    <td class="fw-bold text-end text-primary">{{ $review->items->sum('nilai') }}
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
+                                                </thead>
+                                                <tbody>
+                                                    @php 
+                                                        $rowNumber = 1;
+                                                        $reviewItemsMap = [];
+                                                        foreach ($review->items as $item) {
+                                                            $reviewItemsMap[$item->form_penilaian_laporan_kemajuan_id] = $item;
+                                                        }
+                                                    @endphp
+                                                    @foreach($formPengabdian as $kategori => $komponenList)
+                                                        @php
+                                                            // Calculate total rows for this kategori (including kategori header)
+                                                            $kategoriTotalRows = 1; // 1 for kategori header row
+                                                            foreach ($komponenList as $komponen) {
+                                                                $subCount = $komponen->subKomponen->count();
+                                                                $kategoriTotalRows += $subCount > 0 ? $subCount : 1;
+                                                            }
+                                                        @endphp
+                                                        {{-- Kategori Header Row --}}
+                                                        <tr class="kategori-header-row">
+                                                            <td rowspan="{{ $kategoriTotalRows }}">{{ $rowNumber }}</td>
+                                                            <td colspan="3" class="kategori-header-cell" style="text-align: center;">
+                                                                <strong>{{ $kategori ?? '-' }}</strong>
+                                                            </td>
+                                                        </tr>
+                                                        @foreach($komponenList as $komponen)
+                                                            @php
+                                                                $subKomponenCount = $komponen->subKomponen->count();
+                                                                $komponenRowspan = $subKomponenCount > 0 ? $subKomponenCount : 1;
+                                                                $komponenFirstRow = true;
+                                                                $reviewItem = $reviewItemsMap[$komponen->id] ?? null;
+                                                                $selectedSubId = $reviewItem->form_penilaian_laporan_kemajuan_sub_id ?? null;
+                                                            @endphp
+                                                            @if($subKomponenCount > 0)
+                                                                @foreach($komponen->subKomponen as $sub)
+                                                                    <tr>
+                                                                        @if($komponenFirstRow)
+                                                                            <td rowspan="{{ $komponenRowspan }}"><strong>{{ $komponen->komponen_penilaian }}</strong></td>
+                                                                            @php $komponenFirstRow = false; @endphp
+                                                                        @endif
+                                                                        <td>{{ $sub->sub_komponen }}</td>
+                                                                        <td style="text-align: center;">
+                                                                            @if($selectedSubId == $sub->id && $reviewItem)
+                                                                                <span class="status-badge nilai">{{ number_format($reviewItem->nilai, 2) }}</span>
+                                                                            @else
+                                                                                <span class="text-muted">-</span>
+                                                                            @endif
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            @else
+                                                                <tr>
+                                                                    <td><strong>{{ $komponen->komponen_penilaian }}</strong></td>
+                                                                    <td class="text-muted">-</td>
+                                                                    <td class="text-muted" style="text-align: center;">
+                                                                        @if($reviewItem)
+                                                                            <span class="status-badge nilai">{{ number_format($reviewItem->nilai, 2) }}</span>
+                                                                        @else
+                                                                            <span class="text-muted">-</span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+                                                            @endif
+                                                        @endforeach
+                                                        @php $rowNumber++; @endphp
+                                                    @endforeach
+                                                    {{-- Total Row --}}
+                                                    <tr class="total-row" style="background-color: #f8f9fa; font-weight: bold;">
+                                                        <td colspan="3" style="text-align: right; padding-right: 20px;">
+                                                            <strong>TOTAL NILAI:</strong>
+                                                        </td>
+                                                        <td style="text-align: center;">
+                                                            <span class="status-badge nilai" style="font-size: 1.1em; font-weight: bold;">{{ number_format($review->items->sum('nilai'), 2) }}</span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            @else
+                                                {{-- Fallback jika formPengabdian tidak tersedia --}}
+                                                <thead>
+                                                    <tr>
+                                                        <th>Kriteria</th>
+                                                        <th class="text-end" style="width: 80px;">Skor</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($review->items as $item)
+                                                        <tr>
+                                                            <td>
+                                                                <div class="fw-bold small">
+                                                                    {{ $item->formPenilaian->komponen_penilaian ?? '' }}</div>
+                                                                <div class="text-muted small">
+                                                                    {{ $item->subKriteria->sub_komponen ?? 'Kriteria' }}</div>
+                                                            </td>
+                                                            <td class="text-end fw-bold">{{ $item->nilai }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="bg-white">
+                                                        <td class="fw-bold text-end">Total Skor</td>
+                                                        <td class="fw-bold text-end text-primary">{{ $review->items->sum('nilai') }}
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            @endif
                                         @endif
                                     </table>
                                 </div>
@@ -249,6 +340,67 @@
 
         .transition {
             transition: all 0.2s ease;
+        }
+
+        /* Styling untuk tabel monev pengabdian */
+        .status-badge.nilai {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+            text-transform: none;
+            letter-spacing: 0.02em;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .kategori-header-cell {
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            background-color: #f8f9fa;
+        }
+
+        .kategori-header-row td:first-child {
+            border-right: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        /* Border vertikal untuk semua kolom */
+        .modern-table thead th:not(:last-child),
+        .modern-table tbody td:not(:last-child) {
+            border-right: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        /* Border horizontal untuk semua baris termasuk komponen dan sub komponen */
+        .modern-table tbody tr {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+        }
+
+        .modern-table tbody td {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+        }
+
+        /* Pastikan baris terakhir kategori tidak memiliki border bottom (kecuali total-row) */
+        .modern-table tbody tr:last-child:not(.total-row) {
+            border-bottom: none !important;
+        }
+
+        .modern-table tbody tr:last-child:not(.total-row) td {
+            border-bottom: none !important;
+        }
+
+        .total-row {
+            background-color: #f8f9fa !important;
+            border-top: 2px solid #3b82f6 !important;
+            border-bottom: 2px solid #3b82f6 !important;
+        }
+
+        .total-row td {
+            padding: 1rem !important;
+            font-size: 1.05em;
         }
     </style>
 </x-admin-layout>
