@@ -50,7 +50,9 @@ class SkemaController extends Controller
             'is_research' => 'boolean',
             'is_shown' => 'boolean',
             'template_laporan_kemajuan' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
-            'template_laporan_keuangan_tahap_1' => 'nullable|file|mimes:doc,docx,pdf|max:10240'
+            'template_laporan_keuangan_tahap_1' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
+            'template_laporan_akhir' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
+            'template_laporan_keuangan_tahap_2' => 'nullable|file|mimes:doc,docx,pdf|max:10240'
         ]);
 
         $data = [
@@ -77,6 +79,22 @@ class SkemaController extends Controller
             $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
             $path = $file->storeAs('templates/skema', $fileName, 'public');
             $data['template_laporan_keuangan_tahap_1'] = $path;
+        }
+
+        // Handle template laporan akhir upload
+        if ($request->hasFile('template_laporan_akhir')) {
+            $file = $request->file('template_laporan_akhir');
+            $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $path = $file->storeAs('templates/skema', $fileName, 'public');
+            $data['template_laporan_akhir'] = $path;
+        }
+
+        // Handle template laporan keuangan tahap 2 upload
+        if ($request->hasFile('template_laporan_keuangan_tahap_2')) {
+            $file = $request->file('template_laporan_keuangan_tahap_2');
+            $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            $path = $file->storeAs('templates/skema', $fileName, 'public');
+            $data['template_laporan_keuangan_tahap_2'] = $path;
         }
 
         Skema::create($data);
@@ -106,7 +124,7 @@ class SkemaController extends Controller
         try {
             $skema = Skema::with('jenis_skema')->findOrFail($id);
             $jenisSkema = JenisSkema::where('is_shown', 1)->get();
-            
+
             return response()->json([
                 'skema' => $skema,
                 'jenisSkema' => $jenisSkema
@@ -138,11 +156,13 @@ class SkemaController extends Controller
                 'is_research' => 'boolean',
                 'is_shown' => 'boolean',
                 'template_laporan_kemajuan' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
-                'template_laporan_keuangan_tahap_1' => 'nullable|file|mimes:doc,docx,pdf|max:10240'
+                'template_laporan_keuangan_tahap_1' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
+                'template_laporan_akhir' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
+                'template_laporan_keuangan_tahap_2' => 'nullable|file|mimes:doc,docx,pdf|max:10240'
             ]);
 
             $skema = Skema::findOrFail($id);
-            
+
             $data = [
                 'kode' => $request->kode,
                 'nama' => $request->nama,
@@ -159,7 +179,7 @@ class SkemaController extends Controller
                 if ($skema->template_laporan_kemajuan && Storage::disk('public')->exists($skema->template_laporan_kemajuan)) {
                     Storage::disk('public')->delete($skema->template_laporan_kemajuan);
                 }
-                
+
                 $file = $request->file('template_laporan_kemajuan');
                 $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
                 $path = $file->storeAs('templates/skema', $fileName, 'public');
@@ -172,11 +192,37 @@ class SkemaController extends Controller
                 if ($skema->template_laporan_keuangan_tahap_1 && Storage::disk('public')->exists($skema->template_laporan_keuangan_tahap_1)) {
                     Storage::disk('public')->delete($skema->template_laporan_keuangan_tahap_1);
                 }
-                
+
                 $file = $request->file('template_laporan_keuangan_tahap_1');
                 $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
                 $path = $file->storeAs('templates/skema', $fileName, 'public');
                 $data['template_laporan_keuangan_tahap_1'] = $path;
+            }
+
+            // Handle template laporan akhir upload
+            if ($request->hasFile('template_laporan_akhir')) {
+                // Delete old file if exists
+                if ($skema->template_laporan_akhir && Storage::disk('public')->exists($skema->template_laporan_akhir)) {
+                    Storage::disk('public')->delete($skema->template_laporan_akhir);
+                }
+
+                $file = $request->file('template_laporan_akhir');
+                $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $path = $file->storeAs('templates/skema', $fileName, 'public');
+                $data['template_laporan_akhir'] = $path;
+            }
+
+            // Handle template laporan keuangan tahap 2 upload
+            if ($request->hasFile('template_laporan_keuangan_tahap_2')) {
+                // Delete old file if exists
+                if ($skema->template_laporan_keuangan_tahap_2 && Storage::disk('public')->exists($skema->template_laporan_keuangan_tahap_2)) {
+                    Storage::disk('public')->delete($skema->template_laporan_keuangan_tahap_2);
+                }
+
+                $file = $request->file('template_laporan_keuangan_tahap_2');
+                $fileName = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $path = $file->storeAs('templates/skema', $fileName, 'public');
+                $data['template_laporan_keuangan_tahap_2'] = $path;
             }
 
             $skema->update($data);

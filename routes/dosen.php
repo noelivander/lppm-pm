@@ -23,6 +23,10 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
         ->name('penelitian-dos.laporan-kemajuan.index');
     Route::get('ppm/pengabdian-dos/laporan-kemajuan/proposal', [PengabdianController::class, 'laporanKemajuanIndex'])
         ->name('pengabdian-dos.laporan-kemajuan.index');
+    Route::get('ppm/penelitian-dos/laporan-akhir/proposal', [PenelitianController::class, 'laporanAkhirIndex'])
+        ->name('penelitian-dos.laporan-akhir.index');
+    Route::get('ppm/pengabdian-dos/laporan-akhir/proposal', [PengabdianController::class, 'laporanAkhirIndex'])
+        ->name('pengabdian-dos.laporan-akhir.index');
     Route::get('ppm/penelitian-dos/{penelitian}/laporan-kemajuan/create', [PenelitianController::class, 'createLaporanKemajuan'])
         ->name('penelitian-dos.laporan-kemajuan.create');
     Route::post('ppm/penelitian-dos/{penelitian}/laporan-kemajuan/store', [PenelitianController::class, 'storeLaporanKemajuan'])
@@ -31,6 +35,15 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
         ->name('pengabdian-dos.laporan-kemajuan.create');
     Route::post('ppm/pengabdian-dos/{pengabdian}/laporan-kemajuan/store', [PengabdianController::class, 'storeLaporanKemajuan'])
         ->name('pengabdian-dos.laporan-kemajuan.store');
+
+    Route::get('ppm/penelitian-dos/{penelitian}/laporan-akhir/create', [PenelitianController::class, 'createLaporanAkhir'])
+        ->name('penelitian-dos.laporan-akhir.create');
+    Route::post('ppm/penelitian-dos/{penelitian}/laporan-akhir/store', [PenelitianController::class, 'storeLaporanAkhir'])
+        ->name('penelitian-dos.laporan-akhir.store');
+    Route::get('ppm/pengabdian-dos/{pengabdian}/laporan-akhir/create', [PengabdianController::class, 'createLaporanAkhir'])
+        ->name('pengabdian-dos.laporan-akhir.create');
+    Route::post('ppm/pengabdian-dos/{pengabdian}/laporan-akhir/store', [PengabdianController::class, 'storeLaporanAkhir'])
+        ->name('pengabdian-dos.laporan-akhir.store');
     Route::get('ppm/penelitian-dos/{penelitian}/revisi', [PenelitianController::class, 'revisiCreate'])
         ->name('penelitian-dos.revisi.create');
     Route::post('ppm/penelitian-dos/{penelitian}/revisi', [PenelitianController::class, 'revisiStore'])
@@ -43,16 +56,20 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
     Route::resource('ppm/penelitian-dos', PenelitianController::class);
     Route::resource('ppm/pengabdian-dos', PengabdianController::class);
     Route::get('penelitian/{penelitian_id}/view-reviews/{review_number}', [PenelitianController::class, 'viewReviews'])
-     ->name('penelitian-dos.view-reviews');
-     Route::get('pengabdian/{pengabdian_id}/view-reviews/{review_number}', [PengabdianController::class, 'viewReviews'])
-     ->name('pengabdian-dos.view-reviews');
+        ->name('penelitian-dos.view-reviews');
+    Route::get('pengabdian/{pengabdian_id}/view-reviews/{review_number}', [PengabdianController::class, 'viewReviews'])
+        ->name('pengabdian-dos.view-reviews');
     Route::get('pengabdian/{pengabdian_id}/laporan-kemajuan/view-reviews', [PengabdianController::class, 'viewLaporanKemajuanReviews'])
-     ->name('pengabdian-dos.laporan-kemajuan.view-reviews');
+        ->name('pengabdian-dos.laporan-kemajuan.view-reviews');
     Route::get('penelitian/{penelitian_id}/laporan-kemajuan/view-reviews/{review_number}', [PenelitianController::class, 'viewLaporanKemajuanReviews'])
-     ->name('penelitian-dos.laporan-kemajuan.view-reviews');
+        ->name('penelitian-dos.laporan-kemajuan.view-reviews');
+    Route::get('penelitian/{penelitian_id}/laporan-akhir/view-reviews/{review_number}', [PenelitianController::class, 'viewLaporanAkhirReviews'])
+        ->name('penelitian-dos.laporan-akhir.view-reviews');
+    Route::get('pengabdian/{pengabdian_id}/laporan-akhir/view-reviews/{review_number}', [PengabdianController::class, 'viewLaporanAkhirReviews'])
+        ->name('pengabdian-dos.laporan-akhir.view-reviews');
     Route::get('/penelitian/{id}/download-proposal', [PenelitianController::class, 'downloadDokumenProposal'])->name('penelitian.downloadProposal');
     Route::get('/pengabdian/{id}/download-proposal', [PengabdianController::class, 'downloadDokumenProposal'])->name('pengabdian.downloadProposal');
-    
+
     // RAB Helper routes for dynamic satuan
     Route::get('rab/get-satuan-by-komponen', [\App\Http\Controllers\Dosen\PPM\RabHelperController::class, 'getSatuanByKomponenName'])
         ->name('dosen.rab.get-satuan-by-komponen');

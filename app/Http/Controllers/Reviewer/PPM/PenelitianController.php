@@ -67,15 +67,15 @@ class PenelitianController extends Controller
         $proposals = $baseQuery->orderByDesc('updated_at')
             ->paginate(10)
             ->withQueryString();
-        
+
         // Get reviews for display (if not already set)
         if (!isset($reviews)) {
             $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
         }
-        $existingReviews = Review::all(); 
+        $existingReviews = Review::all();
 
         // Data sudah tidak dienkripsi, tidak perlu dekripsi
-        
+
         $filters = $request->only(['search', 'status', 'skema', 'year']);
 
         return view('reviewer.ppm.penelitian.index', compact(
@@ -371,22 +371,22 @@ class PenelitianController extends Controller
 
         $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
-        
+
         [$reviewStart, $reviewEnd] = $this->getReviewWindow($timeline, $proposal);
 
         // Cek apakah bisa melakukan review:
         // - dalam periode review yang sesuai (proposal awal atau revisi), dan
         // - period pada timeline sama dengan tahun pembuatan proposal
-        $canReview = $timeline && 
-                     $reviewStart && 
-                     $reviewEnd &&
-                     $currentDate >= $reviewStart && 
-                     $currentDate <= $reviewEnd &&
-                     $proposalYear && (string) $timeline->period === (string) $proposalYear;
-        
+        $canReview = $timeline &&
+            $reviewStart &&
+            $reviewEnd &&
+            $currentDate >= $reviewStart &&
+            $currentDate <= $reviewEnd &&
+            $proposalYear && (string) $timeline->period === (string) $proposalYear;
+
         // Cek apakah reviewer saat ini sudah pernah review
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
-        
+
         // Jika reviewer belum pernah review, cek apakah sudah ada 2 reviewer
         if (!$review) {
             $totalReviews = Review::where('penelitian_id', $id)->count();
@@ -395,28 +395,28 @@ class PenelitianController extends Controller
                     ->with('error', 'Proposal ini sudah direview lengkap oleh 2 reviewer. Anda tidak dapat melakukan review lagi.');
             }
         }
-        
+
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
-        
+
         $ketuaTim = Anggota::where('penelitian_id', $id)
-                            ->where('peran', 'ketua')
-                            ->first();
-        
+            ->where('peran', 'ketua')
+            ->first();
+
         $anggotaTim = Anggota::where('penelitian_id', $id)
-                            ->where('peran', 'anggota')
-                            ->get();
-        
+            ->where('peran', 'anggota')
+            ->get();
+
         $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
         $nidn = $ketuaTim ? $ketuaTim->nidn : '';
         $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
-        
-        $anggotaNames = $anggotaTim->map(function($anggota) {
+
+        $anggotaNames = $anggotaTim->map(function ($anggota) {
             return $anggota->nama;
         })->join(', ');
-        
+
         $judul = $proposal->judul;
-        $biayaUsulan = $proposal->biaya_diusulkan; 
+        $biayaUsulan = $proposal->biaya_diusulkan;
         $sintaIndex = $proposal->sinta_index;
 
         // Buat URL publik untuk file proposal
@@ -430,19 +430,19 @@ class PenelitianController extends Controller
                 ->with('formPenilaianReview')
                 ->get()
                 ->keyBy('form_penilaian_review_id');
-            
+
             // Get form criteria that were active when review was created
             if ($reviewKriteria->count() > 0) {
                 // Get form IDs from review_kriteria
                 $formIds = $reviewKriteria->pluck('form_penilaian_review_id')->toArray();
-                
+
                 // Get forms that were active on review creation date
                 $allFormsForDate = \App\Models\FormPenilaianReview::getActiveFormsForDate('penelitian', $review->created_at);
-                
+
                 // Filter to only include forms that were used in this review
-                $formKriteria = $allFormsForDate->filter(function($form) use ($formIds) {
+                $formKriteria = $allFormsForDate->filter(function ($form) use ($formIds) {
                     return in_array($form->id, $formIds);
-                })->sortBy(function($form) use ($formIds) {
+                })->sortBy(function ($form) use ($formIds) {
                     return array_search($form->id, $formIds);
                 })->values();
             } else {
@@ -478,7 +478,7 @@ class PenelitianController extends Controller
                 ->where('is_active', true)
                 ->orderBy('urutan')
                 ->get();
-            
+
             return view('reviewer.ppm.penelitian.review', compact(
                 'proposal',
                 'formKriteria',
@@ -498,38 +498,38 @@ class PenelitianController extends Controller
             ));
         }
     }
-    
+
 
     public function view_pdf($penelitian_id)
     {
         $review = Review::where('penelitian_id', $penelitian_id)
-                        ->where('reviewer_id', auth()->id()) // Pastikan reviewer yang login yang sesuai
-                        ->first();
-    
+            ->where('reviewer_id', auth()->id()) // Pastikan reviewer yang login yang sesuai
+            ->first();
+
         if (!$review) {
-  
+
             return redirect()->route('penelitian-rev.index')->with('error', 'Review tidak ditemukan atau Anda tidak memiliki akses.');
         }
-    
+
         // Get existing review criteria scores first
         $reviewKriteria = \App\Models\ReviewKriteria::where('review_id', $review->id)
             ->with('formPenilaianReview')
             ->get()
             ->keyBy('form_penilaian_review_id');
-        
+
         // Get form criteria that were active when review was created
         // Use forms that exist in review_kriteria to ensure historical data integrity
         if ($reviewKriteria->count() > 0) {
             // Get form IDs from review_kriteria
             $formIds = $reviewKriteria->pluck('form_penilaian_review_id')->toArray();
-            
+
             // Get forms that were active on review creation date
             $allFormsForDate = \App\Models\FormPenilaianReview::getActiveFormsForDate('penelitian', $review->created_at);
-            
+
             // Filter to only include forms that were used in this review
-            $formKriteria = $allFormsForDate->filter(function($form) use ($formIds) {
+            $formKriteria = $allFormsForDate->filter(function ($form) use ($formIds) {
                 return in_array($form->id, $formIds);
-            })->sortBy(function($form) use ($formIds) {
+            })->sortBy(function ($form) use ($formIds) {
                 return array_search($form->id, $formIds);
             })->values();
         } else {
@@ -539,14 +539,14 @@ class PenelitianController extends Controller
                 ->orderBy('urutan')
                 ->get();
         }
-    
+
         $html = view('pdf.review_template', compact('review', 'formKriteria', 'reviewKriteria'))->render();
-    
-        $mpdf = new \Mpdf\Mpdf([ 
-            'format' => [215.9, 330.2],  
-            'margin_left' => 25.4, 
-            'margin_right' => 25.4, 
-            'margin_top' => 25.4, 
+
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => [215.9, 330.2],
+            'margin_left' => 25.4,
+            'margin_right' => 25.4,
+            'margin_top' => 25.4,
             'margin_bottom' => 25.4,
         ]);
         $mpdf->WriteHTML($html);
@@ -574,14 +574,14 @@ class PenelitianController extends Controller
             return redirect()->route('penelitian-rev.index')
                 ->with('error', 'Periode review untuk proposal ini telah berakhir atau belum dimulai.');
         }
-        
+
         // Validasi: cek apakah sudah ada 2 reviewer
         $totalReviews = Review::where('penelitian_id', $request->penelitian_id)->count();
         if ($totalReviews >= 2) {
             return redirect()->route('penelitian-rev.index')
                 ->with('error', 'Proposal ini sudah direview lengkap oleh 2 reviewer. Anda tidak dapat melakukan review lagi.');
         }
-        
+
         // Validasi: cek apakah reviewer ini sudah pernah review proposal ini
         $existingReview = Review::where('penelitian_id', $request->penelitian_id)
             ->where('reviewer_id', auth()->id())
@@ -590,7 +590,7 @@ class PenelitianController extends Controller
             return redirect()->route('penelitian-rev.index')
                 ->with('error', 'Anda sudah melakukan review untuk proposal ini. Silakan edit review yang sudah ada.');
         }
-        
+
         $review = new Review();
 
         $review->penelitian_id = $request->penelitian_id;
@@ -609,7 +609,7 @@ class PenelitianController extends Controller
         if ($request->has('skor') && is_array($request->skor)) {
             // Dynamic form review - save to review_kriteria
             $review->save();
-            
+
             foreach ($request->skor as $kriteriaId => $skor) {
                 $kriteria = \App\Models\FormPenilaianReview::find($kriteriaId);
                 if ($kriteria) {
@@ -675,7 +675,7 @@ class PenelitianController extends Controller
             'disarankan' => 'nullable|string|max:255',
             'komentar' => 'nullable|string',
         ];
-        
+
         // Dynamic validation based on form review or hardcoded
         if ($request->has('skor') && is_array($request->skor)) {
             // Dynamic form review
@@ -690,19 +690,19 @@ class PenelitianController extends Controller
             $rules['skor_4'] = 'required|integer|min:1|max:7';
             $rules['skor_5'] = 'required|integer|min:1|max:7';
         }
-        
+
         $validatedData = $request->validate($rules);
 
         // Update hanya field penilaian, jangan mengubah metadata judul/ketua/NIDN, dll.
         $review->scopus = $validatedData['scopus'] ?? $review->scopus;
         $review->disarankan = $validatedData['disarankan'] ?? $review->disarankan;
-        
+
         // Handle dynamic form review or fallback to hardcoded
         if ($request->has('skor') && is_array($request->skor)) {
             // Dynamic form review - update review_kriteria
             // Delete existing review_kriteria
             \App\Models\ReviewKriteria::where('review_id', $review->id)->delete();
-            
+
             // Create new review_kriteria
             foreach ($request->skor as $kriteriaId => $skor) {
                 $kriteria = \App\Models\FormPenilaianReview::find($kriteriaId);
@@ -724,7 +724,7 @@ class PenelitianController extends Controller
             $review->skor_4 = $validatedData['skor_4'] ?? null;
             $review->skor_5 = $validatedData['skor_5'] ?? null;
         }
-        
+
         $review->komentar = $validatedData['komentar'] ?? $review->komentar;
         $review->save();
 
@@ -737,7 +737,7 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        
+
         $proposal = Penelitian::with(['anggota', 'rab'])->findOrFail($id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
 
@@ -746,13 +746,13 @@ class PenelitianController extends Controller
         // Cek apakah bisa melakukan review:
         // - dalam periode review, dan
         // - period pada timeline sama dengan tahun pembuatan proposal
-        $canReview = $timeline && 
-                     $reviewStart && 
-                     $reviewEnd &&
-                     $currentDate >= $reviewStart && 
-                     $currentDate <= $reviewEnd &&
-                     $proposalYear && (string) $timeline->period === (string) $proposalYear;
-        
+        $canReview = $timeline &&
+            $reviewStart &&
+            $reviewEnd &&
+            $currentDate >= $reviewStart &&
+            $currentDate <= $reviewEnd &&
+            $proposalYear && (string) $timeline->period === (string) $proposalYear;
+
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
         $review = Review::where('penelitian_id', $id)->where('reviewer_id', Auth::id())->first();
@@ -762,19 +762,19 @@ class PenelitianController extends Controller
             ->first();
 
         $anggotaTim = Anggota::where('penelitian_id', $id)
-                ->where('peran', 'anggota')
-                ->get();
+            ->where('peran', 'anggota')
+            ->get();
 
         $ketuaTimName = $ketuaTim ? $ketuaTim->nama : '';
         $nidn = $ketuaTim ? $ketuaTim->nidn : '';
         $jabatan = $ketuaTim ? $ketuaTim->jabatan : '';
-        
-        $anggotaNames = $anggotaTim->map(function($anggota) {
+
+        $anggotaNames = $anggotaTim->map(function ($anggota) {
             return $anggota->nama;
         })->join(', ');
 
         $judul = $proposal->judul;
-        $biayaUsulan = $proposal->biaya_diusulkan; 
+        $biayaUsulan = $proposal->biaya_diusulkan;
         $sintaIndex = $proposal->sinta_index;
 
         // Buat URL publik untuk file proposal
@@ -786,19 +786,19 @@ class PenelitianController extends Controller
                 ->with('formPenilaianReview')
                 ->get()
                 ->keyBy('form_penilaian_review_id');
-            
+
             // Get form criteria that were active when review was created
             if ($reviewKriteria->count() > 0) {
                 // Get form IDs from review_kriteria
                 $formIds = $reviewKriteria->pluck('form_penilaian_review_id')->toArray();
-                
+
                 // Get forms that were active on review creation date
                 $allFormsForDate = \App\Models\FormPenilaianReview::getActiveFormsForDate('penelitian', $review->created_at);
-                
+
                 // Filter to only include forms that were used in this review
-                $formKriteria = $allFormsForDate->filter(function($form) use ($formIds) {
+                $formKriteria = $allFormsForDate->filter(function ($form) use ($formIds) {
                     return in_array($form->id, $formIds);
-                })->sortBy(function($form) use ($formIds) {
+                })->sortBy(function ($form) use ($formIds) {
                     return array_search($form->id, $formIds);
                 })->values();
             } else {
@@ -841,12 +841,12 @@ class PenelitianController extends Controller
 
         // Semua reviewer dapat melihat semua laporan kemajuan
         $baseQuery = Penelitian::with([
-                'laporanKemajuan' => function ($query) {
-                    $query->orderByDesc('created_at');
-                },
-                'revisionParent',
-                'user',
-            ])
+            'laporanKemajuan' => function ($query) {
+                $query->orderByDesc('created_at');
+            },
+            'revisionParent',
+            'user',
+        ])
             ->where('is_draft', false)
             ->where('is_revised', true)
             ->whereNotNull('revised_from_id')
@@ -945,15 +945,15 @@ class PenelitianController extends Controller
             && $currentDate->between($timeline->progress_review_start_date, $timeline->progress_review_end_date);
 
         $proposal = Penelitian::with([
-                'laporanKemajuan' => function ($query) {
-                    $query->orderByDesc('created_at');
-                },
-                'revisionParent.reviews',
-                'reviews',
-                'user',
-                'anggota',
-                'bidangPenelitian',
-            ])
+            'laporanKemajuan' => function ($query) {
+                $query->orderByDesc('created_at');
+            },
+            'revisionParent.reviews',
+            'reviews',
+            'user',
+            'anggota',
+            'bidangPenelitian',
+        ])
             ->where('id', $id)
             ->where('is_revised', true)
             ->whereHas('laporanKemajuan')
@@ -972,6 +972,7 @@ class PenelitianController extends Controller
         // Ambil form penilaian laporan kemajuan (penelitian) yang aktif
         $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
             ->where('is_active', true)
+            ->with('subKomponen')
             ->orderBy('urutan')
             ->get();
 
@@ -990,12 +991,12 @@ class PenelitianController extends Controller
             : [];
 
         // Get ketua peneliti
-        $ketuaPeneliti = $proposal->anggota->where('peran', 'Ketua')->first() 
+        $ketuaPeneliti = $proposal->anggota->where('peran', 'Ketua')->first()
             ?? $proposal->anggota->where('peran', 'ketua')->first();
 
         // Get bidang penelitian
-        $bidangPenelitian = $proposal->bidangPenelitian 
-            ? $proposal->bidangPenelitian->nama 
+        $bidangPenelitian = $proposal->bidangPenelitian
+            ? $proposal->bidangPenelitian->nama
             : ($proposal->bidang_penelitian_nama ?? '-');
 
         // Get skema
@@ -1046,13 +1047,13 @@ class PenelitianController extends Controller
             && $currentDate->between($timeline->progress_review_start_date, $timeline->progress_review_end_date);
 
         $proposal = Penelitian::with([
-                'laporanKemajuan' => function ($query) {
-                    $query->orderByDesc('created_at');
-                },
-                'revisionParent.reviews',
-                'reviews',
-                'user',
-            ])
+            'laporanKemajuan' => function ($query) {
+                $query->orderByDesc('created_at');
+            },
+            'revisionParent.reviews',
+            'reviews',
+            'user',
+        ])
             ->where('id', $id)
             ->where('is_revised', true)
             ->whereHas('laporanKemajuan')
@@ -1072,6 +1073,7 @@ class PenelitianController extends Controller
 
         $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
             ->where('is_active', true)
+            ->with('subKomponen')
             ->orderBy('urutan')
             ->get();
 
@@ -1080,9 +1082,15 @@ class PenelitianController extends Controller
 
         $rules = [
             'komentar' => 'array',
-            'komentar.*' => $action === 'submit' ? 'required|string|min:3' : 'nullable|string',
             'catatan_umum' => 'nullable|string',
         ];
+
+        if ($action === 'submit') {
+            foreach ($formPenelitian as $item) {
+                // Komentar wajib diisi jika submit
+                $rules['komentar.' . $item->id] = 'required|string|min:3';
+            }
+        }
 
         $validated = $request->validate($rules);
         $komentarInput = $validated['komentar'] ?? [];
@@ -1102,14 +1110,18 @@ class PenelitianController extends Controller
         $review->submitted_at = $targetStatus === 'selesai' ? now() : null;
         $review->save();
 
+        // Hapus item lama dan buat baru
         $review->items()->delete();
 
         foreach ($formPenelitian as $item) {
             $comment = $komentarInput[$item->id] ?? null;
+
             if ($comment !== null && $comment !== '') {
                 $review->items()->create([
                     'form_penilaian_laporan_kemajuan_id' => $item->id,
+                    'form_penilaian_laporan_kemajuan_sub_id' => null,
                     'komentar' => $comment,
+                    'nilai' => 0,
                 ]);
             }
         }
@@ -1137,15 +1149,15 @@ class PenelitianController extends Controller
         $reviewerId = Auth::id();
 
         $proposal = Penelitian::with([
-                'laporanKemajuan' => function ($query) {
-                    $query->orderByDesc('created_at');
-                },
-                'revisionParent.reviews',
-                'reviews',
-                'user',
-                'anggota',
-                'bidangPenelitian',
-            ])
+            'laporanKemajuan' => function ($query) {
+                $query->orderByDesc('created_at');
+            },
+            'revisionParent.reviews',
+            'reviews',
+            'user',
+            'anggota',
+            'bidangPenelitian',
+        ])
             ->where('id', $id)
             ->where('is_revised', true)
             ->whereHas('laporanKemajuan')
@@ -1174,11 +1186,11 @@ class PenelitianController extends Controller
             ->orderBy('urutan')
             ->get();
 
-        $ketuaPeneliti = $proposal->anggota->where('peran', 'Ketua')->first() 
+        $ketuaPeneliti = $proposal->anggota->where('peran', 'Ketua')->first()
             ?? $proposal->anggota->where('peran', 'ketua')->first();
 
-        $bidangPenelitian = $proposal->bidangPenelitian 
-            ? $proposal->bidangPenelitian->nama 
+        $bidangPenelitian = $proposal->bidangPenelitian
+            ? $proposal->bidangPenelitian->nama
             : ($proposal->bidang_penelitian_nama ?? '-');
 
         $skema = optional($proposal->revisionParent)->skema ?? $proposal->skema ?? '-';
@@ -1243,5 +1255,492 @@ class PenelitianController extends Controller
             ->orderBy('period', 'desc')
             ->ordered()
             ->first();
+    }
+
+    public function laporanAkhirIndex(Request $request)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        $reviewerId = Auth::id();
+
+        // Semua reviewer dapat melihat semua laporan akhir
+        $baseQuery = Penelitian::with([
+            'laporanAkhir' => function ($query) {
+                $query->orderByDesc('created_at');
+            },
+            'revisionParent',
+            'user',
+        ])
+            ->where('is_draft', false)
+            ->where('is_revised', true)
+            ->whereNotNull('revised_from_id')
+            ->whereHas('laporanAkhir');
+
+        $filterSkemas = (clone $baseQuery)->select('skema')
+            ->whereNotNull('skema')
+            ->distinct()
+            ->orderBy('skema')
+            ->pluck('skema');
+
+        $filterYears = (clone $baseQuery)->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        $statusOptions = ['Pending', 'Draft', 'Selesai'];
+
+        if ($search = $request->get('search')) {
+            $baseQuery->where('judul', 'like', '%' . $search . '%');
+        }
+
+        if ($skema = $request->get('skema')) {
+            $baseQuery->where('skema', $skema);
+        }
+
+        if ($year = $request->get('year')) {
+            $baseQuery->whereYear('created_at', $year);
+        }
+
+        if ($status = $request->get('status')) {
+            $normalizedStatus = strtolower(trim($status));
+            if ($normalizedStatus === 'pending') {
+                // Belum ada review oleh reviewer ini
+                $baseQuery->whereDoesntHave('laporanAkhir.reviews', function ($q) use ($reviewerId) {
+                    $q->where('reviewer_id', $reviewerId);
+                });
+            } elseif ($normalizedStatus === 'draft') {
+                $baseQuery->whereHas('laporanAkhir.reviews', function ($q) use ($reviewerId) {
+                    $q->where('reviewer_id', $reviewerId)
+                        ->whereRaw("LOWER(TRIM(status)) = 'draft'");
+                });
+            } elseif ($normalizedStatus === 'selesai') {
+                $baseQuery->whereHas('laporanAkhir.reviews', function ($q) use ($reviewerId) {
+                    $q->where('reviewer_id', $reviewerId)
+                        ->whereRaw("LOWER(TRIM(status)) = 'selesai'");
+                });
+            }
+        }
+
+        $proposals = $baseQuery->orderByDesc('updated_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        $filters = $request->only(['search', 'skema', 'year', 'status']);
+
+        // Hanya hitung review yang benar-benar selesai
+        $myCompletedLaporanIds = \App\Models\LaporanAkhirReview::where('reviewer_id', $reviewerId)
+            ->whereRaw("LOWER(TRIM(status)) = 'selesai'")
+            ->pluck('laporan_akhir_id')
+            ->toArray();
+
+        // Draft milik reviewer ini
+        $myDraftLaporanIds = \App\Models\LaporanAkhirReview::where('reviewer_id', $reviewerId)
+            ->whereRaw("LOWER(TRIM(status)) = 'draft'")
+            ->pluck('laporan_akhir_id')
+            ->toArray();
+
+        // Hitung review selesai per laporan
+        $allLaporanReviews = \App\Models\LaporanAkhirReview::whereRaw("LOWER(TRIM(status)) = 'selesai'")
+            ->get()
+            ->groupBy('laporan_akhir_id');
+
+        return view('reviewer.ppm.penelitian.laporan-akhir.index', compact(
+            'proposals',
+            'timeline',
+            'currentDate',
+            'filterSkemas',
+            'filterYears',
+            'statusOptions',
+            'filters',
+            'myCompletedLaporanIds',
+            'myDraftLaporanIds',
+            'allLaporanReviews'
+        ));
+    }
+
+    public function laporanAkhirCreate($id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        $reviewerId = Auth::id();
+
+        // Use final_review_start_date
+        $hasFinalReviewWindow = $timeline && $timeline->final_review_start_date && $timeline->final_review_end_date;
+        $isWithinFinalReviewWindow = $hasFinalReviewWindow
+            && $currentDate->between($timeline->final_review_start_date, $timeline->final_review_end_date);
+
+        $proposal = Penelitian::with([
+            'laporanAkhir' => function ($query) {
+                $query->orderByDesc('created_at');
+            },
+            'revisionParent.reviews',
+            'reviews',
+            'user',
+            'anggota',
+            'bidangPenelitian',
+        ])
+            ->where('id', $id)
+            ->where('is_revised', true)
+            ->whereHas('laporanAkhir')
+            ->firstOrFail();
+
+        $latestLaporan = $proposal->laporanAkhir->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('penelitian-rev.laporan-akhir.index')
+                ->with('error', 'Tidak ada laporan akhir untuk proposal ini.');
+        }
+
+        // Ambil form penilaian laporan akhir
+        $formPenelitian = \App\Models\FormPenilaianLaporanAkhir::where('jenis', 'penelitian')
+            ->where('is_active', true)
+            ->with('subKomponen')
+            ->orderBy('urutan')
+            ->get();
+
+        // Prepare existing selected items
+        $existingSelectedStatus = [];
+        $existingSelectedBobot = [];
+        // Update Create Method Query
+        $existingReview = \App\Models\LaporanAkhirReview::with(['items.statusChoice', 'items.bobotChoice'])
+            ->where('laporan_akhir_id', $latestLaporan->id)
+            ->where('reviewer_id', $reviewerId)
+            ->where('jenis', 'penelitian')
+            ->first();
+
+        if ($existingReview) {
+            foreach ($existingReview->items as $item) {
+                if ($item->sub_id_status) {
+                    $existingSelectedStatus[$item->form_penilaian_id] = $item->sub_id_status;
+                }
+
+                // Logic to restore Bobot selection
+                if ($item->sub_id_bobot) {
+                    $existingSelectedBobot[$item->form_penilaian_id] = $item->sub_id_bobot;
+                } else {
+                    // Try to reverse-calculate Bobot Value from Nilai and Status Score
+                    // Nilai = StatusScore * Bobot
+                    // Bobot = Nilai / StatusScore
+                    if ($item->statusChoice && $item->statusChoice->skor > 0) {
+                        $calculatedBobot = $item->nilai / $item->statusChoice->skor;
+                        // Format to match radio values (e.g. 0.75, 1, 0.5)
+                        // Use string comparison safe value
+                        $existingSelectedBobot[$item->form_penilaian_id] = $calculatedBobot;
+                    }
+                }
+            }
+        }
+
+
+        $existingKomentar = $existingReview ? $existingReview->items->pluck('catatan', 'form_penilaian_id')->toArray() : [];
+
+        $ketuaPeneliti = $proposal->anggota->where('peran', 'Ketua')->first()
+            ?? $proposal->anggota->where('peran', 'ketua')->first();
+
+        $bidangPenelitian = $proposal->bidangPenelitian
+            ? $proposal->bidangPenelitian->nama
+            : ($proposal->bidang_penelitian_nama ?? '-');
+
+        $skema = optional($proposal->revisionParent)->skema ?? $proposal->skema ?? '-';
+
+        $jurusanProdi = '-';
+        if ($ketuaPeneliti) {
+            $jurusan = $ketuaPeneliti->jurusan_nama ?? null;
+            $prodi = $ketuaPeneliti->program_studi_nama ?? null;
+            if ($jurusan && $prodi) {
+                $jurusanProdi = $jurusan . ' / ' . $prodi;
+            } elseif ($jurusan) {
+                $jurusanProdi = $jurusan;
+            } elseif ($prodi) {
+                $jurusanProdi = $prodi;
+            }
+        }
+
+        $lamaPenelitian = $proposal->lama_penelitian ?? '-';
+
+        return view('reviewer.ppm.penelitian.laporan-akhir.create', compact(
+            'proposal',
+            'latestLaporan',
+            'timeline',
+            'currentDate',
+            'isWithinFinalReviewWindow',
+            'formPenelitian',
+            'existingReview',
+            'existingSelectedStatus',
+            'existingSelectedBobot',
+            'existingKomentar',
+            'ketuaPeneliti',
+            'bidangPenelitian',
+            'skema',
+            'jurusanProdi',
+            'lamaPenelitian'
+        ));
+    }
+
+    public function laporanAkhirStore(Request $request, $id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        $reviewerId = Auth::id();
+
+        $hasFinalReviewWindow = $timeline && $timeline->final_review_start_date && $timeline->final_review_end_date;
+        $isWithinFinalReviewWindow = $hasFinalReviewWindow
+            && $currentDate->between($timeline->final_review_start_date, $timeline->final_review_end_date);
+
+        $proposal = Penelitian::with([
+            'laporanAkhir' => function ($query) {
+                $query->orderByDesc('created_at');
+            },
+            'revisionParent.reviews',
+            'reviews',
+            'user',
+        ])
+            ->where('id', $id)
+            ->where('is_revised', true)
+            ->whereHas('laporanAkhir')
+            ->firstOrFail();
+
+        $latestLaporan = $proposal->laporanAkhir->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('penelitian-rev.laporan-akhir.index')
+                ->with('error', 'Tidak ada laporan akhir untuk proposal ini.');
+        }
+
+        if (!$isWithinFinalReviewWindow) {
+            return redirect()->route('penelitian-rev.laporan-akhir.index')
+                ->with('error', 'Periode review laporan akhir belum dimulai atau sudah berakhir.');
+        }
+
+        $formPenelitian = \App\Models\FormPenilaianLaporanAkhir::where('jenis', 'penelitian')
+            ->where('is_active', true)
+            ->with('subKomponen')
+            ->orderBy('urutan')
+            ->get();
+
+        $action = $request->input('action', 'draft');
+        $targetStatus = $action === 'submit' ? 'selesai' : 'draft';
+
+        $rules = [
+            'status' => 'array',
+            'bobot' => 'array',
+            'catatan_umum' => 'nullable|string',
+        ];
+
+        if ($action === 'submit') {
+            $rules['status.*'] = 'required';
+            $rules['bobot.*'] = 'required';
+        } else {
+            $rules['status.*'] = 'nullable';
+            $rules['bobot.*'] = 'nullable';
+        }
+
+        $validated = $request->validate($rules);
+        $statusInput = $validated['status'] ?? [];
+        $bobotInput = $validated['bobot'] ?? [];
+        $komentarInput = $request->input('komentar', []); // Komentar is optional per item
+
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            $existingReview = \App\Models\LaporanAkhirReview::where('laporan_akhir_id', $latestLaporan->id)
+                ->where('reviewer_id', $reviewerId)
+                ->where('jenis', 'penelitian')
+                ->first();
+
+            $review = \App\Models\LaporanAkhirReview::updateOrCreate(
+                [
+                    'laporan_akhir_id' => $latestLaporan->id,
+                    'reviewer_id' => $reviewerId,
+                    'jenis' => 'penelitian',
+                ],
+                [
+                    // 'jenis' is already in attributes, so strictly speaking not needed here, 
+                    // but updateOrCreate uses second array for 'values to update'. 
+                    // Since 'jenis' is key, it won't change.
+                ]
+            );
+
+            $review->status = $targetStatus;
+            $review->catatan_umum = $validated['catatan_umum'] ?? null;
+            $review->submitted_at = $targetStatus === 'selesai' ? now() : null;
+            $review->save();
+
+            // Hapus item lama dan buat baru
+            $review->items()->delete();
+
+            foreach ($formPenelitian as $item) {
+                $statusId = $statusInput[$item->id] ?? null;
+                // Bobot input can be ID or Value depending on implementation. 
+                // Assuming form sends ID if available, or Value if hardcoded.
+                // But Schema requires sub_id_bobot FK. 
+                // If Bobot input is numeric (percentage) and no ID, we save sub_id_bobot=null.
+                // But we need to check if we received an ID.
+                $bobotValRaw = $bobotInput[$item->id] ?? null;
+
+                // Calculate final value
+                // Get Status Score
+                $statusSub = $statusId ? \App\Models\FormPenilaianLaporanAkhirSub::find($statusId) : null;
+                $statusScore = $statusSub ? $statusSub->skor : 0;
+
+                // Get Bobot Multiplier
+                // If bobotValRaw is ID, find sub. If numeric value (e.g. 0.75), use it.
+                // Since we assumed "Sangat Baik (100%)", let's assume valid form passes value like 1, 0.75.
+                // Or if we implemented storing Global Bobot Subs, it passes ID.
+                // Given the complexity constraints, if we map strictly to Schema, we need sub_id_bobot. 
+                // We will TRY to find sub by ID.
+
+                $bobotSub = null;
+                $bobotMultiplier = 1;
+
+                if (is_numeric($bobotValRaw) && $bobotValRaw > 1) {
+                    // Likely an ID
+                    $bobotSub = \App\Models\FormPenilaianLaporanAkhirSub::find($bobotValRaw);
+                    if ($bobotSub) {
+                        // Check if skor is percentage (e.g. 100 or 1) or label?
+                        // Assuming skor is 100, 75...
+                        $bobotMultiplier = $bobotSub->skor / 100;
+                    }
+                } else {
+                    // Likely a direct multiplier value (1, 0.75) if hardcoded view
+                    $bobotMultiplier = (float) $bobotValRaw;
+                }
+
+                $finalNilai = $statusScore * $bobotMultiplier;
+
+                if ($statusId) {
+                    $review->items()->create([
+                        'form_penilaian_id' => $item->id,
+                        'sub_id_status' => $statusId,
+                        'sub_id_bobot' => $bobotSub ? $bobotSub->id : null,
+                        'nilai' => $finalNilai,
+                        'catatan' => $komentarInput[$item->id] ?? null,
+                    ]);
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            $completedCount = \App\Models\LaporanAkhirReview::where('laporan_akhir_id', $latestLaporan->id)
+                ->where('jenis', 'penelitian')
+                ->whereRaw("LOWER(TRIM(status)) = 'selesai'")
+                ->count();
+            $latestStatus = $completedCount >= 2 ? 'Selesai' : ($completedCount >= 1 ? 'Diproses' : 'Draft');
+            $latestLaporan->status = $latestStatus;
+            $latestLaporan->save();
+
+            $message = $targetStatus === 'selesai'
+                ? 'Penilaian laporan akhir berhasil disimpan dan ditandai selesai.'
+                : 'Draft penilaian laporan akhir berhasil disimpan.';
+
+            return redirect()
+                ->route('penelitian-rev.laporan-akhir.index')
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return redirect()
+                ->back()
+                ->with('error', 'Terjadi kesalahan saat menyimpan penilaian: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    public function laporanAkhirPdf($id)
+    {
+        $reviewerId = Auth::id();
+
+        $proposal = Penelitian::with([
+            'laporanAkhir' => function ($query) {
+                $query->orderByDesc('created_at');
+            },
+            'revisionParent.reviews',
+            'reviews',
+            'user',
+            'anggota',
+            'bidangPenelitian',
+        ])
+            ->where('id', $id)
+            ->where('is_revised', true)
+            ->whereHas('laporanAkhir')
+            ->firstOrFail();
+
+        $latestLaporan = $proposal->laporanAkhir->first();
+
+        if (!$latestLaporan) {
+            return redirect()->route('penelitian-rev.laporan-akhir.index')
+                ->with('error', 'Tidak ada laporan akhir untuk proposal ini.');
+        }
+
+        $existingReview = \App\Models\LaporanAkhirReview::with([
+            'items.formPenilaian',
+            'items.statusChoice',
+            'items.bobotChoice',
+            'reviewer'
+        ])
+            ->where('laporan_akhir_id', $latestLaporan->id)
+            ->where('reviewer_id', $reviewerId)
+            ->where('jenis', 'penelitian')
+            ->where('status', 'selesai')
+            ->first();
+
+        if (!$existingReview) {
+            return redirect()->route('penelitian-rev.laporan-akhir.index')
+                ->with('error', 'Review laporan akhir belum selesai atau tidak ditemukan.');
+        }
+
+        $formPenelitian = \App\Models\FormPenilaianLaporanAkhir::where('jenis', 'penelitian')
+            ->where('is_active', true)
+            ->with('subKomponen')
+            ->orderBy('urutan')
+            ->get();
+
+        $ketuaPeneliti = $proposal->anggota->where('peran', 'Ketua')->first()
+            ?? $proposal->anggota->where('peran', 'ketua')->first();
+
+        $bidangPenelitian = $proposal->bidangPenelitian
+            ? $proposal->bidangPenelitian->nama
+            : ($proposal->bidang_penelitian_nama ?? '-');
+
+        $skema = optional($proposal->revisionParent)->skema ?? $proposal->skema ?? '-';
+
+        $jurusanProdi = '-';
+        if ($ketuaPeneliti) {
+            $jurusan = $ketuaPeneliti->jurusan_nama ?? null;
+            $prodi = $ketuaPeneliti->program_studi_nama ?? null;
+            if ($jurusan && $prodi) {
+                $jurusanProdi = $jurusan . ' / ' . $prodi;
+            } elseif ($jurusan) {
+                $jurusanProdi = $jurusan;
+            } elseif ($prodi) {
+                $jurusanProdi = $prodi;
+            }
+        }
+
+        $lamaPenelitian = $proposal->lama_penelitian ?? '-';
+        $reviewerName = optional($existingReview->reviewer)->name ?? Auth::user()->name ?? '-';
+
+        $html = view('pdf.laporan-akhir-penelitian', compact(
+            'proposal',
+            'latestLaporan',
+            'existingReview',
+            'formPenelitian',
+            'ketuaPeneliti',
+            'bidangPenelitian',
+            'skema',
+            'jurusanProdi',
+            'lamaPenelitian',
+            'reviewerName'
+        ))->render();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'margin_left' => 25,
+            'margin_right' => 25,
+            'margin_top' => 20,
+            'margin_bottom' => 20,
+        ]);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('Laporan_Akhir_Penelitian_' . $proposal->id . '.pdf', 'I');
     }
 }

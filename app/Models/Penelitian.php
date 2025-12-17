@@ -11,12 +11,27 @@ class Penelitian extends Model
     protected $table = 'penelitian';
 
     protected $fillable = [
-        'judul', 'luaran_wajib', 'lama_penelitian', 'biaya_diusulkan', 'sinta_index', 
-        'skema', 'luaran_tambahan', 'ringkasan_proposal', 'dokumen_proposal', 
-        'status', 'user_id', 'is_draft', 'is_revised', 'revised_from_id', 'admin_status', 'admin_comment', 'biaya_disetujui',
-        'bidang_penelitian_id', 'bidang_penelitian_nama'
+        'judul',
+        'luaran_wajib',
+        'lama_penelitian',
+        'biaya_diusulkan',
+        'sinta_index',
+        'skema',
+        'luaran_tambahan',
+        'ringkasan_proposal',
+        'dokumen_proposal',
+        'status',
+        'user_id',
+        'is_draft',
+        'is_revised',
+        'revised_from_id',
+        'admin_status',
+        'admin_comment',
+        'biaya_disetujui',
+        'bidang_penelitian_id',
+        'bidang_penelitian_nama'
     ];
-    
+
     protected $casts = [
         'is_draft' => 'boolean',
         'is_revised' => 'boolean',
@@ -57,6 +72,11 @@ class Penelitian extends Model
     public function laporanKemajuan()
     {
         return $this->hasMany(LaporanKemajuan::class);
+    }
+
+    public function laporanAkhir()
+    {
+        return $this->hasOne(LaporanAkhir::class);
     }
 
 }

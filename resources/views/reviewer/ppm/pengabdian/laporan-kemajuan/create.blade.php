@@ -45,9 +45,9 @@
                                 <p class="text-muted text-uppercase small fw-semibold mb-1">Judul Kegiatan</p>
                                 <h6 class="fw-bold mb-0 text-break">{{ $proposal->judul ?? '-' }}</h6>
                             </div>
-                            <div class="col-md-6 col-lg-3">
-                                <p class="text-muted text-uppercase small fw-semibold mb-1">Jumlah Anggota Tim</p>
-                                <div class="fw-semibold">{{ $jumlahAnggotaTim }} orang</div>
+                            <div class="col-md-6 col-lg-2">
+                                <p class="text-muted text-uppercase small fw-semibold mb-1">Skema</p>
+                                <span class="status-badge skema">{{ $skema }}</span>
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <p class="text-muted text-uppercase small fw-semibold mb-1">Dana Disetujui</p>

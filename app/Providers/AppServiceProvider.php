@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
         date_default_timezone_set('Asia/Makassar');
 
         // Using view composer to set following variables globally
-        view()->composer('*',function($view) {
+        view()->composer('*', function ($view) {
             $view->with('related_links', RelatedLink::all());
             $view->with('daftar_fokus_bidang', FokusBidang::menu()->get());
             $view->with('agenda_terbaru', Agenda::terbaru()->get());
@@ -45,6 +45,20 @@ class AppServiceProvider extends ServiceProvider
             $view->with('project_name', 'LPPM-PM');
             $view->with('project_email', 'lppm-pm@ith.ac.id');
             $view->with('institut_name', 'Institut Teknologi B.J. Habibie');
+        });
+
+        // View composer specifically for Admin Sidebar to show Laporan Kemajuan counts
+        view()->composer('layouts.admin.side-bar', function ($view) {
+            $penelitianCount = \App\Models\LaporanKemajuan::whereNotNull('penelitian_id')
+                ->whereHas('reviews', null, '>=', 2)
+                ->count();
+
+            $pengabdianCount = \App\Models\LaporanKemajuan::whereNotNull('pengabdian_id')
+                ->whereHas('reviews', null, '>=', 2)
+                ->count();
+
+            $view->with('adminPenelitianKemajuanCount', $penelitianCount);
+            $view->with('adminPengabdianKemajuanCount', $pengabdianCount);
         });
     }
 

@@ -1,36 +1,443 @@
-<x-guest-layout>
-    <x-auth-card>
-        <x-slot name="logo">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-            </a>
-        </x-slot>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-        <div class="mb-4 text-sm text-gray-600">
-            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Lupa Password - {{ config('app.name', 'LPPM-PM ITH') }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary-color: #ec4899;
+            --dark-bg: #0f172a;
+            --light-bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+        }
+
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            width: 100%;
+        }
+
+        /* Left Side - Visual */
+        .login-visual {
+            flex: 1.2;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            overflow: hidden;
+            color: white;
+        }
+
+        /* Abstract Shapes */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: #ec4899;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: #4f46e5;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .visual-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .visual-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .visual-text {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* Right Side - Form */
+        .login-form-side {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: white;
+            position: relative;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            transform: translateX(20px);
+            opacity: 0;
+            animation: fadeInRight 0.8s ease-out 0.2s forwards;
+        }
+
+        .form-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .modern-input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .modern-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .modern-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            font-size: 1rem;
+            color: var(--text-main);
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .modern-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            transition: color 0.3s ease;
+        }
+
+        .modern-input:focus+.input-icon {
+            color: var(--primary-color);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            transition: color 0.3s ease;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        /* Alerts */
+        .alert-modern {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        /* Animations */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(20px, -20px);
+            }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .login-visual {
+                display: none;
+            }
+
+            .login-form-side {
+                background: #f8fafc;
+            }
+
+            .form-container {
+                background: white;
+                padding: 2.5rem;
+                border-radius: 24px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 1.5rem;
+                box-shadow: none;
+                background: transparent;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <!-- Left Side: Visual -->
+        <div class="login-visual">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+
+            <div class="visual-content">
+                <img src="{{ asset('Logo.png') }}" alt="LPPM-PM ITH" class="visual-logo">
+                <h2 class="visual-title">LPPM-PM ITH</h2>
+                <p class="visual-text">
+                    Sistem Informasi Lembaga Penelitian, Pengabdian Masyarakat, dan Penjaminan Mutu<br>
+                    <strong>Institut Teknologi B.J. Habibie</strong>
+                </p>
+            </div>
         </div>
 
-        <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')" />
+        <!-- Right Side: Form -->
+        <div class="login-form-side">
+            <div class="form-container">
+                <div class="form-header">
+                    <h1 class="form-title">Lupa Password?</h1>
+                    <p class="form-subtitle">
+                        Jangan khawatir. Masukkan alamat email Anda dan kami akan mengirimkan link untuk mereset
+                        password Anda.
+                    </p>
+                </div>
 
-        <!-- Validation Errors -->
-        <x-auth-validation-errors class="mb-4" :errors="$errors" />
+                <!-- Session Status -->
+                @if (session('status'))
+                    <div class="alert-modern alert-success">
+                        <i class="fas fa-check-circle mt-1"></i>
+                        <span>{{ session('status') }}</span>
+                    </div>
+                @endif
 
-        <form method="POST" action="{{ route('password.email') }}">
-            @csrf
+                <!-- Validation Errors -->
+                @if ($errors->any())
+                    <div class="alert-modern alert-error">
+                        <i class="fas fa-exclamation-circle mt-1"></i>
+                        <div>
+                            @foreach ($errors->all() as $error)
+                                <div class="mb-1">{{ $error }}</div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
-            <!-- Email Address -->
-            <div>
-                <x-label for="email" :value="__('Email')" />
+                <form method="POST" action="{{ route('password.email') }}">
+                    @csrf
 
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
+                    <!-- Email -->
+                    <div class="modern-input-group">
+                        <label for="email" class="modern-label">Email Address</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" name="email" class="modern-input"
+                                placeholder="nama@email.com" value="{{ old('email') }}" required autofocus>
+                            <i class="fas fa-envelope input-icon"></i>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit">
+                        <span>Kirim Link Reset Password</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+
+                <a href="{{ route('login') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Kembali ke Halaman Login</span>
+                </a>
             </div>
+        </div>
+    </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <x-button>
-                    {{ __('Email Password Reset Link') }}
-                </x-button>
-            </div>
-        </form>
-    </x-auth-card>
-</x-guest-layout>
+    <!-- Scripts -->
+    <script>
+        // Auto-hide alerts
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                const alerts = document.querySelectorAll('.alert-modern');
+                alerts.forEach(alert => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    alert.style.transition = 'all 0.3s ease';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

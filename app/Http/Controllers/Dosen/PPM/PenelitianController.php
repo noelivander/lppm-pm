@@ -92,9 +92,11 @@ class PenelitianController extends Controller
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
 
-        $baseQuery = Penelitian::with(['revisionChild' => function ($query) {
+        $baseQuery = Penelitian::with([
+            'revisionChild' => function ($query) {
                 $query->where('user_id', Auth::id());
-            }])
+            }
+        ])
             ->where('user_id', Auth::id())
             ->where('is_draft', false)
             ->where('is_revised', false)
@@ -145,7 +147,7 @@ class PenelitianController extends Controller
 
         $proposals = $baseQuery->orderByDesc('created_at')
             ->paginate(10)
-            ->withQueryString();
+            ->appends($request->query());
 
         return view('dosen.ppm.penelitian.revisi.index', [
             'proposals' => $proposals,
@@ -164,37 +166,40 @@ class PenelitianController extends Controller
         $timeline = $this->getActiveTimeline();
 
         // Ambil proposal revisi yang sudah diupload oleh dosen (setelah upload revisi = sudah selesai)
-        $baseQuery = Penelitian::with(['revisionParent', 'laporanKemajuan' => function($query) {
+        $baseQuery = Penelitian::with([
+            'revisionParent',
+            'laporanKemajuan' => function ($query) {
                 $query->where('tahap', 1)->where('user_id', Auth::id());
-            }])
+            }
+        ])
             ->where('user_id', Auth::id())
             ->where('is_draft', false)
             ->where('is_revised', true)
             ->whereNotNull('revised_from_id');
 
         // Filter skema dari parent proposal
-        $filterSkemas = Penelitian::whereIn('id', function($query) {
-                $query->select('revised_from_id')
-                    ->from('penelitian')
-                    ->where('user_id', Auth::id())
-                    ->where('is_draft', false)
-                    ->where('is_revised', true)
-                    ->whereNotNull('revised_from_id');
-            })
+        $filterSkemas = Penelitian::whereIn('id', function ($query) {
+            $query->select('revised_from_id')
+                ->from('penelitian')
+                ->where('user_id', Auth::id())
+                ->where('is_draft', false)
+                ->where('is_revised', true)
+                ->whereNotNull('revised_from_id');
+        })
             ->whereNotNull('skema')
             ->distinct()
             ->orderBy('skema')
             ->pluck('skema');
 
         // Filter tahun dari parent proposal
-        $filterYears = Penelitian::whereIn('id', function($query) {
-                $query->select('revised_from_id')
-                    ->from('penelitian')
-                    ->where('user_id', Auth::id())
-                    ->where('is_draft', false)
-                    ->where('is_revised', true)
-                    ->whereNotNull('revised_from_id');
-            })
+        $filterYears = Penelitian::whereIn('id', function ($query) {
+            $query->select('revised_from_id')
+                ->from('penelitian')
+                ->where('user_id', Auth::id())
+                ->where('is_draft', false)
+                ->where('is_revised', true)
+                ->whereNotNull('revised_from_id');
+        })
             ->selectRaw('YEAR(created_at) as year')
             ->distinct()
             ->orderByDesc('year')
@@ -212,13 +217,13 @@ class PenelitianController extends Controller
         }
 
         if ($filters['skema']) {
-            $baseQuery->whereHas('revisionParent', function($query) use ($filters) {
+            $baseQuery->whereHas('revisionParent', function ($query) use ($filters) {
                 $query->where('skema', $filters['skema']);
             });
         }
 
         if ($filters['year']) {
-            $baseQuery->whereHas('revisionParent', function($query) use ($filters) {
+            $baseQuery->whereHas('revisionParent', function ($query) use ($filters) {
                 $query->whereYear('created_at', $filters['year']);
             });
         }
@@ -226,29 +231,29 @@ class PenelitianController extends Controller
         if ($filters['status']) {
             if ($filters['status'] === 'belum_ada') {
                 // Filter proposal yang belum ada laporan kemajuan
-                $baseQuery->whereDoesntHave('laporanKemajuan', function($query) {
+                $baseQuery->whereDoesntHave('laporanKemajuan', function ($query) {
                     $query->where('tahap', 1)->where('user_id', Auth::id());
                 });
             } elseif ($filters['status'] === 'Selesai') {
                 // Filter proposal yang memiliki laporan kemajuan dengan status Selesai (Diproses, Disetujui, Ditolak, atau Selesai)
-                $baseQuery->whereHas('laporanKemajuan', function($query) {
+                $baseQuery->whereHas('laporanKemajuan', function ($query) {
                     $query->where('tahap', 1)
-                          ->where('user_id', Auth::id())
-                          ->whereIn('status', ['Diproses', 'Disetujui', 'Ditolak', 'Selesai']);
+                        ->where('user_id', Auth::id())
+                        ->whereIn('status', ['Diproses', 'Disetujui', 'Ditolak', 'Selesai']);
                 });
             } else {
                 // Filter proposal yang memiliki laporan kemajuan dengan status tertentu
-                $baseQuery->whereHas('laporanKemajuan', function($query) use ($filters) {
+                $baseQuery->whereHas('laporanKemajuan', function ($query) use ($filters) {
                     $query->where('tahap', 1)
-                          ->where('user_id', Auth::id())
-                          ->where('status', $filters['status']);
+                        ->where('user_id', Auth::id())
+                        ->where('status', $filters['status']);
                 });
             }
         }
 
-        $proposals = $baseQuery->orderByDesc('created_at')
+        $proposals = $baseQuery->orderByDesc('updated_at')
             ->paginate(10)
-            ->withQueryString();
+            ->appends($request->query());
 
         // Get review counts for each laporan kemajuan
         $reviewCounts = [];
@@ -287,7 +292,7 @@ class PenelitianController extends Controller
 
         // Ambil skema dari parent proposal atau dari proposal revisi
         $skemaNama = $proposal->revisionParent->skema ?? $proposal->skema;
-        
+
         // Cari skema di database berdasarkan nama
         $skema = Skema::where('nama', $skemaNama)
             ->orWhere('kode', $skemaNama)
@@ -365,7 +370,7 @@ class PenelitianController extends Controller
 
         // Validasi file upload (required jika belum ada laporan, optional jika edit)
         $isEdit = $existingLaporan !== null;
-        
+
         // Validasi: jika edit, file tidak wajib (bisa menggunakan file existing)
         // Jika create, file wajib
         $validationRules = [];
@@ -374,23 +379,23 @@ class PenelitianController extends Controller
         } else {
             $validationRules['laporan_kemajuan'] = ['nullable', 'file', 'mimes:pdf', 'max:10240'];
         }
-        
+
         if (!$isEdit || ($isEdit && !$existingLaporan->laporan_keuangan_tahap_1)) {
             $validationRules['laporan_keuangan_tahap_1'] = ['required', 'file', 'mimes:pdf', 'max:10240'];
         } else {
             $validationRules['laporan_keuangan_tahap_1'] = ['nullable', 'file', 'mimes:pdf', 'max:10240'];
         }
-        
+
         try {
             $request->validate($validationRules, [
-            'laporan_kemajuan.required' => 'File laporan kemajuan wajib diupload.',
-            'laporan_kemajuan.file' => 'Laporan kemajuan harus berupa file.',
-            'laporan_kemajuan.mimes' => 'Laporan kemajuan harus berformat PDF (.pdf) saja.',
-            'laporan_kemajuan.max' => 'Ukuran file laporan kemajuan maksimal 10MB. File yang Anda upload terlalu besar.',
-            'laporan_keuangan_tahap_1.required' => 'File laporan keuangan tahap 1 wajib diupload.',
-            'laporan_keuangan_tahap_1.file' => 'Laporan keuangan tahap 1 harus berupa file.',
-            'laporan_keuangan_tahap_1.mimes' => 'Laporan keuangan tahap 1 harus berformat PDF (.pdf) saja.',
-            'laporan_keuangan_tahap_1.max' => 'Ukuran file laporan keuangan tahap 1 maksimal 10MB. File yang Anda upload terlalu besar.',
+                'laporan_kemajuan.required' => 'File laporan kemajuan wajib diupload.',
+                'laporan_kemajuan.file' => 'Laporan kemajuan harus berupa file.',
+                'laporan_kemajuan.mimes' => 'Laporan kemajuan harus berformat PDF (.pdf) saja.',
+                'laporan_kemajuan.max' => 'Ukuran file laporan kemajuan maksimal 10MB. File yang Anda upload terlalu besar.',
+                'laporan_keuangan_tahap_1.required' => 'File laporan keuangan tahap 1 wajib diupload.',
+                'laporan_keuangan_tahap_1.file' => 'Laporan keuangan tahap 1 harus berupa file.',
+                'laporan_keuangan_tahap_1.mimes' => 'Laporan keuangan tahap 1 harus berformat PDF (.pdf) saja.',
+                'laporan_keuangan_tahap_1.max' => 'Ukuran file laporan keuangan tahap 1 maksimal 10MB. File yang Anda upload terlalu besar.',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
@@ -495,13 +500,13 @@ class PenelitianController extends Controller
     public function viewLaporanKemajuanReviews($penelitian_id, $review_number)
     {
         $proposal = Penelitian::with([
-                'laporanKemajuan' => function($query) {
-                    $query->where('tahap', 1)->orderByDesc('created_at');
-                },
-                'revisionParent.bidangPenelitian',
-                'bidangPenelitian',
-                'anggota'
-            ])
+            'laporanKemajuan' => function ($query) {
+                $query->where('tahap', 1)->orderByDesc('created_at');
+            },
+            'revisionParent.bidangPenelitian',
+            'bidangPenelitian',
+            'anggota'
+        ])
             ->where('user_id', Auth::id())
             ->where('is_revised', true)
             ->findOrFail($penelitian_id);
@@ -541,7 +546,7 @@ class PenelitianController extends Controller
             ->get();
 
         // Get ketua tim info
-        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first() 
+        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first()
             ?? $proposal->anggota->where('peran', 'ketua')->first();
         $ketuaPeneliti = $ketuaTim; // Alias for PDF template
 
@@ -560,18 +565,18 @@ class PenelitianController extends Controller
 
         // Get bidang penelitian, skema, and lama penelitian
         // Try from current proposal first, then parent proposal
-        $bidangPenelitian = $proposal->bidang_penelitian_nama 
-            ?? optional($proposal->bidangPenelitian)->nama 
-            ?? optional($proposal->revisionParent)->bidang_penelitian_nama 
-            ?? optional($proposal->revisionParent->bidangPenelitian)->nama 
+        $bidangPenelitian = $proposal->bidang_penelitian_nama
+            ?? optional($proposal->bidangPenelitian)->nama
+            ?? optional($proposal->revisionParent)->bidang_penelitian_nama
+            ?? optional($proposal->revisionParent->bidangPenelitian)->nama
             ?? '-';
-        
-        $skema = $proposal->skema 
-            ?? optional($proposal->revisionParent)->skema 
+
+        $skema = $proposal->skema
+            ?? optional($proposal->revisionParent)->skema
             ?? '-';
-        
-        $lamaPenelitian = $proposal->lama_penelitian 
-            ?? optional($proposal->revisionParent)->lama_penelitian 
+
+        $lamaPenelitian = $proposal->lama_penelitian
+            ?? optional($proposal->revisionParent)->lama_penelitian
             ?? '-';
 
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : ($proposal->revisionParent && $proposal->revisionParent->created_at ? $proposal->revisionParent->created_at->format('Y') : date('Y'));
@@ -843,7 +848,7 @@ class PenelitianController extends Controller
                         'key' => $key,
                         'calculated' => $calculatedTotal,
                         'submitted' => $total,
-                        'penelitian_id' => $penelitianBaru->id,
+                        'penelitian_id' => $targetPenelitian->id,
                     ]);
                     $total = $calculatedTotal;
                 }
@@ -949,10 +954,10 @@ class PenelitianController extends Controller
         if ($review_number == 1) {
             $review = $reviews->first();
         } elseif ($review_number == 2) {
-            $review = $reviews->skip(1)->first(); 
+            $review = $reviews->skip(1)->first();
         } else {
             return redirect()->route('penelitian-dos.index')
-                            ->with('error', 'Nomor review tidak valid.');
+                ->with('error', 'Nomor review tidak valid.');
         }
 
         // Get existing review criteria scores
@@ -960,19 +965,19 @@ class PenelitianController extends Controller
             ->with('formPenilaianReview')
             ->get()
             ->keyBy('form_penilaian_review_id');
-        
+
         // Get form criteria that were active when review was created
         if ($reviewKriteria->count() > 0) {
             // Get form IDs from review_kriteria
             $formIds = $reviewKriteria->pluck('form_penilaian_review_id')->toArray();
-            
+
             // Get forms that were active on review creation date
             $allFormsForDate = \App\Models\FormPenilaianReview::getActiveFormsForDate('penelitian', $review->created_at);
-            
+
             // Filter to only include forms that were used in this review
-            $formKriteria = $allFormsForDate->filter(function($form) use ($formIds) {
+            $formKriteria = $allFormsForDate->filter(function ($form) use ($formIds) {
                 return in_array($form->id, $formIds);
-            })->sortBy(function($form) use ($formIds) {
+            })->sortBy(function ($form) use ($formIds) {
                 return array_search($form->id, $formIds);
             })->values();
         } else {
@@ -982,9 +987,9 @@ class PenelitianController extends Controller
                 ->orderBy('urutan')
                 ->get();
         }
-        
+
         $html = view('pdf.review_template', compact('penelitian', 'review', 'formKriteria', 'reviewKriteria'))->render();
-        
+
         $mpdf = new \Mpdf\Mpdf(['format' => [215.9, 330.2]]);  // Format F4
         $mpdf->WriteHTML($html);
         $mpdf->Output("Hasil_Review_{$penelitian->judul}_Review{$review_number}.pdf", 'I');  // Output PDF
@@ -995,9 +1000,9 @@ class PenelitianController extends Controller
         try {
             $currentDate = now();
             $timeline = $this->getActiveTimeline();
-            
+
             $isDraft = $request->has('save_as_draft') && $request->save_as_draft == '1';
-        
+
             // Check if existing draft has dokumen_proposal for submit (non-draft)
             $hasExistingDokumen = false;
             if (!$isDraft) {
@@ -1006,7 +1011,7 @@ class PenelitianController extends Controller
                     ->first();
                 $hasExistingDokumen = $checkDraft && $checkDraft->dokumen_proposal;
             }
-        
+
             // Untuk draft, validasi lebih ringan
             if (!$isDraft) {
                 if (!$timeline) {
@@ -1067,7 +1072,7 @@ class PenelitianController extends Controller
                 'rab_total.*' => 'required|numeric|min:0',
                 'rab_total_anggaran' => 'nullable|numeric|min:0',
             ];
-            
+
             // Untuk draft, beberapa field tidak wajib
             if ($isDraft) {
                 $validationRules['judul'] = 'nullable|string|max:255';
@@ -1110,7 +1115,7 @@ class PenelitianController extends Controller
                 $validationRules['rab_total'] = 'nullable|array';
                 $validationRules['rab_total.*'] = 'nullable';
             }
-            
+
             $validatedData = $request->validate($validationRules, [
                 'rab_kelompok.required' => 'Minimal satu baris RAB harus diisi.',
                 'rab_kelompok.*.required' => 'Kelompok RAB harus dipilih.',
@@ -1138,7 +1143,7 @@ class PenelitianController extends Controller
                 $existingDraft = Penelitian::where('user_id', Auth::id())
                     ->where('is_draft', true)
                     ->first();
-                
+
                 if (!$existingDraft || !$existingDraft->dokumen_proposal) {
                     return redirect()->back()
                         ->withInput()
@@ -1154,7 +1159,7 @@ class PenelitianController extends Controller
                 $existingDraft = Penelitian::where('user_id', Auth::id())
                     ->where('is_draft', true)
                     ->first();
-                
+
                 $data = [
                     'judul' => $request->judul ?? null,
                     'luaran_wajib' => $request->luaran_wajib ?? null,
@@ -1169,7 +1174,7 @@ class PenelitianController extends Controller
                     'is_revised' => false,
                     'user_id' => Auth::id(),
                 ];
-                
+
                 if ($dokumenProposal) {
                     $data['dokumen_proposal'] = $dokumenProposal;
                     // Hapus file lama jika ada
@@ -1183,16 +1188,16 @@ class PenelitianController extends Controller
                     // Allow null for draft
                     $data['dokumen_proposal'] = null;
                 }
-                
+
                 if (!$isDraft) {
                     $data['status'] = 'Pending';
                 }
-                
+
                 if ($existingDraft) {
                     // Update draft yang ada
                     $penelitian = $existingDraft;
                     $penelitian->update($data);
-                    
+
                     // Hapus anggota dan RAB lama
                     Anggota::where('penelitian_id', $penelitian->id)->delete();
                     RabPenelitian::where('penelitian_id', $penelitian->id)->delete();
@@ -1369,5 +1374,264 @@ class PenelitianController extends Controller
             ->orderBy('period', 'desc')
             ->ordered()
             ->first();
+    }
+
+    // --- Laporan Akhir Methods ---
+
+    public function laporanAkhirIndex(Request $request)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        // Base Query: Proposals that have an Approved Laporan Kemajuan
+        $baseQuery = Penelitian::with([
+            'revisionParent',
+            'laporanAkhir.reviews' => function ($q) {
+                $q->where('jenis', 'penelitian');
+            },
+            'laporanKemajuan'
+        ])
+            ->where('user_id', Auth::id())
+            ->whereHas('laporanKemajuan', function ($q) {
+                // Must have approved progress report to proceed to final report
+                $q->whereIn('status', ['Disetujui', 'Selesai']);
+            });
+
+        // Filters (Similar to Kemajuan)
+        $filterSkemas = (clone $baseQuery)->pluck('skema')->unique(); // Simplified pluck
+        $filterYears = (clone $baseQuery)->selectRaw('YEAR(created_at) as year')->distinct()->pluck('year');
+
+        $filters = [
+            'search' => $request->get('search'),
+            'skema' => $request->get('skema'),
+            'year' => $request->get('year'),
+            'status' => $request->get('status'),
+        ];
+
+        if ($filters['search']) {
+            $baseQuery->where('judul', 'like', '%' . $filters['search'] . '%');
+        }
+        if ($filters['skema']) {
+            $baseQuery->where('skema', $filters['skema']);
+        }
+        if ($filters['year']) {
+            $baseQuery->whereYear('created_at', $filters['year']);
+        }
+        if ($filters['status']) {
+            if ($filters['status'] === 'belum_ada') {
+                $baseQuery->whereDoesntHave('laporanAkhir');
+            } else {
+                $baseQuery->whereHas('laporanAkhir', function ($q) use ($filters) {
+                    $q->where('status', $filters['status']);
+                });
+            }
+        }
+
+        $proposals = $baseQuery->orderByDesc('created_at')->paginate(10)->appends($request->query());
+
+        // Review Counts
+        $reviewCounts = [];
+        foreach ($proposals as $proposal) {
+            $laporanAkhir = $proposal->laporanAkhir; // HasOne or First? Model says hasMany reviews
+            // Wait, Penelitian hasOne LaporanAkhir? No, LaporanAkhir belongsTo Penelitian.
+            // If I defined relation in Penelitian model... I haven't. I need to check Penelitian model.
+            // Assuming HasOne or HasMany. Default HasOne makes sense.
+            // Actually I'll use direct query for safety as I haven't touched Penelitian model yet.
+            $laporanAkhir = \App\Models\LaporanAkhir::where('penelitian_id', $proposal->id)->first();
+
+            if ($laporanAkhir) {
+                $reviewCounts[$laporanAkhir->id] = \App\Models\LaporanAkhirReview::where('laporan_akhir_id', $laporanAkhir->id)
+                    ->where('jenis', 'penelitian')
+                    ->where('status', 'selesai')
+                    ->count();
+            }
+        }
+
+        return view('dosen.ppm.penelitian.laporan-akhir.index', compact('proposals', 'timeline', 'currentDate', 'filterSkemas', 'filterYears', 'filters', 'reviewCounts'));
+    }
+
+    public function createLaporanAkhir($id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+        $proposal = Penelitian::findOrFail($id); // Should add ownership check
+
+        // Ownership check
+        if ($proposal->user_id != Auth::id()) {
+            abort(403);
+        }
+
+        $skemaNama = $proposal->skema;
+        $skema = Skema::where('nama', $skemaNama)->first();
+
+        // Check existing
+        $laporanAkhir = \App\Models\LaporanAkhir::where('penelitian_id', $proposal->id)->first();
+
+        // Window check (Using final_submission dates)
+        $hasWindow = $timeline && $timeline->final_submission_start_date && $timeline->final_submission_end_date;
+        $isWithinWindow = $hasWindow && $currentDate->between($timeline->final_submission_start_date, $timeline->final_submission_end_date);
+
+        return view('dosen.ppm.penelitian.laporan-akhir.create', compact('proposal', 'skema', 'timeline', 'currentDate', 'isWithinWindow', 'laporanAkhir'));
+    }
+
+    public function storeLaporanAkhir(Request $request, $id)
+    {
+        $currentDate = now();
+        $timeline = $this->getActiveTimeline();
+
+        // Window check
+        $hasWindow = $timeline && $timeline->final_submission_start_date && $timeline->final_submission_end_date;
+        $isWithinWindow = $hasWindow && $currentDate->between($timeline->final_submission_start_date, $timeline->final_submission_end_date);
+
+        if (!$isWithinWindow) {
+            return back()->with('error', 'Periode pengajuan laporan akhir ditutup.');
+        }
+
+        $proposal = Penelitian::findOrFail($id);
+        if ($proposal->user_id != Auth::id()) {
+            abort(403);
+        }
+
+        $existing = \App\Models\LaporanAkhir::where('penelitian_id', $id)->first();
+        $isEdit = $existing !== null;
+
+        $request->validate([
+            'laporan_akhir' => $isEdit && $existing->laporan_akhir ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'laporan_keuangan_tahap_2' => $isEdit && $existing->laporan_keuangan_tahap_2 ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Upload logic
+            $pathLaporan = $existing ? $existing->laporan_akhir : null;
+            if ($request->hasFile('laporan_akhir')) {
+                if ($pathLaporan && Storage::disk('public')->exists($pathLaporan)) {
+                    Storage::disk('public')->delete($pathLaporan);
+                }
+                $pathLaporan = $request->file('laporan_akhir')->store('laporan_akhir/penelitian', 'public');
+            }
+
+            $pathKeuangan = $existing ? $existing->laporan_keuangan_tahap_2 : null;
+            if ($request->hasFile('laporan_keuangan_tahap_2')) {
+                if ($pathKeuangan && Storage::disk('public')->exists($pathKeuangan)) {
+                    Storage::disk('public')->delete($pathKeuangan);
+                }
+                $pathKeuangan = $request->file('laporan_keuangan_tahap_2')->store('laporan_akhir/penelitian', 'public');
+            }
+
+            if ($existing) {
+                $existing->update([
+                    'laporan_akhir' => $pathLaporan,
+                    'laporan_keuangan_tahap_2' => $pathKeuangan,
+                    'status' => 'Pending'
+                ]);
+            } else {
+                \App\Models\LaporanAkhir::create([
+                    'penelitian_id' => $id,
+                    'user_id' => Auth::id(),
+                    'laporan_akhir' => $pathLaporan,
+                    'laporan_keuangan_tahap_2' => $pathKeuangan,
+                    'status' => 'Pending'
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('penelitian-dos.laporan-akhir.index')->with('success', 'Laporan Akhir berhasil disimpan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
+        }
+    }
+
+    public function viewLaporanAkhirReviews($penelitian_id, $review_number)
+    {
+        $proposal = Penelitian::with('anggota', 'bidangPenelitian')->findOrFail($penelitian_id);
+        if ($proposal->user_id != Auth::id())
+            abort(403);
+
+        $laporanAkhir = \App\Models\LaporanAkhir::where('penelitian_id', $penelitian_id)->first();
+        if (!$laporanAkhir)
+            return back()->with('error', 'Laporan Akhir belum ada');
+
+        $reviews = \App\Models\LaporanAkhirReview::where('laporan_akhir_id', $laporanAkhir->id)
+            ->where('jenis', 'penelitian')
+            ->where('status', 'selesai')
+            ->get();
+
+        if ($review_number == 1) {
+            $existingReview = $reviews->first();
+        } elseif ($review_number == 2) {
+            $existingReview = $reviews->skip(1)->first();
+        } else {
+            return back()->with('error', 'Nomor review tidak valid');
+        }
+
+        if (!$existingReview) {
+            return back()->with('error', 'Review belum tersedia');
+        }
+
+        // Fetch Form Data
+        $formPenelitian = \App\Models\FormPenilaianLaporanAkhir::where('jenis', 'penelitian')
+            ->with(['subKomponen'])
+            ->where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
+        // Eager load items for the review
+        $existingReview->load([
+            'items.formPenilaian',
+            'items.statusChoice',
+            'items.bobotChoice',
+        ]);
+
+        // Calculate Total Score
+        $totalNilai = $existingReview->items->sum('nilai');
+
+        // Prepare additional data for PDF
+        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first();
+        $ketuaPeneliti = $ketuaTim; // Alias
+        $reviewerName = $existingReview->reviewer->name ?? '-';
+
+        $skema = $proposal->skema ?? '-';
+        $lamaPenelitian = $proposal->lama_penelitian ? $proposal->lama_penelitian . ' Tahun' : '-';
+        $bidangPenelitian = $proposal->bidang_penelitian_nama ?? ($proposal->bidangPenelitian->nama ?? '-');
+
+        // Jurusan/Prodi logic
+        $jurusanProdi = '-';
+        if ($ketuaTim) {
+            $jurusan = $ketuaTim->jurusan_nama ?? null;
+            $prodi = $ketuaTim->program_studi_nama ?? null;
+            if ($jurusan && $prodi) {
+                $jurusanProdi = $jurusan . ' / ' . $prodi;
+            } elseif ($jurusan) {
+                $jurusanProdi = $jurusan;
+            } elseif ($prodi) {
+                $jurusanProdi = $prodi;
+            }
+        }
+
+        $html = view('pdf.laporan-akhir-penelitian', compact(
+            'proposal',
+            'existingReview',
+            'formPenelitian',
+            'totalNilai',
+            'ketuaPeneliti',
+            'jurusanProdi',
+            'reviewerName',
+            'skema',
+            'lamaPenelitian',
+            'bidangPenelitian'
+        ))->render();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'margin_left' => 25,
+            'margin_right' => 25,
+            'margin_top' => 20,
+            'margin_bottom' => 20,
+        ]);
+
+        $mpdf->WriteHTML($html);
+        $mpdf->Output("Hasil_Review_Laporan_Akhir_{$proposal->judul}_Review{$review_number}.pdf", 'I');
     }
 }

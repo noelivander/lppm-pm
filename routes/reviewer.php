@@ -58,4 +58,16 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
         ->name('pengabdian-rev.revisi.review');
     Route::post('ppm/pengabdian-rev/revisi/{id}/submit', [PengabdianController::class, 'revisiReviewStore'])
         ->name('pengabdian-rev.revisi.submit');
+
+    // Laporan Akhir Penelitian
+    Route::get('ppm/penelitian-rev/laporan-akhir', [PenelitianController::class, 'laporanAkhirIndex'])->name('penelitian-rev.laporan-akhir.index');
+    Route::get('ppm/penelitian-rev/{penelitian}/laporan-akhir/create', [PenelitianController::class, 'laporanAkhirCreate'])->name('penelitian-rev.laporan-akhir.create');
+    Route::post('ppm/penelitian-rev/{penelitian}/laporan-akhir', [PenelitianController::class, 'laporanAkhirStore'])->name('penelitian-rev.laporan-akhir.store');
+    Route::get('ppm/penelitian-rev/{penelitian}/laporan-akhir/pdf', [PenelitianController::class, 'laporanAkhirPdf'])->name('penelitian-rev.laporan-akhir.pdf');
+
+    // Laporan Akhir Pengabdian
+    Route::get('ppm/pengabdian-rev/laporan-akhir', [PengabdianController::class, 'laporanAkhirIndex'])->name('pengabdian-rev.laporan-akhir.index');
+    Route::get('ppm/pengabdian-rev/{pengabdian}/laporan-akhir/create', [PengabdianController::class, 'laporanAkhirCreate'])->name('pengabdian-rev.laporan-akhir.create');
+    Route::post('ppm/pengabdian-rev/{pengabdian}/laporan-akhir', [PengabdianController::class, 'laporanAkhirStore'])->name('pengabdian-rev.laporan-akhir.store');
+    Route::get('ppm/pengabdian-rev/{pengabdian}/laporan-akhir/pdf', [PengabdianController::class, 'laporanAkhirPdf'])->name('pengabdian-rev.laporan-akhir.pdf');
 });

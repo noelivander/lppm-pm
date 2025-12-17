@@ -12,15 +12,18 @@ return new class extends Migration
      * @return void
      */
     public function up()
-    {
+{
+    // Tambahkan pengecekan ini
+    if (!Schema::hasTable('landing_page_contents')) {
         Schema::create('landing_page_contents', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique();
+            $table->string('key');
             $table->string('section')->nullable();
-            $table->longText('value')->nullable();
+            $table->longText('value')->nullable(); // Sesuaikan dengan kodingan asli Anda
             $table->timestamps();
         });
     }
+}
 
     /**
      * Reverse the migrations.

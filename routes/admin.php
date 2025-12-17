@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\PPM\Pengaturan\LuaranController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\SkemaController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\RabController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\FormPenilaianLaporanKemajuanController;
+use App\Http\Controllers\Admin\PPM\Pengaturan\FormPenilaianLaporanAkhirController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\FormPenilaianReviewController;
 use App\Http\Controllers\Admin\PPM\Pengaturan\BidangPenelitianController;
 use App\Http\Controllers\Admin\PPM\FokusBidangController;
@@ -54,28 +55,28 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('ppm/pengabdian-adm/revisi/{id}', [PengabdianController::class, 'revisiShow'])->name('pengabdian-adm.revisi.show');
     Route::resource('ppm/pengabdian-adm', PengabdianController::class);
     Route::post('ppm/pengabdian-adm/{id}/approve-reject', [PengabdianController::class, 'approveReject'])->name('pengabdian-adm.approve-reject');
-    
+
     // Skema routes
     Route::get('skema', [SkemaController::class, 'index'])->name('skema.index');
     Route::post('skema', [SkemaController::class, 'store'])->name('skema.store');
     Route::get('skema/{skema}/edit', [SkemaController::class, 'edit'])->name('skema.edit');
     Route::put('skema/{skema}', [SkemaController::class, 'update'])->name('skema.update');
     Route::delete('skema/{skema}', [SkemaController::class, 'destroy'])->name('skema.destroy');
-    
+
     // Luaran routes
     Route::get('luaran', [LuaranController::class, 'index'])->name('luaran.index');
     Route::post('luaran', [LuaranController::class, 'store'])->name('luaran.store');
     Route::get('luaran/{luaran}/edit', [LuaranController::class, 'edit'])->name('luaran.edit');
     Route::put('luaran/{luaran}', [LuaranController::class, 'update'])->name('luaran.update');
     Route::delete('luaran/{luaran}', [LuaranController::class, 'destroy'])->name('luaran.destroy');
-    
+
     // Bidang Penelitian routes
     Route::get('bidang-penelitian', [BidangPenelitianController::class, 'index'])->name('bidang-penelitian.index');
     Route::post('bidang-penelitian', [BidangPenelitianController::class, 'store'])->name('bidang-penelitian.store');
     Route::get('bidang-penelitian/{bidangPenelitian}/edit', [BidangPenelitianController::class, 'edit'])->name('bidang-penelitian.edit');
     Route::put('bidang-penelitian/{bidangPenelitian}', [BidangPenelitianController::class, 'update'])->name('bidang-penelitian.update');
     Route::delete('bidang-penelitian/{bidangPenelitian}', [BidangPenelitianController::class, 'destroy'])->name('bidang-penelitian.destroy');
-    
+
     // RAB routes
     Route::get('rab', [RabController::class, 'index'])->name('rab.index');
     Route::get('form-penilaian-laporan-kemajuan', [FormPenilaianLaporanKemajuanController::class, 'index'])->name('form-penilaian-laporan-kemajuan.index');
@@ -84,7 +85,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('form-penilaian-laporan-kemajuan/{id}/check-usage', [FormPenilaianLaporanKemajuanController::class, 'checkUsage'])->name('form-penilaian-laporan-kemajuan.check-usage');
     Route::put('form-penilaian-laporan-kemajuan/{id}', [FormPenilaianLaporanKemajuanController::class, 'update'])->name('form-penilaian-laporan-kemajuan.update');
     Route::delete('form-penilaian-laporan-kemajuan/{id}', [FormPenilaianLaporanKemajuanController::class, 'destroy'])->name('form-penilaian-laporan-kemajuan.destroy');
-    
+
+    // Form Penilaian Laporan Akhir routes
+    Route::get('form-penilaian-laporan-akhir', [FormPenilaianLaporanAkhirController::class, 'index'])->name('form-penilaian-laporan-akhir.index');
+    Route::post('form-penilaian-laporan-akhir', [FormPenilaianLaporanAkhirController::class, 'store'])->name('form-penilaian-laporan-akhir.store');
+    Route::get('form-penilaian-laporan-akhir/{id}/edit', [FormPenilaianLaporanAkhirController::class, 'edit'])->name('form-penilaian-laporan-akhir.edit');
+    Route::get('form-penilaian-laporan-akhir/{id}/check-usage', [FormPenilaianLaporanAkhirController::class, 'checkUsage'])->name('form-penilaian-laporan-akhir.check-usage');
+    Route::put('form-penilaian-laporan-akhir/{id}', [FormPenilaianLaporanAkhirController::class, 'update'])->name('form-penilaian-laporan-akhir.update');
+    Route::delete('form-penilaian-laporan-akhir/{id}', [FormPenilaianLaporanAkhirController::class, 'destroy'])->name('form-penilaian-laporan-akhir.destroy');
+
     // Form Penilaian Review routes
     Route::get('form-penilaian-review', [FormPenilaianReviewController::class, 'index'])->name('form-penilaian-review.index');
     Route::post('form-penilaian-review', [FormPenilaianReviewController::class, 'store'])->name('form-penilaian-review.store');
@@ -92,44 +101,53 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('form-penilaian-review/{id}/check-usage', [FormPenilaianReviewController::class, 'checkUsage'])->name('form-penilaian-review.check-usage');
     Route::put('form-penilaian-review/{id}', [FormPenilaianReviewController::class, 'update'])->name('form-penilaian-review.update');
     Route::delete('form-penilaian-review/{id}', [FormPenilaianReviewController::class, 'destroy'])->name('form-penilaian-review.destroy');
-    
+
     // Kelompok RAB routes
     Route::post('rab/kelompok', [RabController::class, 'storeKelompok'])->name('rab.store.kelompok');
     Route::get('rab/kelompok/{id}/edit', [RabController::class, 'editKelompok'])->name('rab.edit.kelompok');
     Route::put('rab/kelompok/{id}', [RabController::class, 'updateKelompok'])->name('rab.update.kelompok');
     Route::delete('rab/kelompok/{id}', [RabController::class, 'destroyKelompok'])->name('rab.destroy.kelompok');
-    
+
     // Komponen RAB routes
     Route::post('rab/komponen', [RabController::class, 'storeKomponen'])->name('rab.store.komponen');
     Route::get('rab/komponen/{id}/edit', [RabController::class, 'editKomponen'])->name('rab.edit.komponen');
     Route::put('rab/komponen/{id}', [RabController::class, 'updateKomponen'])->name('rab.update.komponen');
     Route::delete('rab/komponen/{id}', [RabController::class, 'destroyKomponen'])->name('rab.destroy.komponen');
-    
+
     // Satuan RAB routes
     Route::post('rab/satuan', [RabController::class, 'storeSatuan'])->name('rab.store.satuan');
     Route::get('rab/satuan/{id}/edit', [RabController::class, 'editSatuan'])->name('rab.edit.satuan');
     Route::put('rab/satuan/{id}', [RabController::class, 'updateSatuan'])->name('rab.update.satuan');
     Route::delete('rab/satuan/{id}', [RabController::class, 'destroySatuan'])->name('rab.destroy.satuan');
-    
+
     // Komponen-Satuan assignment routes
     Route::get('rab/komponen/{id}/satuan', [RabController::class, 'getSatuanForKomponen'])->name('rab.komponen.satuan');
     Route::post('rab/komponen/{id}/assign-satuan', [RabController::class, 'assignSatuanToKomponen'])->name('rab.assign.satuan');
 
     Route::resource('kelembagaan/struktur-organisasi', StrukturorgController::class)->only([
-        'index', 'store'
+        'index',
+        'store'
     ]);
 
     Route::resource('kelembagaan/tentang-satker', TentangController::class)->only([
-        'index', 'store'
+        'index',
+        'store'
     ]);
 
     Route::resource('kelembagaan/visi-misi', VisimisiController::class)->only([
-        'index', 'store'
+        'index',
+        'store'
     ]);
 
     Route::resource('pengatur/jurusan', JurusanController::class);
     Route::resource('pengatur/program_studi', ProgramStudiController::class);
     Route::resource('pengatur/related_link', RelatedLinkController::class);
+
+    Route::resource('pengatur/related_link', RelatedLinkController::class);
+
+    // Laporan Akhir Administration
+    Route::get('ppm/laporan-akhir', [\App\Http\Controllers\Admin\PPM\LaporanAkhirController::class, 'index'])->name('admin.laporan-akhir.index');
+    Route::get('ppm/laporan-akhir/{id}', [\App\Http\Controllers\Admin\PPM\LaporanAkhirController::class, 'show'])->name('admin.laporan-akhir.show');
 
     Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])->name('ckeditor.upload');
 

@@ -62,7 +62,6 @@
                                 <label class="modern-form-label text-uppercase small fw-semibold">Status</label>
                                 <select name="status" class="modern-form-select">
                                     <option value="">Semua Status</option>
-                                    <option value="belum_ada" @selected(($filters['status'] ?? '') === 'belum_ada')>Belum Ada Laporan</option>
                                     <option value="Pending" @selected(($filters['status'] ?? '') === 'Pending')>Pending</option>
                                     <option value="Selesai" @selected(($filters['status'] ?? '') === 'Selesai')>Selesai</option>
                                 </select>

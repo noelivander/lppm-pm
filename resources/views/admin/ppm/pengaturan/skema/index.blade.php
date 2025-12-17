@@ -51,68 +51,70 @@
                     </thead>
                     <tbody>
                         @forelse($skema as $key => $value)
-                        <tr>
-                            <td>{{ $key+1 }}</td>
-                            <td>
-                                @if($value->kode)
-                                    <span class="status-badge kode">{{ $value->kode }}</span>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="fw-bold mb-1">{{ $value->nama }}</div>
-                                @if($value->perihal)
-                                    <small class="text-muted d-block mb-1">{{ Str::limit($value->perihal, 50) }}</small>
-                                @endif
-                                @if($value->jenis_skema)
-                                    <span class="status-badge info">{{ $value->jenis_skema->nama }}</span>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($value->jenis == 'penelitian')
-                                    <span class="status-badge primary">
-                                        <i class="fa fa-flask me-1"></i>Penelitian
-                                    </span>
-                                @else
-                                    <span class="status-badge success">
-                                        <i class="fa fa-users me-1"></i>Pengabdian
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($value->is_shown)
-                                    <span class="status-badge selesai">
-                                        <i class="fa fa-eye me-1"></i>Aktif
-                                    </span>
-                                @else
-                                    <span class="status-badge pending">
-                                        <i class="fa fa-eye-slash me-1"></i>Nonaktif
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="modern-btn modern-btn-warning modern-btn-sm" onclick="editSkema({{ $value->id }})" title="Edit">
-                                        <i class="fa fa-edit me-1"></i> Ubah
-                                    </button>
-                                    <button type="button" class="modern-btn modern-btn-danger modern-btn-sm" onclick="deleteSkema({{ $value->id }})" title="Hapus">
-                                        <i class="fa fa-trash me-1"></i> Hapus
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td>{{ $key + 1 }}</td>
+                                <td>
+                                    @if($value->kode)
+                                        <span class="status-badge kode">{{ $value->kode }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="fw-bold mb-1">{{ $value->nama }}</div>
+                                    @if($value->perihal)
+                                        <small class="text-muted d-block mb-1">{{ Str::limit($value->perihal, 50) }}</small>
+                                    @endif
+                                    @if($value->jenis_skema)
+                                        <span class="status-badge info">{{ $value->jenis_skema->nama }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($value->jenis == 'penelitian')
+                                        <span class="status-badge primary">
+                                            <i class="fa fa-flask me-1"></i>Penelitian
+                                        </span>
+                                    @else
+                                        <span class="status-badge success">
+                                            <i class="fa fa-users me-1"></i>Pengabdian
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($value->is_shown)
+                                        <span class="status-badge selesai">
+                                            <i class="fa fa-eye me-1"></i>Aktif
+                                        </span>
+                                    @else
+                                        <span class="status-badge pending">
+                                            <i class="fa fa-eye-slash me-1"></i>Nonaktif
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="modern-btn modern-btn-warning modern-btn-sm"
+                                            onclick="editSkema({{ $value->id }})" title="Edit">
+                                            <i class="fa fa-edit me-1"></i> Ubah
+                                        </button>
+                                        <button type="button" class="modern-btn modern-btn-danger modern-btn-sm"
+                                            onclick="deleteSkema({{ $value->id }})" title="Hapus">
+                                            <i class="fa fa-trash me-1"></i> Hapus
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                         @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                <div class="text-muted">
-                                    <i class="fa fa-inbox fa-2x mb-2"></i>
-                                    <p>Belum ada skema yang ditambahkan</p>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fa fa-inbox fa-2x mb-2"></i>
+                                        <p>Belum ada skema yang ditambahkan</p>
+                                    </div>
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -137,23 +139,26 @@
                             <label for="kode" class="modern-form-label">
                                 <i class="fa fa-code me-2"></i>Kode Skema
                             </label>
-                            <input type="text" name="kode" id="kode" class="modern-form-input" placeholder="Masukkan kode skema (opsional)">
+                            <input type="text" name="kode" id="kode" class="modern-form-input"
+                                placeholder="Masukkan kode skema (opsional)">
                         </div>
-                        
+
                         <div class="modern-form-group">
                             <label for="nama" class="modern-form-label">
                                 <i class="fa fa-list me-2"></i>Nama Skema <span class="text-danger">*</span>
                             </label>
-                            <input type="text" name="nama" id="nama" class="modern-form-input" placeholder="Masukkan nama skema" required>
+                            <input type="text" name="nama" id="nama" class="modern-form-input"
+                                placeholder="Masukkan nama skema" required>
                         </div>
-                        
+
                         <div class="modern-form-group">
                             <label for="perihal" class="modern-form-label">
                                 <i class="fa fa-info-circle me-2"></i>Perihal
                             </label>
-                            <input type="text" name="perihal" id="perihal" class="modern-form-input" placeholder="Masukkan perihal skema (opsional)">
+                            <input type="text" name="perihal" id="perihal" class="modern-form-input"
+                                placeholder="Masukkan perihal skema (opsional)">
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="modern-form-group">
@@ -172,7 +177,8 @@
                                     <label for="jenis_skema_id" class="modern-form-label">
                                         <i class="fa fa-tags me-2"></i>Kategori <span class="text-danger">*</span>
                                     </label>
-                                    <select name="jenis_skema_id" id="jenis_skema_id" class="modern-form-select" required>
+                                    <select name="jenis_skema_id" id="jenis_skema_id" class="modern-form-select"
+                                        required>
                                         <option value="">Pilih Kategori</option>
                                         @foreach(\App\Models\PPM\JenisSkema::where('is_shown', 1)->get() as $jenis)
                                             <option value="{{ $jenis->id }}">{{ $jenis->nama }}</option>
@@ -181,12 +187,13 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="modern-form-group">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="is_research" id="is_research" value="1">
+                                        <input class="form-check-input" type="checkbox" name="is_research"
+                                            id="is_research" value="1">
                                         <label class="form-check-label" for="is_research">
                                             <i class="fa fa-microscope me-2"></i>Tandai sebagai Riset
                                         </label>
@@ -196,7 +203,8 @@
                             <div class="col-md-6">
                                 <div class="modern-form-group">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="is_shown" id="is_shown" value="1" checked>
+                                        <input class="form-check-input" type="checkbox" name="is_shown" id="is_shown"
+                                            value="1" checked>
                                         <label class="form-check-label" for="is_shown">
                                             <i class="fa fa-eye me-2"></i>Tampilkan di Form Proposal
                                         </label>
@@ -211,16 +219,42 @@
                             <label for="template_laporan_kemajuan" class="modern-form-label">
                                 <i class="fa fa-file-word me-2"></i>Template Laporan Kemajuan
                             </label>
-                            <input type="file" name="template_laporan_kemajuan" id="template_laporan_kemajuan" class="modern-form-input" accept=".doc,.docx,.pdf">
-                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal 10MB</small>
+                            <input type="file" name="template_laporan_kemajuan" id="template_laporan_kemajuan"
+                                class="modern-form-input" accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal
+                                10MB</small>
                         </div>
 
                         <div class="modern-form-group">
                             <label for="template_laporan_keuangan_tahap_1" class="modern-form-label">
                                 <i class="fa fa-file-pdf me-2"></i>Template Laporan Keuangan Tahap 1
                             </label>
-                            <input type="file" name="template_laporan_keuangan_tahap_1" id="template_laporan_keuangan_tahap_1" class="modern-form-input" accept=".doc,.docx,.pdf">
-                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal 10MB</small>
+                            <input type="file" name="template_laporan_keuangan_tahap_1"
+                                id="template_laporan_keuangan_tahap_1" class="modern-form-input"
+                                accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal
+                                10MB</small>
+                        </div>
+
+                        <div class="modern-form-group">
+                            <label for="template_laporan_akhir" class="modern-form-label">
+                                <i class="fa fa-file-word me-2"></i>Template Laporan Akhir
+                            </label>
+                            <input type="file" name="template_laporan_akhir" id="template_laporan_akhir"
+                                class="modern-form-input" accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal
+                                10MB</small>
+                        </div>
+
+                        <div class="modern-form-group">
+                            <label for="template_laporan_keuangan_tahap_2" class="modern-form-label">
+                                <i class="fa fa-file-pdf me-2"></i>Template Laporan Keuangan Tahap 2
+                            </label>
+                            <input type="file" name="template_laporan_keuangan_tahap_2"
+                                id="template_laporan_keuangan_tahap_2" class="modern-form-input"
+                                accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal
+                                10MB</small>
                         </div>
                     </div>
                     <div class="modal-footer modern-card-footer">
@@ -254,23 +288,26 @@
                             <label for="edit_kode" class="modern-form-label">
                                 <i class="fa fa-code me-2"></i>Kode Skema
                             </label>
-                            <input type="text" name="kode" id="edit_kode" class="modern-form-input" placeholder="Masukkan kode skema (opsional)">
+                            <input type="text" name="kode" id="edit_kode" class="modern-form-input"
+                                placeholder="Masukkan kode skema (opsional)">
                         </div>
-                        
+
                         <div class="modern-form-group">
                             <label for="edit_nama" class="modern-form-label">
                                 <i class="fa fa-list me-2"></i>Nama Skema <span class="text-danger">*</span>
                             </label>
-                            <input type="text" name="nama" id="edit_nama" class="modern-form-input" placeholder="Masukkan nama skema" required>
+                            <input type="text" name="nama" id="edit_nama" class="modern-form-input"
+                                placeholder="Masukkan nama skema" required>
                         </div>
-                        
+
                         <div class="modern-form-group">
                             <label for="edit_perihal" class="modern-form-label">
                                 <i class="fa fa-info-circle me-2"></i>Perihal
                             </label>
-                            <input type="text" name="perihal" id="edit_perihal" class="modern-form-input" placeholder="Masukkan perihal skema (opsional)">
+                            <input type="text" name="perihal" id="edit_perihal" class="modern-form-input"
+                                placeholder="Masukkan perihal skema (opsional)">
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="modern-form-group">
@@ -289,7 +326,8 @@
                                     <label for="edit_jenis_skema_id" class="modern-form-label">
                                         <i class="fa fa-tags me-2"></i>Kategori <span class="text-danger">*</span>
                                     </label>
-                                    <select name="jenis_skema_id" id="edit_jenis_skema_id" class="modern-form-select" required>
+                                    <select name="jenis_skema_id" id="edit_jenis_skema_id" class="modern-form-select"
+                                        required>
                                         <option value="">Pilih Kategori</option>
                                         @foreach(\App\Models\PPM\JenisSkema::where('is_shown', 1)->get() as $jenis)
                                             <option value="{{ $jenis->id }}">{{ $jenis->nama }}</option>
@@ -298,12 +336,13 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="modern-form-group">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="is_research" id="edit_is_research" value="1">
+                                        <input class="form-check-input" type="checkbox" name="is_research"
+                                            id="edit_is_research" value="1">
                                         <label class="form-check-label" for="edit_is_research">
                                             <i class="fa fa-microscope me-2"></i>Tandai sebagai Riset
                                         </label>
@@ -313,7 +352,8 @@
                             <div class="col-md-6">
                                 <div class="modern-form-group">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="is_shown" id="edit_is_shown" value="1">
+                                        <input class="form-check-input" type="checkbox" name="is_shown"
+                                            id="edit_is_shown" value="1">
                                         <label class="form-check-label" for="edit_is_shown">
                                             <i class="fa fa-eye me-2"></i>Tampilkan di Form Proposal
                                         </label>
@@ -328,8 +368,10 @@
                             <label for="edit_template_laporan_kemajuan" class="modern-form-label">
                                 <i class="fa fa-file-word me-2"></i>Template Laporan Kemajuan
                             </label>
-                            <input type="file" name="template_laporan_kemajuan" id="edit_template_laporan_kemajuan" class="modern-form-input" accept=".doc,.docx,.pdf">
-                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal 10MB</small>
+                            <input type="file" name="template_laporan_kemajuan" id="edit_template_laporan_kemajuan"
+                                class="modern-form-input" accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal
+                                10MB</small>
                             <div id="current_template_laporan_kemajuan" class="mt-2"></div>
                         </div>
 
@@ -337,9 +379,35 @@
                             <label for="edit_template_laporan_keuangan_tahap_1" class="modern-form-label">
                                 <i class="fa fa-file-pdf me-2"></i>Template Laporan Keuangan Tahap 1
                             </label>
-                            <input type="file" name="template_laporan_keuangan_tahap_1" id="edit_template_laporan_keuangan_tahap_1" class="modern-form-input" accept=".doc,.docx,.pdf">
-                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal 10MB</small>
+                            <input type="file" name="template_laporan_keuangan_tahap_1"
+                                id="edit_template_laporan_keuangan_tahap_1" class="modern-form-input"
+                                accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal
+                                10MB</small>
                             <div id="current_template_laporan_keuangan_tahap_1" class="mt-2"></div>
+                        </div>
+
+                        <div class="modern-form-group">
+                            <label for="edit_template_laporan_akhir" class="modern-form-label">
+                                <i class="fa fa-file-word me-2"></i>Template Laporan Akhir
+                            </label>
+                            <input type="file" name="template_laporan_akhir" id="edit_template_laporan_akhir"
+                                class="modern-form-input" accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal
+                                10MB</small>
+                            <div id="current_template_laporan_akhir" class="mt-2"></div>
+                        </div>
+
+                        <div class="modern-form-group">
+                            <label for="edit_template_laporan_keuangan_tahap_2" class="modern-form-label">
+                                <i class="fa fa-file-pdf me-2"></i>Template Laporan Keuangan Tahap 2
+                            </label>
+                            <input type="file" name="template_laporan_keuangan_tahap_2"
+                                id="edit_template_laporan_keuangan_tahap_2" class="modern-form-input"
+                                accept=".doc,.docx,.pdf">
+                            <small class="form-text text-muted">Format: Word (.doc, .docx) atau PDF (.pdf), maksimal
+                                10MB</small>
+                            <div id="current_template_laporan_keuangan_tahap_2" class="mt-2"></div>
                         </div>
                     </div>
                     <div class="modal-footer modern-card-footer">
@@ -369,7 +437,8 @@
                     <div class="text-center">
                         <i class="fa fa-trash fa-3x text-danger mb-3"></i>
                         <h6>Apakah Anda yakin ingin menghapus skema ini?</h6>
-                        <p class="text-muted">Tindakan ini tidak dapat dibatalkan dan akan menghapus skema secara permanen.</p>
+                        <p class="text-muted">Tindakan ini tidak dapat dibatalkan dan akan menghapus skema secara
+                            permanen.</p>
                     </div>
                 </div>
                 <div class="modal-footer modern-card-footer">
@@ -379,7 +448,8 @@
                     <form id="deleteSkemaForm" method="POST" style="display: inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="button" id="deleteSkemaBtn" class="modern-btn modern-btn-danger" onclick="confirmDeleteSkema()">
+                        <button type="button" id="deleteSkemaBtn" class="modern-btn modern-btn-danger"
+                            onclick="confirmDeleteSkema()">
                             <i class="fa fa-trash me-1"></i> Hapus Skema
                         </button>
                     </form>
@@ -396,7 +466,7 @@
                 const originalText = editBtn.innerHTML;
                 editBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Loading...';
                 editBtn.disabled = true;
-                
+
                 fetch(`{{ url('/administrator/skema') }}/${id}/edit`)
                     .then(response => {
                         if (!response.ok) {
@@ -408,7 +478,7 @@
                         if (data.error) {
                             throw new Error(data.error);
                         }
-                        
+
                         // Populate form fields
                         document.getElementById('edit_kode').value = data.skema.kode || '';
                         document.getElementById('edit_nama').value = data.skema.nama;
@@ -417,12 +487,12 @@
                         document.getElementById('edit_jenis_skema_id').value = data.skema.jenis_skema_id;
                         document.getElementById('edit_is_research').checked = data.skema.is_research == 1;
                         document.getElementById('edit_is_shown').checked = data.skema.is_shown == 1;
-                        
+
                         // Show current template files if they exist
                         const currentTemplateKemajuan = document.getElementById('current_template_laporan_kemajuan');
                         const currentTemplateKeuangan = document.getElementById('current_template_laporan_keuangan_tahap_1');
                         const storageUrl = '{{ asset("storage") }}';
-                        
+
                         if (data.skema.template_laporan_kemajuan) {
                             const fileName = data.skema.template_laporan_kemajuan.split('/').pop();
                             const fileUrl = storageUrl + '/' + data.skema.template_laporan_kemajuan;
@@ -439,7 +509,7 @@
                         } else {
                             currentTemplateKemajuan.innerHTML = '';
                         }
-                        
+
                         if (data.skema.template_laporan_keuangan_tahap_1) {
                             const fileName = data.skema.template_laporan_keuangan_tahap_1.split('/').pop();
                             const fileUrl = storageUrl + '/' + data.skema.template_laporan_keuangan_tahap_1;
@@ -456,10 +526,48 @@
                         } else {
                             currentTemplateKeuangan.innerHTML = '';
                         }
-                        
+
+                        // Show current Laporan Akhir template
+                        const currentTemplateAkhir = document.getElementById('current_template_laporan_akhir');
+                        if (data.skema.template_laporan_akhir) {
+                            const fileName = data.skema.template_laporan_akhir.split('/').pop();
+                            const fileUrl = storageUrl + '/' + data.skema.template_laporan_akhir;
+                            currentTemplateAkhir.innerHTML = `
+                                <div class="modern-alert modern-alert-info mb-0">
+                                    <i class="fa fa-file-word me-2"></i>
+                                    <strong>File saat ini:</strong> 
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none fw-semibold" style="color: #1e40af;">
+                                        ${fileName}
+                                    </a>
+                                    <small class="d-block mt-2" style="opacity: 0.8;">Unggah file baru untuk mengganti</small>
+                                </div>
+                            `;
+                        } else {
+                            currentTemplateAkhir.innerHTML = '';
+                        }
+
+                        // Show current Keuangan Tahap 2 template
+                        const currentTemplateKeuangan2 = document.getElementById('current_template_laporan_keuangan_tahap_2');
+                        if (data.skema.template_laporan_keuangan_tahap_2) {
+                            const fileName = data.skema.template_laporan_keuangan_tahap_2.split('/').pop();
+                            const fileUrl = storageUrl + '/' + data.skema.template_laporan_keuangan_tahap_2;
+                            currentTemplateKeuangan2.innerHTML = `
+                                <div class="modern-alert modern-alert-info mb-0">
+                                    <i class="fa fa-file-pdf me-2"></i>
+                                    <strong>File saat ini:</strong> 
+                                    <a href="${fileUrl}" target="_blank" class="text-decoration-none fw-semibold" style="color: #1e40af;">
+                                        ${fileName}
+                                    </a>
+                                    <small class="d-block mt-2" style="opacity: 0.8;">Unggah file baru untuk mengganti</small>
+                                </div>
+                            `;
+                        } else {
+                            currentTemplateKeuangan2.innerHTML = '';
+                        }
+
                         // Set form action
                         document.getElementById('editSkemaForm').action = `{{ url('/administrator/skema') }}/${id}`;
-                        
+
                         // Show modal
                         new bootstrap.Modal(document.getElementById('editSkemaModal')).show();
                     })
@@ -480,16 +588,16 @@
                 document.getElementById('deleteSkemaForm').action = `{{ url('/administrator/skema') }}/${id}`;
                 deleteModal.show();
             }
-            
+
             function confirmDeleteSkema() {
                 const form = document.getElementById('deleteSkemaForm');
                 const submitBtn = document.getElementById('deleteSkemaBtn');
-                
+
                 // Show loading state
                 const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Menghapus...';
                 submitBtn.disabled = true;
-                
+
                 // Submit form
                 form.submit();
             }
