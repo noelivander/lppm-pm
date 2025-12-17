@@ -373,14 +373,17 @@
                         <div id="subKomponenSection" style="display: none;">
                             <!-- Sub Komponen for Pengabdian -->
                             <div id="pengabdianSubsSection" style="display: none;">
-                                <label class="fw-bold mb-2">Sub Komponen (Item Penilaian)</label>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <label class="modern-form-label mb-0">
+                                        <i class="fa fa-list-ul me-2"></i>Sub Komponen <span class="text-danger">*</span>
+                                    </label>
+                                    <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm" onclick="addSubKomponen()">
+                                        <i class="fa fa-plus me-1"></i> Tambah Sub Komponen
+                                    </button>
+                                </div>
                                 <div id="subKomponenContainer">
                                     <!-- Dynamic Inputs -->
                                 </div>
-                                <button type="button" class="btn btn-outline-primary btn-sm mt-2"
-                                    onclick="addSubKomponen()">
-                                    <i class="fa fa-plus me-1"></i> Tambah Sub Komponen
-                                </button>
                             </div>
 
                             <!-- Complex Structure for Penelitian -->
