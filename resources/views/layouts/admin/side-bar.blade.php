@@ -434,8 +434,10 @@
     </li> --}}
 
     @php
-        $penelitianMenuActive = request()->routeIs('penelitian-adm.*');
-        $pengabdianMenuActive = request()->routeIs('pengabdian-adm.*');
+        $penelitianMenuActive = request()->routeIs('penelitian-adm.*') || 
+                                ((request()->routeIs('admin.laporan-kemajuan.index') || request()->routeIs('admin.laporan-akhir.index')) && request('jenis') == 'penelitian');
+        $pengabdianMenuActive = request()->routeIs('pengabdian-adm.*') || 
+                                ((request()->routeIs('admin.laporan-kemajuan.index') || request()->routeIs('admin.laporan-akhir.index')) && request('jenis') == 'pengabdian');
     @endphp
 
     <li class="nav-item {{ $penelitianMenuActive ? 'active' : '' }}">
@@ -452,10 +454,10 @@
                     href="{{ route('penelitian-adm.index') }}">Daftar Proposal</a>
                 <a class="collapse-item @isroute('penelitian-adm.revisi.index')"
                     href="{{ route('penelitian-adm.revisi.index') }}">Revisi Proposal</a>
-                <a class="collapse-item @if(request('jenis') == 'penelitian' && request()->routeIs('admin.laporan-kemajuan.index')) active @endif"
+                <a class="collapse-item"
                     href="{{ route('admin.laporan-kemajuan.index', ['jenis' => 'penelitian']) }}">
                     Laporan Kemajuan</a>
-                <a class="collapse-item @if(request('jenis') == 'penelitian' && request()->routeIs('admin.laporan-akhir.index')) active @endif"
+                <a class="collapse-item"
                     href="{{ route('admin.laporan-akhir.index', ['jenis' => 'penelitian']) }}">Laporan Akhir</a>
             </div>
         </div>
@@ -475,11 +477,11 @@
                     href="{{ route('pengabdian-adm.index') }}">Daftar Proposal</a>
                 <a class="collapse-item @isroute('pengabdian-adm.revisi.index')"
                     href="{{ route('pengabdian-adm.revisi.index') }}">Revisi Proposal</a>
-                <a class="collapse-item @if(request('jenis') == 'pengabdian' && request()->routeIs('admin.laporan-kemajuan.index')) active @endif"
+                <a class="collapse-item"
                     href="{{ route('admin.laporan-kemajuan.index', ['jenis' => 'pengabdian']) }}">
                     Laporan Kemajuan
                 </a>
-                <a class="collapse-item @if(request('jenis') == 'pengabdian' && request()->routeIs('admin.laporan-akhir.index')) active @endif"
+                <a class="collapse-item"
                     href="{{ route('admin.laporan-akhir.index', ['jenis' => 'pengabdian']) }}">Laporan Akhir</a>
             </div>
         </div>
