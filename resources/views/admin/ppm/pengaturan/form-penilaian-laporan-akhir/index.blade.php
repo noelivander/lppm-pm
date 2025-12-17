@@ -127,9 +127,13 @@
                                                 </td>
                                                 <td>
                                                     @if($form->is_active)
-                                                        <span class="status-badge selesai">Aktif</span>
+                                                        <span class="status-badge selesai">
+                                                            <i class="fa fa-check-circle me-1"></i>Aktif
+                                                        </span>
                                                     @else
-                                                        <span class="status-badge pending">Nonaktif</span>
+                                                        <span class="status-badge pending">
+                                                            <i class="fa fa-times-circle me-1"></i>Nonaktif
+                                                        </span>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -137,12 +141,12 @@
                                                         <button type="button"
                                                             class="modern-btn modern-btn-warning modern-btn-sm"
                                                             onclick="editForm({{ $form->id }})" title="Edit">
-                                                            <i class="fa fa-edit"></i>
+                                                            <i class="fa fa-edit me-1"></i> Ubah
                                                         </button>
                                                         <button type="button"
                                                             class="modern-btn modern-btn-danger modern-btn-sm"
                                                             onclick="deleteForm({{ $form->id }})" title="Hapus">
-                                                            <i class="fa fa-trash"></i>
+                                                            <i class="fa fa-trash me-1"></i> Hapus
                                                         </button>
                                                     </div>
                                                 </td>
@@ -390,32 +394,42 @@
                             <div id="penelitianComplexSection" style="display: none;">
                                 <hr>
                                 <!-- Kriteria / Status -->
-                                <div class="mb-4">
-                                    <label class="fw-bold mb-2">Kriteria Status (Skor Induk)</label>
-                                    <small class="d-block text-muted mb-2">Contoh: "Telah tercapai (80)", "Berpotensi
-                                        (60)"</small>
+                                <div class="modern-form-group">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <label class="modern-form-label mb-0">
+                                            <i class="fa fa-list-check me-2"></i>Kriteria Status (Skor Induk) <span class="text-danger">*</span>
+                                        </label>
+                                        <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm"
+                                            onclick="addKriteria()">
+                                            <i class="fa fa-plus me-1"></i> Tambah Kriteria
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fa fa-info-circle me-1"></i>Contoh: "Telah tercapai (80)", "Berpotensi (60)"
+                                    </small>
                                     <div id="kriteriaContainer">
                                         <!-- Dynamic Kriteria -->
                                     </div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm mt-2"
-                                        onclick="addKriteria()">
-                                        <i class="fa fa-plus me-1"></i> Tambah Kriteria
-                                    </button>
                                 </div>
 
                                 <hr>
                                 <!-- Items -->
-                                <div class="mb-3">
-                                    <label class="fw-bold mb-2">Item Penilaian</label>
-                                    <small class="d-block text-muted mb-2">Contoh: "Kualitas dokumen", "Kesesuaian
-                                        isi"</small>
+                                <div class="modern-form-group">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <label class="modern-form-label mb-0">
+                                            <i class="fa fa-list-ul me-2"></i>Item Penilaian <span class="text-danger">*</span>
+                                        </label>
+                                        <button type="button" class="modern-btn modern-btn-secondary modern-btn-sm"
+                                            onclick="addItemPenilaian()">
+                                            <i class="fa fa-plus me-1"></i> Tambah Item
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fa fa-info-circle me-1"></i>Contoh: "Kualitas dokumen", "Kesesuaian isi"
+                                    </small>
                                     <div id="itemPenilaianContainer">
                                         <!-- Dynamic Items -->
                                     </div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm mt-2"
-                                        onclick="addItemPenilaian()">
-                                        <i class="fa fa-plus me-1"></i> Tambah Item
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -484,6 +498,8 @@
 
             let currentJenis = 'penelitian';
             let subKomponenIndex = 0;
+            let kriteriaIndex = 0;
+            let itemPenilaianIndex = 0;
 
             function handleKategoriChange() {
                 const select = document.getElementById('kategoriSelect');
@@ -524,6 +540,8 @@
                 document.getElementById('kriteriaContainer').innerHTML = '';
                 document.getElementById('itemPenilaianContainer').innerHTML = '';
                 subKomponenIndex = 0; // Reset index for subKomponen
+                kriteriaIndex = 0; // Reset index for kriteria
+                itemPenilaianIndex = 0; // Reset index for item penilaian
 
                 // Reset kategori dropdown
                 const kategoriSelect = document.getElementById('kategoriSelect');
@@ -609,37 +627,72 @@
 
             function addKriteria(deskripsi = '', bobot = '') {
                 const container = document.getElementById('kriteriaContainer');
-                const index = container.children.length;
+                const index = kriteriaIndex++;
 
                 const html = `
-                    <div class="row mb-2 kriteria-row">
-                        <div class="col-md-7">
-                            <input type="text" name="kriteria[${index}][deskripsi]" class="form-control" placeholder="Label Status (mis: Berpotensi)" value="${deskripsi}" required>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="number" step="0.01" name="kriteria[${index}][bobot]" class="form-control" placeholder="Skor (mis: 60)" value="${bobot}" required>
-                        </div>
-                        <div class="col-md-2">
-                             <button type="button" class="btn btn-outline-danger w-100" onclick="this.closest('.kriteria-row').remove()">
-                                <i class="fa fa-trash"></i>
-                            </button>
+                    <div class="modern-card mb-3 kriteria-row" id="kriteria_${index}">
+                        <div class="modern-card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>Kriteria ${index + 1}</strong>
+                                <button type="button" class="modern-btn modern-btn-danger modern-btn-sm" onclick="removeKriteria(${index})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <input type="text" name="kriteria[${index}][deskripsi]" 
+                                        class="modern-form-input" 
+                                        placeholder="Label Status (mis: Berpotensi)" 
+                                        value="${deskripsi}" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" step="0.01" name="kriteria[${index}][bobot]" 
+                                        class="modern-form-input" 
+                                        placeholder="Skor (mis: 60)" 
+                                        value="${bobot}" required>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', html);
             }
 
+            function removeKriteria(index) {
+                const element = document.getElementById(`kriteria_${index}`);
+                if (element) {
+                    element.remove();
+                }
+            }
+
             function addItemPenilaian(deskripsi = '') {
                 const container = document.getElementById('itemPenilaianContainer');
+                const index = itemPenilaianIndex++;
+                
                 const html = `
-                    <div class="input-group mb-2 item-row">
-                        <input type="text" name="item_penilaian[]" class="form-control" placeholder="Item Penilaian (mis: Kualitas Dokumen)" value="${deskripsi}" required>
-                        <button type="button" class="btn btn-outline-danger" onclick="this.closest('.item-row').remove()">
-                            <i class="fa fa-trash"></i>
-                        </button>
+                    <div class="modern-card mb-3 item-row" id="item_${index}">
+                        <div class="modern-card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>Item ${index + 1}</strong>
+                                <button type="button" class="modern-btn modern-btn-danger modern-btn-sm" onclick="removeItemPenilaian(${index})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                            <input type="text" name="item_penilaian[]" 
+                                class="modern-form-input" 
+                                placeholder="Item Penilaian (mis: Kualitas Dokumen)" 
+                                value="${deskripsi}" required>
+                        </div>
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', html);
+            }
+
+            function removeItemPenilaian(index) {
+                const element = document.getElementById(`item_${index}`);
+                if (element) {
+                    element.remove();
+                }
             }
 
             function editForm(id) {
@@ -652,6 +705,8 @@
                 document.getElementById('kriteriaContainer').innerHTML = '';
                 document.getElementById('itemPenilaianContainer').innerHTML = '';
                 subKomponenIndex = 0; // Reset index global
+                kriteriaIndex = 0; // Reset index for kriteria
+                itemPenilaianIndex = 0; // Reset index for item penilaian
 
                 fetch(`/administrator/form-penilaian-laporan-akhir/${id}/edit`)
                     .then(response => {
