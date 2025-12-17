@@ -227,24 +227,19 @@ class PengabdianController extends Controller
         }
 
         if ($filters['status']) {
-            if ($filters['status'] === 'belum_ada') {
-                // Filter proposal yang belum ada laporan kemajuan
-                $baseQuery->whereDoesntHave('laporanKemajuan', function ($query) {
-                    $query->where('tahap', 1)->where('user_id', Auth::id());
-                });
-            } elseif ($filters['status'] === 'Selesai') {
-                // Filter proposal yang memiliki laporan kemajuan dengan status Selesai (Diproses, Disetujui, Ditolak, atau Selesai)
-                $baseQuery->whereHas('laporanKemajuan', function ($query) {
+            $normalizedStatus = strtolower($filters['status']);
+
+            if (in_array($normalizedStatus, ['pending', 'diproses', 'selesai'])) {
+                $baseQuery->whereHas('laporanKemajuan', function ($query) use ($normalizedStatus) {
                     $query->where('tahap', 1)
                         ->where('user_id', Auth::id())
-                        ->whereIn('status', ['Diproses', 'Disetujui', 'Ditolak', 'Selesai']);
-                });
-            } else {
-                // Filter proposal yang memiliki laporan kemajuan dengan status tertentu
-                $baseQuery->whereHas('laporanKemajuan', function ($query) use ($filters) {
-                    $query->where('tahap', 1)
-                        ->where('user_id', Auth::id())
-                        ->where('status', $filters['status']);
+                        ->whereRaw("(SELECT COUNT(*) 
+                                    FROM laporan_kemajuan_reviews r 
+                                    WHERE r.laporan_kemajuan_id = laporan_kemajuan.id 
+                                      AND LOWER(TRIM(r.status)) = 'selesai')" .
+                            ($normalizedStatus === 'pending'
+                                ? " = 0"
+                                : ($normalizedStatus === 'diproses' ? " = 1" : " >= 2")));
                 });
             }
         }
@@ -1393,11 +1388,18 @@ class PengabdianController extends Controller
             $baseQuery->whereYear('created_at', $filters['year']);
         }
         if ($filters['status']) {
-            if ($filters['status'] === 'belum_ada') {
-                $baseQuery->whereDoesntHave('laporanAkhir');
-            } else {
-                $baseQuery->whereHas('laporanAkhir', function ($q) use ($filters) {
-                    $q->where('status', $filters['status']);
+            $normalizedStatus = strtolower($filters['status']);
+
+            if (in_array($normalizedStatus, ['pending', 'diproses', 'selesai'])) {
+                $baseQuery->whereHas('laporanAkhir', function ($q) use ($normalizedStatus) {
+                    $q->whereRaw("(SELECT COUNT(*) 
+                                   FROM laporan_akhir_reviews r 
+                                   WHERE r.laporan_akhir_id = laporan_akhir.id 
+                                     AND r.jenis = 'pengabdian'
+                                     AND LOWER(TRIM(r.status)) = 'selesai')" .
+                        ($normalizedStatus === 'pending'
+                            ? " = 0"
+                            : ($normalizedStatus === 'diproses' ? " = 1" : " >= 2")));
                 });
             }
         }

@@ -63,6 +63,7 @@
                                 <select name="status" class="modern-form-select">
                                     <option value="">Semua Status</option>
                                     <option value="Pending" @selected(($filters['status'] ?? '') === 'Pending')>Pending</option>
+                                    <option value="Diproses" @selected(($filters['status'] ?? '') === 'Diproses')>Diproses</option>
                                     <option value="Selesai" @selected(($filters['status'] ?? '') === 'Selesai')>Selesai</option>
                                 </select>
                             </div>

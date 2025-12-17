@@ -37,22 +37,37 @@ class PenelitianController extends Controller
             ->orderByDesc('year')
             ->pluck('year');
 
+        // Opsi status yang ditampilkan di filter
+        // Pending  : proposal yang BELUM pernah direview oleh reviewer ini DAN belum penuh 2 review
+        // Selesai  : proposal yang SUDAH direview oleh reviewer ini (minimal 1 review oleh reviewer ini)
         $statuses = ['Pending', 'Selesai'];
 
         if ($search = $request->get('search')) {
             $baseQuery->where('judul', 'like', '%' . $search . '%');
         }
 
-        // Get reviews by current reviewer first
-        $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
+        // Review yang sudah dibuat oleh reviewer saat ini (per proposal)
+        $myReviewedIds = Review::where('reviewer_id', auth()->id())
+            ->whereNotNull('penelitian_id')
+            ->pluck('penelitian_id')
+            ->toArray();
+
+        // Proposal yang sudah memiliki >= 2 review (oleh siapa pun)
+        $fullReviewedIds = Review::whereNotNull('penelitian_id')
+            ->selectRaw('penelitian_id, COUNT(*) as total')
+            ->groupBy('penelitian_id')
+            ->havingRaw('COUNT(*) >= 2')
+            ->pluck('penelitian_id')
+            ->toArray();
 
         if ($status = $request->get('status')) {
             if ($status === 'Selesai') {
-                // Filter proposal yang sudah direview oleh reviewer ini
-                $baseQuery->whereIn('id', $reviews);
+                // Proposal yang sudah saya review (apapun status lanjutannya)
+                $baseQuery->whereIn('id', $myReviewedIds);
             } elseif ($status === 'Pending') {
-                // Filter proposal yang belum direview oleh reviewer ini
-                $baseQuery->whereNotIn('id', $reviews);
+                // Proposal yang belum saya review DAN belum penuh 2 review
+                $baseQuery->whereNotIn('id', $myReviewedIds)
+                    ->whereNotIn('id', $fullReviewedIds);
             }
         }
 
@@ -68,10 +83,8 @@ class PenelitianController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Get reviews for display (if not already set)
-        if (!isset($reviews)) {
-            $reviews = Review::where('reviewer_id', auth()->id())->pluck('penelitian_id')->toArray();
-        }
+        // Data tambahan untuk tampilan
+        $reviews = $myReviewedIds;
         $existingReviews = Review::all();
 
         // Data sudah tidak dienkripsi, tidak perlu dekripsi
