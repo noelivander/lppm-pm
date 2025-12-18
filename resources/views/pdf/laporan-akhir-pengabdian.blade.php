@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <style>
         body {
@@ -8,35 +7,23 @@
             font-size: 0.85rem;
         }
 
-        .header-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 10px;
         }
 
-        .info-table td {
+        .no-border-table td {
             border: none;
-            padding: 3px 0;
-            vertical-align: top;
+            padding: 3px;
         }
 
-        .bordered-table {
+        .bordered-table, .bordered-table th, .bordered-table td {
             border: 1px solid black;
-            margin-top: 15px;
-            margin-bottom: 15px;
         }
 
-        .bordered-table th,
-        .bordered-table td {
-            border: 1px solid black;
-            padding: 8px;
+        .bordered-table th, .bordered-table td {
+            padding: 6px;
             text-align: left;
             vertical-align: top;
         }
@@ -45,6 +32,20 @@
             background-color: #f2f2f2;
             font-weight: bold;
             text-align: center;
+        }
+
+        .header-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .info-table td {
+            border: none;
+            padding: 3px 0;
+            vertical-align: top;
         }
 
         .catatan-section {
@@ -73,19 +74,28 @@
             margin: 5px 0 15px 0;
         }
 
+        .kategori-header {
+            background-color: #e8e8e8;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .total-row {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
         hr {
-            border: none;
-            border-top: 1px solid #000;
-            margin: 3px 0;
+            color: #000000;
+            height: 2px;
+            margin: 10px 0;
         }
     </style>
 </head>
-
 <body>
     <div class="header-title">
-        BORANG PENILAIAN LAPORAN AKHIR PENGABDIAN KEPADA MASYARAKAT<br>
-        HIBAH INTERNAL ITH TAHUN
-        {{ $proposal->created_at ? $proposal->created_at->format('Y') : ($proposal->revisionParent && $proposal->revisionParent->created_at ? $proposal->revisionParent->created_at->format('Y') : date('Y')) }}
+        BORANG PENILAIAN LAPORAN AKHIR<br>
+        PENGABDIAN KEPADA MASYARAKAT
     </div>
 
     <hr class="header-line">
@@ -104,21 +114,21 @@
             <td colspan="3"><strong>Identitas Ketua Tim Pelaksana</strong></td>
         </tr>
         @if($ketuaTim)
-            <tr>
-                <td>Nama Ketua</td>
-                <td>:</td>
-                <td>{{ $ketuaTim->nama ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td>NIDN / NIDK</td>
-                <td>:</td>
-                <td>{{ $ketuaTim->nidn ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td>Jurusan / Program Studi</td>
-                <td>:</td>
-                <td>{{ $jurusanProdi }}</td>
-            </tr>
+        <tr>
+            <td>Nama Ketua</td>
+            <td>:</td>
+            <td>{{ $ketuaTim->nama ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>NIDN / NIDK</td>
+            <td>:</td>
+            <td>{{ $ketuaTim->nidn ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>Jurusan / Program Studi</td>
+            <td>:</td>
+            <td>{{ $jurusanProdi }}</td>
+        </tr>
         @endif
         <tr>
             <td>Jumlah Anggota Tim</td>
@@ -128,7 +138,7 @@
         <tr>
             <td>Dana Disetujui</td>
             <td>:</td>
-            <td>Rp {{ number_format((float) $danaDisetujui, 0, ',', '.') }}</td>
+            <td>Rp {{ number_format((float)$danaDisetujui, 0, ',', '.') }}</td>
         </tr>
     </table>
 
@@ -136,7 +146,7 @@
     <table class="bordered-table" style="margin-top: 15px;">
         <thead>
             <tr>
-                <th style="width: 5%;">No</th>
+                <th style="width: 6%;">No</th>
                 <th style="width: 35%;">Komponen</th>
                 <th style="width: 40%;">Sub Komponen</th>
                 <th style="width: 10%;">Nilai</th>
@@ -155,11 +165,10 @@
                     }
                 @endphp
                 {{-- Kategori Header Row --}}
-                <tr class="kategori-header-row" style="background-color: #e9ecef;">
-                    <td rowspan="{{ $kategoriTotalRows }}" style="text-align: center; vertical-align: top;">{{ $rowNumber }}
-                    </td>
-                    <td colspan="4" style="text-align: center; font-weight: bold;">
-                        {{ $kategori ?? '-' }}
+                <tr class="kategori-header">
+                    <td rowspan="{{ $kategoriTotalRows }}">{{ $rowNumber }}</td>
+                    <td colspan="4" style="text-align: center;">
+                        <strong>{{ $kategori ?? '-' }}</strong>
                     </td>
                 </tr>
                 @foreach($komponenList as $komponen)
@@ -167,9 +176,8 @@
                         $subKomponenCount = $komponen->subKomponen->count();
                         $komponenRowspan = $subKomponenCount > 0 ? $subKomponenCount : 1;
                         $komponenFirstRow = true;
-
+                        
                         // Find selected sub komponen
-                        // LaporanAkhirReviewItem uses form_penilaian_id
                         $selectedItem = $existingReview->items->firstWhere('form_penilaian_id', $komponen->id);
                     @endphp
                     @if($subKomponenCount > 0)
@@ -200,12 +208,12 @@
                 @php $rowNumber++; @endphp
             @endforeach
             {{-- Total Row --}}
-            <tr class="total-row" style="background-color: #f8f9fa;">
+            <tr class="total-row">
                 <td colspan="3" style="text-align: right; padding-right: 10px;">
                     <strong>TOTAL NILAI:</strong>
                 </td>
                 <td colspan="2" style="text-align: center;">
-                    <strong>{{ number_format($totalNilai ?? 0, 2) }}</strong>
+                    <strong>{{ number_format($totalNilai, 2) }}</strong>
                 </td>
             </tr>
         </tbody>
@@ -228,14 +236,11 @@
     <!-- Tanda Tangan -->
     <div class="signature-section">
         <div class="signature-box">
-            <p style="margin: 5px 0;">Parepare,
-                {{ $existingReview->submitted_at ? $existingReview->submitted_at->format('d F Y') : '...................... ' }}
-            </p>
+            <p style="margin: 5px 0;">Parepare, {{ $existingReview->submitted_at ? $existingReview->submitted_at->format('d F Y') : '...................... ' . ($proposal->created_at ? $proposal->created_at->format('Y') : date('Y')) }}</p>
             <p style="margin: 5px 0;">Reviewer,</p>
             <br><br><br>
-            <p style="margin: 5px 0;">({{ $reviewerName }})</p>
+            <p style="margin: 5px 0;">({{ Auth::user()->name }})</p>
         </div>
     </div>
 </body>
-
 </html>
