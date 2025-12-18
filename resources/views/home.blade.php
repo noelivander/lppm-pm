@@ -1,5 +1,6 @@
 <x-app-layout>
     <x-slot name="title">
+        
         {{ __('Beranda') }}
     </x-slot>
 
