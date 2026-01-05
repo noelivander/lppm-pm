@@ -46,6 +46,11 @@ class Penelitian extends Model
     {
         return $this->hasOne(self::class, 'revised_from_id');
     }
+    public function assignedReviewers()
+    {
+        return $this->belongsToMany(User::class, 'proposal_reviewers', 'penelitian_id', 'user_id');
+    }
+
     public function anggota()
     {
         return $this->hasMany(Anggota::class);

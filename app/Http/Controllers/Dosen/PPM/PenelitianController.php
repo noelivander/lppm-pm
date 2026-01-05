@@ -1557,8 +1557,11 @@ class PenelitianController extends Controller
             return back()->with('error', 'Laporan Akhir belum ada');
 
         $reviews = \App\Models\LaporanAkhirReview::where('laporan_akhir_id', $laporanAkhir->id)
-            ->where('jenis', 'penelitian')
-            ->where('status', 'selesai')
+            ->where('jenis', 'penelitian') // Keep strict jenis for Dosen to prevent mixups
+            // ->where('status', 'selesai') // Allow seeing non-final reviews if needed for debugging? No, Dosen should only see Selesai.
+            // But if user says "Reviewer DONE", status should be Selesai.
+            // Let's keep status check but make it case-insensitive just in case.
+            ->whereRaw("LOWER(TRIM(status)) = 'selesai'")
             ->get();
 
         if ($review_number == 1) {

@@ -13,7 +13,7 @@ class FormPenilaianLaporanAkhirController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index()
     {
@@ -76,7 +76,7 @@ class FormPenilaianLaporanAkhirController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -116,28 +116,28 @@ class FormPenilaianLaporanAkhirController extends Controller
 
             }
 
-            // If penelitian with complex structure (kriteria & items)
+            // If penelitian with decoupled structure (Status & Items)
             if ($request->jenis === 'penelitian') {
-                // Save Kriteria (Status)
-                if ($request->has('kriteria')) {
-                    foreach ($request->kriteria as $index => $krit) {
+                // 1. Process Status Options
+                if ($request->has('status_options')) {
+                    foreach ($request->status_options as $index => $status) {
                         FormPenilaianLaporanAkhirSub::create([
                             'form_penilaian_laporan_akhir_id' => $form->id,
-                            'keterangan' => $krit['deskripsi'], // e.g. "Telah tercapai (skor=80)"
-                            'skor' => $krit['bobot'], // e.g. 80
+                            'keterangan' => $status['keterangan'],
+                            'skor' => $status['skor'],
                             'tipe' => 'status',
                             'urutan' => $index + 1,
                         ]);
                     }
                 }
 
-                // Save Items
-                if ($request->has('item_penilaian')) {
-                    foreach ($request->item_penilaian as $index => $item) {
+                // 2. Process Grade Items
+                if ($request->has('grade_items')) {
+                    foreach ($request->grade_items as $index => $item) {
                         FormPenilaianLaporanAkhirSub::create([
                             'form_penilaian_laporan_akhir_id' => $form->id,
-                            'keterangan' => $item, // e.g. "Kualitas dokumen luaran"
-                            'skor' => 0, // Not used for items
+                            'keterangan' => $item['keterangan'],
+                            'skor' => 0, // Items don't have base score, they are graded (100/75..)
                             'tipe' => 'item',
                             'urutan' => $index + 1,
                         ]);
@@ -169,7 +169,7 @@ class FormPenilaianLaporanAkhirController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function edit($id)
     {
@@ -181,18 +181,22 @@ class FormPenilaianLaporanAkhirController extends Controller
                 return [
                     'sub_komponen' => $sub->keterangan,
                     'nilai' => (float) $sub->skor,
+                    'tipe' => $sub->tipe,
                 ];
             })->toArray();
 
             // Separate into kriteria and items for frontend if needed
+            // Separate into kriteria and items (nested)
             $kriteria = $form->subKomponen->where('tipe', 'status')->map(function ($sub) {
+                // Fetch children/items for this status
+                $items = $sub->children->pluck('keterangan')->toArray();
+
                 return [
                     'deskripsi' => $sub->keterangan,
-                    'bobot' => (float) $sub->skor
+                    'bobot' => (float) $sub->skor,
+                    'items' => $items,
                 ];
             })->values()->toArray();
-
-            $itemPenilaian = $form->subKomponen->where('tipe', 'item')->pluck('keterangan')->toArray();
 
             return response()->json([
                 'form' => [
@@ -204,7 +208,7 @@ class FormPenilaianLaporanAkhirController extends Controller
                     'is_active' => $form->is_active ? 1 : 0,
                     'sub_komponen' => $subKomponen,
                     'kriteria' => $kriteria,
-                    'item_penilaian' => $itemPenilaian,
+                    // 'item_penilaian' => $itemPenilaian, // No longer needed as separate array
                 ],
             ]);
         } catch (\Exception $e) {
@@ -220,7 +224,7 @@ class FormPenilaianLaporanAkhirController extends Controller
      * Check if form has been used
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function checkUsage($id)
     {
@@ -247,7 +251,7 @@ class FormPenilaianLaporanAkhirController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id)
     {
@@ -295,38 +299,35 @@ class FormPenilaianLaporanAkhirController extends Controller
             }
 
             // Update complex structure for penelitian
-            if ($form->jenis === 'penelitian' && ($request->has('kriteria') || $request->has('item_penilaian'))) {
-                // Delete existing subs if replacing
-                // We must be careful not to delete subs if we just processed them above (though logic suggests mutually exclusive types)
-                // Since this block is for penelitian, and the above block is effectively for pengabdian (which uses sub_komponen),
-                // it is safer to delete existing subs here if we are indeed updating penelitian structure.
-                // However, we must ensure we don't double delete if 'sub_komponen' was somehow passed.
-                // Given the form logic, 'sub_komponen' is usually null for penelitian.
-
-                // FORCE DELETE any existing subs for this form to fully replace with new structure
-                $form->subKomponen()->delete();
-
+            if ($form->jenis === 'penelitian') {
+                // If either kriteria or item_penilaian (legacy check) is present, we assume a full update of structure
                 if ($request->has('kriteria')) {
+                    // FORCE DELETE any existing subs for this form to fully replace with new structure
+                    $form->subKomponen()->delete();
+
                     foreach ($request->kriteria as $index => $krit) {
-                        FormPenilaianLaporanAkhirSub::create([
+                        // 1. Create Status (Parent)
+                        $statusNode = FormPenilaianLaporanAkhirSub::create([
                             'form_penilaian_laporan_akhir_id' => $form->id,
                             'keterangan' => $krit['deskripsi'],
                             'skor' => $krit['bobot'],
                             'tipe' => 'status',
                             'urutan' => $index + 1,
                         ]);
-                    }
-                }
 
-                if ($request->has('item_penilaian')) {
-                    foreach ($request->item_penilaian as $index => $item) {
-                        FormPenilaianLaporanAkhirSub::create([
-                            'form_penilaian_laporan_akhir_id' => $form->id,
-                            'keterangan' => $item,
-                            'skor' => 0,
-                            'tipe' => 'item',
-                            'urutan' => $index + 1,
-                        ]);
+                        // 2. Create Items (Children)
+                        if (isset($krit['items']) && is_array($krit['items'])) {
+                            foreach ($krit['items'] as $itemIndex => $itemDesc) {
+                                FormPenilaianLaporanAkhirSub::create([
+                                    'form_penilaian_laporan_akhir_id' => $form->id,
+                                    'parent_id' => $statusNode->id, // Link to Parent
+                                    'keterangan' => $itemDesc,
+                                    'skor' => 0,
+                                    'tipe' => 'item',
+                                    'urutan' => $itemIndex + 1,
+                                ]);
+                            }
+                        }
                     }
                 }
             }
@@ -355,7 +356,7 @@ class FormPenilaianLaporanAkhirController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {

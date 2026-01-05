@@ -337,7 +337,7 @@ class PengabdianController extends Controller
         }
 
         $jumlahAnggotaTim = $proposal->anggota->count();
-        $danaDisetujui = $proposal->biaya_disetujui ?? 0;
+        $danaDisetujui = $proposal->biaya_disetujui > 0 ? $proposal->biaya_disetujui : (optional($proposal->revisionParent)->biaya_disetujui ?? 0);
 
         // Data penilai
         $reviewer1Name = $review1 && $review1->reviewer ? $review1->reviewer->name : '............................................';
@@ -1515,9 +1515,9 @@ class PengabdianController extends Controller
         }
     }
 
-    public function viewLaporanAkhirReviews($pengabdian_id, $review_number)
+    public function viewLaporanAkhirReviews($pengabdian_id)
     {
-        $proposal = Pengabdian::with('anggota')->findOrFail($pengabdian_id);
+        $proposal = Pengabdian::with(['anggota', 'revisionParent'])->findOrFail($pengabdian_id);
         if ($proposal->user_id != Auth::id())
             abort(403);
 
@@ -1530,19 +1530,15 @@ class PengabdianController extends Controller
         $reviews = \App\Models\LaporanAkhirReview::where('laporan_akhir_id', $laporanAkhir->id)
             ->where('jenis', 'pengabdian')
             ->where('status', 'selesai')
+            ->orderBy('submitted_at', 'asc')
             ->get();
 
-        if ($review_number == 1) {
-            $existingReview = $reviews->first();
-        } elseif ($review_number == 2) {
-            $existingReview = $reviews->skip(1)->first();
-        } else {
-            return back()->with('error', 'Nomor review tidak valid');
-        }
-
-        if (!$existingReview) {
+        if ($reviews->count() < 1) {
             return back()->with('error', 'Review belum tersedia');
         }
+
+        $review1 = $reviews->first();
+        $review2 = $reviews->count() > 1 ? $reviews->get(1) : null;
 
         // Fetch Form Data for Pengabdian
         $formPengabdianRaw = \App\Models\FormPenilaianLaporanAkhir::where('jenis', 'pengabdian')
@@ -1556,25 +1552,23 @@ class PengabdianController extends Controller
             return $item->kategori ?? 'Lainnya';
         });
 
-        // Eager load items for the review
-        $existingReview->load([
-            'items.formPenilaian',
-            'items.subChoice', // Pengabdian uses standard choices slightly differently or just scores
-        ]);
-
-        // Calculate Total Score
-        $totalNilai = $existingReview->items->sum('nilai');
+        // Eager load items for the reviews
+        if ($review1)
+            $review1->load('items');
+        if ($review2)
+            $review2->load('items');
 
         // Prepare additional data
-        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first();
-        // Fallback case-insensitive check if 'Ketua' fails
-        if (!$ketuaTim) {
-            $ketuaTim = $proposal->anggota->where('peran', 'ketua')->first();
-        }
+        $ketuaTim = $proposal->anggota->where('peran', 'Ketua')->first()
+            ?? $proposal->anggota->where('peran', 'ketua')->first();
 
-        $reviewerName = $existingReview->reviewer->name ?? '-';
+        $reviewer1Name = $review1 && $review1->reviewer ? $review1->reviewer->name : '............................................';
+        $reviewer2Name = $review2 && $review2->reviewer ? $review2->reviewer->name : '............................................';
+        $reviewer1Nidn = $review1 && $review1->reviewer ? ($review1->reviewer->nip ?? '') : '';
+        $reviewer2Nidn = $review2 && $review2->reviewer ? ($review2->reviewer->nip ?? '') : '';
+
         $jumlahAnggotaTim = $proposal->anggota->count();
-        $danaDisetujui = $proposal->biaya_disetujui ?? 0;
+        $danaDisetujui = $proposal->biaya_disetujui > 0 ? $proposal->biaya_disetujui : (optional($proposal->revisionParent)->biaya_disetujui ?? 0);
 
         // Jurusan/Prodi logic
         $jurusanProdi = '-';
@@ -1590,16 +1584,24 @@ class PengabdianController extends Controller
             }
         }
 
-        $html = view('pdf.laporan-akhir-pengabdian', compact(
+        $ttdDate = $review1 && $review1->submitted_at
+            ? $review1->submitted_at->format('d F Y')
+            : ($laporanAkhir->updated_at ? $laporanAkhir->updated_at->format('d F Y') : date('d F Y'));
+
+        $html = view('pdf.laporan-akhir-pengabdian-dosen', compact(
             'proposal',
-            'existingReview',
+            'review1',
+            'review2',
             'formPengabdian',
-            'totalNilai',
             'ketuaTim',
             'jurusanProdi',
-            'reviewerName',
             'jumlahAnggotaTim',
-            'danaDisetujui'
+            'danaDisetujui',
+            'reviewer1Name',
+            'reviewer2Name',
+            'reviewer1Nidn',
+            'reviewer2Nidn',
+            'ttdDate'
         ))->render();
 
         $mpdf = new \Mpdf\Mpdf([
@@ -1609,8 +1611,7 @@ class PengabdianController extends Controller
             'margin_top' => 20,
             'margin_bottom' => 20,
         ]);
-
         $mpdf->WriteHTML($html);
-        $mpdf->Output("Hasil_Review_Laporan_Akhir_Pengabdian_{$proposal->judul}_Review{$review_number}.pdf", 'I');
+        $mpdf->Output("Hasil_Review_Laporan_Akhir_Pengabdian_{$proposal->judul}.pdf", 'I');
     }
 }

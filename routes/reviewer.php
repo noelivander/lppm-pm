@@ -40,6 +40,9 @@ Route::middleware(['auth', 'role:reviewer'])->group(function () {
     Route::get('ppm/pengabdian-rev/{id}/view/pdf', [PengabdianController::class, 'view_pdf'])->name('pengabdian-rev.view_pdf');
     Route::get('/pengabdian-rev/{id}/view-pdf', [PengabdianController::class, 'view_pdf'])->name('pengabdian-rev.view_pdf');
 
+    // New Route: Reviewer Assignments List
+    Route::get('/assignments', [\App\Http\Controllers\ReviewerController::class, 'assignments'])->name('reviewer.assignments');
+
     Route::post('/penelitian/store', [PenelitianController::class, 'store'])->name('penelitian.store');
     Route::post('/pengabdian/store', [PengabdianController::class, 'store'])->name('pengabdian.store');
 

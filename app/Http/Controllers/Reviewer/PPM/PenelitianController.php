@@ -23,8 +23,12 @@ class PenelitianController extends Controller
         $timeline = $this->getActiveTimeline();
 
         // Hanya tampilkan proposal awal (bukan entitas revisi)
+        // DAN hanya yang ditugaskan ke reviewer ini
         $baseQuery = Penelitian::where('is_draft', false)
-            ->where('is_revised', false);
+            ->where('is_revised', false)
+            ->whereHas('assignedReviewers', function ($q) {
+                $q->where('user_id', Auth::id());
+            });
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -65,9 +69,8 @@ class PenelitianController extends Controller
                 // Proposal yang sudah saya review (apapun status lanjutannya)
                 $baseQuery->whereIn('id', $myReviewedIds);
             } elseif ($status === 'Pending') {
-                // Proposal yang belum saya review DAN belum penuh 2 review
-                $baseQuery->whereNotIn('id', $myReviewedIds)
-                    ->whereNotIn('id', $fullReviewedIds);
+                // Proposal yang belum saya review
+                $baseQuery->whereNotIn('id', $myReviewedIds);
             }
         }
 
@@ -1084,7 +1087,7 @@ class PenelitianController extends Controller
                 ->with('error', 'Periode review laporan kemajuan belum dimulai atau sudah berakhir.');
         }
 
-        $formPenelitian = FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
+        $formPenelitian = \App\Models\FormPenilaianLaporanKemajuan::where('jenis', 'penelitian')
             ->where('is_active', true)
             ->with('subKomponen')
             ->orderBy('urutan')
@@ -1108,7 +1111,7 @@ class PenelitianController extends Controller
         $validated = $request->validate($rules);
         $komentarInput = $validated['komentar'] ?? [];
 
-        $review = LaporanKemajuanReview::updateOrCreate(
+        $review = \App\Models\LaporanKemajuanReview::updateOrCreate(
             [
                 'laporan_kemajuan_id' => $latestLaporan->id,
                 'reviewer_id' => $reviewerId,
@@ -1140,7 +1143,7 @@ class PenelitianController extends Controller
         }
 
         // Tentukan status laporan berdasarkan jumlah review selesai (2 -> Selesai, 1 -> Diproses, 0 -> Draft)
-        $completedCount = LaporanKemajuanReview::where('laporan_kemajuan_id', $latestLaporan->id)
+        $completedCount = \App\Models\LaporanKemajuanReview::where('laporan_kemajuan_id', $latestLaporan->id)
             ->where('jenis', 'penelitian')
             ->whereRaw("LOWER(TRIM(status)) = 'selesai'")
             ->count();
@@ -1342,18 +1345,21 @@ class PenelitianController extends Controller
 
         // Hanya hitung review yang benar-benar selesai
         $myCompletedLaporanIds = \App\Models\LaporanAkhirReview::where('reviewer_id', $reviewerId)
+            ->where('jenis', 'penelitian')
             ->whereRaw("LOWER(TRIM(status)) = 'selesai'")
             ->pluck('laporan_akhir_id')
             ->toArray();
 
         // Draft milik reviewer ini
         $myDraftLaporanIds = \App\Models\LaporanAkhirReview::where('reviewer_id', $reviewerId)
+            ->where('jenis', 'penelitian')
             ->whereRaw("LOWER(TRIM(status)) = 'draft'")
             ->pluck('laporan_akhir_id')
             ->toArray();
 
         // Hitung review selesai per laporan
         $allLaporanReviews = \App\Models\LaporanAkhirReview::whereRaw("LOWER(TRIM(status)) = 'selesai'")
+            ->where('jenis', 'penelitian')
             ->get()
             ->groupBy('laporan_akhir_id');
 
@@ -1397,7 +1403,8 @@ class PenelitianController extends Controller
             ->whereHas('laporanAkhir')
             ->firstOrFail();
 
-        $latestLaporan = $proposal->laporanAkhir->first();
+        $latestLaporan = $proposal->laporanAkhir; // FIX: hasOne usage
+        \Illuminate\Support\Facades\Log::info("DEBUG STORE PENELITIAN: Proposal {$proposal->id}, Laporan {$latestLaporan->id}");
 
         if (!$latestLaporan) {
             return redirect()->route('penelitian-rev.laporan-akhir.index')
@@ -1412,10 +1419,10 @@ class PenelitianController extends Controller
             ->get();
 
         // Prepare existing selected items
-        $existingSelectedStatus = [];
-        $existingSelectedBobot = [];
-        // Update Create Method Query
-        $existingReview = \App\Models\LaporanAkhirReview::with(['items.statusChoice', 'items.bobotChoice'])
+        $existingStatus = [];
+        $existingGrades = [];
+
+        $existingReview = \App\Models\LaporanAkhirReview::with(['items.subChoice'])
             ->where('laporan_akhir_id', $latestLaporan->id)
             ->where('reviewer_id', $reviewerId)
             ->where('jenis', 'penelitian')
@@ -1423,27 +1430,16 @@ class PenelitianController extends Controller
 
         if ($existingReview) {
             foreach ($existingReview->items as $item) {
-                if ($item->sub_id_status) {
-                    $existingSelectedStatus[$item->form_penilaian_id] = $item->sub_id_status;
-                }
-
-                // Logic to restore Bobot selection
-                if ($item->sub_id_bobot) {
-                    $existingSelectedBobot[$item->form_penilaian_id] = $item->sub_id_bobot;
-                } else {
-                    // Try to reverse-calculate Bobot Value from Nilai and Status Score
-                    // Nilai = StatusScore * Bobot
-                    // Bobot = Nilai / StatusScore
-                    if ($item->statusChoice && $item->statusChoice->skor > 0) {
-                        $calculatedBobot = $item->nilai / $item->statusChoice->skor;
-                        // Format to match radio values (e.g. 0.75, 1, 0.5)
-                        // Use string comparison safe value
-                        $existingSelectedBobot[$item->form_penilaian_id] = $calculatedBobot;
+                if ($item->subChoice) {
+                    if ($item->subChoice->tipe === 'status') {
+                        $existingStatus[$item->form_penilaian_id] = $item->sub_id;
+                    } elseif ($item->subChoice->tipe === 'item') {
+                        $existingGrades[$item->form_penilaian_id][$item->sub_id] = $item->nilai;
                     }
                 }
+                // Fallback or legacy handling if needed
             }
         }
-
 
         $existingKomentar = $existingReview ? $existingReview->items->pluck('catatan', 'form_penilaian_id')->toArray() : [];
 
@@ -1479,8 +1475,8 @@ class PenelitianController extends Controller
             'isWithinFinalReviewWindow',
             'formPenelitian',
             'existingReview',
-            'existingSelectedStatus',
-            'existingSelectedBobot',
+            'existingStatus',
+            'existingGrades',
             'existingKomentar',
             'ketuaPeneliti',
             'bidangPenelitian',
@@ -1513,7 +1509,7 @@ class PenelitianController extends Controller
             ->whereHas('laporanAkhir')
             ->firstOrFail();
 
-        $latestLaporan = $proposal->laporanAkhir->first();
+        $latestLaporan = $proposal->laporanAkhir;
 
         if (!$latestLaporan) {
             return redirect()->route('penelitian-rev.laporan-akhir.index')
@@ -1527,7 +1523,11 @@ class PenelitianController extends Controller
 
         $formPenelitian = \App\Models\FormPenilaianLaporanAkhir::where('jenis', 'penelitian')
             ->where('is_active', true)
-            ->with('subKomponen')
+            ->with([
+                'subKomponen' => function ($q) {
+                    $q->orderBy('urutan');
+                }
+            ])
             ->orderBy('urutan')
             ->get();
 
@@ -1535,23 +1535,34 @@ class PenelitianController extends Controller
         $targetStatus = $action === 'submit' ? 'selesai' : 'draft';
 
         $rules = [
-            'status' => 'array',
-            'bobot' => 'array',
+            'sub_komponen' => 'array',
+            'sub_komponen.*' => 'nullable|exists:form_penilaian_laporan_akhir_subs,id',
             'catatan_umum' => 'nullable|string',
         ];
 
+        // Validate selection requirement for submit
         if ($action === 'submit') {
-            $rules['status.*'] = 'required';
-            $rules['bobot.*'] = 'required';
-        } else {
-            $rules['status.*'] = 'nullable';
-            $rules['bobot.*'] = 'nullable';
+            foreach ($formPenelitian as $komponen) {
+                // Check for Status (Parent)
+                $statusSubs = $komponen->subKomponen->where('tipe', 'status');
+                if ($statusSubs->count() > 0) {
+                    $rules['status.' . $komponen->id] = 'required';
+                }
+
+                // Check for Items (Grades)
+                $itemSubs = $komponen->subKomponen->where('tipe', 'item');
+                if ($itemSubs->count() > 0) {
+                    foreach ($itemSubs as $item) {
+                        $rules['grades.' . $komponen->id . '.' . $item->id] = 'required';
+                    }
+                }
+            }
         }
 
         $validated = $request->validate($rules);
-        $statusInput = $validated['status'] ?? [];
-        $bobotInput = $validated['bobot'] ?? [];
-        $komentarInput = $request->input('komentar', []); // Komentar is optional per item
+        // $selectedSubKomponen no longer needed for Penelitian logic here
+        // as we access status/grades directly from request
+
 
         try {
             \Illuminate\Support\Facades\DB::beginTransaction();
@@ -1568,67 +1579,45 @@ class PenelitianController extends Controller
                     'jenis' => 'penelitian',
                 ],
                 [
-                    // 'jenis' is already in attributes, so strictly speaking not needed here, 
-                    // but updateOrCreate uses second array for 'values to update'. 
-                    // Since 'jenis' is key, it won't change.
+                    'status' => $targetStatus,
+                    'catatan_umum' => $validated['catatan_umum'] ?? null,
+                    'submitted_at' => $targetStatus === 'selesai' ? now() : null,
                 ]
             );
 
-            $review->status = $targetStatus;
-            $review->catatan_umum = $validated['catatan_umum'] ?? null;
-            $review->submitted_at = $targetStatus === 'selesai' ? now() : null;
-            $review->save();
-
-            // Hapus item lama dan buat baru
+            // Refresh items
             $review->items()->delete();
 
-            foreach ($formPenelitian as $item) {
-                $statusId = $statusInput[$item->id] ?? null;
-                // Bobot input can be ID or Value depending on implementation. 
-                // Assuming form sends ID if available, or Value if hardcoded.
-                // But Schema requires sub_id_bobot FK. 
-                // If Bobot input is numeric (percentage) and no ID, we save sub_id_bobot=null.
-                // But we need to check if we received an ID.
-                $bobotValRaw = $bobotInput[$item->id] ?? null;
+            foreach ($formPenelitian as $komponen) {
+                // 1. Process Status Selection
+                if (isset($request->status[$komponen->id])) {
+                    $statusSubId = $request->status[$komponen->id];
+                    $statusSub = \App\Models\FormPenilaianLaporanAkhirSub::find($statusSubId);
 
-                // Calculate final value
-                // Get Status Score
-                $statusSub = $statusId ? \App\Models\FormPenilaianLaporanAkhirSub::find($statusId) : null;
-                $statusScore = $statusSub ? $statusSub->skor : 0;
-
-                // Get Bobot Multiplier
-                // If bobotValRaw is ID, find sub. If numeric value (e.g. 0.75), use it.
-                // Since we assumed "Sangat Baik (100%)", let's assume valid form passes value like 1, 0.75.
-                // Or if we implemented storing Global Bobot Subs, it passes ID.
-                // Given the complexity constraints, if we map strictly to Schema, we need sub_id_bobot. 
-                // We will TRY to find sub by ID.
-
-                $bobotSub = null;
-                $bobotMultiplier = 1;
-
-                if (is_numeric($bobotValRaw) && $bobotValRaw > 1) {
-                    // Likely an ID
-                    $bobotSub = \App\Models\FormPenilaianLaporanAkhirSub::find($bobotValRaw);
-                    if ($bobotSub) {
-                        // Check if skor is percentage (e.g. 100 or 1) or label?
-                        // Assuming skor is 100, 75...
-                        $bobotMultiplier = $bobotSub->skor / 100;
+                    if ($statusSub) {
+                        $review->items()->create([
+                            'form_penilaian_id' => $komponen->id,
+                            'sub_id' => $statusSubId,
+                            'nilai' => $statusSub->skor, // Base score from status
+                            'catatan' => null
+                        ]);
                     }
-                } else {
-                    // Likely a direct multiplier value (1, 0.75) if hardcoded view
-                    $bobotMultiplier = (float) $bobotValRaw;
                 }
 
-                $finalNilai = $statusScore * $bobotMultiplier;
-
-                if ($statusId) {
-                    $review->items()->create([
-                        'form_penilaian_id' => $item->id,
-                        'sub_id_status' => $statusId,
-                        'sub_id_bobot' => $bobotSub ? $bobotSub->id : null,
-                        'nilai' => $finalNilai,
-                        'catatan' => $komentarInput[$item->id] ?? null,
-                    ]);
+                // 2. Process Item Grades
+                if (isset($request->grades[$komponen->id])) {
+                    foreach ($request->grades[$komponen->id] as $itemSubId => $gradeScore) {
+                        // Validate item belongs to form (optional but good practice)
+                        $itemSub = \App\Models\FormPenilaianLaporanAkhirSub::find($itemSubId);
+                        if ($itemSub && $itemSub->form_penilaian_laporan_akhir_id == $komponen->id) {
+                            $review->items()->create([
+                                'form_penilaian_id' => $komponen->id,
+                                'sub_id' => $itemSubId, // Referencing the Item Sub-Component
+                                'nilai' => $gradeScore, // The score given by reviewer (100, 75, etc.)
+                                'catatan' => null
+                            ]);
+                        }
+                    }
                 }
             }
 
@@ -1678,7 +1667,7 @@ class PenelitianController extends Controller
             ->whereHas('laporanAkhir')
             ->firstOrFail();
 
-        $latestLaporan = $proposal->laporanAkhir->first();
+        $latestLaporan = $proposal->laporanAkhir;
 
         if (!$latestLaporan) {
             return redirect()->route('penelitian-rev.laporan-akhir.index')
@@ -1687,19 +1676,22 @@ class PenelitianController extends Controller
 
         $existingReview = \App\Models\LaporanAkhirReview::with([
             'items.formPenilaian',
-            'items.statusChoice',
-            'items.bobotChoice',
+            'items.subChoice', // Updated to match new saving logic
             'reviewer'
         ])
             ->where('laporan_akhir_id', $latestLaporan->id)
             ->where('reviewer_id', $reviewerId)
             ->where('jenis', 'penelitian')
-            ->where('status', 'selesai')
+            // Allow printing drafts for the reviewer who owns it
+            ->when($reviewerId != Auth::id() && !Auth::user()->hasRole('admin'), function ($q) {
+                $q->where('status', 'selesai');
+            })
+            ->orderByDesc('updated_at')
             ->first();
 
         if (!$existingReview) {
             return redirect()->route('penelitian-rev.laporan-akhir.index')
-                ->with('error', 'Review laporan akhir belum selesai atau tidak ditemukan.');
+                ->with('error', 'Review laporan akhir belum ditemukan.');
         }
 
         $formPenelitian = \App\Models\FormPenilaianLaporanAkhir::where('jenis', 'penelitian')
@@ -1752,8 +1744,17 @@ class PenelitianController extends Controller
             'margin_right' => 25,
             'margin_top' => 20,
             'margin_bottom' => 20,
+            'tempDir' => storage_path('app/mpdf'), // Ensure temp dir exists
         ]);
+
         $mpdf->WriteHTML($html);
-        $mpdf->Output('Laporan_Akhir_Penelitian_' . $proposal->id . '.pdf', 'I');
+
+        // Prevent caching
+        $filename = 'Laporan_Akhir_Penelitian_' . $proposal->id . '_' . time() . '.pdf';
+
+        return response($mpdf->Output($filename, 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+            ->header('Cache-Control', 'private, max-age=0, must-revalidate');
     }
 }

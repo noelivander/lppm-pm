@@ -50,11 +50,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('ppm/penelitian-adm/revisi/{id}', [PenelitianController::class, 'revisiShow'])->name('penelitian-adm.revisi.show');
     Route::resource('ppm/penelitian-adm', PenelitianController::class);
     Route::post('ppm/penelitian-adm/{id}/approve-reject', [PenelitianController::class, 'approveReject'])->name('penelitian-adm.approve-reject');
+    Route::post('ppm/penelitian-adm/{id}/assign-reviewer', [PenelitianController::class, 'assignReviewer'])->name('penelitian-adm.assign-reviewer');
+    Route::delete('ppm/penelitian-adm/{id}/remove-reviewer/{reviewerId}', [PenelitianController::class, 'removeReviewer'])->name('penelitian-adm.remove-reviewer');
 
     Route::get('ppm/pengabdian-adm/revisi', [PengabdianController::class, 'revisiIndex'])->name('pengabdian-adm.revisi.index');
     Route::get('ppm/pengabdian-adm/revisi/{id}', [PengabdianController::class, 'revisiShow'])->name('pengabdian-adm.revisi.show');
     Route::resource('ppm/pengabdian-adm', PengabdianController::class);
     Route::post('ppm/pengabdian-adm/{id}/approve-reject', [PengabdianController::class, 'approveReject'])->name('pengabdian-adm.approve-reject');
+    Route::post('ppm/pengabdian-adm/{id}/assign-reviewer', [PengabdianController::class, 'assignReviewer'])->name('pengabdian-adm.assign-reviewer');
+    Route::delete('ppm/pengabdian-adm/{id}/remove-reviewer/{reviewerId}', [PengabdianController::class, 'removeReviewer'])->name('pengabdian-adm.remove-reviewer');
 
     // Skema routes
     Route::get('skema', [SkemaController::class, 'index'])->name('skema.index');
@@ -148,6 +152,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Laporan Akhir Administration
     Route::get('ppm/laporan-akhir', [\App\Http\Controllers\Admin\PPM\LaporanAkhirController::class, 'index'])->name('admin.laporan-akhir.index');
     Route::get('ppm/laporan-akhir/{id}', [\App\Http\Controllers\Admin\PPM\LaporanAkhirController::class, 'show'])->name('admin.laporan-akhir.show');
+    Route::get('ppm/laporan-akhir/{id}/download-pdf', [\App\Http\Controllers\Admin\PPM\LaporanAkhirController::class, 'downloadPdf'])->name('admin.laporan-akhir.download-pdf');
 
     Route::post('ckeditor/upload', [CkeditorController::class, 'upload'])->name('ckeditor.upload');
 

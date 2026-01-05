@@ -64,6 +64,11 @@ class Pengabdian extends Model
         return $this->hasMany(RabPengabdian::class);
     }
 
+    public function assignedReviewers()
+    {
+        return $this->belongsToMany(User::class, 'proposal_reviewers', 'pengabdian_id', 'user_id');
+    }
+
     public function laporanKemajuan()
     {
         return $this->hasMany(LaporanKemajuan::class);

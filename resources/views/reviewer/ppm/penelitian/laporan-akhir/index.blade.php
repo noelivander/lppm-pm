@@ -76,7 +76,8 @@
                                     <option value="">Semua Tahun</option>
                                     @foreach($filterYears as $yearOption)
                                         <option value="{{ $yearOption }}" @selected(($filters['year'] ?? '') == $yearOption)>
-                                            {{ $yearOption }}</option>
+                                            {{ $yearOption }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -86,7 +87,8 @@
                                     <option value="">Semua Status</option>
                                     @foreach($statusOptions as $status)
                                         <option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>
-                                            {{ $status }}</option>
+                                            {{ $status }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -120,7 +122,8 @@
                                 <tbody>
                                     @foreach ($proposals as $proposal)
                                         @php
-                                            $latestLaporan = $proposal->laporanAkhir->first();
+                                            // FIX: laporanAkhir is hasOne.
+                                            $latestLaporan = $proposal->laporanAkhir;
                                             $parentProposal = $proposal->revisionParent;
                                             $skemaDisplay = $parentProposal->skema ?? $proposal->skema ?? '-';
                                             $yearDisplay = optional($parentProposal->created_at ?? $proposal->created_at)->format('Y') ?? '-';

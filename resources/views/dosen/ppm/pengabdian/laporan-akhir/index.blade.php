@@ -183,23 +183,18 @@
                                                                     ->get();
                                                             @endphp
 
-                                                            @if ($laporanReviews->count() > 0)
-                                                                <div class="row">
-                                                                    @foreach ($laporanReviews as $index => $laporanReview)
-                                                                        <div class="col-md-6 mb-3">
-                                                                            <div class="modern-card">
-                                                                                <div class="modern-card-body text-center">
-                                                                                    <i class="fa fa-file-alt fa-3x text-primary mb-3"></i>
-                                                                                    <h6 class="mb-2">Review {{ $index + 1 }}</h6>
-                                                                                    <p class="text-muted small mb-3">Klik untuk melihat detail review</p>
-                                                                                    <a href="{{ route('pengabdian-dos.laporan-akhir.view-reviews', ['pengabdian_id' => $proposal->id, 'review_number' => $index + 1]) }}" 
-                                                                                       class="modern-btn modern-btn-primary">
-                                                                                        <i class="fa fa-eye me-1"></i> Lihat Review
-                                                                                    </a>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    @endforeach
+                                                            @if ($hasLaporan && $reviewCount >= 1)
+                                                                <div class="text-center py-4">
+                                                                    <i class="fa fa-file-pdf fa-4x text-danger mb-3"></i>
+                                                                    <h5 class="mb-3">Hasil Penilaian Laporan Akhir</h5>
+                                                                    <p class="text-muted mb-4">
+                                                                        Lihat hasil penilaian lengkap dari seluruh reviewer dalam satu dokumen PDF.
+                                                                    </p>
+                                                                    
+                                                                    <a href="{{ route('pengabdian-dos.laporan-akhir.view-reviews', ['pengabdian_id' => $proposal->id]) }}" 
+                                                                       class="modern-btn modern-btn-primary modern-btn-lg" target="_blank">
+                                                                        <i class="fa fa-file-pdf me-2"></i> Lihat Hasil Review Lengkap
+                                                                    </a>
                                                                 </div>
                                                             @else
                                                                 <div class="text-center py-4">

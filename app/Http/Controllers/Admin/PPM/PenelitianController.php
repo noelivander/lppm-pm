@@ -10,6 +10,7 @@ use App\Models\Anggota;
 use App\Models\RabPenelitian;
 use App\Models\Timeline;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User; // Added User model
 
 class PenelitianController extends Controller
 {
@@ -21,10 +22,12 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        
+
         // Query proposal yang sudah direview lengkap (minimal 2 reviewer)
+        // REMOVED: Allow admin to see all proposals to assign reviewers
+        // Added: Exclude revisions
         $baseQuery = Penelitian::where('is_draft', false)
-            ->whereRaw('(SELECT COUNT(*) FROM reviews WHERE reviews.penelitian_id = penelitian.id) >= 2')
+            ->where('is_revised', false)
             ->withCount('reviews');
 
         $filterSkemas = (clone $baseQuery)->select('skema')
@@ -89,24 +92,41 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        
+
         $proposal = Penelitian::with(['anggota', 'rab', 'user', 'reviews.reviewer', 'reviews.reviewKriteria.formPenilaianReview'])->findOrFail($id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
-        
+
         // Pastikan proposal sudah direview minimal 2 reviewer
         $reviews = $proposal->reviews;
-        if ($reviews->count() < 2) {
-            return redirect()->route('penelitian-adm.index')
-                ->with('error', 'Proposal ini belum direview lengkap oleh 2 reviewer.');
-        }
+        // REMOVED BLOCKING CHECK: Allow admin to view proposal even if reviews < 2 to assign reviewers
+        // if ($reviews->count() < 2) {
+        //     return redirect()->route('penelitian-adm.index')
+        //         ->with('error', 'Proposal ini belum direview lengkap oleh 2 reviewer.');
+        // }
+        // Instead, just pass a flag or count to view
+        $reviewCount = $reviews->count();
+
+        // Load Assigned Reviewers
+        $proposal->load('assignedReviewers');
+        $assignedReviewers = $proposal->assignedReviewers;
+
+        // Get Available Reviewers (Users with role 'reviewer')
+        // Assuming 'role' column exists and stores string 'reviewer' or similar. 
+        // Based on previous files, User model has 'role'.
+        $availableReviewers = User::where('role', 'reviewer')
+            ->whereDoesntHave('assignedPenelitians', function ($q) use ($id) {
+                $q->where('penelitian_id', $id);
+            })
+            ->orderBy('name')
+            ->get();
 
         $anggotaList = $proposal->anggota ?? collect();
         $rabItems = $proposal->rab ?? collect();
-        
+
         $ketuaTim = Anggota::where('penelitian_id', $id)
             ->where('peran', 'ketua')
             ->first();
-        
+
         $anggotaTim = Anggota::where('penelitian_id', $id)
             ->where('peran', 'anggota')
             ->get();
@@ -123,7 +143,10 @@ class PenelitianController extends Controller
             'fileUrl',
             'timeline',
             'currentDate',
-            'proposalYear'
+            'proposalYear',
+            'assignedReviewers',
+            'availableReviewers',
+            'reviewCount'
         ));
     }
 
@@ -134,10 +157,10 @@ class PenelitianController extends Controller
     {
         $currentDate = now();
         $timeline = $this->getActiveTimeline();
-        
+
         $proposal = Penelitian::findOrFail($id);
         $proposalYear = $proposal->created_at ? $proposal->created_at->format('Y') : null;
-        
+
         // Validasi periode admin decision
         if (
             !$timeline ||
@@ -149,12 +172,12 @@ class PenelitianController extends Controller
             return redirect()->back()
                 ->with('error', 'Periode penyetujuan admin untuk proposal ini belum ditentukan atau sudah tidak aktif.');
         }
-        
+
         if ($currentDate < $timeline->admin_decision_start_date || $currentDate > $timeline->admin_decision_end_date) {
             return redirect()->back()
                 ->with('error', 'Anda tidak dapat melakukan keputusan di luar periode yang ditentukan.');
         }
-        
+
         $request->validate([
             'admin_status' => 'required|in:approved,rejected',
             'admin_comment' => 'required|string|max:1000',
@@ -191,18 +214,18 @@ class PenelitianController extends Controller
         $proposal->admin_status = $request->admin_status;
         $proposal->admin_comment = $request->admin_comment;
         $proposal->biaya_disetujui = $biayaDisetujui;
-        
+
         // Update status proposal berdasarkan keputusan admin
         if ($request->admin_status === 'approved') {
             $proposal->status = 'Disetujui';
         } else {
             $proposal->status = 'Ditolak';
         }
-        
+
         $proposal->save();
 
         $statusText = $request->admin_status === 'approved' ? 'disetujui' : 'ditolak';
-        
+
         return redirect()->route('penelitian-adm.index')
             ->with('success', "Proposal berhasil {$statusText}.");
     }
@@ -252,9 +275,9 @@ class PenelitianController extends Controller
             $baseQuery->where('status', $filters['status']);
         }
 
-        $proposals = $baseQuery->orderByDesc('updated_at')
-            ->paginate(10)
-            ->withQueryString();
+        $proposals = $baseQuery->orderByDesc('updated_at')->paginate(10);
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $proposals */
+        $proposals->withQueryString();
 
         return view('admin.ppm.penelitian.revisi.index', compact(
             'proposals',
@@ -271,12 +294,13 @@ class PenelitianController extends Controller
     public function revisiShow($id)
     {
         $proposal = Penelitian::with([
-                'user',
-                'anggota',
-                'rab',
-                'revisionParent.user',
-                'revisionParent.reviews.reviewer',
-            ])
+            'user',
+            'anggota',
+            'rab',
+            'revisionParent.user',
+            'revisionParent.reviews.reviewer',
+            'revisionParent.reviews.reviewKriteria.formPenilaianReview',
+        ])
             ->where('is_revised', true)
             ->findOrFail($id);
 
@@ -309,5 +333,50 @@ class PenelitianController extends Controller
             ->orderBy('period', 'desc')
             ->ordered()
             ->first();
+    }
+
+    /**
+     * Assign a reviewer to the proposal
+     */
+    public function assignReviewer(Request $request, $id)
+    {
+        $request->validate([
+            'reviewer_id' => 'required|exists:users,id',
+        ]);
+
+        $proposal = Penelitian::findOrFail($id);
+        $reviewer = User::with('assignedPenelitians')->findOrFail($request->reviewer_id);
+
+        if ($reviewer->role !== 'reviewer') {
+            return redirect()->back()->with('error', 'User yang dipilih bukan reviewer.');
+        }
+
+        // Check availability/limit if necessary (e.g. max 2 reviewers)
+        // For now, allow multiple, but typically 2.
+        if ($proposal->assignedReviewers()->count() >= 2) {
+            // Optional: Block if strict 2. But maybe we want a backup reviewer?
+            // Let's just warn or allow. Based on requirement "Pilih Reviewer", usually implies managing the team.
+            // Let's allow >2 for flexibility, or warn.
+        }
+
+        try {
+            $proposal->assignedReviewers()->attach($reviewer->id);
+            return redirect()->back()->with('success', 'Reviewer berhasil ditugaskan.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menugaskan reviewer: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove an assigned reviewer
+     */
+    public function removeReviewer($id, $reviewerId)
+    {
+        $proposal = Penelitian::findOrFail($id);
+
+        // Remove assignment
+        $proposal->assignedReviewers()->detach($reviewerId);
+
+        return redirect()->back()->with('success', 'Reviewer berhasil dihapus dari penugasan.');
     }
 }

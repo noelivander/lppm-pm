@@ -25,8 +25,12 @@ class PengabdianController extends Controller
         $timeline = $this->getActiveTimeline();
 
         // Hanya tampilkan proposal awal (bukan entitas revisi)
+        // DAN hanya yang ditugaskan ke reviewer ini
         $baseQuery = Pengabdian::where('is_draft', false)
-            ->where('is_revised', false);
+            ->where('is_revised', false)
+            ->whereHas('assignedReviewers', function ($q) {
+                $q->where('user_id', Auth::id());
+            });
 
         $filterSkemas = (clone $baseQuery)->select('skema')
             ->whereNotNull('skema')
@@ -67,9 +71,8 @@ class PengabdianController extends Controller
                 // Proposal yang sudah saya review
                 $baseQuery->whereIn('id', $myReviewedIds);
             } elseif ($status === 'Pending') {
-                // Proposal yang belum saya review DAN belum penuh 2 review
-                $baseQuery->whereNotIn('id', $myReviewedIds)
-                    ->whereNotIn('id', $fullReviewedIds);
+                // Proposal yang belum saya review
+                $baseQuery->whereNotIn('id', $myReviewedIds);
             }
         }
 
@@ -1276,7 +1279,7 @@ class PengabdianController extends Controller
             ?? $proposal->anggota->where('peran', 'ketua')->first();
 
         $jumlahAnggotaTim = $proposal->anggota->count();
-        $danaDisetujui = $proposal->biaya_disetujui ?? 0;
+        $danaDisetujui = $proposal->biaya_disetujui > 0 ? $proposal->biaya_disetujui : (optional($proposal->revisionParent)->biaya_disetujui ?? 0);
 
         $jurusanProdi = '-';
         if ($ketuaTim) {
@@ -1459,7 +1462,8 @@ class PengabdianController extends Controller
 
         $proposal = Pengabdian::with([
             'laporanAkhir' => function ($query) {
-                $query->orderByDesc('created_at');
+                $query->whereNotNull('pengabdian_id') // STRICT FILTER
+                    ->orderByDesc('created_at');
             },
             'revisionParent.reviews',
             'reviews',
@@ -1468,14 +1472,19 @@ class PengabdianController extends Controller
         ])
             ->where('id', $id)
             ->where('is_revised', true) // Asumsi Laporan Akhir linked to revised proposal
-            ->whereHas('laporanAkhir')
+            ->whereHas('laporanAkhir', function ($q) {
+                $q->whereNotNull('pengabdian_id'); // STRICT FILTER
+            })
             ->firstOrFail();
 
-        $latestLaporan = $proposal->laporanAkhir->first();
+        // FAIL: hasOne relationship returns the model directly, not a collection.
+        // Calling ->first() on the model executes a global query "select * from laporan_akhir limit 1", giving ID 1 (Penelitian)!
+        $latestLaporan = $proposal->laporanAkhir;
 
-        if (!$latestLaporan) {
+        // Double check just to be absolutely sure
+        if (!$latestLaporan || !$latestLaporan->pengabdian_id) {
             return redirect()->route('pengabdian-rev.laporan-akhir.index')
-                ->with('error', 'Tidak ada laporan akhir untuk proposal ini.');
+                ->with('error', 'Tidak ada laporan akhir pengabdian yang valid untuk proposal ini.');
         }
 
         // Ambil form penilaian laporan akhir pengabdian
@@ -1546,7 +1555,7 @@ class PengabdianController extends Controller
 
         $lamaPenelitian = $proposal->lama_kegiatan ?? '-';
 
-        $danaDisetujui = $proposal->biaya_disetujui ?? 0;
+        $danaDisetujui = $proposal->biaya_disetujui > 0 ? $proposal->biaya_disetujui : (optional($proposal->revisionParent)->biaya_disetujui ?? 0);
 
         // Match variable name with View ($ketuaTim)
         $ketuaTim = $ketuaPeneliti;
@@ -1581,19 +1590,24 @@ class PengabdianController extends Controller
 
         $proposal = Pengabdian::with([
             'laporanAkhir' => function ($query) {
-                $query->orderByDesc('created_at');
+                $query->whereNotNull('pengabdian_id') // STRICT FILTER
+                    ->orderByDesc('created_at');
             },
         ])
             ->where('id', $id)
             ->where('is_revised', true)
-            ->whereHas('laporanAkhir')
+            ->whereHas('laporanAkhir', function ($q) {
+                $q->whereNotNull('pengabdian_id'); // STRICT FILTER
+            })
             ->firstOrFail();
 
-        $latestLaporan = $proposal->laporanAkhir->first();
+        // FAIL: hasOne relationship returns the model directly, not a collection.
+        $latestLaporan = $proposal->laporanAkhir;
 
-        if (!$latestLaporan) {
+        // Double check just to be absolutely sure
+        if (!$latestLaporan || !$latestLaporan->pengabdian_id) {
             return redirect()->route('pengabdian-rev.laporan-akhir.index')
-                ->with('error', 'Tidak ada laporan akhir untuk proposal ini.');
+                ->with('error', 'Tidak ada laporan akhir pengabdian yang valid untuk proposal ini.');
         }
 
         if (!$isWithinFinalReviewWindow) {
@@ -1734,7 +1748,8 @@ class PengabdianController extends Controller
             ->whereHas('laporanAkhir')
             ->firstOrFail();
 
-        $latestLaporan = $proposal->laporanAkhir->first();
+        // FAIL: hasOne relationship returns the model directly, not a collection.
+        $latestLaporan = $proposal->laporanAkhir;
 
         if (!$latestLaporan) {
             return redirect()->route('pengabdian-rev.laporan-akhir.index')
@@ -1784,7 +1799,7 @@ class PengabdianController extends Controller
             ?? $proposal->anggota->where('peran', 'ketua')->first();
 
         $jumlahAnggotaTim = $proposal->anggota->count();
-        $danaDisetujui = $proposal->biaya_disetujui ?? 0;
+        $danaDisetujui = $proposal->biaya_disetujui > 0 ? $proposal->biaya_disetujui : (optional($proposal->revisionParent)->biaya_disetujui ?? 0);
 
         $skema = optional($proposal->revisionParent)->skema ?? $proposal->skema ?? '-';
 

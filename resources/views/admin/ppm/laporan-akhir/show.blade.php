@@ -101,7 +101,12 @@
                     <div class="modern-card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="mb-0"><i class="fa fa-clipboard-check me-2"></i>Hasil Penilaian Reviewer</h4>
-                            <span class="text-muted small">{{ $laporan->reviews->count() }} review</span>
+                            <span class="text-muted small">
+                                Count: {{ $laporan->reviews->count() }}
+                                @foreach($laporan->reviews as $r)
+                                    [ID:{{$r->id}} Items:{{$r->items->count()}}]
+                                @endforeach
+                            </span>
                         </div>
 
                         @forelse($laporan->reviews as $index => $review)
@@ -121,41 +126,106 @@
                                         @if($jenis == 'penelitian')
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 30%">Komponen</th>
-                                                    <th style="width: 20%">Status</th>
-                                                    <th style="width: 15%">Bobot</th>
-                                                    <th style="width: 10%">Nilai</th>
+                                                    <th style="width: 5%">No</th>
+                                                    <th style="width: 25%">Komponen</th>
+                                                    <th style="width: 25%">Status</th>
+                                                    <th style="width: 25%">Item</th>
+                                                    <th style="width: 10%">Bobot</th>
+                                                    <th style="width: 10%">Nilai (Calculated)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach($review->items as $item)
-                                                    <tr>
-                                                        <td>{{ $item->formPenilaian->komponen_penilaian ?? '-' }}</td>
-                                                        <td>
-                                                            @if($item->statusChoice)
-                                                                <small>{{ $item->statusChoice->keterangan }}</small>
-                                                                <div class="text-muted x-small">Skor: {{ $item->statusChoice->skor }}</div>
-                                                            @else
-                                                                -
+                                                @php 
+                                                    $no = 1; 
+                                                    $totalReviewScore = 0;
+                                                @endphp
+                                                @foreach($formPenelitian as $formItem)
+                                                    @php
+                                                        // Get all review items for this component
+                                                        $componentReviews = $review->items->where('form_penilaian_id', $formItem->id);
+
+                                                        // --- 1. Status Logic ---
+                                                        $statusSubs = $formItem->subKomponen->where('tipe', 'status')->sortByDesc('skor'); 
+                                                        $statusSubIds = $statusSubs->pluck('id')->toArray();
+                                                        
+                                                        // Find selected status in review items
+                                                        $selectedStatusReview = $componentReviews->first(function ($val) use ($statusSubIds) {
+                                                            return in_array($val->sub_id, $statusSubIds);
+                                                        });
+                                                        
+                                                        $selectedStatusId = $selectedStatusReview ? $selectedStatusReview->sub_id : null;
+                                                        
+                                                        $selectedStatusSkor = 0;
+                                                        if($selectedStatusId) {
+                                                            $selectedSub = $statusSubs->where('id', $selectedStatusId)->first();
+                                                            $selectedStatusSkor = $selectedSub ? $selectedSub->skor : 0;
+                                                        }
+
+                                                        // --- 2. Item Grades Logic ---
+                                                        $itemSubs = $formItem->subKomponen->where('tipe', 'item');
+                                                        $gradeReviews = $componentReviews->filter(function ($val) use ($statusSubIds) {
+                                                            return !in_array($val->sub_id, $statusSubIds);
+                                                        });
+
+                                                        $rowCount = max(1, $itemSubs->count());
+                                                    @endphp
+
+                                                    @for($i = 0; $i < $rowCount; $i++)
+                                                        <tr>
+                                                            @if($i === 0)
+                                                                <td rowspan="{{ $rowCount }}" class="text-center">{{ $no++ }}</td>
+                                                                <td rowspan="{{ $rowCount }}">
+                                                                    <strong>{{ $formItem->komponen_penilaian }}</strong>
+                                                                </td>
+                                                                <td rowspan="{{ $rowCount }}">
+                                                                    <ul class="list-unstyled mb-0">
+                                                                        @foreach($statusSubs as $statusOption)
+                                                                            @php
+                                                                                $isSelected = $selectedStatusId == $statusOption->id;
+                                                                                $style = $isSelected ? 'font-weight: bold; text-decoration: underline; color: #000;' : 'color: #6c757d;';
+                                                                            @endphp
+                                                                            <li style="{{ $style }}">
+                                                                                @if($isSelected) <i class="fa fa-check-circle text-success me-1"></i> @endif
+                                                                                {{ $statusOption->keterangan }} 
+                                                                                <small>({{ $statusOption->skor }})</small>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                </td>
                                                             @endif
-                                                        </td>
-                                                        <td>
-                                                            @if($item->bobotChoice)
-                                                                <small>{{ $item->bobotChoice->keterangan }}</small>
+
+                                                             @if($itemSubs->count() > 0 && $i < $itemSubs->count())
+                                                                @php
+                                                                    $currentItem = $itemSubs->values()[$i];
+                                                                    $currentGrade = $gradeReviews->where('sub_id', $currentItem->id)->first();
+                                                                    $scoreVal = $currentGrade ? $currentGrade->nilai : 0;
+                                                                    
+                                                                    $label = '';
+                                                                    if ($scoreVal == 100) $label = 'Sangat Baik (100%)';
+                                                                    elseif ($scoreVal == 75) $label = 'Baik (75%)';
+                                                                    elseif ($scoreVal == 50) $label = 'Cukup Baik (50%)'; 
+                                                                    elseif ($scoreVal == 25) $label = 'Kurang (25%)';
+                                                                    else $label = $scoreVal . '%';
+                    
+                                                                    $finalValue = $scoreVal * ($selectedStatusSkor / 100);
+                                                                    $totalReviewScore += $finalValue;
+                                                                @endphp
+                                                                <td>{{ $currentItem->keterangan }}</td>
+                                                                <td>{{ $label }}</td>
+                                                                <td class="fw-bold">{{ $finalValue > 0 ? number_format($finalValue, 0) : '-' }}</td>
                                                             @else
-                                                                -
+                                                                <td>-</td>
+                                                                <td>-</td>
+                                                                <td>-</td>
                                                             @endif
-                                                        </td>
-                                                        <td class="fw-bold">{{ $item->nilai }}</td>
-                                                        <td>{{ $item->catatan ?? '-' }}</td>
-                                                    </tr>
+                                                        </tr>
+                                                    @endfor
                                                 @endforeach
                                             </tbody>
                                             <tfoot>
                                                 <tr class="bg-white">
-                                                    <td colspan="3" class="fw-bold text-end">Total Nilai</td>
-                                                    <td class="fw-bold text-primary">{{ $review->items->sum('nilai') }}</td>
-                                                    <td></td>
+                                                    <td colspan="5" class="fw-bold text-end">Total Nilai</td>
+                                                    <td class="fw-bold text-primary">{{ number_format($totalReviewScore, 0) }}</td>
                                                 </tr>
                                             </tfoot>
                                         @else

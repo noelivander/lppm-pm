@@ -19,6 +19,11 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
         ->name('penelitian-dos.revisi.index');
     Route::get('ppm/pengabdian-dos/revisi/proposal', [PengabdianController::class, 'revisiIndex'])
         ->name('pengabdian-dos.revisi.index');
+
+    // New Route: Riwayat Pendanaan
+    Route::get('riwayat-pendanaan', [\App\Http\Controllers\DosenController::class, 'riwayatPendanaan'])
+        ->name('dosen.riwayat-pendanaan');
+
     Route::get('ppm/penelitian-dos/laporan-kemajuan/proposal', [PenelitianController::class, 'laporanKemajuanIndex'])
         ->name('penelitian-dos.laporan-kemajuan.index');
     Route::get('ppm/pengabdian-dos/laporan-kemajuan/proposal', [PengabdianController::class, 'laporanKemajuanIndex'])
@@ -65,7 +70,7 @@ Route::middleware(['auth', 'role:dosen'])->group(function () {
         ->name('penelitian-dos.laporan-kemajuan.view-reviews');
     Route::get('penelitian/{penelitian_id}/laporan-akhir/view-reviews/{review_number}', [PenelitianController::class, 'viewLaporanAkhirReviews'])
         ->name('penelitian-dos.laporan-akhir.view-reviews');
-    Route::get('pengabdian/{pengabdian_id}/laporan-akhir/view-reviews/{review_number}', [PengabdianController::class, 'viewLaporanAkhirReviews'])
+    Route::get('pengabdian/{pengabdian_id}/laporan-akhir/view-reviews', [PengabdianController::class, 'viewLaporanAkhirReviews'])
         ->name('pengabdian-dos.laporan-akhir.view-reviews');
     Route::get('/penelitian/{id}/download-proposal', [PenelitianController::class, 'downloadDokumenProposal'])->name('penelitian.downloadProposal');
     Route::get('/pengabdian/{id}/download-proposal', [PengabdianController::class, 'downloadDokumenProposal'])->name('pengabdian.downloadProposal');

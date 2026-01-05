@@ -4,128 +4,126 @@
     </x-slot>
 
     <div class="container-fluid pb-5">
+        <!-- Header Section -->
         <div class="row mt-3">
             <div class="col-md-12">
-                <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <h3 class="mb-0 d-flex align-items-center gap-2">
-                        <i class="fa fa-eye"></i>
-                        <span>Tinjau Laporan Akhir</span>
-                    </h3>
+                <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h3 class="fw-bold mb-1 text-primary">
+                            <i class="fa fa-clipboard-check me-2"></i>Monev Laporan Akhir
+                        </h3>
+                        <p class="text-muted mb-0">Lakukan penilaian ketercapaian luaran penelitian.</p>
+                    </div>
                     <a href="{{ route('penelitian-rev.laporan-akhir.index') }}" class="modern-btn modern-btn-secondary">
                         <i class="fa fa-arrow-left me-1"></i> Kembali
                     </a>
                 </div>
 
                 @if(session('success'))
-                    <div class="modern-alert modern-alert-success mb-3">
-                        <i class="fa fa-check-circle me-2"></i>{{ session('success') }}
+                    <div class="modern-alert modern-alert-success mb-3 fade-in-up">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-check-circle fa-lg me-3"></i>
+                            <div>
+                                <strong>Berhasil!</strong> {{ session('success') }}
+                            </div>
+                        </div>
                     </div>
                 @endif
 
                 @if(session('error'))
-                    <div class="modern-alert modern-alert-danger mb-3">
-                        <i class="fa fa-exclamation-triangle me-2"></i>{{ session('error') }}
+                    <div class="modern-alert modern-alert-danger mb-3 fade-in-up">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-exclamation-triangle fa-lg me-3"></i>
+                            <div>
+                                <strong>Gagal!</strong> {{ session('error') }}
+                            </div>
+                        </div>
                     </div>
                 @endif
 
-                @if(!$isWithinFinalReviewWindow)
-                    <div class="modern-alert modern-alert-warning mb-3">
-                        <i class="fa fa-lock me-2"></i>Periode review laporan akhir tidak aktif. Form tetap dapat
-                        dilihat, namun aksi simpan dinonaktifkan.
-                    </div>
-                @endif
-
-                <!-- Informasi Penelitian -->
+                <!-- Info Card -->
                 <div class="modern-card mb-4 fade-in-up">
-                    <div class="modern-card-header">
-                        <h5 class="mb-0"><i class="fa fa-info-circle me-2"></i>Informasi Penelitian</h5>
+                    <div class="modern-card-header bg-soft-primary">
+                        <h5 class="mb-0 fw-bold"><i class="fa fa-info-circle me-2"></i>Informasi Proposal</h5>
                     </div>
                     <div class="modern-card-body">
                         <div class="row g-4">
-                            <div class="col-md-6 col-lg-4">
-                                <p class="text-muted text-uppercase small fw-semibold mb-1">Judul Penelitian</p>
-                                <h6 class="fw-bold mb-0 text-break">{{ $proposal->judul ?? '-' }}</h6>
+                            <div class="col-md-6 col-lg-8">
+                                <p class="text-muted text-uppercase small fw-bold mb-1">Judul Penelitian</p>
+                                <h5 class="fw-bold text-dark mb-0">{{ $proposal->judul ?? '-' }}</h5>
                             </div>
-                            <div class="col-md-6 col-lg-2">
-                                <p class="text-muted text-uppercase small fw-semibold mb-1">Bidang Penelitian</p>
+                            <div class="col-md-6 col-lg-4 text-lg-end">
+                                <p class="text-muted text-uppercase small fw-bold mb-1">Total Dana Disetujui</p>
+                                @php
+                                    $danaDisetujui = $proposal->biaya_disetujui > 0 ? $proposal->biaya_disetujui : (optional($proposal->revisionParent)->biaya_disetujui ?? 0);
+                                @endphp
+                                <h5 class="fw-bold text-success mb-0">Rp {{ number_format($danaDisetujui, 0, ',', '.') }}</h5>
+                            </div>
+                            <div class="col-md-12">
+                                <hr class="my-0">
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <p class="text-muted text-uppercase small fw-bold mb-1">Ketua Peneliti</p>
+                                <div class="fw-semibold">{{ $ketuaPeneliti->nama ?? '-' }}</div>
+                            </div>
+                             <div class="col-md-6 col-lg-3">
+                                <p class="text-muted text-uppercase small fw-bold mb-1">Bidang Fokus</p>
                                 <div class="fw-semibold">{{ $bidangPenelitian }}</div>
                             </div>
-                            <div class="col-md-6 col-lg-2">
-                                <p class="text-muted text-uppercase small fw-semibold mb-1">Skema</p>
-                                <span class="status-badge skema">{{ $skema }}</span>
+                            <div class="col-md-6 col-lg-3">
+                                <p class="text-muted text-uppercase small fw-bold mb-1">Skema</p>
+                                <span class="badge bg-soft-info text-info rounded-pill px-3">{{ $skema }}</span>
                             </div>
-                            <div class="col-md-6 col-lg-2">
-                                <p class="text-muted text-uppercase small fw-semibold mb-1">Jurusan/Prodi</p>
-                                <div class="fw-semibold">{{ $jurusanProdi }}</div>
-                            </div>
-                            <div class="col-md-6 col-lg-2">
-                                <p class="text-muted text-uppercase small fw-semibold mb-1">Lama Penelitian</p>
-                                <div class="fw-semibold">{{ $lamaPenelitian ?? '-'}}</div>
-                            </div>
-                            <div class="col-12">
-                                <hr class="my-3">
-                                <p class="text-muted text-uppercase small fw-semibold mb-2">Ketua Peneliti</p>
-                                @if($ketuaPeneliti)
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <span class="text-muted small">Nama Lengkap:</span>
-                                            <div class="fw-semibold">{{ $ketuaPeneliti->nama ?? '-' }}</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <span class="text-muted small">NIDN:</span>
-                                            <div class="fw-semibold">{{ $ketuaPeneliti->nidn ?? '-' }}</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <span class="text-muted small">Jabatan Fungsional:</span>
-                                            <div class="fw-semibold">{{ $ketuaPeneliti->jabatan ?? '-' }}</div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="fw-semibold">-</div>
-                                @endif
+                            <div class="col-md-6 col-lg-3">
+                                <p class="text-muted text-uppercase small fw-bold mb-1">Lama Penelitian</p>
+                                <div>{{ $lamaPenelitian }} Tahun</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Lampiran -->
-                <div class="modern-card mb-4 fade-in-up">
-                    <div class="modern-card-header">
-                        <h5 class="mb-0"><i class="fa fa-paperclip me-2"></i>Lampiran</h5>
+                 <!-- Lampiran Section -->
+                 <div class="modern-card mb-4 fade-in-up delay-100">
+                    <div class="modern-card-header bg-soft-info">
+                        <h5 class="mb-0 fw-bold"><i class="fa fa-file-alt me-2"></i>Dokumen Laporan</h5>
                     </div>
                     <div class="modern-card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <div
-                                    class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-3 border rounded">
-                                    <div>
-                                        <p class="mb-1 fw-semibold">Laporan Akhir</p>
-                                        <small class="text-muted">File utama laporan akhir kegiatan</small>
+                                <div class="doc-card d-flex align-items-center p-3 border rounded-3 h-100 {{ $latestLaporan->laporan_akhir ? 'bg-soft-success border-success' : 'bg-light' }}">
+                                    <div class="me-3">
+                                        <div class="icon-box {{ $latestLaporan->laporan_akhir ? 'bg-success text-white' : 'bg-secondary text-white' }} rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                            <i class="fa fa-file-pdf fa-lg"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold">Laporan Akhir Lengkap</h6>
+                                        <p class="text-muted small mb-0">{{ $latestLaporan->laporan_akhir ? 'Siap diperiksa' : 'Belum diunggah' }}</p>
                                     </div>
                                     @if($latestLaporan->laporan_akhir)
                                         <a href="{{ asset('storage/' . $latestLaporan->laporan_akhir) }}" target="_blank"
-                                            class="modern-btn modern-btn-primary modern-btn-sm">
-                                            <i class="fa fa-file-pdf me-1"></i> Lihat Dokumen
+                                            class="modern-btn modern-btn-sm modern-btn-success">
+                                            <i class="fa fa-download"></i>
                                         </a>
-                                    @else
-                                        <span class="text-muted small">Belum tersedia</span>
                                     @endif
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div
-                                    class="d-flex flex-wrap align-items-center justify-content-between gap-2 p-3 border rounded">
-                                    <div>
-                                        <p class="mb-1 fw-semibold">Laporan Keuangan Tahap 2</p>
-                                        <small class="text-muted">Dokumen realisasi penggunaan dana (100%)</small>
+                                <div class="doc-card d-flex align-items-center p-3 border rounded-3 h-100 {{ $latestLaporan->laporan_keuangan_tahap_2 ? 'bg-soft-warning border-warning' : 'bg-light' }}">
+                                     <div class="me-3">
+                                        <div class="icon-box {{ $latestLaporan->laporan_keuangan_tahap_2 ? 'bg-warning text-dark' : 'bg-secondary text-white' }} rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                            <i class="fa fa-file-invoice-dollar fa-lg"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold">Laporan Keuangan (100%)</h6>
+                                         <p class="text-muted small mb-0">{{ $latestLaporan->laporan_keuangan_tahap_2 ? 'Siap diperiksa' : 'Belum diunggah' }}</p>
                                     </div>
                                     @if($latestLaporan->laporan_keuangan_tahap_2)
                                         <a href="{{ asset('storage/' . $latestLaporan->laporan_keuangan_tahap_2) }}"
-                                            target="_blank" class="modern-btn modern-btn-outline modern-btn-sm">
-                                            <i class="fa fa-file-invoice-dollar me-1"></i> Lihat Dokumen
+                                            target="_blank" class="modern-btn modern-btn-sm modern-btn-warning">
+                                            <i class="fa fa-download"></i>
                                         </a>
-                                    @else
-                                        <span class="text-muted small">Belum tersedia</span>
                                     @endif
                                 </div>
                             </div>
@@ -134,294 +132,232 @@
                 </div>
 
                 @if(isset($formPenelitian) && $formPenelitian->count() > 0)
-                    <form action="{{ route('penelitian-rev.laporan-akhir.store', $proposal->id) }}" method="POST"
-                        class="mb-4">
+                    <form action="{{ route('penelitian-rev.laporan-akhir.store', $proposal->id) }}" method="POST">
                         @csrf
-                        <div class="modern-card fade-in-up">
-                            <div
-                                class="modern-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <h5 class="mb-0"><i class="fa fa-clipboard-check me-2"></i>Form Penilaian Laporan Akhir</h5>
-                            </div>
-                            <div class="modern-card-body">
-                                <div class="modern-table-container">
-                                    <table class="modern-table">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 40px;">No</th>
-                                                <th>Komponen Penilaian</th>
-                                                <th style="width: 25%;">Status</th>
-                                                <th style="width: 25%;">Item Penilaian</th>
-                                                <th style="width: 15%;">Bobot</th>
-                                                <th style="width: 80px; text-align: center;">Nilai</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($formPenelitian as $index => $item)
-                                                {{-- Filter Sub Components --}}
-                                                @php
-                                                    $statusSubs = $item->subKomponen->where('tipe', 'status');
-                                                    $itemSubs = $item->subKomponen->where('tipe', 'item');
-                                                    $bobotSubs = $item->subKomponen->where('tipe', 'bobot'); // If any exist in DB
+                        
+                        <!-- Loop Komponen -->
+                        @foreach($formPenelitian as $komponen)
+                            @php
+                                $statusSubs = $komponen->subKomponen->where('tipe', 'status');
+                                $itemSubs = $komponen->subKomponen->where('tipe', 'item');
+                            @endphp
 
-                                                    $hasBobotDb = $bobotSubs->count() > 0;
-
-                                                    // Standard Bobot Options (Fallback if not in DB)
-                                                    $standardBobot = [
-                                                        ['label' => 'Sangat Baik (100%)', 'value' => 1.0],
-                                                        ['label' => 'Baik (75%)', 'value' => 0.75],
-                                                        ['label' => 'Cukup (50%)', 'value' => 0.50],
-                                                        ['label' => 'Kurang (25%)', 'value' => 0.25],
-                                                    ];
-
-                                                    $currentStatusId = old('status.' . $item->id, $existingSelectedStatus[$item->id] ?? null);
-                                                    $currentBobotVal = old('bobot.' . $item->id, $existingSelectedBobot[$item->id] ?? null);
-                                                    // If bobot val works as ID, fine. If as numeric, fine.
-
-                                                    // Calculate initial item value for display
-                                                    $initStatusScore = 0;
-                                                    if ($currentStatusId) {
-                                                        $s = $statusSubs->firstWhere('id', $currentStatusId);
-                                                        if ($s)
-                                                            $initStatusScore = $s->skor;
-                                                    }
-
-                                                    $initBobotMult = 0;
-                                                    if ($currentBobotVal) {
-                                                        if ($hasBobotDb && $currentBobotVal > 1) { // Assume ID
-                                                            $b = $bobotSubs->firstWhere('id', $currentBobotVal);
-                                                            if ($b)
-                                                                $initBobotMult = $b->skor / 100; // Assuming stored as 100, 75
-                                                        } else {
-                                                            $initBobotMult = (float) $currentBobotVal;
-                                                        }
-                                                    }
-                                                    $initNilai = $initStatusScore * $initBobotMult;
-                                                @endphp
-                                                <tr class="review-row" data-item-id="{{ $item->id }}">
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td>
-                                                        <strong>{{ $item->komponen_penilaian }}</strong>
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex flex-column gap-2">
-                                                            @foreach($statusSubs as $status)
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input status-radio" type="radio"
-                                                                        name="status[{{ $item->id }}]"
-                                                                        id="status_{{ $item->id }}_{{ $status->id }}"
-                                                                        value="{{ $status->id }}" data-skor="{{ $status->skor }}" {{ $currentStatusId == $status->id ? 'checked' : '' }} required>
-                                                                    <label class="form-check-label small"
-                                                                        for="status_{{ $item->id }}_{{ $status->id }}">
-                                                                        {{ $status->keterangan }} <span
-                                                                            class="badge bg-light text-dark border ms-1">{{ (float) $status->skor }}</span>
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <ul class="ps-3 mb-0 small text-muted">
-                                                            @foreach($itemSubs as $descItem)
-                                                                <li>{{ $descItem->keterangan }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex flex-column gap-1">
-                                                            @if($hasBobotDb)
-                                                                @foreach($bobotSubs as $bobot)
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input bobot-radio" type="radio"
-                                                                            name="bobot[{{ $item->id }}]"
-                                                                            id="bobot_{{ $item->id }}_{{ $bobot->id }}"
-                                                                            value="{{ $bobot->id }}"
-                                                                            data-mult="{{ $bobot->skor / 100 }}" {{ $currentBobotVal == $bobot->id ? 'checked' : '' }} required>
-                                                                        <label class="form-check-label small"
-                                                                            for="bobot_{{ $item->id }}_{{ $bobot->id }}">
-                                                                            {{ $bobot->keterangan }}
-                                                                        </label>
-                                                                    </div>
-                                                                @endforeach
-                                                            @else
-                                                                @foreach($standardBobot as $idx => $opt)
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input bobot-radio" type="radio"
-                                                                            name="bobot[{{ $item->id }}]"
-                                                                            id="bobot_{{ $item->id }}_{{ $idx }}"
-                                                                            value="{{ $opt['value'] }}" data-mult="{{ $opt['value'] }}"
-                                                                            {{ (string) $currentBobotVal === (string) $opt['value'] ? 'checked' : '' }} required>
-                                                                        <label class="form-check-label small"
-                                                                            for="bobot_{{ $item->id }}_{{ $idx }}">
-                                                                            {{ $opt['label'] }}
-                                                                        </label>
-                                                                    </div>
-                                                                @endforeach
-                                                            @endif
-                                                        </div>
-                                                    </td>
-                                                    <td style="text-align: center; vertical-align: middle;">
-                                                        <span class="status-badge nilai"
-                                                            id="nilai_display_{{ $item->id }}">{{ number_format($initNilai, 2) }}</span>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                            {{-- Total Row --}}
-                                            <tr class="total-row" style="background-color: #f8f9fa;">
-                                                <td colspan="5" style="text-align: right; padding-right: 20px;">
-                                                    <strong>TOTAL NILAI:</strong>
-                                                </td>
-                                                <td style="text-align: center;">
-                                                    <span id="total-final" class="status-badge nilai"
-                                                        style="font-size: 1.1em; font-weight: bold;">0.00</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                            <div class="modern-card mb-4 fade-in-up delay-200">
+                                <div class="modern-card-header bg-white border-bottom py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0 fw-bold text-primary">{{ $komponen->komponen_penilaian }}</h5>
+                                        <div class="badge bg-secondary rounded-pill">Nilai: <span id="total_display_{{ $komponen->id }}">0.00</span></div>
+                                    </div>
                                 </div>
-
-                                <div class="modern-form-group mt-3">
-                                    <label class="modern-form-label fw-semibold">
-                                        <i class="fa fa-comment-dots me-2"></i>Catatan Tambahan
-                                    </label>
-                                    <textarea class="modern-form-textarea @error('catatan_umum') is-invalid @enderror"
-                                        rows="4" name="catatan_umum"
-                                        placeholder="Catatan umum terkait laporan akhir...">{{ old('catatan_umum', optional($existingReview)->catatan_umum) }}</textarea>
-                                    @error('catatan_umum')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="action-footer d-flex flex-wrap justify-content-end">
-                                    @if(!$isWithinFinalReviewWindow)
-                                        <button type="button" class="modern-btn modern-btn-secondary" disabled>
-                                            <i class="fa fa-lock me-1"></i> Periode review tidak aktif
-                                        </button>
-                                    @else
-                                        @if(optional($existingReview)->status === 'selesai')
-                                            <button type="submit" name="action" value="submit"
-                                                class="modern-btn modern-btn-primary">
-                                                <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
-                                            </button>
+                                <div class="modern-card-body p-4">
+                                    
+                                    <!-- Section 1: Ketercapaian (Status) -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold text-uppercase small text-muted mb-3">
+                                            <i class="fa fa-chart-pie me-1"></i> Status Ketercapaian
+                                        </label>
+                                        
+                                        @if($statusSubs->count() > 0)
+                                            <div class="row g-3">
+                                                @foreach($statusSubs as $status)
+                                                    <div class="col-md-6 col-xl-2dot4"> <!-- Custom column width if possible, else col-md-4 -->
+                                                        <input type="radio" class="btn-check status-radio" 
+                                                            name="status[{{ $komponen->id }}]" 
+                                                            id="status_{{ $status->id }}" 
+                                                            value="{{ $status->id }}"
+                                                            data-skor="{{ $status->skor }}"
+                                                            data-komponen-id="{{ $komponen->id }}"
+                                                            {{ (old('status.'.$komponen->id) == $status->id || (isset($existingStatus[$komponen->id]) && $existingStatus[$komponen->id] == $status->id)) ? 'checked' : '' }}
+                                                            required>
+                                                        
+                                                        <label class="status-card h-100 d-flex flex-column align-items-center justify-content-center p-3 text-center border rounded-3 position-relative" for="status_{{ $status->id }}">
+                                                            <div class="check-icon position-absolute top-0 end-0 m-2 text-primary opacity-0">
+                                                                <i class="fa fa-check-circle"></i>
+                                                            </div>
+                                                            <span class="mb-2 fw-semibold">{{ $status->keterangan }}</span>
+                                                            <span class="badge bg-light text-dark border">Bobot: {{ $status->skor }}%</span>
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         @else
-                                            <button type="submit" name="action" value="draft"
-                                                class="modern-btn modern-btn-secondary">
-                                                <i class="fa fa-save me-1"></i> Simpan Draft
-                                            </button>
-                                            <button type="submit" name="action" value="submit"
-                                                class="modern-btn modern-btn-primary">
-                                                <i class="fa fa-check me-1"></i> Simpan &amp; Selesaikan
-                                            </button>
+                                            <div class="alert alert-soft-secondary">Tidak ada opsi status.</div>
                                         @endif
-                                    @endif
+                                    </div>
+
+                                    <hr class="border-dashed my-4">
+
+                                    <!-- Section 2: Penilaian Kualitas (Items) -->
+                                    <div>
+                                         <label class="form-label fw-bold text-uppercase small text-muted mb-3">
+                                            <i class="fa fa-list-check me-1"></i> Penilaian Kualitas
+                                        </label>
+
+                                        @if($itemSubs->count() > 0)
+                                            <div class="d-flex bg-light p-2 rounded-top border-bottom fw-bold small text-uppercase text-muted">
+                                                <div class="flex-grow-1 px-3">Item Penilaian</div>
+                                                <div class="text-center" style="width: 320px;">Berikan Skor</div>
+                                            </div>
+                                            <div class="list-group list-group-flush border rounded-bottom">
+                                                @foreach($itemSubs as $item)
+                                                    <div class="list-group-item p-3 d-flex flex-wrap align-items-center gap-3">
+                                                        <div class="flex-grow-1">
+                                                            <span class="fw-medium text-dark">{{ $item->keterangan }}</span>
+                                                        </div>
+                                                        <div class="d-flex gap-2 justify-content-end" style="width: 320px; min-width: 320px;">
+                                                            @foreach([100 => 'Sangat Baik', 75 => 'Baik', 50 => 'Cukup', 25 => 'Kurang'] as $score => $label)
+                                                                <input type="radio" class="btn-check item-radio" 
+                                                                    name="grades[{{ $komponen->id }}][{{ $item->id }}]" 
+                                                                    id="grade_{{ $item->id }}_{{ $score }}" 
+                                                                    value="{{ $score }}"
+                                                                    data-komponen-id="{{ $komponen->id }}"
+                                                                    {{ (old('grades.'.$komponen->id.'.'.$item->id) == $score || (isset($existingGrades[$komponen->id][$item->id]) && $existingGrades[$komponen->id][$item->id] == $score)) ? 'checked' : '' }}
+                                                                    required>
+                                                                
+                                                                <label class="btn btn-outline-grading btn-sm flex-fill position-relative" for="grade_{{ $item->id }}_{{ $score }}" title="{{ $label }}">
+                                                                    <span class="score-val">{{ $score }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                             <div class="alert alert-soft-secondary">Tidak ada item penilaian.</div>
+                                        @endif
+                                    </div>
+
                                 </div>
                             </div>
+                        @endforeach
+
+                        <!-- Comment & Actions -->
+                        <div class="modern-card mb-5 fade-in-up delay-300">
+                             <div class="modern-card-body p-4">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fa fa-comment-alt me-2"></i>Catatan Tambahan Reviewer
+                                </label>
+                                <textarea class="modern-form-textarea" name="catatan_umum" rows="4" 
+                                    placeholder="Berikan catatan atau masukan tambahan untuk peneliti (Opsional)...">{{ old('catatan_umum', $existingReview->catatan_umum ?? '') }}</textarea>
+                                
+                                <div class="d-flex justify-content-end gap-3 mt-4">
+                                    <button type="submit" name="action" value="draft" class="modern-btn modern-btn-secondary px-4">
+                                        <i class="fa fa-save me-2"></i>Simpan Draft
+                                    </button>
+                                     <button type="submit" name="action" value="submit" class="modern-btn modern-btn-primary px-4 shadow-sm">
+                                        <i class="fa fa-paper-plane me-2"></i>Simpan & Selesaikan
+                                    </button>
+                                </div>
+                             </div>
                         </div>
+
                     </form>
                 @else
-                    <div class="modern-alert modern-alert-info">
-                        <i class="fa fa-info-circle me-2"></i>
-                        Belum ada form penilaian laporan akhir penelitian yang dikonfigurasi di admin.
-                    </div>
+                    <div class="alert alert-warning">Form penilaian belum dikonfigurasi oleh admin.</div>
                 @endif
             </div>
         </div>
     </div>
 
+    <!-- Additional CSS -->
     <style>
-        .list-group-item {
-            border: none;
+        .col-xl-2dot4 {
+            flex: 0 0 auto;
+            width: 20%;
+        }
+        @media (max-width: 1200px) {
+            .col-xl-2dot4 { width: 33.333%; }
+        }
+        @media (max-width: 768px) {
+            .col-xl-2dot4 { width: 50%; }
         }
 
-        .modern-btn.modern-btn-outline {
-            border: 1px solid var(--modern-primary, #0061f2);
-            color: var(--modern-primary, #0061f2);
-            background-color: transparent;
+        /* Status Cards */
+        .status-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fff;
+            border-color: #e2e8f0;
+        }
+        .status-card:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+        .btn-check:checked + .status-card {
+            border-color: var(--bs-primary);
+            background-color: rgba(var(--bs-primary-rgb), 0.05);
+            box-shadow: 0 4px 6px -1px rgba(var(--bs-primary-rgb), 0.1);
+        }
+        .btn-check:checked + .status-card .check-icon {
+            opacity: 1 !important;
+        }
+        .btn-check:checked + .status-card .badge {
+            background-color: var(--bs-primary) !important;
+            color: #fff !important;
+            border: none !important;
         }
 
-        .modern-btn.modern-btn-outline:hover,
-        .modern-btn.modern-btn-outline:focus {
-            background-color: var(--modern-primary, #0061f2);
-            color: #fff;
+        /* Grading Buttons */
+        .btn-outline-grading {
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .btn-outline-grading:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .btn-check:checked + .btn-outline-grading {
+             background-color: var(--bs-primary);
+             color: white;
+             border-color: var(--bs-primary);
+             box-shadow: 0 2px 4px rgba(var(--bs-primary-rgb), 0.2);
         }
 
-        .action-footer {
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            gap: 0.75rem;
-        }
-
-        .status-badge.nilai {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1e40af;
-            border: 1px solid #3b82f6;
-            text-transform: none;
-            letter-spacing: 0.02em;
-            font-weight: bold;
-        }
-
-        /* Border vertikal untuk semua kolom */
-        .modern-table thead th:not(:last-child),
-        .modern-table tbody td:not(:last-child) {
-            border-right: 1px solid rgba(226, 232, 240, 0.5);
-        }
-
-        .modern-table tbody tr {
-            border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
-        }
-
-        .total-row {
-            border-top: 2px solid #3b82f6 !important;
-            border-bottom: 2px solid #3b82f6 !important;
-        }
-
-        .total-row td {
-            font-size: 1.05em;
-            padding: 1rem !important;
+        .border-dashed {
+            border-top-style: dashed !important;
         }
     </style>
+
+    <!-- Calc Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const rows = document.querySelectorAll('.review-row');
+        document.addEventListener('DOMContentLoaded', function() {
+            function calculateScore(komponenId) {
+                // 1. Status
+                const statusInput = document.querySelector(`input[name="status[${komponenId}]"]:checked`);
+                const statusScore = statusInput ? parseFloat(statusInput.getAttribute('data-skor')) : 0;
 
-            function updateRowTotal(row, itemId) {
-                // Find selected status
-                const statusRadio = row.querySelector(`input[name="status[${itemId}]"]:checked`);
-                const statusScore = statusRadio ? parseFloat(statusRadio.getAttribute('data-skor')) : 0;
-
-                // Find selected bobot
-                const bobotRadio = row.querySelector(`input[name="bobot[${itemId}]"]:checked`);
-                const bobotMult = bobotRadio ? parseFloat(bobotRadio.getAttribute('data-mult')) : 0;
-
-                const final = statusScore * bobotMult;
-
-                const display = document.getElementById(`nilai_display_${itemId}`);
-                if (display) {
-                    display.textContent = final.toFixed(2);
-                }
-                return final;
-            }
-
-            function updateTotal() {
-                let grandTotal = 0;
-                rows.forEach(row => {
-                    const itemId = row.getAttribute('data-item-id');
-                    grandTotal += updateRowTotal(row, itemId);
+                // 2. Average Items
+                const itemInputs = document.querySelectorAll(`input[data-komponen-id="${komponenId}"].item-radio:checked`);
+                let totalItems = 0;
+                let countItems = 0;
+                itemInputs.forEach(inp => {
+                    totalItems += parseFloat(inp.value);
+                    countItems++;
                 });
 
-                const totalFinal = document.getElementById('total-final');
-                if (totalFinal) {
-                    totalFinal.textContent = grandTotal.toFixed(2);
-                }
+                const avgItemScore = countItems > 0 ? (totalItems / countItems) : 0;
+
+                // 3. Final: Avg Item * (Status% / 100)
+                // Example: Items Avg 100, Status 80% (0.8) -> 80
+                const final = avgItemScore * (statusScore / 100);
+
+                const display = document.getElementById(`total_display_${komponenId}`);
+                if(display) display.textContent = final.toFixed(2);
             }
 
-            // Attach listeners
-            const allRadios = document.querySelectorAll('input[type="radio"]');
-            allRadios.forEach(radio => {
-                radio.addEventListener('change', updateTotal);
-            });
+            // Init calculation
+            const componentIds = [...new Set([...document.querySelectorAll('.status-radio')].map(el => el.getAttribute('data-komponen-id')))];
+            componentIds.forEach(id => calculateScore(id));
 
-            // Init
-            updateTotal();
+            // Listeners
+            document.body.addEventListener('change', function(e) {
+                if(e.target.classList.contains('status-radio') || e.target.classList.contains('item-radio')) {
+                    const id = e.target.getAttribute('data-komponen-id');
+                    if(id) calculateScore(id);
+                }
+            });
         });
     </script>
 </x-reviewer-layout>

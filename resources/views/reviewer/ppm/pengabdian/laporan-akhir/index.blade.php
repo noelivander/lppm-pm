@@ -122,7 +122,8 @@
                                 <tbody>
                                     @foreach ($proposals as $proposal)
                                         @php
-                                            $latestLaporan = $proposal->laporanAkhir->first();
+                                            // FIX: laporanAkhir is hasOne, so use property directly. ->first() fetches global first!
+                                            $latestLaporan = $proposal->laporanAkhir;
                                             $parentProposal = $proposal->revisionParent;
                                             $skemaDisplay = $parentProposal->skema ?? $proposal->skema ?? '-';
                                             $yearDisplay = optional($parentProposal->created_at ?? $proposal->created_at)->format('Y') ?? '-';

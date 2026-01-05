@@ -62,4 +62,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(ProgramStudi::class, 'program_studi_id');
     }
+
+    public function assignedPenelitians()
+    {
+        return $this->belongsToMany(Penelitian::class, 'proposal_reviewers', 'user_id', 'penelitian_id');
+    }
+
+    public function assignedPengabdians()
+    {
+        return $this->belongsToMany(Pengabdian::class, 'proposal_reviewers', 'user_id', 'pengabdian_id');
+    }
 }

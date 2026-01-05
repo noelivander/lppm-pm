@@ -58,46 +58,66 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr>
-                                                            <td>Penguasaan materi & keterkaitan</td>
-                                                            <td>20%</td>
-                                                            <td>{{ $rev->skor_1 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_1 ? ($rev->skor_1 * 20) : '-' }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Latar belakang & tujuan</td>
-                                                            <td>20%</td>
-                                                            <td>{{ $rev->skor_2 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_2 ? ($rev->skor_2 * 20) : '-' }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Metode penelitian</td>
-                                                            <td>20%</td>
-                                                            <td>{{ $rev->skor_3 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_3 ? ($rev->skor_3 * 20) : '-' }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Peta jalan penelitian</td>
-                                                            <td>10%</td>
-                                                            <td>{{ $rev->skor_4 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_4 ? ($rev->skor_4 * 10) : '-' }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Potensi luaran</td>
-                                                            <td>30%</td>
-                                                            <td>{{ $rev->skor_5 ?? '-' }}</td>
-                                                            <td>{{ $rev->skor_5 ? ($rev->skor_5 * 30) : '-' }}</td>
-                                                        </tr>
+                                                        @if($rev->reviewKriteria && $rev->reviewKriteria->count() > 0)
+                                                            @foreach($rev->reviewKriteria as $kriteria)
+                                                                <tr>
+                                                                    <td>{{ $kriteria->formPenilaianReview->kriteria ?? '-' }}</td>
+                                                                    <td>{{ $kriteria->formPenilaianReview->bobot ?? '-' }}%</td>
+                                                                    <td>{{ $kriteria->skor ?? '-' }}</td>
+                                                                    <td>{{ $kriteria->nilai ?? '-' }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @else
+                                                            <!-- Legacy Static Data -->
+                                                            <tr>
+                                                                <td>Penguasaan materi & keterkaitan</td>
+                                                                <td>20%</td>
+                                                                <td>{{ $rev->skor_1 ?? '-' }}</td>
+                                                                <td>{{ $rev->skor_1 ? ($rev->skor_1 * 20) : '-' }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Latar belakang & tujuan</td>
+                                                                <td>20%</td>
+                                                                <td>{{ $rev->skor_2 ?? '-' }}</td>
+                                                                <td>{{ $rev->skor_2 ? ($rev->skor_2 * 20) : '-' }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Metode penelitian</td>
+                                                                <td>20%</td>
+                                                                <td>{{ $rev->skor_3 ?? '-' }}</td>
+                                                                <td>{{ $rev->skor_3 ? ($rev->skor_3 * 20) : '-' }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Peta jalan penelitian</td>
+                                                                <td>10%</td>
+                                                                <td>{{ $rev->skor_4 ?? '-' }}</td>
+                                                                <td>{{ $rev->skor_4 ? ($rev->skor_4 * 10) : '-' }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Potensi luaran</td>
+                                                                <td>30%</td>
+                                                                <td>{{ $rev->skor_5 ?? '-' }}</td>
+                                                                <td>{{ $rev->skor_5 ? ($rev->skor_5 * 30) : '-' }}</td>
+                                                            </tr>
+                                                        @endif
                                                         </tbody>
                                                         <tfoot>
                                                         <tr>
                                                             <td class="fw-bold">Total</td>
                                                             <td class="fw-bold">100%</td>
                                                             <td class="fw-bold">
-                                                                {{ ($rev->skor_1 ?? 0) + ($rev->skor_2 ?? 0) + ($rev->skor_3 ?? 0) + ($rev->skor_4 ?? 0) + ($rev->skor_5 ?? 0) }}
+                                                                @if($rev->reviewKriteria && $rev->reviewKriteria->count() > 0)
+                                                                    {{ $rev->reviewKriteria->sum('skor') }}
+                                                                @else
+                                                                    {{ ($rev->skor_1 ?? 0) + ($rev->skor_2 ?? 0) + ($rev->skor_3 ?? 0) + ($rev->skor_4 ?? 0) + ($rev->skor_5 ?? 0) }}
+                                                                @endif
                                                             </td>
                                                             <td class="fw-bold">
-                                                                {{ (($rev->skor_1 ?? 0) * 20) + (($rev->skor_2 ?? 0) * 20) + (($rev->skor_3 ?? 0) * 20) + (($rev->skor_4 ?? 0) * 10) + (($rev->skor_5 ?? 0) * 30) }}
+                                                                @if($rev->reviewKriteria && $rev->reviewKriteria->count() > 0)
+                                                                    {{ number_format($rev->reviewKriteria->sum('nilai'), 2) }}
+                                                                @else
+                                                                    {{ (($rev->skor_1 ?? 0) * 20) + (($rev->skor_2 ?? 0) * 20) + (($rev->skor_3 ?? 0) * 20) + (($rev->skor_4 ?? 0) * 10) + (($rev->skor_5 ?? 0) * 30) }}
+                                                                @endif
                                                             </td>
                                                         </tr>
                                                         </tfoot>

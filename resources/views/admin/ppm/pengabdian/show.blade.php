@@ -42,6 +42,73 @@
                     @endif
                 @endif
 
+                <!-- Reviewer Assignment Section -->
+                <div class="modern-card mb-4 fade-in-up">
+                    <div class="modern-card-body">
+                        <h3 class="mb-3"><i class="fa fa-user-check me-2"></i>Penunjukan Reviewer</h3>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="mb-3">Daftar Reviewer Ditugaskan</h5>
+                                @if(isset($assignedReviewers) && $assignedReviewers->count() > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>Nama Reviewer</th>
+                                                    <th>Email</th>
+                                                    <th class="text-center">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($assignedReviewers as $rev)
+                                                    <tr>
+                                                        <td>{{ $rev->name }}</td>
+                                                        <td>{{ $rev->email }}</td>
+                                                        <td class="text-center">
+                                                            <form action="{{ route('pengabdian-adm.remove-reviewer', ['id' => $proposal->id, 'reviewerId' => $rev->id]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan penugasan reviewer ini?');" style="display:inline;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Penugasan">
+                                                                    <i class="fa fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning">
+                                        <i class="fa fa-exclamation-triangle me-1"></i> Belum ada reviewer yang ditugaskan untuk proposal ini.
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="col-md-4">
+                                <h5 class="mb-3">Tambah Reviewer</h5>
+                                <div class="p-3 border rounded bg-light">
+                                    <form action="{{ route('pengabdian-adm.assign-reviewer', $proposal->id) }}" method="POST">
+                                        @csrf
+                                        <div class="mb-3">
+                                            <label for="reviewer_id" class="form-label">Pilih Reviewer</label>
+                                            <select name="reviewer_id" id="reviewer_id" class="form-select" required>
+                                                <option value="">-- Pilih Reviewer --</option>
+                                                @foreach($availableReviewers as $avReviewer)
+                                                    <option value="{{ $avReviewer->id }}">{{ $avReviewer->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fa fa-plus me-1"></i> Tugaskan Reviewer
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Informasi Proposal -->
                 <div class="modern-card mb-4 fade-in-up">
                     <div class="modern-card-body">
