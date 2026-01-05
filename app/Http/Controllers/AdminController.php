@@ -17,27 +17,81 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
-        // High-level KPIs
+        // 1. High-level KPIs (Consistent Filters: No Drafts, No Revisions)
         $totalUsers = User::count();
-        $totalPenelitian = Penelitian::count();
-        $totalPengabdian = Pengabdian::count();
+        $totalPenelitian = Penelitian::where('is_draft', false)->where('is_revised', false)->count();
+        $totalPengabdian = Pengabdian::where('is_draft', false)->where('is_revised', false)->count();
         $totalProdi = class_exists(ProgramStudi::class) ? ProgramStudi::count() : 0;
 
-        // Monthly series for current year
+        // NEW: Total Funding (Sum of 'biaya_disetujui')
+        $fundingPenelitian = Penelitian::where('is_draft', false)->where('is_revised', false)->sum('biaya_disetujui');
+        $fundingPengabdian = Pengabdian::where('is_draft', false)->where('is_revised', false)->sum('biaya_disetujui');
+        $totalFunding = $fundingPenelitian + $fundingPengabdian;
+
+        // 2. Monthly Series (Clean Data)
         $year = now()->year;
         $months = collect(range(1, 12))->map(fn($m) => Carbon::create($year, $m, 1)->format('M'));
 
         $penelitianMonthly = collect(range(1, 12))->map(function ($m) use ($year) {
-            return Penelitian::whereYear('created_at', $year)->whereMonth('created_at', $m)->count();
+            return Penelitian::whereYear('created_at', $year)
+                ->whereMonth('created_at', $m)
+                ->where('is_draft', false)
+                ->where('is_revised', false)
+                ->count();
         });
 
         $pengabdianMonthly = collect(range(1, 12))->map(function ($m) use ($year) {
-            return Pengabdian::whereYear('created_at', $year)->whereMonth('created_at', $m)->count();
+            return Pengabdian::whereYear('created_at', $year)
+                ->whereMonth('created_at', $m)
+                ->where('is_draft', false)
+                ->where('is_revised', false)
+                ->count();
         });
 
-        // Pie breakdown for skema (top 3 + others)
-        $allSkemaCounts = Penelitian::pluck('skema')
+        // 3. Status Breakdown (Clean Data)
+        $penelitianStatus = Penelitian::where('is_draft', false)
+            ->where('is_revised', false)
+            ->selectRaw('LOWER(COALESCE(status, "unknown")) as status, COUNT(*) as total')
+            ->groupBy('status')
+            ->orderByDesc('total')
+            ->pluck('total', 'status');
+
+        $pengabdianStatus = Pengabdian::where('is_draft', false)
+            ->where('is_revised', false)
+            ->selectRaw('LOWER(COALESCE(status, "unknown")) as status, COUNT(*) as total')
+            ->groupBy('status')
+            ->orderByDesc('total')
+            ->pluck('total', 'status');
+
+        // NEW: Pending Reviewer Assignments (Bottleneck Indicator)
+        // Proposals that are ready for review ('buka_review' or 'submitted') but have NO reviewers assigned
+        $pendingPenelitian = Penelitian::where('is_draft', false)
+            ->where('is_revised', false)
+            ->whereIn('status', ['submitted', 'buka_review'])
+            ->doesntHave('assignedReviewers')
+            ->count();
+
+        $pendingPengabdian = Pengabdian::where('is_draft', false)
+            ->where('is_revised', false)
+            ->whereIn('status', ['submitted', 'buka_review'])
+            ->doesntHave('assignedReviewers')
+            ->count();
+
+        $pendingAssignments = $pendingPenelitian + $pendingPengabdian;
+
+        // 4. Skema Breakdown (Clean Data & Decrypt Labels)
+        $allSkemaCounts = Penelitian::where('is_draft', false)
+            ->where('is_revised', false)
+            ->pluck('skema')
             ->filter(fn($v) => $v !== '' && $v !== null)
+            ->map(function ($skema) {
+                // Try decryption if it looks encrypted (optional, assuming simplistic check or try/catch)
+                try {
+                    return \Illuminate\Support\Facades\Crypt::decryptString($skema);
+                } catch (\Exception $e) {
+                    return $skema;
+                }
+            })
             ->countBy()
             ->sortDesc();
 
@@ -47,20 +101,21 @@ class AdminController extends Controller
             $topSkema = $topSkema->put('Lainnya', $othersCount);
         }
 
-        // Status breakdowns
-        $penelitianStatus = Penelitian::selectRaw('LOWER(COALESCE(status, "unknown")) as status, COUNT(*) as total')
-            ->groupBy('status')
-            ->orderByDesc('total')
-            ->pluck('total', 'status');
+        // 5. Recent Submissions (Unified List)
+        $limit = 5;
+        $latestPenelitian = Penelitian::where('is_draft', false)
+            ->where('is_revised', false)
+            ->select('id', 'judul', 'status', 'created_at', \Illuminate\Support\Facades\DB::raw("'Penelitian' as type"))
+            ->latest('created_at')->take($limit)->get();
 
-        $pengabdianStatus = Pengabdian::selectRaw('LOWER(COALESCE(status, "unknown")) as status, COUNT(*) as total')
-            ->groupBy('status')
-            ->orderByDesc('total')
-            ->pluck('total', 'status');
+        $latestPengabdian = Pengabdian::where('is_draft', false)
+            ->where('is_revised', false)
+            ->select('id', 'judul', 'status', 'created_at', \Illuminate\Support\Facades\DB::raw("'Pengabdian' as type"))
+            ->latest('created_at')->take($limit)->get();
 
-        // Recent submissions
-        $latestPenelitian = Penelitian::latest('created_at')->take(5)->get(['id', 'judul', 'status', 'created_at']);
-        $latestPengabdian = Pengabdian::latest('created_at')->take(5)->get(['id', 'judul', 'status', 'created_at']);
+        $latestSubmissions = $latestPenelitian->concat($latestPengabdian)
+            ->sortByDesc('created_at')
+            ->take($limit);
 
         return view('admin.dashboard', [
             'kpis' => [
@@ -68,6 +123,10 @@ class AdminController extends Controller
                 'totalUsers' => $totalUsers,
                 'totalPenelitian' => $totalPenelitian,
                 'totalPengabdian' => $totalPengabdian,
+                'totalFunding' => $totalFunding,
+                'fundingPenelitian' => $fundingPenelitian, // Add breakdown
+                'fundingPengabdian' => $fundingPengabdian, // Add breakdown
+                'pendingAssignments' => $pendingAssignments, // New Metric
             ],
             'months' => $months,
             'series' => [
@@ -88,10 +147,7 @@ class AdminController extends Controller
                     'data' => $pengabdianStatus->values(),
                 ],
             ],
-            'latest' => [
-                'penelitian' => $latestPenelitian,
-                'pengabdian' => $latestPengabdian,
-            ],
+            'latestSubmissions' => $latestSubmissions,
         ]);
     }
 }

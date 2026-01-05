@@ -69,6 +69,8 @@ class DosenController extends Controller
         // It's safer to query proposals that have 'biaya_disetujui > 0'.
 
         $penelitianFunding = Penelitian::where('user_id', $userId)
+            ->where('is_draft', false)
+            ->where('is_revised', false)
             ->where('biaya_disetujui', '>', 0)
             ->selectRaw('YEAR(created_at) as year, SUM(biaya_disetujui) as total')
             ->groupBy('year')
@@ -76,6 +78,8 @@ class DosenController extends Controller
             ->toArray();
 
         $pengabdianFunding = Pengabdian::where('user_id', $userId)
+            ->where('is_draft', false)
+            ->where('is_revised', false)
             ->where('biaya_disetujui', '>', 0)
             ->selectRaw('YEAR(created_at) as year, SUM(biaya_disetujui) as total')
             ->groupBy('year')
@@ -120,12 +124,16 @@ class DosenController extends Controller
 
         // Fetch funded Penelitian
         $penelitian = Penelitian::where('user_id', $userId)
+            ->where('is_draft', false)
+            ->where('is_revised', false)
             ->where('biaya_disetujui', '>', 0)
             ->select('id', 'judul', 'biaya_disetujui', 'created_at', \Illuminate\Support\Facades\DB::raw("'Penelitian' as type"))
             ->get();
 
         // Fetch funded Pengabdian
         $pengabdian = Pengabdian::where('user_id', $userId)
+            ->where('is_draft', false)
+            ->where('is_revised', false)
             ->where('biaya_disetujui', '>', 0)
             ->select('id', 'judul', 'biaya_disetujui', 'created_at', \Illuminate\Support\Facades\DB::raw("'Pengabdian' as type"))
             ->get();
