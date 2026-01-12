@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auditor\AmiController;
+use App\Http\Controllers\Auditor\TimelineController;
 
 /*
 |-------------------------------------------------------------------------- 
@@ -15,6 +16,7 @@ use App\Http\Controllers\Auditor\AmiController;
 
 Route::middleware(['auth', 'role:auditor'])->group(function () {
     Route::resource('ami', AmiController::class);
+    Route::get('/timeline', [TimelineController::class, 'index'])->name('auditor.timeline.index');
     Route::get('/si', [AmiController::class, 'index'])->name('si.index');
     Route::get('/ik', [AmiController::class, 'index'])->name('ik.index');
     Route::get('/mtk', [AmiController::class, 'index'])->name('mtk.index');
