@@ -1,42 +1,35 @@
 ﻿<x-user-layout>
+    @php
+        // Kumpulkan slide dari database
+        $heroSlides = [];
+        foreach (range(1, 5) as $i) {
+            $key = 'hero_slide_' . $i;
+            if (!empty($landingPage[$key] ?? null)) {
+                $heroSlides[] = asset('storage/' . $landingPage[$key]);
+            }
+        }
+
+        // Fallback jika belum ada data di admin
+        if (count($heroSlides) === 0) {
+            $heroSlides = [
+                asset('img/ITH Kampus 1.jpg'),
+                asset('img/ITH Kampus 2.jpg'),
+            ];
+        }
+    @endphp
+
     <!-- Hero Section -->
     <section
-        class="position-relative overflow-hidden hero-section min-vh-100 d-flex align-items-center justify-content-center"
-        x-data="{
-            activeSlide: 0,
-            slides: [
-                @if(isset($landingPage['hero_slide_1'])) '{{ asset('storage/' . $landingPage['hero_slide_1']) }}', @endif
-                @if(isset($landingPage['hero_slide_2'])) '{{ asset('storage/' . $landingPage['hero_slide_2']) }}', @endif
-                @if(isset($landingPage['hero_slide_3'])) '{{ asset('storage/' . $landingPage['hero_slide_3']) }}', @endif
-                @if(isset($landingPage['hero_slide_4'])) '{{ asset('storage/' . $landingPage['hero_slide_4']) }}', @endif
-                @if(isset($landingPage['hero_slide_5'])) '{{ asset('storage/' . $landingPage['hero_slide_5']) }}', @endif
-            ],
-            init() {
-                if (this.slides.length === 0) {
-                    this.slides = [
-                        '{{ asset('img/ITH Kampus 1.jpg') }}',
-                        '{{ asset('img/ITH Kampus 2.jpg') }}'
-                    ];
-                }
-                setInterval(() => {
-                    this.activeSlide = (this.activeSlide + 1) % this.slides.length;
-                }, 5000);
-            }
-        }">
+        class="position-relative overflow-hidden hero-section min-vh-100 d-flex align-items-center justify-content-center">
 
-        <!-- Background Carousel -->
-        <div class="position-absolute top-0 start-0 w-100 h-100 z-0">
-            <template x-for="(slide, index) in slides" :key="index">
-                <div class="position-absolute top-0 start-0 w-100 h-100 transition-opacity duration-1000 ease-in-out"
-                    x-show="activeSlide === index" x-transition:enter="transition ease-out duration-1000"
-                    x-transition:enter-start="opacity-0 transform scale-105"
-                    x-transition:enter-end="opacity-100 transform scale-100"
-                    x-transition:leave="transition ease-in duration-1000"
-                    x-transition:leave-start="opacity-100 transform scale-100"
-                    x-transition:leave-end="opacity-0 transform scale-95">
-                    <img :src="slide" class="w-100 h-100 object-fit-cover" alt="Hero Background">
+        <!-- Background Carousel (tanpa Alpine, murni JS/CSS) -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 z-0 hero-slides-wrapper">
+            @foreach ($heroSlides as $index => $url)
+                <div class="hero-slide position-absolute top-0 start-0 w-100 h-100 {{ $index === 0 ? 'is-active' : '' }}"
+                    data-hero-index="{{ $index }}">
+                    <img src="{{ $url }}" class="w-100 h-100 object-fit-cover" alt="Hero Background {{ $index + 1 }}">
                 </div>
-            </template>
+            @endforeach
         </div>
 
         <!-- Overlay Gradient (Indigo/Purple Theme) -->
@@ -104,12 +97,13 @@
         </div>
 
         <!-- Carousel Indicators -->
-        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 z-2 d-flex gap-2">
-            <template x-for="(slide, index) in slides" :key="index">
-                <button @click="activeSlide = index" class="rounded-pill transition-all duration-300 border-0"
-                    :class="activeSlide === index ? 'bg-white w-8 h-1' : 'bg-white/50 w-2 h-1 hover:bg-white/80'"
+        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 z-2 d-flex gap-2 hero-indicators">
+            @foreach ($heroSlides as $index => $url)
+                <button
+                    class="rounded-pill transition-all duration-300 border-0 hero-indicator {{ $index === 0 ? 'is-active' : '' }}"
+                    data-hero-index="{{ $index }}"
                     style="height: 4px;"></button>
-            </template>
+            @endforeach
         </div>
     </section>
             

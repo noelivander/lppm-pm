@@ -113,6 +113,8 @@
   color: var(--text-primary);
   margin-bottom: 0;
 }
+.spinner-size { width:3rem; height:3rem; }
+.hero-gradient { background: linear-gradient(135deg,#6366f1,#8b5cf6); }
 
 /* ===== MODERN TABLES ===== */
 .modern-table-container {

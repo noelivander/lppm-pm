@@ -9,11 +9,11 @@
         <link rel="icon" type="image/png" href="{{ asset('Logo.png') }}">
 
         <!-- Fonts -->
-        <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+        
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=nunito:200,300,400,600,700,800,900"
+        integrity="sha384-GonvdRGaubFqBUbIL5dyw6iHNbubiMgMfmva54hYSEyooMmYF3KxaQvzHF7Qtb1d" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900"
+        integrity="sha384-ByPDzzPuqqPoBRmbRo0zLTWfdqRp3cYLABq+81pkYw5JQ8TQnnLxi6gFifc2xscY" crossorigin="anonymous">
         <!-- Styles -->
         <link rel="stylesheet" href="{{ asset('css/main.css') }}">
         <link rel="stylesheet" href="{{ asset('css/modern-components.css') }}">
